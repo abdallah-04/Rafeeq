@@ -1,3 +1,5 @@
+import PrimaryButton from '@/components/PrimaryButton';
+import Spacer from '@/components/Spacer';
 import ThemedText from '@/components/ThemedText';
 import ThemedView from '@/components/ThemedView';
 import { Text, View, StyleSheet, Image } from 'react-native';
@@ -8,9 +10,19 @@ export default function App() {
   return (
     <ThemedView style={styles.container}>
       <View style={styles.center}>
+        <Spacer/>
         <Image source={appIcon} style={styles.icon} />
       </View>
       <ThemedText variant='h1' center >Rafeeq</ThemedText>
+      <Spacer/>
+      <View style={styles.buttonContainer}>
+        <PrimaryButton
+          label="          Get Started          "
+          onPress={() => console.log("this is a test")}
+          radius={20}
+          disabeld={false}
+          />
+      </View>
     </ThemedView>
   );
 }
@@ -36,5 +48,9 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 4,
     marginTop: 72,
+  },
+  buttonContainer: {
+    paddingHorizontal: 20,
+    marginTop: 40,
   },
 });
