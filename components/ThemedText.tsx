@@ -90,17 +90,11 @@ const styles = StyleSheet.create({
     letterSpacing: -0.323,
     lineHeight: 25,
   },
-  bookTitle: {
+  Title: {
     fontFamily: 'InriaSans_700Bold',
     fontSize: 15,
     letterSpacing: -0.285,
     lineHeight: 22,
-  },
-  author: {
-    fontFamily: 'InriaSans_400Regular',
-    fontSize: 10,
-    letterSpacing: -0.19,
-    lineHeight: 15,
   },
   body: {
     fontFamily: 'InriaSans_700Bold',
@@ -125,22 +119,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.228,
     lineHeight: 18,
   },
-  statLabel: {
-    fontFamily: 'Lexend_500Medium',
-    fontSize: 12,
-    lineHeight: 16,
-  },
-  statValue: {
-    fontFamily: 'InriaSans_700Bold',
-    fontSize: 20,
-    lineHeight: 32,
-  },
-  badge: {
-    fontFamily: 'InriaSans_700Bold',
-    fontSize: 10,
-    letterSpacing: -0.19,
-    lineHeight: 15,
-  },
+
   link: {
     fontFamily: 'InriaSans_700Bold',
     fontSize: 15,
@@ -168,10 +147,8 @@ const styles = StyleSheet.create({
 });
 
 const colorStyles = StyleSheet.create({
-  default:   { color: colors.textDark },
+  default:   { color: colors.info },
   primary:   { color: colors.primary },
   muted:     { color: colors.textMuted },
   white:     { color: colors.white },
-  available: { color: colors.available },
-  borrowed:  { color: colors.borrowed },
 });
