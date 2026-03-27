@@ -1,52 +1,64 @@
-import React from "react";
+// src/screens/auth/TypeSelectionScreen.tsx
+
+import React from 'react';
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
-import { PenguinMascot } from "../../../components/common/PenguinMascot";
-import { borderRadius, colors, spacing, typography } from "../../../constants";
-import { UserRole } from "..user/../../types/user";
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { colors, typography, spacing, borderRadius } from '../../constants';
+import { PenguinMascot } from '../../components/common/PenguinMascot';
+import { UserRole } from '../../types/user';
 
 interface UserTypeOption {
   role: UserRole;
   title: string;
   description: string;
-  icon: string; 
+  icon: string; // emoji or icon name
 }
 
 const userTypes: UserTypeOption[] = [
   {
     role: UserRole.PARENT,
-    title: "Parent",
-    description: "Monitor your child's progress and activities",
-    icon: "👨‍👩‍👧",
+    title: 'Parent',
+    description: 'Monitor your child\'s progress and activities',
+    icon: '👨‍👩‍👧',
   },
   {
     role: UserRole.TEACHER,
-    title: "Teacher",
-    description: "Manage students and assign learning tasks",
-    icon: "👨‍🏫",
+    title: 'Teacher',
+    description: 'Manage students and assign learning tasks',
+    icon: '👨‍🏫',
   },
   {
     role: UserRole.ADMIN,
-    title: "School",
-    description: "Oversee teachers and school operations",
-    icon: "🏫",
+    title: 'School',
+    description: 'Oversee teachers and school operations',
+    icon: '🏫',
   },
 ];
 
-interface TypeSelectionScreenProps {
-  onSelectType: (role: UserRole) => void;
-}
+export default function TypeSelectionScreen() {
+  const router = useRouter();
 
-export const TypeSelectionScreen: React.FC<TypeSelectionScreenProps> = ({
-  onSelectType,
-}) => {
+  const handleSelectType = (role: UserRole) => {
+    if (role === UserRole.PARENT) {
+      router.push('/ParentSignUpScreen');
+    } else {
+      // Both Teacher and Admin go to the TeacherSignUpScreen, 
+      // but we pass the specific role as a URL parameter
+      router.push({
+        pathname: '/TeacherSignUpScreen',
+        params: { role }
+      });
+    }
+  };
+
   return (
-    <ScrollView
+    <ScrollView 
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
@@ -69,12 +81,12 @@ export const TypeSelectionScreen: React.FC<TypeSelectionScreenProps> = ({
 
       <View style={styles.typesContainer}>
         <Text style={styles.typeLabel}>type</Text>
-
+        
         {userTypes.map((type) => (
           <TouchableOpacity
             key={type.role}
             style={styles.typeCard}
-            onPress={() => onSelectType(type.role)}
+            onPress={() => handleSelectType(type.role)}
             activeOpacity={0.7}
           >
             <View style={styles.typeIconContainer}>
@@ -93,12 +105,16 @@ export const TypeSelectionScreen: React.FC<TypeSelectionScreenProps> = ({
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Already have an account? <Text style={styles.footerLink}>Log in</Text>
+          Already have an account?{' '}
+          {/* Routes to the Login screen */}
+          <Text style={styles.footerLink} onPress={() => router.push('/LoginScreen')}>
+            Log in
+          </Text>
         </Text>
       </View>
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -107,15 +123,15 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing["2xl"],
+    paddingBottom: spacing['2xl'],
   },
   header: {
-    alignItems: "center",
-    paddingTop: spacing["3xl"],
+    alignItems: 'center',
+    paddingTop: spacing['3xl'],
     marginBottom: spacing.xl,
   },
   logo: {
-    fontSize: typography.fontSize["3xl"],
+    fontSize: typography.fontSize['3xl'],
     fontFamily: typography.fontFamily.bold,
     color: colors.primary,
     marginBottom: spacing.xs,
@@ -126,15 +142,15 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   mascotContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     marginVertical: spacing.xl,
   },
   content: {
-    alignItems: "center",
-    marginBottom: spacing["2xl"],
+    alignItems: 'center',
+    marginBottom: spacing['2xl'],
   },
   title: {
-    fontSize: typography.fontSize["2xl"],
+    fontSize: typography.fontSize['2xl'],
     fontFamily: typography.fontFamily.bold,
     color: colors.textPrimary,
     marginBottom: spacing.sm,
@@ -143,7 +159,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.base,
     fontFamily: typography.fontFamily.regular,
     color: colors.textSecondary,
-    textAlign: "center",
+    textAlign: 'center',
     paddingHorizontal: spacing.md,
     lineHeight: typography.fontSize.base * 1.5,
   },
@@ -155,11 +171,11 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.medium,
     color: colors.textMuted,
     marginBottom: spacing.md,
-    textTransform: "lowercase",
+    textTransform: 'lowercase',
   },
   typeCard: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.surfaceCard,
     borderRadius: borderRadius.xl,
     padding: spacing.lg,
@@ -172,8 +188,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: borderRadius.md,
     backgroundColor: colors.backgroundLight,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: spacing.md,
   },
   typeIcon: {
@@ -201,7 +217,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   footer: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingTop: spacing.lg,
   },
   footerText: {

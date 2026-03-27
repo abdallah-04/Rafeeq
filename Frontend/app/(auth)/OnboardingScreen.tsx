@@ -7,9 +7,10 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
-import { colors, typography, spacing, borderRadius } from '../../../constants';
-import { Button } from '../../../components/common/Button';
-import { PenguinMascot } from '../../../components/common/PenguinMascot';
+import { useRouter } from 'expo-router';
+import { colors, typography, spacing, borderRadius } from '../../constants';
+import { Button } from '../../components/common/Button';
+import { PenguinMascot } from '../../components/common/PenguinMascot';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -41,15 +42,8 @@ const slides: OnboardingSlide[] = [
   },
 ];
 
-interface OnboardingScreenProps {
-  onComplete: () => void;
-  onSkip: () => void;
-}
-
-export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
-  onComplete,
-  onSkip,
-}) => {
+export default function OnboardingScreen() {
+  const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
@@ -59,12 +53,14 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
       flatListRef.current?.scrollToIndex({ index: nextIndex });
       setCurrentIndex(nextIndex);
     } else {
-      onComplete();
+      // Navigate to the Type Selection screen when onboarding is complete
+      router.push('/TypeSelectionScreen');
     }
   };
 
   const handleSkip = () => {
-    onSkip();
+    // Navigate directly to the Login screen if they skip
+    router.push('/LoginScreen');
   };
 
   const renderSlide = ({ item }: { item: OnboardingSlide }) => (
@@ -133,7 +129,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

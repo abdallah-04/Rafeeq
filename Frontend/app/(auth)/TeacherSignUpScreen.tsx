@@ -8,18 +8,12 @@ import {
   Platform,
   TouchableOpacity,
 } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { colors, typography, spacing, borderRadius } from '../../constants';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { PenguinMascot } from '../../components/common/PenguinMascot';
 import { UserRole } from '../../types/user';
-
-interface TeacherSignUpScreenProps {
-  role: UserRole.TEACHER | UserRole.ADMIN;
-  onSignUp: (data: TeacherSignUpData) => void;
-  onBack: () => void;
-  onLogin: () => void;
-}
 
 interface TeacherSignUpData {
   schoolName: string;
@@ -31,12 +25,13 @@ interface TeacherSignUpData {
   confirmPassword: string;
 }
 
-export const TeacherSignUpScreen: React.FC<TeacherSignUpScreenProps> = ({
-  role,
-  onSignUp,
-  onBack,
-  onLogin,
-}) => {
+export default function TeacherSignUpScreen() {
+  const router = useRouter();
+  
+  // Grab the role passed from the TypeSelectionScreen
+  const params = useLocalSearchParams();
+  const role = (params.role as UserRole) || UserRole.TEACHER;
+
   const [schoolName, setSchoolName] = useState('');
   const [schoolId, setSchoolId] = useState('');
   const [advisorName, setAdvisorName] = useState('');
@@ -53,16 +48,13 @@ export const TeacherSignUpScreen: React.FC<TeacherSignUpScreenProps> = ({
   const validate = (): boolean => {
     const newErrors: Partial<TeacherSignUpData> = {};
 
-  
     if (!schoolName.trim()) {
       newErrors.schoolName = 'School name is required';
     }
 
-  
     if (!schoolId.trim()) {
       newErrors.schoolId = 'School ID is required';
     }
-
 
     if (isTeacher) {
       if (!advisorName?.trim()) {
@@ -73,20 +65,17 @@ export const TeacherSignUpScreen: React.FC<TeacherSignUpScreenProps> = ({
       }
     }
 
-
     if (!phone) {
       newErrors.phone = 'Phone number is required';
     } else if (phone.length < 10) {
       newErrors.phone = 'Phone number must be at least 10 digits';
     }
 
-
     if (!password) {
       newErrors.password = 'Password is required';
     } else if (password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
     }
-
 
     if (!confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
@@ -103,15 +92,12 @@ export const TeacherSignUpScreen: React.FC<TeacherSignUpScreenProps> = ({
 
     setLoading(true);
     try {
-      await onSignUp({
-        schoolName,
-        schoolId,
-        advisorName: isTeacher ? advisorName : undefined,
-        advisorId: isTeacher ? advisorId : undefined,
-        phone,
-        password,
-        confirmPassword,
-      });
+      // MOCK SIGN UP LOGIC: Replace with your actual API call later
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log(`${title} Sign Up Successful:`, { schoolName, phone });
+      
+      // Navigate to the main app dashboard after success
+      // router.replace('/(main)/home');
     } finally {
       setLoading(false);
     }
@@ -128,7 +114,8 @@ export const TeacherSignUpScreen: React.FC<TeacherSignUpScreenProps> = ({
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
+        {/* Changed to router.back() */}
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
 
@@ -140,7 +127,7 @@ export const TeacherSignUpScreen: React.FC<TeacherSignUpScreenProps> = ({
         </View>
 
         <View style={styles.form}>
-          <Text style={styles.sectionLabel}>School Details</Text>
+          <Text style={styles.sectionLabel}>School Details ({title})</Text>
 
           <Input
             label="School Name"
@@ -248,7 +235,8 @@ export const TeacherSignUpScreen: React.FC<TeacherSignUpScreenProps> = ({
         <View style={styles.footer}>
           <Text style={styles.footerText}>
             Already have an account?{' '}
-            <Text style={styles.footerLink} onPress={onLogin}>
+            {/* Changed to navigate to LoginScreen */}
+            <Text style={styles.footerLink} onPress={() => router.push('/LoginScreen')}>
               Log in
             </Text>
           </Text>
@@ -270,7 +258,7 @@ export const TeacherSignUpScreen: React.FC<TeacherSignUpScreenProps> = ({
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
