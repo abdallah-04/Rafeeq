@@ -3,30 +3,24 @@ import { colors } from '@/constants/Colors';
 import { Text, StyleSheet, StyleProp, TextStyle } from 'react-native';
 
 type TextVariant =
-  | 'h1'          // Screen titles — "Library", "profile"  → Inria Sans Bold 36px
-  | 'h2'          // Book title on detail screen           → Inria Sans Regular 32px
-  | 'h3'          // Section titles — "Currently Borrowing"→ Inria Sans Bold 17px
-  | 'bookTitle'   // Book title in grid card               → Inria Sans Bold 15px
-  | 'author'      // Author name                           → Inria Sans Regular 10px
-  | 'body'        // Description / about text              → Inria Sans Bold 16px
-  | 'caption'     // Small labels — borrow date            → Inria Sans Regular 10px
-  | 'button'      // Button labels                         → Lexend Bold 20px
-  | 'tabLabel'    // Bottom tab labels                     → Inria Sans Bold 12px
-  | 'statLabel'   // Stats card labels — "Borrowed"        → Lexend Medium 12px
-  | 'statValue'   // Stats card numbers — "45"             → Lexend Bold 24px
-  | 'badge'       // AvailabilityBadge text                → Inria Sans Bold 10px
-  | 'link'        // "Read more" links                     → Inria Sans Bold 15px
-  | 'subtitle'    // Login subtitle                        → Indie Flower Regular 16px
-  | 'byline'      // "By Matt Haig" on detail screen       → Indie Flower Regular 24px
-  | 'appTitle'    // "42 Amman library" on login           → Inria Sans Bold 24px
+  | 'h1'          
+  | 'h2'          
+  | 'h3'         
+  | 'bookTitle'   
+  | 'author'      
+  | 'body'        
+  | 'caption'   
+  | 'button'     
+  | 'link'       
+  | 'subtitle'   
+  | 'byline'     
+  | 'appTitle'   
 
 type TextColor =
-  | 'default'     // #1B293A  dark navy
-  | 'primary'     // #C7644B  terracotta
-  | 'muted'       // #4F6581  muted blue-gray
-  | 'white'       // #FFFFFF
-  | 'available'   // #2FA76F  green
-  | 'borrowed'    // #E99E35  orange
+  | 'default'     
+  | 'primary'     
+  | 'muted'       
+  | 'white'       
 
 interface ThemedTextProps {
   children?: React.ReactNode;
