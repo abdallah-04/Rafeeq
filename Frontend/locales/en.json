@@ -1,0 +1,490 @@
+{
+  "common": {
+    "continue": "Continue",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "done": "Done",
+    "okay": "Okay",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "close": "Close",
+    "search": "Search",
+    "seeAll": "See all",
+    "viewAll": "View all",
+    "submit": "Submit",
+    "send": "Send",
+    "add": "Add",
+    "remove": "Remove",
+    "download": "Download",
+    "share": "Share",
+    "or": "or",
+    "orContinueWith": "OR CONTINUE WITH",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "getStarted": "Get Started",
+    "letsGo": "Let's go!",
+    "comingSoon": "Coming soon"
+  },
+
+  "language": {
+    "select": "Choose your language",
+    "english": "English",
+    "arabic": "العربية",
+    "current": "English (US)"
+  },
+
+  "onboarding": {
+    "slide1": {
+      "title": "Helping every child learn and grow",
+      "subtitle": "A personalised learning journey built for children with special needs"
+    },
+    "slide2": {
+      "title": "Stay connected with school and family",
+      "subtitle": "Parents and teachers work together in one place"
+    },
+    "slide3": {
+      "title": "A learning path made for each child",
+      "subtitle": "Track progress, celebrate achievements, and never miss a milestone"
+    }
+  },
+
+  "landing": {
+    "tagline": "Educational platform for children with special needs",
+    "login": "Login",
+    "getStarted": "Get Started"
+  },
+
+  "roleSelect": {
+    "title": "Welcome to RAFEEQ",
+    "subtitle": "Who are you? Choose your account type to get started on your journey with Rafeeq.",
+    "parent": "Parent",
+    "parentDesc": "Track your child's progress and connect with their school",
+    "school": "School",
+    "schoolDesc": "Manage your school's teachers, classes, and families",
+    "alreadyHave": "Already have an account?",
+    "login": "Log in"
+  },
+
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Your child's developmental journey starts here. Log in or sign up to manage their progress.",
+      "nationalId": "National ID",
+      "teacherNumber": "Teacher Number",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "loginButton": "Log in",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "sanad": "Sign up with Sanad"
+    },
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Enter your details to get started",
+      "nationalId": "National ID",
+      "nationalIdPlaceholder": "Enter your 10-digit national ID",
+      "phone": "Phone number",
+      "phonePlaceholder": "+962 7X XXX XXXX",
+      "createPassword": "Create password",
+      "createPasswordPlaceholder": "At least 8 characters",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Re-enter your password",
+      "continueButton": "Continue",
+      "sanad": "Sign up with Sanad",
+      "alreadyHave": "Already have an account?",
+      "login": "Log in"
+    },
+    "schoolSignup": {
+      "step1Title": "Register your school",
+      "schoolName": "School name",
+      "schoolId": "School ID",
+      "advisorName": "Advisor name",
+      "advisorNationalId": "Advisor national ID",
+      "step2Title": "Contact details",
+      "phone": "Advisor phone number",
+      "createPassword": "Create password",
+      "confirmPassword": "Confirm password"
+    },
+    "otp": {
+      "title": "Verify your number",
+      "subtitle": "We sent you a code to verify your number",
+      "resend": "Resend code",
+      "resendIn": "Resend in",
+      "trustDevice": "Trust this device for a month",
+      "confirmButton": "Confirm"
+    },
+    "forgotPassword": {
+      "enterIdTitle": "Forgot password?",
+      "enterIdSubtitle": "Enter your national ID to reset your password",
+      "enterPhoneTitle": "Verify your identity",
+      "enterPhoneSubtitle": "Confirm the number ending with",
+      "newPasswordTitle": "Create new password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "resetButton": "Reset password"
+    },
+    "welcome": {
+      "title": "Welcome,",
+      "subtitle": "We're glad to have you here. Let's get started!",
+      "button": "Get Started"
+    }
+  },
+
+  "parent": {
+    "home": {
+      "greeting": "Welcome back,",
+      "childCard": {
+        "level": "Level",
+        "age": "Age",
+        "tasks": "Task",
+        "streak": "Days in Row",
+        "achievements": "Achievement"
+      },
+      "quickAccess": {
+        "title": "Quick Access",
+        "schoolPage": "School page",
+        "progressReports": "Progress Reports",
+        "tree": "Tree",
+        "specialEd": "Special Education"
+      }
+    },
+    "children": {
+      "title": "My Children",
+      "emptyTitle": "It's a little quiet here!",
+      "emptySubtitle": "Add your first child to start tracking their learning journey",
+      "addFirst": "Add your first child",
+      "addMore": "Add more children",
+      "progress": "Progress"
+    },
+    "addChild": {
+      "title": "Add Child",
+      "photo": "Add photo",
+      "name": "Child's full name",
+      "namePlaceholder": "Enter child's name",
+      "dateOfBirth": "Date of birth",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
+      "school": "School name",
+      "schoolPlaceholder": "Search for a school",
+      "difficulty": "Child's case",
+      "difficultyPlaceholder": "Select difficulty type",
+      "addButton": "Add child",
+      "difficulties": {
+        "ADD": "ADD — Attention Deficit Disorder",
+        "ADHD": "ADHD — Attention Deficit Hyperactivity Disorder",
+        "ASD": "ASD — Autism Spectrum Disorder",
+        "DYS": "Dyslexia",
+        "IFD": "Intellectual and Functional Disability",
+        "OTHER": "Other"
+      }
+    },
+    "childProfile": {
+      "title": "Child Profile",
+      "level": "Learning Level",
+      "intermediate": "Intermediate",
+      "curriculumProgress": "Curriculum Progress",
+      "viewProgress": "View Detailed Progress",
+      "activities": "Learning Activities",
+      "update": "Update Information"
+    }
+  },
+
+  "teacher": {
+    "home": {
+      "greeting": "Hello,",
+      "class": "My Class",
+      "totalStudents": "Total Students",
+      "avgProgress": "Avg. Progress",
+      "roster": "My Students",
+      "notifications": "Notifications"
+    },
+    "students": {
+      "title": "My Students",
+      "emptyTitle": "It's a little quiet here!",
+      "emptySubtitle": "No students added yet",
+      "addFirst": "Add your first Students",
+      "level": "Level",
+      "progress": "Progress"
+    },
+    "addStudent": {
+      "title": "Add Student",
+      "name": "Child's full name",
+      "nationalId": "National ID",
+      "dateOfBirth": "Date of birth",
+      "difficulty": "Child's difficulty",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
+      "addButton": "Continue"
+    },
+    "homework": {
+      "title": "Homework",
+      "add": "Add H.W",
+      "subject": "Subject",
+      "description": "Description",
+      "dueDate": "Due date",
+      "addButton": "Add Homework",
+      "status": {
+        "not_submitted": "Not submitted",
+        "submitted": "Submitted",
+        "graded": "Graded"
+      }
+    },
+    "reports": {
+      "title": "Reports",
+      "add": "Add Report",
+      "unread": "Unread",
+      "read": "Read",
+      "addButton": "Add Report"
+    },
+    "notes": {
+      "title": "Notes",
+      "add": "Add Note",
+      "addButton": "Add Note"
+    }
+  },
+
+  "school": {
+    "home": {
+      "title": "School Dashboard",
+      "teachers": "Teachers",
+      "students": "Students"
+    },
+    "teachers": {
+      "title": "My Teachers",
+      "emptyTitle": "It's a little quiet here!",
+      "emptySubtitle": "No teachers added yet",
+      "addFirst": "Add your first Teacher",
+      "active": "Active",
+      "children": "Child",
+      "progress": "Progress"
+    },
+    "addTeacher": {
+      "title": "Add Teacher",
+      "photo": "Add photo",
+      "name": "Teacher's full name",
+      "namePlaceholder": "Enter teacher's name",
+      "nationalId": "National ID",
+      "phone": "Phone number",
+      "createPassword": "Create password",
+      "confirmPassword": "Confirm password",
+      "addButton": "Add Teacher"
+    }
+  },
+
+  "schoolPage": {
+    "title": "School Page",
+    "tabs": {
+      "grades": "Grades",
+      "homework": "HW & Tasks",
+      "progress": "Progress",
+      "reports": "Reports"
+    },
+    "grades": {
+      "comingUp": "Coming Up This Week"
+    },
+    "progress": {
+      "overall": "Overall Progress",
+      "teacherNote": "Teacher's Note",
+      "lastWeek": "Last week"
+    },
+    "reports": {
+      "unread": "Unread",
+      "read": "Read",
+      "from": "From"
+    }
+  },
+
+  "progress": {
+    "title": "Progress",
+    "tabs": {
+      "progress": "Progress",
+      "quizzes": "Quizzes",
+      "activities": "Activities"
+    },
+    "thisMonth": "This Month",
+    "summary": "Progress Summary",
+    "focusAttention": "Focus & Attention",
+    "mathematics": "Mathematics",
+    "socialSkills": "Social Skills",
+    "communication": "Communication",
+    "motorSkills": "Motor Skills"
+  },
+
+  "quizzes": {
+    "thisWeek": "This week's quizzes",
+    "subject": "subject",
+    "questions": "questions",
+    "mins": "mins",
+    "startQuiz": "Start Quiz",
+    "status": {
+      "new": "New",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "later": "Later"
+    },
+    "detail": {
+      "level": "Level",
+      "notTaken": "Not taken yet",
+      "completedOn": "Completed"
+    },
+    "keepGoing": "of",
+    "keepGoingUnit": "Quiz completed",
+    "keepGoingPeriod": "This week"
+  },
+
+  "homework": {
+    "title": "Homework",
+    "thisWeek": "This week",
+    "dueDate": "Due",
+    "keepGoing": "of",
+    "keepGoingUnit": "H.W completed",
+    "keepGoingPeriod": "This week",
+    "status": {
+      "not_submitted": "Pending",
+      "submitted": "Submitted",
+      "graded": "Graded"
+    }
+  },
+
+  "tree": {
+    "title": "Learning Tree",
+    "day": "Day",
+    "completed": "Completed",
+    "current": "Today",
+    "upcoming": "Upcoming",
+    "locked": "Locked"
+  },
+
+  "explore": {
+    "title": "Explore",
+    "saved": "Saved",
+    "savedBadge": "saved",
+    "readTime": "min read",
+    "views": "views",
+    "likes": "likes",
+    "categories": {
+      "all": "All",
+      "parenting": "Parenting",
+      "special_needs": "Special Needs",
+      "speech": "Speech",
+      "learning": "Learning",
+      "behavioral": "Behavioral",
+      "motor": "Motor Skills"
+    }
+  },
+
+  "chatbot": {
+    "title": "Rafeeq Assistant",
+    "emptyGreeting": "How can I guide you today?",
+    "inputPlaceholder": "Ask Rafeeq...",
+    "attachPhoto": "Photo from gallery",
+    "attachCamera": "Camera",
+    "attachFile": "Upload file",
+    "attachVoice": "Voice message"
+  },
+
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "language": "Language",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "help": "Help & Support",
+    "logout": "Log out",
+    "logoutConfirm": "Are you sure you want to log out?"
+  },
+
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "markAllRead": "Mark all as read",
+    "types": {
+      "homework": "Homework",
+      "quiz": "Quiz",
+      "report": "Report",
+      "note": "Note",
+      "announcement": "Announcement",
+      "achievement": "Achievement"
+    }
+  },
+
+  "modals": {
+    "errors": {
+      "incompleteInfo": "Incomplete Information",
+      "incompleteInfoDesc": "Please fill in all required fields",
+      "invalidCode": "Invalid Code",
+      "invalidCodeDesc": "The code you entered is incorrect. Please try again",
+      "invalidId": "Invalid ID",
+      "invalidIdDesc": "The national ID you entered was not found",
+      "passwordMismatch": "Passwords Do Not Match",
+      "passwordMismatchDesc": "Please make sure both passwords are the same",
+      "incorrectNumber": "Incorrect Number",
+      "incorrectNumberDesc": "The phone number you entered is incorrect",
+      "invalidInfo": "Invalid Information",
+      "invalidInfoDesc": "Please check your details and try again"
+    },
+    "success": {
+      "greatJob": "Great Job!",
+      "reportAdded": "Report Added",
+      "reportAddedDesc": "The report has been sent to the parent",
+      "hwAdded": "H.W Added",
+      "hwAddedDesc": "Homework has been assigned to the class",
+      "noteAdded": "Note Added",
+      "saved": "Saved!",
+      "savedDesc": "This article has been saved to your list",
+      "downloadDone": "Download Done",
+      "passwordUpdated": "Password Updated",
+      "passwordUpdatedDesc": "Your password has been changed successfully",
+      "submitSuccess": "Submitted Successfully",
+      "childAdded": "Child Added Successfully",
+      "childAddedDesc": "Returning to your children list in",
+      "seconds": "seconds"
+    },
+    "dayWork": {
+      "whatToDo": "What to do today",
+      "letsGo": "Let's go!",
+      "proud": "We are so proud of you!",
+      "proudDesc": "You completed all tasks for today!"
+    },
+    "addChild": {
+      "title": "Add your Child",
+      "subtitle": "Enter your child's national ID",
+      "placeholder": "Child's national ID",
+      "button": "Okay"
+    },
+    "wellDone": {
+      "title": "Well done!",
+      "score": "Your score is"
+    }
+  },
+
+  "keepGoing": {
+    "banner": "of",
+    "completed": "completed"
+  },
+
+  "badges": {
+    "add": "ADD",
+    "adhd": "ADHD",
+    "asd": "ASD",
+    "dys": "Dyslexia",
+    "ifd": "IFD",
+    "active": "Active",
+    "completed": "Completed",
+    "inProgress": "In progress",
+    "new": "New",
+    "later": "Later",
+    "level": "Level"
+  }
+}

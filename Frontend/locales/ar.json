@@ -1,0 +1,490 @@
+{
+  "common": {
+    "continue": "متابعة",
+    "confirm": "تأكيد",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "back": "رجوع",
+    "next": "التالي",
+    "skip": "تخطي",
+    "done": "تم",
+    "okay": "حسناً",
+    "yes": "نعم",
+    "no": "لا",
+    "loading": "جارٍ التحميل...",
+    "error": "حدث خطأ ما",
+    "retry": "حاول مجدداً",
+    "close": "إغلاق",
+    "search": "بحث",
+    "seeAll": "عرض الكل",
+    "viewAll": "عرض الكل",
+    "submit": "إرسال",
+    "send": "إرسال",
+    "add": "إضافة",
+    "remove": "إزالة",
+    "download": "تحميل",
+    "share": "مشاركة",
+    "or": "أو",
+    "orContinueWith": "أو تابع بواسطة",
+    "privacyPolicy": "سياسة الخصوصية",
+    "termsOfService": "شروط الخدمة",
+    "getStarted": "ابدأ الآن",
+    "letsGo": "هيّا بنا!",
+    "comingSoon": "قريباً"
+  },
+
+  "language": {
+    "select": "اختر لغتك",
+    "english": "English",
+    "arabic": "العربية",
+    "current": "العربية"
+  },
+
+  "onboarding": {
+    "slide1": {
+      "title": "نساعد كل طفل على التعلم والنمو",
+      "subtitle": "رحلة تعليمية مخصصة لكل طفل ذي احتياجات خاصة"
+    },
+    "slide2": {
+      "title": "ابقَ على تواصل مع المدرسة والعائلة",
+      "subtitle": "يتعاون الآباء والمعلمون في مكان واحد"
+    },
+    "slide3": {
+      "title": "مسار تعلّم مصمم لكل طفل",
+      "subtitle": "تابع التقدم واحتفل بالإنجازات ولا تفوّت أي مرحلة"
+    }
+  },
+
+  "landing": {
+    "tagline": "منصة تعليمية للأطفال ذوي الاحتياجات الخاصة",
+    "login": "تسجيل الدخول",
+    "getStarted": "ابدأ الآن"
+  },
+
+  "roleSelect": {
+    "title": "مرحباً بك في رفيق",
+    "subtitle": "من أنت؟ اختر نوع حسابك لتبدأ رحلتك مع رفيق.",
+    "parent": "ولي أمر",
+    "parentDesc": "تابع تقدم طفلك وتواصل مع مدرسته",
+    "school": "مدرسة",
+    "schoolDesc": "أدر معلمي مدرستك وفصولها وعائلاتها",
+    "alreadyHave": "لديك حساب بالفعل؟",
+    "login": "تسجيل الدخول"
+  },
+
+  "auth": {
+    "login": {
+      "title": "أهلاً بعودتك",
+      "subtitle": "رحلة طفلك التطورية تبدأ هنا. سجّل دخولك لمتابعة تقدمه.",
+      "nationalId": "رقم الهوية الوطنية",
+      "teacherNumber": "رقم المعلم",
+      "password": "كلمة المرور",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "loginButton": "تسجيل الدخول",
+      "noAccount": "ليس لديك حساب؟",
+      "signUp": "إنشاء حساب",
+      "sanad": "التسجيل عبر سند"
+    },
+    "signup": {
+      "title": "إنشاء حسابك",
+      "subtitle": "أدخل بياناتك للبدء",
+      "nationalId": "رقم الهوية الوطنية",
+      "nationalIdPlaceholder": "أدخل رقم هويتك المكوّن من ١٠ أرقام",
+      "phone": "رقم الهاتف",
+      "phonePlaceholder": "+962 7X XXX XXXX",
+      "createPassword": "إنشاء كلمة مرور",
+      "createPasswordPlaceholder": "٨ أحرف على الأقل",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور",
+      "continueButton": "متابعة",
+      "sanad": "التسجيل عبر سند",
+      "alreadyHave": "لديك حساب بالفعل؟",
+      "login": "تسجيل الدخول"
+    },
+    "schoolSignup": {
+      "step1Title": "تسجيل مدرستك",
+      "schoolName": "اسم المدرسة",
+      "schoolId": "رقم المدرسة",
+      "advisorName": "اسم المشرف",
+      "advisorNationalId": "رقم هوية المشرف",
+      "step2Title": "بيانات التواصل",
+      "phone": "رقم هاتف المشرف",
+      "createPassword": "إنشاء كلمة مرور",
+      "confirmPassword": "تأكيد كلمة المرور"
+    },
+    "otp": {
+      "title": "تحقق من رقمك",
+      "subtitle": "أرسلنا لك رمزاً للتحقق من رقمك",
+      "resend": "إعادة الإرسال",
+      "resendIn": "إعادة الإرسال خلال",
+      "trustDevice": "الوثوق بهذا الجهاز لمدة شهر",
+      "confirmButton": "تأكيد"
+    },
+    "forgotPassword": {
+      "enterIdTitle": "نسيت كلمة المرور؟",
+      "enterIdSubtitle": "أدخل رقم هويتك لإعادة تعيين كلمة المرور",
+      "enterPhoneTitle": "تحقق من هويتك",
+      "enterPhoneSubtitle": "أكّد الرقم المنتهي بـ",
+      "newPasswordTitle": "إنشاء كلمة مرور جديدة",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "resetButton": "إعادة تعيين كلمة المرور"
+    },
+    "welcome": {
+      "title": "أهلاً،",
+      "subtitle": "يسعدنا وجودك معنا. لنبدأ!",
+      "button": "ابدأ الآن"
+    }
+  },
+
+  "parent": {
+    "home": {
+      "greeting": "أهلاً بعودتك،",
+      "childCard": {
+        "level": "المستوى",
+        "age": "العمر",
+        "tasks": "مهمة",
+        "streak": "يوم متتالي",
+        "achievements": "إنجاز"
+      },
+      "quickAccess": {
+        "title": "وصول سريع",
+        "schoolPage": "صفحة المدرسة",
+        "progressReports": "تقارير التقدم",
+        "tree": "شجرة التعلم",
+        "specialEd": "التربية الخاصة"
+      }
+    },
+    "children": {
+      "title": "أطفالي",
+      "emptyTitle": "يبدو الأمر هادئاً هنا!",
+      "emptySubtitle": "أضف طفلك الأول لتبدأ في متابعة رحلته التعليمية",
+      "addFirst": "أضف طفلك الأول",
+      "addMore": "إضافة المزيد من الأطفال",
+      "progress": "التقدم"
+    },
+    "addChild": {
+      "title": "إضافة طفل",
+      "photo": "إضافة صورة",
+      "name": "الاسم الكامل للطفل",
+      "namePlaceholder": "أدخل اسم الطفل",
+      "dateOfBirth": "تاريخ الميلاد",
+      "gender": "الجنس",
+      "male": "ذكر",
+      "female": "أنثى",
+      "school": "اسم المدرسة",
+      "schoolPlaceholder": "ابحث عن مدرسة",
+      "difficulty": "حالة الطفل",
+      "difficultyPlaceholder": "اختر نوع الصعوبة",
+      "addButton": "إضافة طفل",
+      "difficulties": {
+        "ADD": "اضطراب نقص الانتباه",
+        "ADHD": "اضطراب فرط الحركة ونقص الانتباه",
+        "ASD": "طيف التوحد",
+        "DYS": "عسر القراءة",
+        "IFD": "الإعاقة الذهنية والوظيفية",
+        "OTHER": "أخرى"
+      }
+    },
+    "childProfile": {
+      "title": "ملف الطفل",
+      "level": "مستوى التعلم",
+      "intermediate": "متوسط",
+      "curriculumProgress": "تقدم المنهج",
+      "viewProgress": "عرض التقدم التفصيلي",
+      "activities": "الأنشطة التعليمية",
+      "update": "تحديث المعلومات"
+    }
+  },
+
+  "teacher": {
+    "home": {
+      "greeting": "أهلاً،",
+      "class": "فصلي",
+      "totalStudents": "إجمالي الطلاب",
+      "avgProgress": "متوسط التقدم",
+      "roster": "طلابي",
+      "notifications": "الإشعارات"
+    },
+    "students": {
+      "title": "طلابي",
+      "emptyTitle": "يبدو الأمر هادئاً هنا!",
+      "emptySubtitle": "لم يُضف أي طالب بعد",
+      "addFirst": "أضف طلابك الأوائل",
+      "level": "المستوى",
+      "progress": "التقدم"
+    },
+    "addStudent": {
+      "title": "إضافة طالب",
+      "name": "الاسم الكامل للطفل",
+      "nationalId": "رقم الهوية الوطنية",
+      "dateOfBirth": "تاريخ الميلاد",
+      "difficulty": "صعوبة الطفل",
+      "gender": "الجنس",
+      "male": "ذكر",
+      "female": "أنثى",
+      "addButton": "متابعة"
+    },
+    "homework": {
+      "title": "الواجبات",
+      "add": "إضافة واجب",
+      "subject": "المادة",
+      "description": "الوصف",
+      "dueDate": "تاريخ التسليم",
+      "addButton": "إضافة الواجب",
+      "status": {
+        "not_submitted": "لم يُسلَّم",
+        "submitted": "تم التسليم",
+        "graded": "مصحَّح"
+      }
+    },
+    "reports": {
+      "title": "التقارير",
+      "add": "إضافة تقرير",
+      "unread": "غير مقروء",
+      "read": "مقروء",
+      "addButton": "إضافة تقرير"
+    },
+    "notes": {
+      "title": "الملاحظات",
+      "add": "إضافة ملاحظة",
+      "addButton": "إضافة ملاحظة"
+    }
+  },
+
+  "school": {
+    "home": {
+      "title": "لوحة تحكم المدرسة",
+      "teachers": "المعلمون",
+      "students": "الطلاب"
+    },
+    "teachers": {
+      "title": "معلموي",
+      "emptyTitle": "يبدو الأمر هادئاً هنا!",
+      "emptySubtitle": "لم يُضف أي معلم بعد",
+      "addFirst": "أضف معلمك الأول",
+      "active": "نشط",
+      "children": "طفل",
+      "progress": "التقدم"
+    },
+    "addTeacher": {
+      "title": "إضافة معلم",
+      "photo": "إضافة صورة",
+      "name": "الاسم الكامل للمعلم",
+      "namePlaceholder": "أدخل اسم المعلم",
+      "nationalId": "رقم الهوية الوطنية",
+      "phone": "رقم الهاتف",
+      "createPassword": "إنشاء كلمة مرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "addButton": "إضافة معلم"
+    }
+  },
+
+  "schoolPage": {
+    "title": "صفحة المدرسة",
+    "tabs": {
+      "grades": "الدرجات",
+      "homework": "الواجبات والمهام",
+      "progress": "التقدم",
+      "reports": "التقارير"
+    },
+    "grades": {
+      "comingUp": "المقبل هذا الأسبوع"
+    },
+    "progress": {
+      "overall": "التقدم الإجمالي",
+      "teacherNote": "ملاحظة المعلم",
+      "lastWeek": "الأسبوع الماضي"
+    },
+    "reports": {
+      "unread": "غير مقروء",
+      "read": "مقروء",
+      "from": "من"
+    }
+  },
+
+  "progress": {
+    "title": "التقدم",
+    "tabs": {
+      "progress": "التقدم",
+      "quizzes": "الاختبارات",
+      "activities": "الأنشطة"
+    },
+    "thisMonth": "هذا الشهر",
+    "summary": "ملخص التقدم",
+    "focusAttention": "التركيز والانتباه",
+    "mathematics": "الرياضيات",
+    "socialSkills": "المهارات الاجتماعية",
+    "communication": "التواصل",
+    "motorSkills": "المهارات الحركية"
+  },
+
+  "quizzes": {
+    "thisWeek": "اختبارات هذا الأسبوع",
+    "subject": "مادة",
+    "questions": "أسئلة",
+    "mins": "دقيقة",
+    "startQuiz": "ابدأ الاختبار",
+    "status": {
+      "new": "جديد",
+      "in_progress": "جارٍ",
+      "completed": "مكتمل",
+      "later": "لاحقاً"
+    },
+    "detail": {
+      "level": "المستوى",
+      "notTaken": "لم يُؤدَّ بعد",
+      "completedOn": "اكتمل"
+    },
+    "keepGoing": "من",
+    "keepGoingUnit": "اختبار مكتمل",
+    "keepGoingPeriod": "هذا الأسبوع"
+  },
+
+  "homework": {
+    "title": "الواجبات",
+    "thisWeek": "هذا الأسبوع",
+    "dueDate": "الموعد النهائي",
+    "keepGoing": "من",
+    "keepGoingUnit": "واجب مكتمل",
+    "keepGoingPeriod": "هذا الأسبوع",
+    "status": {
+      "not_submitted": "قيد الانتظار",
+      "submitted": "تم التسليم",
+      "graded": "مصحَّح"
+    }
+  },
+
+  "tree": {
+    "title": "شجرة التعلم",
+    "day": "اليوم",
+    "completed": "مكتمل",
+    "current": "اليوم",
+    "upcoming": "قادم",
+    "locked": "مقفل"
+  },
+
+  "explore": {
+    "title": "استكشاف",
+    "saved": "المحفوظات",
+    "savedBadge": "محفوظ",
+    "readTime": "دقيقة قراءة",
+    "views": "مشاهدة",
+    "likes": "إعجاب",
+    "categories": {
+      "all": "الكل",
+      "parenting": "التربية",
+      "special_needs": "الاحتياجات الخاصة",
+      "speech": "النطق",
+      "learning": "التعلم",
+      "behavioral": "السلوك",
+      "motor": "المهارات الحركية"
+    }
+  },
+
+  "chatbot": {
+    "title": "مساعد رفيق",
+    "emptyGreeting": "كيف يمكنني مساعدتك اليوم؟",
+    "inputPlaceholder": "اسأل رفيق...",
+    "attachPhoto": "صورة من المعرض",
+    "attachCamera": "الكاميرا",
+    "attachFile": "رفع ملف",
+    "attachVoice": "رسالة صوتية"
+  },
+
+  "profile": {
+    "title": "الملف الشخصي",
+    "editProfile": "تعديل الملف",
+    "language": "اللغة",
+    "notifications": "الإشعارات",
+    "privacy": "الخصوصية",
+    "help": "المساعدة والدعم",
+    "logout": "تسجيل الخروج",
+    "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟"
+  },
+
+  "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات بعد",
+    "markAllRead": "تعيين الكل كمقروء",
+    "types": {
+      "homework": "واجب",
+      "quiz": "اختبار",
+      "report": "تقرير",
+      "note": "ملاحظة",
+      "announcement": "إعلان",
+      "achievement": "إنجاز"
+    }
+  },
+
+  "modals": {
+    "errors": {
+      "incompleteInfo": "معلومات ناقصة",
+      "incompleteInfoDesc": "يرجى ملء جميع الحقول المطلوبة",
+      "invalidCode": "رمز غير صحيح",
+      "invalidCodeDesc": "الرمز الذي أدخلته غير صحيح. يرجى المحاولة مجدداً",
+      "invalidId": "هوية غير صالحة",
+      "invalidIdDesc": "رقم الهوية الذي أدخلته غير موجود",
+      "passwordMismatch": "كلمتا المرور غير متطابقتين",
+      "passwordMismatchDesc": "يرجى التأكد من تطابق كلمتي المرور",
+      "incorrectNumber": "رقم غير صحيح",
+      "incorrectNumberDesc": "رقم الهاتف الذي أدخلته غير صحيح",
+      "invalidInfo": "معلومات غير صالحة",
+      "invalidInfoDesc": "يرجى مراجعة بياناتك والمحاولة مجدداً"
+    },
+    "success": {
+      "greatJob": "أحسنت!",
+      "reportAdded": "تم إضافة التقرير",
+      "reportAddedDesc": "تم إرسال التقرير إلى ولي الأمر",
+      "hwAdded": "تم إضافة الواجب",
+      "hwAddedDesc": "تم تعيين الواجب للفصل",
+      "noteAdded": "تم إضافة الملاحظة",
+      "saved": "تم الحفظ!",
+      "savedDesc": "تم حفظ هذا المقال في قائمتك",
+      "downloadDone": "اكتمل التحميل",
+      "passwordUpdated": "تم تحديث كلمة المرور",
+      "passwordUpdatedDesc": "تم تغيير كلمة مرورك بنجاح",
+      "submitSuccess": "تم الإرسال بنجاح",
+      "childAdded": "تمت إضافة الطفل بنجاح",
+      "childAddedDesc": "العودة إلى قائمة أطفالك خلال",
+      "seconds": "ثوانٍ"
+    },
+    "dayWork": {
+      "whatToDo": "ماذا تفعل اليوم",
+      "letsGo": "هيّا بنا!",
+      "proud": "نحن فخورون بك جداً!",
+      "proudDesc": "لقد أكملت جميع مهام اليوم!"
+    },
+    "addChild": {
+      "title": "أضف طفلك",
+      "subtitle": "أدخل رقم هوية طفلك الوطنية",
+      "placeholder": "رقم هوية الطفل",
+      "button": "حسناً"
+    },
+    "wellDone": {
+      "title": "أحسنت!",
+      "score": "نتيجتك هي"
+    }
+  },
+
+  "keepGoing": {
+    "banner": "من",
+    "completed": "مكتمل"
+  },
+
+  "badges": {
+    "add": "نقص انتباه",
+    "adhd": "فرط حركة",
+    "asd": "توحد",
+    "dys": "عسر قراءة",
+    "ifd": "إعاقة ذهنية",
+    "active": "نشط",
+    "completed": "مكتمل",
+    "inProgress": "جارٍ",
+    "new": "جديد",
+    "later": "لاحقاً",
+    "level": "المستوى"
+  }
+}
