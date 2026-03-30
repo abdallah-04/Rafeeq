@@ -486,5 +486,87 @@
     "new": "New",
     "later": "Later",
     "level": "Level"
+  },
+    "modal": {
+    "error": {
+      "btn": {
+        "okay": "Okay",
+        "tryAgain": "Try Again"
+      },
+      "incompleteInfo":   { "title": "Incomplete Information", "message": "Please fill in all required fields." },
+      "invalidCode":      { "title": "Invalid Code",           "message": "This code is incorrect or expired." },
+      "invalidId":        { "title": "Invalid ID",             "message": "Please enter a valid national ID." },
+      "passwordMismatch": { "title": "Passwords Do Not Match", "message": "Please make sure both passwords are the same." },
+      "incorrectNumber":  { "title": "Incorrect Number",       "message": "The phone number entered is incorrect." },
+      "invalidInfo":      { "title": "Invalid Information",    "message": "Some information entered is invalid." }
+    },
+    "success": {
+      "btn": {
+        "okay": "Okay"
+      },
+      "greatJob":       { "title": "Great Job! 🎉",                 "message": "" },
+      "reportAdded":    { "title": "Report Added",                   "message": "The report has been added successfully." },
+      "hwAdded":        { "title": "H.W Added",                     "message": "The homework has been added successfully." },
+      "noteAdded":      { "title": "Note Added",                    "message": "Your note has been saved." },
+      "saved":          { "title": "Saved!",                        "message": "This article has been saved to your library." },
+      "downloadDone":   { "title": "Download Done",                 "message": "Your file has been downloaded successfully." },
+      "passwordUpdate": { "title": "Password Updated",              "message": "Your password has been changed successfully." },
+      "submitSuccess":  { "title": "Submitted Successfully",        "message": "Your response has been submitted." },
+      "childAdded":     { "title": "Child Added Successfully! 🎉",  "message": "Returning in {{seconds}} sec..." }
+    },
+    "daywork": {
+      "btn": {
+        "okay":   "Okay",
+        "letsGo": "Let's Go! 🚀",
+        "start":  "Start ▷"
+      },
+      "whatToday": {
+        "title":    "What to do today?",
+        "subtitle": "Here's your plan for today. Let's get started!"
+      },
+      "day5": {
+        "title": "Day 5 Work",
+        "item1": "Task 7",
+        "item2": "H.W 5"
+      },
+      "day6": {
+        "title": "Day 6 Work",
+        "item1": "Quiz 3",
+        "item2": "H.W 5"
+      },
+      "day7": {
+        "title": "Day 7 Work",
+        "item1": "Exam 1"
+      },
+      "todayQuiz": {
+        "title":    "Today Quiz",
+        "subtitle": "3 Questions · Quiz 2 · 10 mins"
+      },
+      "todayExam": {
+        "title":    "Today Exam",
+        "subtitle": "Exam 1 · Good luck!"
+      },
+      "soproud": {
+        "title":    "We are so proud of you! 🏆",
+        "subtitle": "You've completed all your work. Amazing job!"
+      }
+    },
+    "addChild": {
+      "title":       "Add your Child",
+      "subtitle":    "Enter your child's National ID to link their profile.",
+      "placeholder": "National ID (10 digits)",
+      "btn": {
+        "okay": "Okay"
+      },
+      "error": {
+        "empty":   "Please enter a National ID.",
+        "invalid": "National ID must be 10 digits."
+      }
+    },
+    "wellDone": {
+      "title":      "Well Done! 🎉",
+      "scoreLabel": "Your score is",
+      "btn":        "Continue"
+    }
   }
 }
