@@ -20,14 +20,13 @@ import {
   selectRole,
   selectIsRTL,
 } from '@/store/authStore'
+import React from 'react'
 
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // How long data is considered fresh (5 min)
       staleTime: 1000 * 60 * 5,
-      // How many times to retry a failed request
       retry: 1,
     },
   },
@@ -68,10 +67,10 @@ export default function RootLayout() {
   useEffect(() => {
     if (!fontsLoaded && !fontError) return
 
-    const inAuthGroup    = segments[0] === './(auth)'
-    const inParentGroup  = segments[0] === './(parent)'
-    const inTeacherGroup = segments[0] === './(teacher)'
-    const inSchoolGroup  = segments[0] === './(school)'
+    const inAuthGroup    = segments[0] === '(auth)'
+    // const inParentGroup  = segments[0] === '(parent)'
+    // const inTeacherGroup = segments[0] === '(teacher)'
+    // const inSchoolGroup  = segments[0] === '(school)'
 
     if (!isAuthenticated) {
 
@@ -83,26 +82,25 @@ export default function RootLayout() {
 
     // Logged in — send to role-appropriate navigator
     // but only if not already there
-    if (role === 'parent' && !inParentGroup) {
-      router.replace('/(parent)')
-      return
-    }
+    // if (role === 'parent' && !inParentGroup) {
+    //   router.replace('/(parent)')
+    //   return
+    // }
 
-    if (role === 'teacher' && !inTeacherGroup) {
-      router.replace('/(teacher)')
-      return
-    }
+    // if (role === 'teacher' && !inTeacherGroup) {
+    //   router.replace('/(teacher)')
+    //   return
+    // }
 
-    if (role === 'school' && !inSchoolGroup) {
-      router.replace('/(school)')
-      return
-    }
+    // if (role === 'school' && !inSchoolGroup) {
+    //   router.replace('/(school)')
+    //   return
+    // }
 
   }, [isAuthenticated, role, fontsLoaded, fontError, segments])
 
-  // ── Don't render anything until fonts load ─
   if (!fontsLoaded && !fontError) {
-    return null   // splash screen is still showing
+    return null  
   }
 
 
