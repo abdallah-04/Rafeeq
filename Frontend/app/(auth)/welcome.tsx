@@ -4,11 +4,10 @@ import React from 'react';
 import PrimaryButton from '@/components/modal/shared/blueButton';
 import SecondaryButton from '@/components/modal/shared/otherbutton';
 import { colors } from '@/constants';
-import ScreenWrapper from '@/components/modal/shared/ScreenWap';
 
 export default function LandingScreen() {
     return (
-    <ScreenWrapper style={styles.container}>
+    <View style={styles.container}>
         {/* Header */}
         <Text style={styles.brand}>RAFEEQ</Text>
         <Text style={styles.brandAr}>رفيق</Text>
@@ -37,7 +36,7 @@ export default function LandingScreen() {
             title="Log In" 
             onPress={() => {}} 
         />
-        </ScreenWrapper>
+        </View>
     );
 }
 

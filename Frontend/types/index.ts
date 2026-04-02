@@ -339,11 +339,14 @@ export interface TreeNode {
  
 // ── AUTH STATE (for Zustand) ─────────────────
 export interface AuthState {
-  role:          UserRole | null;
-  user:          User | null;
-  token:         string | null;
-  selectedChild: Child | null;
-  language:      Language;
-  isRTL:         boolean;
-  isAuthenticated: boolean;
+  role:             UserRole | null;
+  user:             User | null;
+  token:            string | null;
+  selectedChild:    Child | null;
+  language:         Language;
+  isRTL:            boolean;
+  isAuthenticated:  boolean;
+  languageSelected: boolean;
+  isLoading:        boolean;
+  error:            string | null;
 }
