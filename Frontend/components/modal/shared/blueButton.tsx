@@ -1,16 +1,21 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { colors } from '@/constants';
 
 type Props = {
-    title: string;
-    onPress: () => void;
+  title: string;
+  onPress: () => void;
+  disabled?: boolean;
 };
 
-export default function PrimaryButton({ title, onPress }: Props) {
+export default function PrimaryButton({ title, onPress, disabled = false }: Props) {
   return (
-    <TouchableOpacity style={styles.btn} onPress={onPress}>
-      <Text style={styles.btnText}>{title}</Text>
+    <TouchableOpacity
+      style={[styles.btn, disabled && styles.disabled]}
+      onPress={onPress}
+      activeOpacity={0.8}
+      disabled={disabled}
+    >
+      <Text style={styles.text}>{title}</Text>
     </TouchableOpacity>
   );
 }
@@ -18,20 +23,18 @@ export default function PrimaryButton({ title, onPress }: Props) {
 const styles = StyleSheet.create({
   btn: {
     width: '100%',
-    backgroundColor: colors.buttonPrimary,
-    paddingVertical: 15,
-    borderRadius: 30,
-    marginTop: 20,
-    shadowColor: colors.cardShadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    height: 52,
+    backgroundColor: '#508DF7',
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  btnText: {
-    color: colors.textWhite,
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  disabled: {
+    backgroundColor: '#B8CCFA',
+  },
+  text: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
   },
 });

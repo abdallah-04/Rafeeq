@@ -1,7 +1,6 @@
 import React from 'react';
 import { Image, StyleSheet, ImageSourcePropType } from 'react-native';
 import { colors } from '@/constants';
-import "@/assets/images/mascot/rafeeq.png"
 
 type Pose = 'waving' | 'reading' | 'Rafeeq' | 'celebrating' | 'Rafeeqa' | 'spalsh';
 type Size = 'sm' | 'md' | 'lg';
