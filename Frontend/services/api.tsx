@@ -17,6 +17,7 @@ import {
   mockQuizzes, mockTree, mockArticles,
   mockSpecialists, mockChatMessages, mockNotifications,
 } from '@/mock/data';
+import { SchoolStep1Form, SchoolStep2Form } from '@/lib/schemas/schoolSignup';
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://api.rafeeq.app';
@@ -318,4 +319,32 @@ export async function apiGetRoadmap(childId: string): Promise<TreeNode[]> {
   // TODO: return _get(`/ml/roadmap/${childId}`);
   await new Promise((r) => setTimeout(r, 600));
   return mockTree;
+}
+
+export async function registerSchool(
+  step1: SchoolStep1Form,
+  step2: SchoolStep2Form
+) {
+  const res = await fetch(`${process.env.API_BASE_URL}/auth/register/school`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": getLanguage(), // 'en' or 'ar' from your i18n store
+    },
+    body: JSON.stringify({
+      schoolName:        step1.schoolName,
+      schoolId:          step1.schoolId,
+      advisorName:       step1.advisorName,
+      advisorNationalId: step1.advisorNationalId,
+      advisorPhone:      `+962${step2.advisorPhone}`,
+      password:          step2.password,
+    }),
+  })
+
+  if (!res.ok) throw new Error("Registration failed")
+  return res.json()
+}
+
+function getLanguage(): string {
+  throw new Error('Function not implemented.');
 }

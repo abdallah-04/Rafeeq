@@ -1,5 +1,6 @@
 {
   "common": {
+    "login": "Login",
     "continue": "Continue",
     "confirm": "Confirm",
     "cancel": "Cancel",
@@ -466,5 +467,67 @@
       "error": { "empty": "Please enter a National ID.", "invalid": "National ID must be 10 digits." }
     },
     "wellDone": { "title": "Well Done! 🎉", "scoreLabel": "Your score is", "btn": "Continue" }
-  }
+  },
+"schoolSignup": {
+  "title": "Welcome to RAFEEQ",
+  "subtitle": "Set up your school profile to manage student support, monitor progress, and communicate effectively with parents.",
+  "schoolName": "School Name",
+  "schoolNamePlaceholder": "Enter school name",
+  "schoolId": "School ID",
+  "schoolIdPlaceholder": "Enter school ID",
+  "advisorName": "Advisor Name",
+  "advisorNamePlaceholder": "Enter advisor name",
+  "advisorNationalId": "Advisor National ID",
+  "advisorPhone": "Advisor Number",
+  "createPassword": "Create password",
+  "confirmPassword": "Confirm password",
+  "alreadyHaveAccount": "Already have an account?"
+},
+"schoolWelcome": {
+  "welcome": "Welcome,",
+  "mr": "Mr."
+},
+"teachers": {
+  "title": "My Teachers",
+  "addTeacher": "Add Teacher",
+  "addFirst": "Add your first Teacher",
+  "emptyTitle": "It's a little quiet here!",
+  "emptySubtitle": "Add your first teacher to get started managing your school.",
+  "active": "Active",
+  "children": "Child"
+},
+"addTeacher": {
+  "title": "Add Teacher",
+  "addPhoto": "Add Photo",
+  "fullName": "Teacher's Full Name",
+  "fullNamePlaceholder": "Enter full name",
+  "nationalId": "National ID",
+  "phone": "Phone",
+  "createPassword": "Create Password",
+  "confirmPassword": "Confirm Password",
+  "submit": "Add Teacher"
+},
+"students": {
+  "title": "My Students",
+  "addStudent": "Add Student",
+  "addFirst": "Add your first Students",
+  "emptyTitle": "It's a little quiet here!",
+  "emptySubtitle": "Add your first student to start tracking their progress.",
+  "active": "Active",
+  "level": "Level"
+},
+"addStudent": {
+  "title": "Add Student",
+  "fullName": "Child's Full Name",
+  "fullNamePlaceholder": "Enter full name",
+  "nationalId": "National ID",
+  "dateOfBirth": "Date of Birth",
+  "dateOfBirthPlaceholder": "DD / MM / YYYY",
+  "difficulty": "Child's Difficulty",
+  "difficultyPlaceholder": "Select difficulty",
+  "gender": "Gender",
+  "female": "Female",
+  "male": "Male"
+}
+
 }
