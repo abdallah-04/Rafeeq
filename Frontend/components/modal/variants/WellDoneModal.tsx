@@ -14,7 +14,7 @@ export default function WellDoneModal({ score, total, onHide }: Props) {
   return (
     <View style={styles.card}>
       <Image
-        source={require('@/assets/images/penguin_celebrating.png')}
+        source={require('@/assets/images/mascot/rafeeq_clabbing.png')}
         style={styles.penguin}
         resizeMode="contain"
       />

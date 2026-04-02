@@ -29,7 +29,8 @@
     "or": "أو",
     "orContinueWith": "أو تابع بواسطة",
     "privacyPolicy": "سياسة الخصوصية",
-    "termsOfService": "شروط الخدمة",
+    "terms": "شروط الخدمة",
+    "language": "اللغة",
     "getStarted": "ابدأ الآن",
     "letsGo": "هيّا بنا!",
     "comingSoon": "قريباً"
@@ -66,12 +67,12 @@
   "roleSelect": {
     "title": "مرحباً بك في رفيق",
     "subtitle": "من أنت؟ اختر نوع حسابك لتبدأ رحلتك مع رفيق.",
-    "parent": "ولي أمر",
+    "parentTitle": "ولي أمر",
     "parentDesc": "تابع تقدم طفلك وتواصل مع مدرسته",
-    "school": "مدرسة",
+    "schoolTitle": "مدرسة",
     "schoolDesc": "أدر معلمي مدرستك وفصولها وعائلاتها",
-    "alreadyHave": "لديك حساب بالفعل؟",
-    "login": "تسجيل الدخول"
+    "alreadyHaveAccount": "لديك حساب بالفعل؟",
+    "logIn": "تسجيل الدخول"
   },
 
   "auth": {
@@ -122,20 +123,49 @@
       "trustDevice": "الوثوق بهذا الجهاز لمدة شهر",
       "confirmButton": "تأكيد"
     },
-    "forgotPassword": {
-      "enterIdTitle": "نسيت كلمة المرور؟",
-      "enterIdSubtitle": "أدخل رقم هويتك لإعادة تعيين كلمة المرور",
-      "enterPhoneTitle": "تحقق من هويتك",
-      "enterPhoneSubtitle": "أكّد الرقم المنتهي بـ",
-      "newPasswordTitle": "إنشاء كلمة مرور جديدة",
-      "newPassword": "كلمة المرور الجديدة",
-      "confirmPassword": "تأكيد كلمة المرور",
-      "resetButton": "إعادة تعيين كلمة المرور"
-    },
     "welcome": {
       "title": "أهلاً،",
       "subtitle": "يسعدنا وجودك معنا. لنبدأ!",
       "button": "ابدأ الآن"
+    }
+  },
+
+  "forgotPassword": {
+    "screenTitle": "إعادة تعيين كلمة المرور",
+    "step1": {
+      "title": "نسيت كلمة المرور؟",
+      "subtitle": "أدخل رقم هويتك الوطنية وسنساعدك في إعادة تعيينها.",
+      "label": "رقم الهوية الوطنية",
+      "placeholder": "أدخل رقم هويتك المكوّن من ١٠ أرقام"
+    },
+    "step2": {
+      "title": "تحقق من هويتك",
+      "subtitle": "أكّد الرقم المنتهي بـ",
+      "label": "نهاية رقم الهاتف",
+      "placeholder": "آخر ٣ أرقام"
+    },
+    "step3": {
+      "title": "إنشاء كلمة مرور جديدة",
+      "subtitle": "اختر كلمة مرور قوية لم تستخدمها من قبل.",
+      "newPasswordLabel": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "٨ أحرف على الأقل",
+      "confirmPasswordLabel": "تأكيد كلمة المرور الجديدة",
+      "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور",
+      "saveBtn": "حفظ كلمة المرور"
+    },
+    "step4": {
+      "title": "تم تحديث كلمة المرور!",
+      "subtitle": "تم تغيير كلمة مرورك بنجاح.",
+      "returning": "العودة إلى تسجيل الدخول خلال",
+      "loginBtn": "الذهاب إلى تسجيل الدخول"
+    },
+    "errors": {
+      "nationalIdRequired": "رقم الهوية الوطنية مطلوب.",
+      "nationalIdLength": "يجب أن يتكون رقم الهوية من ١٠ أرقام بالضبط.",
+      "phoneRequired": "يرجى إدخال أرقام الهاتف.",
+      "passwordTooShort": "يجب أن تتكون كلمة المرور من ٨ أحرف على الأقل.",
+      "confirmRequired": "يرجى تأكيد كلمة المرور.",
+      "passwordMismatch": "كلمتا المرور غير متطابقتين."
     }
   },
 
@@ -290,28 +320,18 @@
       "progress": "التقدم",
       "reports": "التقارير"
     },
-    "grades": {
-      "comingUp": "المقبل هذا الأسبوع"
-    },
+    "grades": { "comingUp": "المقبل هذا الأسبوع" },
     "progress": {
       "overall": "التقدم الإجمالي",
       "teacherNote": "ملاحظة المعلم",
       "lastWeek": "الأسبوع الماضي"
     },
-    "reports": {
-      "unread": "غير مقروء",
-      "read": "مقروء",
-      "from": "من"
-    }
+    "reports": { "unread": "غير مقروء", "read": "مقروء", "from": "من" }
   },
 
   "progress": {
     "title": "التقدم",
-    "tabs": {
-      "progress": "التقدم",
-      "quizzes": "الاختبارات",
-      "activities": "الأنشطة"
-    },
+    "tabs": { "progress": "التقدم", "quizzes": "الاختبارات", "activities": "الأنشطة" },
     "thisMonth": "هذا الشهر",
     "summary": "ملخص التقدم",
     "focusAttention": "التركيز والانتباه",
@@ -327,17 +347,8 @@
     "questions": "أسئلة",
     "mins": "دقيقة",
     "startQuiz": "ابدأ الاختبار",
-    "status": {
-      "new": "جديد",
-      "in_progress": "جارٍ",
-      "completed": "مكتمل",
-      "later": "لاحقاً"
-    },
-    "detail": {
-      "level": "المستوى",
-      "notTaken": "لم يُؤدَّ بعد",
-      "completedOn": "اكتمل"
-    },
+    "status": { "new": "جديد", "in_progress": "جارٍ", "completed": "مكتمل", "later": "لاحقاً" },
+    "detail": { "level": "المستوى", "notTaken": "لم يُؤدَّ بعد", "completedOn": "اكتمل" },
     "keepGoing": "من",
     "keepGoingUnit": "اختبار مكتمل",
     "keepGoingPeriod": "هذا الأسبوع"
@@ -350,11 +361,7 @@
     "keepGoing": "من",
     "keepGoingUnit": "واجب مكتمل",
     "keepGoingPeriod": "هذا الأسبوع",
-    "status": {
-      "not_submitted": "قيد الانتظار",
-      "submitted": "تم التسليم",
-      "graded": "مصحَّح"
-    }
+    "status": { "not_submitted": "قيد الانتظار", "submitted": "تم التسليم", "graded": "مصحَّح" }
   },
 
   "tree": {
@@ -419,133 +426,45 @@
     }
   },
 
-  "modals": {
-    "errors": {
-      "incompleteInfo": "معلومات ناقصة",
-      "incompleteInfoDesc": "يرجى ملء جميع الحقول المطلوبة",
-      "invalidCode": "رمز غير صحيح",
-      "invalidCodeDesc": "الرمز الذي أدخلته غير صحيح. يرجى المحاولة مجدداً",
-      "invalidId": "هوية غير صالحة",
-      "invalidIdDesc": "رقم الهوية الذي أدخلته غير موجود",
-      "passwordMismatch": "كلمتا المرور غير متطابقتين",
-      "passwordMismatchDesc": "يرجى التأكد من تطابق كلمتي المرور",
-      "incorrectNumber": "رقم غير صحيح",
-      "incorrectNumberDesc": "رقم الهاتف الذي أدخلته غير صحيح",
-      "invalidInfo": "معلومات غير صالحة",
-      "invalidInfoDesc": "يرجى مراجعة بياناتك والمحاولة مجدداً"
-    },
-    "success": {
-      "greatJob": "أحسنت!",
-      "reportAdded": "تم إضافة التقرير",
-      "reportAddedDesc": "تم إرسال التقرير إلى ولي الأمر",
-      "hwAdded": "تم إضافة الواجب",
-      "hwAddedDesc": "تم تعيين الواجب للفصل",
-      "noteAdded": "تم إضافة الملاحظة",
-      "saved": "تم الحفظ!",
-      "savedDesc": "تم حفظ هذا المقال في قائمتك",
-      "downloadDone": "اكتمل التحميل",
-      "passwordUpdated": "تم تحديث كلمة المرور",
-      "passwordUpdatedDesc": "تم تغيير كلمة مرورك بنجاح",
-      "submitSuccess": "تم الإرسال بنجاح",
-      "childAdded": "تمت إضافة الطفل بنجاح",
-      "childAddedDesc": "العودة إلى قائمة أطفالك خلال",
-      "seconds": "ثوانٍ"
-    },
-    "dayWork": {
-      "whatToDo": "ماذا تفعل اليوم",
-      "letsGo": "هيّا بنا!",
-      "proud": "نحن فخورون بك جداً!",
-      "proudDesc": "لقد أكملت جميع مهام اليوم!"
-    },
-    "addChild": {
-      "title": "أضف طفلك",
-      "subtitle": "أدخل رقم هوية طفلك الوطنية",
-      "placeholder": "رقم هوية الطفل",
-      "button": "حسناً"
-    },
-    "wellDone": {
-      "title": "أحسنت!",
-      "score": "نتيجتك هي"
-    }
-  },
-
-  "keepGoing": {
-    "banner": "من",
-    "completed": "مكتمل"
-  },
-
-  "badges": {
-    "add": "نقص انتباه",
-    "adhd": "فرط حركة",
-    "asd": "توحد",
-    "dys": "عسر قراءة",
-    "ifd": "إعاقة ذهنية",
-    "active": "نشط",
-    "completed": "مكتمل",
-    "inProgress": "جارٍ",
-    "new": "جديد",
-    "later": "لاحقاً",
-    "level": "المستوى"
-  },
-
   "modal": {
     "error": {
-      "btn": {
-        "okay": "حسناً",
-        "tryAgain": "حاول مرة أخرى"
-      },
-      "incompleteInfo":   { "title": "معلومات ناقصة",          "message": "يرجى ملء جميع الحقول المطلوبة." },
-      "invalidCode":      { "title": "رمز غير صالح",           "message": "هذا الرمز غير صحيح أو منتهي الصلاحية." },
-      "invalidId":        { "title": "رقم هوية غير صالح",     "message": "يرجى إدخال رقم هوية وطنية صحيح." },
-      "passwordMismatch": { "title": "كلمات المرور غير متطابقة","message": "يرجى التأكد من تطابق كلمتي المرور." },
-      "incorrectNumber":  { "title": "رقم غير صحيح",           "message": "رقم الهاتف المُدخل غير صحيح." },
-      "invalidInfo":      { "title": "معلومات غير صالحة",       "message": "بعض المعلومات المُدخلة غير صحيحة." }
+      "btn": { "okay": "حسناً", "tryAgain": "حاول مرة أخرى" },
+      "incompleteInfo":   { "title": "معلومات ناقصة",            "message": "يرجى ملء جميع الحقول المطلوبة." },
+      "invalidCode":      { "title": "رمز غير صالح",             "message": "هذا الرمز غير صحيح أو منتهي الصلاحية." },
+      "invalidId":        { "title": "رقم هوية غير صالح",       "message": "يرجى إدخال رقم هوية وطنية صحيح." },
+      "passwordMismatch": { "title": "كلمات المرور غير متطابقة", "message": "يرجى التأكد من تطابق كلمتي المرور." },
+      "incorrectNumber":  { "title": "رقم غير صحيح",             "message": "رقم الهاتف المُدخل غير صحيح." },
+      "invalidInfo":      { "title": "معلومات غير صالحة",         "message": "بعض المعلومات المُدخلة غير صحيحة." }
     },
     "success": {
-      "btn": {
-        "okay": "حسناً"
-      },
-      "greatJob":       { "title": "أحسنت! 🎉",                       "message": "" },
-      "reportAdded":    { "title": "تمت إضافة التقرير",                "message": "تمت إضافة التقرير بنجاح." },
-      "hwAdded":        { "title": "تمت إضافة الواجب",                 "message": "تمت إضافة الواجب المنزلي بنجاح." },
-      "noteAdded":      { "title": "تمت إضافة الملاحظة",               "message": "تم حفظ ملاحظتك." },
-      "saved":          { "title": "تم الحفظ!",                        "message": "تم حفظ هذا المقال في مكتبتك." },
-      "downloadDone":   { "title": "اكتمل التنزيل",                    "message": "تم تنزيل الملف بنجاح." },
-      "passwordUpdate": { "title": "تم تحديث كلمة المرور",             "message": "تم تغيير كلمة المرور بنجاح." },
-      "submitSuccess":  { "title": "تم الإرسال بنجاح",                 "message": "تم إرسال إجابتك." },
-      "childAdded":     { "title": "تمت إضافة الطفل بنجاح! 🎉",       "message": "العودة خلال {{seconds}} ثانية..." }
+      "btn": { "okay": "حسناً" },
+      "greatJob":       { "title": "أحسنت! 🎉",                        "message": "" },
+      "reportAdded":    { "title": "تمت إضافة التقرير",                 "message": "تمت إضافة التقرير بنجاح." },
+      "hwAdded":        { "title": "تمت إضافة الواجب",                  "message": "تمت إضافة الواجب المنزلي بنجاح." },
+      "noteAdded":      { "title": "تمت إضافة الملاحظة",                "message": "تم حفظ ملاحظتك." },
+      "saved":          { "title": "تم الحفظ!",                         "message": "تم حفظ هذا المقال في مكتبتك." },
+      "downloadDone":   { "title": "اكتمل التنزيل",                     "message": "تم تنزيل الملف بنجاح." },
+      "passwordUpdate": { "title": "تم تحديث كلمة المرور",              "message": "تم تغيير كلمة المرور بنجاح." },
+      "submitSuccess":  { "title": "تم الإرسال بنجاح",                  "message": "تم إرسال إجابتك." },
+      "childAdded":     { "title": "تمت إضافة الطفل بنجاح! 🎉",        "message": "العودة خلال {{seconds}} ثانية..." }
     },
     "daywork": {
-      "btn": {
-        "okay":   "حسناً",
-        "letsGo": "هيا بنا! 🚀",
-        "start":  "ابدأ ▷"
-      },
-      "whatToday": {
-        "title":    "ماذا تفعل اليوم؟",
-        "subtitle": "هذه خطتك لليوم. هيا نبدأ!"
-      },
+      "btn": { "okay": "حسناً", "letsGo": "هيا بنا! 🚀", "start": "ابدأ ▷" },
+      "whatToday": { "title": "ماذا تفعل اليوم؟", "subtitle": "هذه خطتك لليوم. هيا نبدأ!" },
       "day5": { "title": "عمل اليوم الخامس", "item1": "المهمة 7", "item2": "الواجب 5" },
       "day6": { "title": "عمل اليوم السادس", "item1": "الاختبار 3", "item2": "الواجب 5" },
       "day7": { "title": "عمل اليوم السابع", "item1": "الامتحان 1" },
-      "todayQuiz":  { "title": "اختبار اليوم",  "subtitle": "٣ أسئلة · الاختبار ٢ · ١٠ دقائق" },
-      "todayExam":  { "title": "امتحان اليوم",  "subtitle": "الامتحان ١ · حظاً موفقاً!" },
-      "soproud":    { "title": "نحن فخورون جداً بك! 🏆", "subtitle": "لقد أنجزت جميع مهامك. عمل رائع!" }
+      "todayQuiz": { "title": "اختبار اليوم",  "subtitle": "٣ أسئلة · الاختبار ٢ · ١٠ دقائق" },
+      "todayExam": { "title": "امتحان اليوم",  "subtitle": "الامتحان ١ · حظاً موفقاً!" },
+      "soproud":   { "title": "نحن فخورون جداً بك! 🏆", "subtitle": "لقد أنجزت جميع مهامك. عمل رائع!" }
     },
     "addChild": {
-      "title":       "أضف طفلك",
-      "subtitle":    "أدخل رقم الهوية الوطنية لطفلك لربط ملفه الشخصي.",
+      "title": "أضف طفلك",
+      "subtitle": "أدخل رقم الهوية الوطنية لطفلك لربط ملفه الشخصي.",
       "placeholder": "رقم الهوية الوطنية (١٠ أرقام)",
       "btn": { "okay": "حسناً" },
-      "error": {
-        "empty":   "يرجى إدخال رقم الهوية الوطنية.",
-        "invalid": "يجب أن يتكون رقم الهوية من ١٠ أرقام."
-      }
+      "error": { "empty": "يرجى إدخال رقم الهوية الوطنية.", "invalid": "يجب أن يتكون رقم الهوية من ١٠ أرقام." }
     },
-    "wellDone": {
-      "title":      "أحسنت! 🎉",
-      "scoreLabel": "نتيجتك هي",
-      "btn":        "متابعة"
-    }
+    "wellDone": { "title": "أحسنت! 🎉", "scoreLabel": "نتيجتك هي", "btn": "متابعة" }
   }
 }

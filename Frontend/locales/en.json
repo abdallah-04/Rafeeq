@@ -29,7 +29,8 @@
     "or": "or",
     "orContinueWith": "OR CONTINUE WITH",
     "privacyPolicy": "Privacy Policy",
-    "termsOfService": "Terms of Service",
+    "terms": "Terms of Service",
+    "language": "Language",
     "getStarted": "Get Started",
     "letsGo": "Let's go!",
     "comingSoon": "Coming soon"
@@ -66,12 +67,12 @@
   "roleSelect": {
     "title": "Welcome to RAFEEQ",
     "subtitle": "Who are you? Choose your account type to get started on your journey with Rafeeq.",
-    "parent": "Parent",
+    "parentTitle": "Parent",
     "parentDesc": "Track your child's progress and connect with their school",
-    "school": "School",
+    "schoolTitle": "School",
     "schoolDesc": "Manage your school's teachers, classes, and families",
-    "alreadyHave": "Already have an account?",
-    "login": "Log in"
+    "alreadyHaveAccount": "Already have an account?",
+    "logIn": "Log in"
   },
 
   "auth": {
@@ -122,20 +123,49 @@
       "trustDevice": "Trust this device for a month",
       "confirmButton": "Confirm"
     },
-    "forgotPassword": {
-      "enterIdTitle": "Forgot password?",
-      "enterIdSubtitle": "Enter your national ID to reset your password",
-      "enterPhoneTitle": "Verify your identity",
-      "enterPhoneSubtitle": "Confirm the number ending with",
-      "newPasswordTitle": "Create new password",
-      "newPassword": "New password",
-      "confirmPassword": "Confirm new password",
-      "resetButton": "Reset password"
-    },
     "welcome": {
       "title": "Welcome,",
       "subtitle": "We're glad to have you here. Let's get started!",
       "button": "Get Started"
+    }
+  },
+
+  "forgotPassword": {
+    "screenTitle": "Reset Password",
+    "step1": {
+      "title": "Forgot your password?",
+      "subtitle": "Enter your National ID and we'll help you reset it.",
+      "label": "National ID",
+      "placeholder": "Enter your 10-digit national ID"
+    },
+    "step2": {
+      "title": "Verify your identity",
+      "subtitle": "Confirm the phone number ending with",
+      "label": "Phone number ending",
+      "placeholder": "Last 3 digits"
+    },
+    "step3": {
+      "title": "Create new password",
+      "subtitle": "Choose a strong password that you haven't used before.",
+      "newPasswordLabel": "New password",
+      "newPasswordPlaceholder": "At least 8 characters",
+      "confirmPasswordLabel": "Confirm new password",
+      "confirmPasswordPlaceholder": "Re-enter your password",
+      "saveBtn": "Save password"
+    },
+    "step4": {
+      "title": "Password Updated!",
+      "subtitle": "Your password has been changed successfully.",
+      "returning": "Returning to login in",
+      "loginBtn": "Go to Login"
+    },
+    "errors": {
+      "nationalIdRequired": "National ID is required.",
+      "nationalIdLength": "National ID must be exactly 10 digits.",
+      "phoneRequired": "Please enter the phone number digits.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "confirmRequired": "Please confirm your password.",
+      "passwordMismatch": "Passwords do not match."
     }
   },
 
@@ -290,28 +320,18 @@
       "progress": "Progress",
       "reports": "Reports"
     },
-    "grades": {
-      "comingUp": "Coming Up This Week"
-    },
+    "grades": { "comingUp": "Coming Up This Week" },
     "progress": {
       "overall": "Overall Progress",
       "teacherNote": "Teacher's Note",
       "lastWeek": "Last week"
     },
-    "reports": {
-      "unread": "Unread",
-      "read": "Read",
-      "from": "From"
-    }
+    "reports": { "unread": "Unread", "read": "Read", "from": "From" }
   },
 
   "progress": {
     "title": "Progress",
-    "tabs": {
-      "progress": "Progress",
-      "quizzes": "Quizzes",
-      "activities": "Activities"
-    },
+    "tabs": { "progress": "Progress", "quizzes": "Quizzes", "activities": "Activities" },
     "thisMonth": "This Month",
     "summary": "Progress Summary",
     "focusAttention": "Focus & Attention",
@@ -327,17 +347,8 @@
     "questions": "questions",
     "mins": "mins",
     "startQuiz": "Start Quiz",
-    "status": {
-      "new": "New",
-      "in_progress": "In progress",
-      "completed": "Completed",
-      "later": "Later"
-    },
-    "detail": {
-      "level": "Level",
-      "notTaken": "Not taken yet",
-      "completedOn": "Completed"
-    },
+    "status": { "new": "New", "in_progress": "In progress", "completed": "Completed", "later": "Later" },
+    "detail": { "level": "Level", "notTaken": "Not taken yet", "completedOn": "Completed" },
     "keepGoing": "of",
     "keepGoingUnit": "Quiz completed",
     "keepGoingPeriod": "This week"
@@ -350,11 +361,7 @@
     "keepGoing": "of",
     "keepGoingUnit": "H.W completed",
     "keepGoingPeriod": "This week",
-    "status": {
-      "not_submitted": "Pending",
-      "submitted": "Submitted",
-      "graded": "Graded"
-    }
+    "status": { "not_submitted": "Pending", "submitted": "Submitted", "graded": "Graded" }
   },
 
   "tree": {
@@ -419,80 +426,9 @@
     }
   },
 
-  "modals": {
-    "errors": {
-      "incompleteInfo": "Incomplete Information",
-      "incompleteInfoDesc": "Please fill in all required fields",
-      "invalidCode": "Invalid Code",
-      "invalidCodeDesc": "The code you entered is incorrect. Please try again",
-      "invalidId": "Invalid ID",
-      "invalidIdDesc": "The national ID you entered was not found",
-      "passwordMismatch": "Passwords Do Not Match",
-      "passwordMismatchDesc": "Please make sure both passwords are the same",
-      "incorrectNumber": "Incorrect Number",
-      "incorrectNumberDesc": "The phone number you entered is incorrect",
-      "invalidInfo": "Invalid Information",
-      "invalidInfoDesc": "Please check your details and try again"
-    },
-    "success": {
-      "greatJob": "Great Job!",
-      "reportAdded": "Report Added",
-      "reportAddedDesc": "The report has been sent to the parent",
-      "hwAdded": "H.W Added",
-      "hwAddedDesc": "Homework has been assigned to the class",
-      "noteAdded": "Note Added",
-      "saved": "Saved!",
-      "savedDesc": "This article has been saved to your list",
-      "downloadDone": "Download Done",
-      "passwordUpdated": "Password Updated",
-      "passwordUpdatedDesc": "Your password has been changed successfully",
-      "submitSuccess": "Submitted Successfully",
-      "childAdded": "Child Added Successfully",
-      "childAddedDesc": "Returning to your children list in",
-      "seconds": "seconds"
-    },
-    "dayWork": {
-      "whatToDo": "What to do today",
-      "letsGo": "Let's go!",
-      "proud": "We are so proud of you!",
-      "proudDesc": "You completed all tasks for today!"
-    },
-    "addChild": {
-      "title": "Add your Child",
-      "subtitle": "Enter your child's national ID",
-      "placeholder": "Child's national ID",
-      "button": "Okay"
-    },
-    "wellDone": {
-      "title": "Well done!",
-      "score": "Your score is"
-    }
-  },
-
-  "keepGoing": {
-    "banner": "of",
-    "completed": "completed"
-  },
-
-  "badges": {
-    "add": "ADD",
-    "adhd": "ADHD",
-    "asd": "ASD",
-    "dys": "Dyslexia",
-    "ifd": "IFD",
-    "active": "Active",
-    "completed": "Completed",
-    "inProgress": "In progress",
-    "new": "New",
-    "later": "Later",
-    "level": "Level"
-  },
-    "modal": {
+  "modal": {
     "error": {
-      "btn": {
-        "okay": "Okay",
-        "tryAgain": "Try Again"
-      },
+      "btn": { "okay": "Okay", "tryAgain": "Try Again" },
       "incompleteInfo":   { "title": "Incomplete Information", "message": "Please fill in all required fields." },
       "invalidCode":      { "title": "Invalid Code",           "message": "This code is incorrect or expired." },
       "invalidId":        { "title": "Invalid ID",             "message": "Please enter a valid national ID." },
@@ -501,72 +437,34 @@
       "invalidInfo":      { "title": "Invalid Information",    "message": "Some information entered is invalid." }
     },
     "success": {
-      "btn": {
-        "okay": "Okay"
-      },
-      "greatJob":       { "title": "Great Job! 🎉",                 "message": "" },
-      "reportAdded":    { "title": "Report Added",                   "message": "The report has been added successfully." },
-      "hwAdded":        { "title": "H.W Added",                     "message": "The homework has been added successfully." },
-      "noteAdded":      { "title": "Note Added",                    "message": "Your note has been saved." },
-      "saved":          { "title": "Saved!",                        "message": "This article has been saved to your library." },
-      "downloadDone":   { "title": "Download Done",                 "message": "Your file has been downloaded successfully." },
-      "passwordUpdate": { "title": "Password Updated",              "message": "Your password has been changed successfully." },
-      "submitSuccess":  { "title": "Submitted Successfully",        "message": "Your response has been submitted." },
-      "childAdded":     { "title": "Child Added Successfully! 🎉",  "message": "Returning in {{seconds}} sec..." }
+      "btn": { "okay": "Okay" },
+      "greatJob":       { "title": "Great Job! 🎉",                "message": "" },
+      "reportAdded":    { "title": "Report Added",                  "message": "The report has been added successfully." },
+      "hwAdded":        { "title": "H.W Added",                    "message": "The homework has been added successfully." },
+      "noteAdded":      { "title": "Note Added",                   "message": "Your note has been saved." },
+      "saved":          { "title": "Saved!",                       "message": "This article has been saved to your library." },
+      "downloadDone":   { "title": "Download Done",                "message": "Your file has been downloaded successfully." },
+      "passwordUpdate": { "title": "Password Updated",             "message": "Your password has been changed successfully." },
+      "submitSuccess":  { "title": "Submitted Successfully",       "message": "Your response has been submitted." },
+      "childAdded":     { "title": "Child Added Successfully! 🎉", "message": "Returning in {{seconds}} sec..." }
     },
     "daywork": {
-      "btn": {
-        "okay":   "Okay",
-        "letsGo": "Let's Go! 🚀",
-        "start":  "Start ▷"
-      },
-      "whatToday": {
-        "title":    "What to do today?",
-        "subtitle": "Here's your plan for today. Let's get started!"
-      },
-      "day5": {
-        "title": "Day 5 Work",
-        "item1": "Task 7",
-        "item2": "H.W 5"
-      },
-      "day6": {
-        "title": "Day 6 Work",
-        "item1": "Quiz 3",
-        "item2": "H.W 5"
-      },
-      "day7": {
-        "title": "Day 7 Work",
-        "item1": "Exam 1"
-      },
-      "todayQuiz": {
-        "title":    "Today Quiz",
-        "subtitle": "3 Questions · Quiz 2 · 10 mins"
-      },
-      "todayExam": {
-        "title":    "Today Exam",
-        "subtitle": "Exam 1 · Good luck!"
-      },
-      "soproud": {
-        "title":    "We are so proud of you! 🏆",
-        "subtitle": "You've completed all your work. Amazing job!"
-      }
+      "btn": { "okay": "Okay", "letsGo": "Let's Go! 🚀", "start": "Start ▷" },
+      "whatToday": { "title": "What to do today?", "subtitle": "Here's your plan for today. Let's get started!" },
+      "day5": { "title": "Day 5 Work", "item1": "Task 7", "item2": "H.W 5" },
+      "day6": { "title": "Day 6 Work", "item1": "Quiz 3", "item2": "H.W 5" },
+      "day7": { "title": "Day 7 Work", "item1": "Exam 1" },
+      "todayQuiz": { "title": "Today Quiz", "subtitle": "3 Questions · Quiz 2 · 10 mins" },
+      "todayExam": { "title": "Today Exam", "subtitle": "Exam 1 · Good luck!" },
+      "soproud":   { "title": "We are so proud of you! 🏆", "subtitle": "You've completed all your work. Amazing job!" }
     },
     "addChild": {
-      "title":       "Add your Child",
-      "subtitle":    "Enter your child's National ID to link their profile.",
+      "title": "Add your Child",
+      "subtitle": "Enter your child's National ID to link their profile.",
       "placeholder": "National ID (10 digits)",
-      "btn": {
-        "okay": "Okay"
-      },
-      "error": {
-        "empty":   "Please enter a National ID.",
-        "invalid": "National ID must be 10 digits."
-      }
+      "btn": { "okay": "Okay" },
+      "error": { "empty": "Please enter a National ID.", "invalid": "National ID must be 10 digits." }
     },
-    "wellDone": {
-      "title":      "Well Done! 🎉",
-      "scoreLabel": "Your score is",
-      "btn":        "Continue"
-    }
+    "wellDone": { "title": "Well Done! 🎉", "scoreLabel": "Your score is", "btn": "Continue" }
   }
 }

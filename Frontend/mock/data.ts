@@ -1,390 +1,214 @@
+// mock/data.ts
+// ─────────────────────────────────────────────────────────────────────────────
+//  All exports match exactly what api.tsx imports.
+//  Bilingual (EN + AR). 3–5 items per list.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import type {
-  Child,
-  Parent,
-  Teacher,
-  School,
-  Progress,
-  Task,
-  Homework,
-  Quiz,
-  Question,
-  Report,
-  Note,
-  Article,
-  ChatMessage,
-  Notification,
-  SubjectGrade,
-  TreeNode,
-  AuthState,
-} from '../types'
+  User, Parent, Teacher, School, Child, Progress,
+  Task, Homework, Report, Note, Exam, Question, Score,
+  Quiz, Article, Specialist, ChatMessage, Notification,
+  TreeNode, SubjectGrade,
+} from '@/types';
 
-// ─────────────────────────────────────────────
-//  1. PROGRESS
-//  Defined first because Child references it
-// ─────────────────────────────────────────────
-
+// ── PROGRESS ─────────────────────────────────────────────────────────────────
 export const mockProgressZaid: Progress = {
   overall:          65,
-  focusAttention:   62,
+  focusAttention:   72,
   mathematics:      59,
-  socialSkills:     90,
-  communication:    70,
+  socialSkills:     80,
+  communication:    68,
   motorSkills:      55,
-  tasksThisWeek:    2,
-  totalTasks:       8,
-  quizzesCompleted: 1,
-  totalQuizzes:     3,
-  activitiesDone:   4,
-  totalActivities:  6,
-  updatedAt:        '2026-03-28T10:00:00Z',
-}
-
-export const mockProgressAyoub: Progress = {
-  overall:          78,
-  focusAttention:   80,
-  mathematics:      75,
-  socialSkills:     68,
-  communication:    85,
-  motorSkills:      72,
   tasksThisWeek:    5,
   totalTasks:       8,
   quizzesCompleted: 2,
-  totalQuizzes:     3,
-  activitiesDone:   5,
+  totalQuizzes:     4,
+  activitiesDone:   3,
   totalActivities:  6,
-  updatedAt:        '2026-03-28T09:00:00Z',
-}
+  updatedAt:        '2026-04-01T10:00:00Z',
+};
 
-export const mockProgressMona: Progress = {
-  overall:          45,
-  focusAttention:   40,
-  mathematics:      38,
-  socialSkills:     55,
-  communication:    50,
-  motorSkills:      42,
-  tasksThisWeek:    1,
-  totalTasks:       8,
-  quizzesCompleted: 0,
-  totalQuizzes:     3,
-  activitiesDone:   2,
-  totalActivities:  6,
-  updatedAt:        '2026-03-27T14:00:00Z',
-}
-
-// ─────────────────────────────────────────────
-//  2. CHILDREN
-//  Core of the app — every other object links
-//  back to a child via childId
-// ─────────────────────────────────────────────
-
+// ── CHILDREN ─────────────────────────────────────────────────────────────────
 export const mockChildZaid: Child = {
-  id:           'child-001',
+  id:           'child-1',
   name:         'Zaid Ahmad',
   nameAr:       'زيد أحمد',
   nationalId:   '1234567890',
   dateOfBirth:  '2018-03-15',
   age:          8,
   gender:       'male',
-  avatarUrl:    undefined,          // no photo — will show initials
   specialNeed:  'ADD',
   level:        2,
-  schoolId:     'school-001',
+  schoolId:     'school-1',
   schoolName:   'Al-Noor School',
-  teacherId:    'teacher-001',
-  parentId:     'parent-001',
+  teacherId:    'teacher-1',
+  parentId:     'parent-1',
   progress:     mockProgressZaid,
   streakDays:   14,
   achievements: 3,
-}
+};
 
 export const mockChildAyoub: Child = {
-  id:           'child-002',
+  id:           'child-2',
   name:         'Ayoub Maher',
   nameAr:       'أيوب ماهر',
-  nationalId:   '0987654321',
-  dateOfBirth:  '2017-07-22',
+  nationalId:   '2345678901',
+  dateOfBirth:  '2017-06-10',
   age:          9,
   gender:       'male',
-  avatarUrl:    undefined,
-  specialNeed:  'ADHD',
+  specialNeed:  'ADD',
   level:        3,
-  schoolId:     'school-001',
+  schoolId:     'school-1',
   schoolName:   'Al-Noor School',
-  teacherId:    'teacher-001',
-  parentId:     'parent-002',
-  progress:     mockProgressAyoub,
-  streakDays:   7,
-  achievements: 5,
-}
+  teacherId:    'teacher-1',
+  parentId:     'parent-2',
+  progress:     { ...mockProgressZaid, overall: 62 },
+  streakDays:   5,
+  achievements: 2,
+};
 
 export const mockChildMona: Child = {
-  id:           'child-003',
+  id:           'child-3',
   name:         'Mona Ramzi',
   nameAr:       'منى رمزي',
-  nationalId:   '1122334455',
-  dateOfBirth:  '2019-01-10',
-  age:          7,
+  nationalId:   '3456789012',
+  dateOfBirth:  '2016-11-22',
+  age:          9,
   gender:       'female',
-  avatarUrl:    undefined,
-  specialNeed:  'ASD',
-  level:        1,
-  schoolId:     'school-001',
+  specialNeed:  'ADHD',
+  level:        5,
+  schoolId:     'school-1',
   schoolName:   'Al-Noor School',
-  teacherId:    'teacher-001',
-  parentId:     'parent-003',
-  progress:     mockProgressMona,
-  streakDays:   3,
-  achievements: 1,
-}
+  teacherId:    'teacher-1',
+  parentId:     'parent-3',
+  progress:     { ...mockProgressZaid, overall: 74 },
+  streakDays:   10,
+  achievements: 4,
+};
 
-// Convenience array — use this for lists
-export const mockChildren: Child[] = [
-  mockChildZaid,
-  mockChildAyoub,
-  mockChildMona,
-]
+export const mockChildren: Child[] = [mockChildZaid, mockChildAyoub, mockChildMona];
 
-// ─────────────────────────────────────────────
-//  3. PARENT
-//  One parent per child for now.
-//  mockParent is the "logged in" parent (Zaid's dad)
-// ─────────────────────────────────────────────
-
-export const mockParent: Parent = {
-  id:         'parent-001',
-  name:       'Ahmad Khalid',
-  nameAr:     'أحمد خالد',
-  phone:      '+96279XXXXXXX',
-  nationalId: '9988776655',
+// ── USERS ─────────────────────────────────────────────────────────────────────
+export const mockParent: User = {
+  id:         'parent-1',
+  name:       'Ahmad Al-Khalidi',
+  nameAr:     'أحمد الخالدي',
+  phone:      '+962791234567',
+  nationalId: '1111111111',
   role:       'parent',
-  avatarUrl:  undefined,
   language:   'en',
   createdAt:  '2026-01-10T08:00:00Z',
-  children:   [mockChildZaid],      // Zaid is Ahmad's child
-}
+};
 
-// ─────────────────────────────────────────────
-//  4. TEACHER
-//  Ahmad Sami teaches the class that includes
-//  all three mock children
-// ─────────────────────────────────────────────
+export const mockTeacher: User = {
+  id:         'teacher-1',
+  name:       'Sara Mahmoud',
+  nameAr:     'سارة محمود',
+  phone:      '+962799876543',
+  nationalId: '2222222222',
+  role:       'teacher',
+  language:   'en',
+  createdAt:  '2026-01-05T08:00:00Z',
+};
 
-export const mockTeacher: Teacher = {
-  id:           'teacher-001',
-  name:         'Ahmad Sami',
-  nameAr:       'أحمد سامي',
-  phone:        '+96278XXXXXXX',
-  nationalId:   '5566778899',
-  role:         'teacher',
-  avatarUrl:    undefined,
-  language:     'en',
-  createdAt:    '2025-09-01T08:00:00Z',
-  schoolId:     'school-001',
-  grade:        'Grade 2',
-  section:      'Section A',
-  teacherNumber: 'TCH-2024-001',
-  students:     mockChildren,
-}
+// ── TEACHERS ─────────────────────────────────────────────────────────────────
+export const mockTeachers: Teacher[] = [
+  {
+    id:            'teacher-1',
+    name:          'Ahmad Sami',
+    nameAr:        'أحمد سامي',
+    phone:         '+962791111111',
+    nationalId:    '4444444444',
+    role:          'teacher',
+    language:      'en',
+    createdAt:     '2026-01-05T08:00:00Z',
+    schoolId:      'school-1',
+    grade:         'Grade 2',
+    section:       'Section A',
+    students:      mockChildren,
+    teacherNumber: 'T-001',
+  },
+  {
+    id:            'teacher-2',
+    name:          'Tala Kamal',
+    nameAr:        'تالا كمال',
+    phone:         '+962792222222',
+    nationalId:    '5555555555',
+    role:          'teacher',
+    language:      'en',
+    createdAt:     '2026-01-08T08:00:00Z',
+    schoolId:      'school-1',
+    grade:         'Grade 3',
+    section:       'Section B',
+    students:      [],
+    teacherNumber: 'T-002',
+  },
+];
 
-export const mockTeacher2: Teacher = {
-  id:           'teacher-002',
-  name:         'Tala Kamal',
-  nameAr:       'تالا كمال',
-  phone:        '+96277XXXXXXX',
-  nationalId:   '4455667788',
-  role:         'teacher',
-  avatarUrl:    undefined,
-  language:     'ar',
-  createdAt:    '2025-09-01T08:00:00Z',
-  schoolId:     'school-001',
-  grade:        'Grade 3',
-  section:      'Section B',
-  teacherNumber: 'TCH-2024-002',
-  students:     [],
-}
-
-export const mockTeachers: Teacher[] = [mockTeacher, mockTeacher2]
-
-// ─────────────────────────────────────────────
-//  5. SCHOOL
-// ─────────────────────────────────────────────
-
+// ── SCHOOL ────────────────────────────────────────────────────────────────────
 export const mockSchool: School = {
-  id:               'school-001',
-  name:             'Al-Noor School',
-  nameAr:           'مدرسة النور',
-  schoolId:         'SCH-2024-001',
-  advisorName:      'Sara Mahmoud',
-  advisorNationalId: '3344556677',
-  phone:            '+96265XXXXXXX',
-  location:         'Amman',
-  description:      'A school specialising in education for children with special needs.',
-  teachers:         mockTeachers,
-  logoUrl:          undefined,
-  createdAt:        '2020-08-15T08:00:00Z',
-}
+  id:                'school-1',
+  name:              'Al-Noor Special Education School',
+  nameAr:            'مدرسة النور للتربية الخاصة',
+  schoolId:          'SCH-001',
+  advisorName:       'Omar Nasser',
+  advisorNationalId: '3333333333',
+  phone:             '+96264123456',
+  location:          'Amman',
+  teachers:          mockTeachers,
+  createdAt:         '2025-09-01T08:00:00Z',
+};
 
-// ─────────────────────────────────────────────
-//  6. TASKS
-//  Daily tasks on the learning tree
-//  dayNumber maps to the tree node (1–7)
-// ─────────────────────────────────────────────
-
-export const mockTasks: Task[] = [
-  {
-    id:            'task-001',
-    title:         'Color sorting activity',
-    titleAr:       'نشاط تصنيف الألوان',
-    description:   'Sort colored blocks into matching groups.',
-    descriptionAr: 'رتّب المكعبات الملونة في مجموعات متطابقة.',
-    status:        'completed',
-    childId:       'child-001',
-    dueDate:       '2026-03-24',
-    completedAt:   '2026-03-24T11:00:00Z',
-    dayNumber:     1,
-  },
-  {
-    id:            'task-002',
-    title:         'Count objects 1–10',
-    titleAr:       'عدّ الأشياء من ١ إلى ١٠',
-    description:   'Count the objects shown on each card.',
-    descriptionAr: 'عدّ الأشياء المعروضة على كل بطاقة.',
-    status:        'completed',
-    childId:       'child-001',
-    dueDate:       '2026-03-25',
-    completedAt:   '2026-03-25T10:30:00Z',
-    dayNumber:     2,
-  },
-  {
-    id:            'task-003',
-    title:         'Animal sounds quiz',
-    titleAr:       'اختبار أصوات الحيوانات',
-    description:   'Match the animal to the sound it makes.',
-    descriptionAr: 'طابق الحيوان مع الصوت الذي يصدره.',
-    status:        'completed',
-    childId:       'child-001',
-    dueDate:       '2026-03-26',
-    completedAt:   '2026-03-26T09:00:00Z',
-    dayNumber:     3,
-  },
-  {
-    id:            'task-004',
-    title:         'Reading activity',
-    titleAr:       'نشاط القراءة',
-    description:   'Read the short story with a parent.',
-    descriptionAr: 'اقرأ القصة القصيرة مع أحد الوالدين.',
-    status:        'in_progress',
-    childId:       'child-001',
-    dueDate:       '2026-03-29',
-    dayNumber:     4,                // current day on the tree
-  },
-  {
-    id:            'task-005',
-    title:         'Shape recognition',
-    titleAr:       'التعرف على الأشكال',
-    description:   'Identify circles, squares, and triangles.',
-    descriptionAr: 'تعرّف على الدوائر والمربعات والمثلثات.',
-    status:        'pending',
-    childId:       'child-001',
-    dueDate:       '2026-03-30',
-    dayNumber:     5,
-  },
-  {
-    id:            'task-006',
-    title:         'Social story practice',
-    titleAr:       'تدريب على القصص الاجتماعية',
-    description:   'Act out the social story with a helper.',
-    descriptionAr: 'قم بتمثيل القصة الاجتماعية مع مساعد.',
-    status:        'pending',
-    childId:       'child-001',
-    dueDate:       '2026-03-31',
-    dayNumber:     6,
-  },
-  {
-    id:            'task-007',
-    title:         'Week review quiz',
-    titleAr:       'اختبار مراجعة الأسبوع',
-    description:   'Complete the end-of-week review quiz.',
-    descriptionAr: 'أكمل اختبار مراجعة نهاية الأسبوع.',
-    status:        'pending',
-    childId:       'child-001',
-    dueDate:       '2026-04-01',
-    dayNumber:     7,                // crown node — end of week
-  },
-]
-
-// ─────────────────────────────────────────────
-//  7. LEARNING TREE
-//  Maps tasks to tree nodes
-//  status drives the visual: checkmark / penguin / dot / crown
-// ─────────────────────────────────────────────
-
-export const mockTreeNodes: TreeNode[] = [
-  { day: 1, title: 'Colors',   titleAr: 'الألوان',    status: 'completed', tasks: [mockTasks[0]] },
-  { day: 2, title: 'Numbers',  titleAr: 'الأرقام',    status: 'completed', tasks: [mockTasks[1]] },
-  { day: 3, title: 'Animals',  titleAr: 'الحيوانات',  status: 'completed', tasks: [mockTasks[2]] },
-  { day: 4, title: 'Reading',  titleAr: 'القراءة',    status: 'current',   tasks: [mockTasks[3]] },
-  { day: 5, title: 'Shapes',   titleAr: 'الأشكال',    status: 'upcoming',  tasks: [mockTasks[4]] },
-  { day: 6, title: 'Social',   titleAr: 'الاجتماعي',  status: 'upcoming',  tasks: [mockTasks[5]] },
-  { day: 7, title: 'Review',   titleAr: 'المراجعة',   status: 'locked',    tasks: [mockTasks[6]] },
-]
-
-// ─────────────────────────────────────────────
-//  8. HOMEWORK
-// ─────────────────────────────────────────────
-
+// ── HOMEWORK ─────────────────────────────────────────────────────────────────
 export const mockHomework: Homework[] = [
   {
-    id:           'hw-001',
-    title:        'Math worksheet — addition',
-    titleAr:      'ورقة عمل رياضيات — الجمع',
+    id:           'hw-1',
+    title:        'Math Worksheet',
+    titleAr:      'ورقة عمل رياضيات',
     subject:      'Mathematics',
     subjectAr:    'الرياضيات',
-    description:  'Complete exercises 1–10 on page 24.',
-    dueDate:      '2026-03-31',
-    assignedDate: '2026-03-27',
+    description:  'Complete pages 12–14 of the workbook.',
+    dueDate:      '2026-04-05T00:00:00Z',
+    assignedDate: '2026-04-01T00:00:00Z',
     status:       'not_submitted',
-    teacherId:    'teacher-001',
-    classId:      'class-001',
+    teacherId:    'teacher-1',
+    classId:      'class-1',
   },
   {
-    id:           'hw-002',
-    title:        'Arabic reading — short story',
-    titleAr:      'قراءة عربية — قصة قصيرة',
+    id:           'hw-2',
+    title:        'Reading Comprehension',
+    titleAr:      'فهم المقروء',
     subject:      'Arabic',
     subjectAr:    'اللغة العربية',
-    description:  'Read pages 12–14 and answer the 3 questions.',
-    dueDate:      '2026-03-30',
-    assignedDate: '2026-03-26',
+    description:  'Read the story and answer the questions.',
+    dueDate:      '2026-04-04T00:00:00Z',
+    assignedDate: '2026-04-01T00:00:00Z',
     status:       'submitted',
-    teacherId:    'teacher-001',
-    classId:      'class-001',
+    teacherId:    'teacher-1',
+    classId:      'class-1',
   },
   {
-    id:           'hw-003',
-    title:        'Science — draw a plant',
-    titleAr:      'علوم — ارسم نباتاً',
+    id:           'hw-3',
+    title:        'Science Diagram',
+    titleAr:      'رسم علوم',
     subject:      'Science',
     subjectAr:    'العلوم',
-    description:  'Draw and label the parts of a plant.',
-    dueDate:      '2026-04-02',
-    assignedDate: '2026-03-28',
-    status:       'not_submitted',
-    teacherId:    'teacher-001',
-    classId:      'class-001',
+    description:  'Draw and label the water cycle.',
+    dueDate:      '2026-04-06T00:00:00Z',
+    assignedDate: '2026-04-02T00:00:00Z',
+    status:       'graded',
+    grade:        90,
+    teacherId:    'teacher-1',
+    classId:      'class-1',
   },
-]
+];
 
-// ─────────────────────────────────────────────
-//  9. QUIZ QUESTIONS
-//  Defined before quizzes because Quiz holds Question[]
-// ─────────────────────────────────────────────
-
+// ── QUESTIONS ─────────────────────────────────────────────────────────────────
 export const mockQuestionsColors: Question[] = [
   {
-    id:            'q-001',
-    quizId:        'quiz-001',
-    text:          'What color is the sky?',
+    id:            'qc-1',
+    quizId:        'quiz-colors',
+    text:          'What colour is the sky?',
     textAr:        'ما لون السماء؟',
     type:          'multiple_choice',
     options:       ['Red', 'Blue', 'Green', 'Yellow'],
@@ -393,33 +217,35 @@ export const mockQuestionsColors: Question[] = [
     order:         1,
   },
   {
-    id:            'q-002',
-    quizId:        'quiz-001',
-    text:          'What color is grass?',
-    textAr:        'ما لون العشب؟',
-    type:          'multiple_choice',
-    options:       ['Blue', 'Purple', 'Green', 'Orange'],
-    optionsAr:     ['أزرق', 'بنفسجي', 'أخضر', 'برتقالي'],
-    correctAnswer: 'Green',
+    id:            'qc-2',
+    quizId:        'quiz-colors',
+    text:          'Grass is green.',
+    textAr:        'العشب أخضر اللون.',
+    type:          'true_false',
+    options:       ['True', 'False'],
+    optionsAr:     ['صحيح', 'خطأ'],
+    correctAnswer: 'True',
     order:         2,
   },
   {
-    id:            'q-003',
-    quizId:        'quiz-001',
-    text:          'Bananas are yellow.',
-    textAr:        'الموز أصفر اللون.',
-    type:          'true_false',
-    correctAnswer: 'true',
+    id:            'qc-3',
+    quizId:        'quiz-colors',
+    text:          'What colour is a banana?',
+    textAr:        'ما لون الموزة؟',
+    type:          'multiple_choice',
+    options:       ['Purple', 'Orange', 'Yellow', 'Pink'],
+    optionsAr:     ['بنفسجي', 'برتقالي', 'أصفر', 'وردي'],
+    correctAnswer: 'Yellow',
     order:         3,
   },
-]
+];
 
 export const mockQuestionsNumbers: Question[] = [
   {
-    id:            'q-004',
-    quizId:        'quiz-002',
-    text:          'How many fingers are on one hand?',
-    textAr:        'كم عدد أصابع اليد الواحدة؟',
+    id:            'qn-1',
+    quizId:        'quiz-numbers',
+    text:          'What is 2 + 3?',
+    textAr:        'ما هو 2 + 3؟',
     type:          'multiple_choice',
     options:       ['3', '4', '5', '6'],
     optionsAr:     ['٣', '٤', '٥', '٦'],
@@ -427,319 +253,325 @@ export const mockQuestionsNumbers: Question[] = [
     order:         1,
   },
   {
-    id:            'q-005',
-    quizId:        'quiz-002',
-    text:          'What number comes after 7?',
-    textAr:        'ما الرقم الذي يأتي بعد ٧؟',
+    id:            'qn-2',
+    quizId:        'quiz-numbers',
+    text:          'How many days are in a week?',
+    textAr:        'كم عدد أيام الأسبوع؟',
     type:          'multiple_choice',
-    options:       ['6', '8', '9', '10'],
-    optionsAr:     ['٦', '٨', '٩', '١٠'],
-    correctAnswer: '8',
+    options:       ['5', '6', '7', '8'],
+    optionsAr:     ['٥', '٦', '٧', '٨'],
+    correctAnswer: '7',
     order:         2,
   },
   {
-    id:            'q-006',
-    quizId:        'quiz-002',
-    text:          'Count: ★★★ — how many stars?',
-    textAr:        'عدّ: ★★★ — كم عدد النجوم؟',
-    type:          'multiple_choice',
-    options:       ['2', '3', '4', '5'],
-    optionsAr:     ['٢', '٣', '٤', '٥'],
-    correctAnswer: '3',
+    id:            'qn-3',
+    quizId:        'quiz-numbers',
+    text:          '10 is greater than 5.',
+    textAr:        '١٠ أكبر من ٥.',
+    type:          'true_false',
+    options:       ['True', 'False'],
+    optionsAr:     ['صحيح', 'خطأ'],
+    correctAnswer: 'True',
     order:         3,
   },
-]
+];
 
-// ─────────────────────────────────────────────
-//  10. QUIZZES
-// ─────────────────────────────────────────────
-
+// ── QUIZZES ───────────────────────────────────────────────────────────────────
 export const mockQuizzes: Quiz[] = [
   {
-    id:            'quiz-001',
-    title:         "Color's quiz",
-    titleAr:       'اختبار الألوان',
-    subject:       'General',
-    subjectAr:     'عام',
-    level:         2,
-    questionCount: 3,
-    durationMins:  10,
-    status:        'completed',
-    score: {
-      childId:     'child-001',
-      quizId:      'quiz-001',
-      correct:     2,
-      total:       3,
-      percentage:  67,
-      completedAt: '2026-03-26T11:00:00Z',
-    },
-    questions:     mockQuestionsColors,
-    assignedDate:  '2026-03-24',
-    dueDate:       '2026-03-28',
-    teacherId:     'teacher-001',
-    classId:       'class-001',
-  },
-  {
-    id:            'quiz-002',
-    title:         'Numbers 1–10',
-    titleAr:       'الأرقام من ١ إلى ١٠',
+    id:            'quiz-1',
+    title:         'Math Quiz 2',
+    titleAr:       'اختبار رياضيات ٢',
     subject:       'Mathematics',
     subjectAr:     'الرياضيات',
     level:         2,
     questionCount: 3,
     durationMins:  10,
-    status:        'in_progress',
-    questions:     mockQuestionsNumbers,
-    assignedDate:  '2026-03-27',
-    dueDate:       '2026-03-31',
-    teacherId:     'teacher-001',
-    classId:       'class-001',
-  },
-  {
-    id:            'quiz-003',
-    title:         'Animal sounds',
-    titleAr:       'أصوات الحيوانات',
-    subject:       'General',
-    subjectAr:     'عام',
-    level:         2,
-    questionCount: 3,
-    durationMins:  10,
     status:        'new',
-    questions:     [],
-    assignedDate:  '2026-03-28',
-    dueDate:       '2026-04-01',
-    teacherId:     'teacher-001',
-    classId:       'class-001',
+    questions:     mockQuestionsNumbers,
+    assignedDate:  '2026-04-01T00:00:00Z',
+    dueDate:       '2026-04-07T00:00:00Z',
+    teacherId:     'teacher-1',
+    classId:       'class-1',
   },
   {
-    id:            'quiz-004',
-    title:         'Days of the week',
-    titleAr:       'أيام الأسبوع',
-    subject:       'General',
-    subjectAr:     'عام',
-    level:         2,
+    id:            'quiz-2',
+    title:         'Colours Quiz',
+    titleAr:       'اختبار الألوان',
+    subject:       'Science',
+    subjectAr:     'العلوم',
+    level:         1,
     questionCount: 3,
-    durationMins:  10,
-    status:        'later',
-    questions:     [],
-    assignedDate:  '2026-03-28',
-    dueDate:       '2026-04-03',
-    teacherId:     'teacher-001',
-    classId:       'class-001',
+    durationMins:  8,
+    status:        'completed',
+    score:         { childId: 'child-1', quizId: 'quiz-2', correct: 2, total: 3, percentage: 67, completedAt: '2026-03-28T11:00:00Z' },
+    questions:     mockQuestionsColors,
+    assignedDate:  '2026-03-25T00:00:00Z',
+    dueDate:       '2026-03-30T00:00:00Z',
+    teacherId:     'teacher-1',
+    classId:       'class-1',
   },
-]
+  {
+    id:            'quiz-3',
+    title:         'Arabic Reading Quiz',
+    titleAr:       'اختبار القراءة العربية',
+    subject:       'Arabic',
+    subjectAr:     'اللغة العربية',
+    level:         2,
+    questionCount: 4,
+    durationMins:  12,
+    status:        'in_progress',
+    questions:     [],
+    assignedDate:  '2026-04-02T00:00:00Z',
+    dueDate:       '2026-04-08T00:00:00Z',
+    teacherId:     'teacher-1',
+    classId:       'class-1',
+  },
+];
 
-// ─────────────────────────────────────────────
-//  11. REPORTS & NOTES
-//  From teacher → parent
-// ─────────────────────────────────────────────
+// ── TASKS ─────────────────────────────────────────────────────────────────────
+export const mockTasks: Task[] = [
+  {
+    id:            'task-1',
+    title:         'Colour Sorting',
+    titleAr:       'ترتيب الألوان',
+    description:   'Sort coloured blocks into matching groups.',
+    descriptionAr: 'رتّب المكعبات الملونة في مجموعات متطابقة.',
+    status:        'completed',
+    childId:       'child-1',
+    dueDate:       '2026-04-01T00:00:00Z',
+    completedAt:   '2026-04-01T12:00:00Z',
+    dayNumber:     1,
+  },
+  {
+    id:            'task-2',
+    title:         'Story Sequencing',
+    titleAr:       'تسلسل القصة',
+    description:   'Arrange the story pictures in the correct order.',
+    descriptionAr: 'رتّب صور القصة بالترتيب الصحيح.',
+    status:        'in_progress',
+    childId:       'child-1',
+    dueDate:       '2026-04-03T00:00:00Z',
+    dayNumber:     2,
+  },
+  {
+    id:            'task-3',
+    title:         'Counting Objects',
+    titleAr:       'عدّ الأشياء',
+    description:   'Count the objects on each card and write the number.',
+    descriptionAr: 'عدّ الأشياء في كل بطاقة واكتب الرقم.',
+    status:        'pending',
+    childId:       'child-1',
+    dueDate:       '2026-04-05T00:00:00Z',
+    dayNumber:     3,
+  },
+  {
+    id:            'task-4',
+    title:         'Shape Matching',
+    titleAr:       'مطابقة الأشكال',
+    description:   'Match each shape to its correct shadow.',
+    descriptionAr: 'طابق كل شكل مع ظله الصحيح.',
+    status:        'pending',
+    childId:       'child-1',
+    dueDate:       '2026-04-06T00:00:00Z',
+    dayNumber:     4,
+  },
+];
 
+// ── LEARNING TREE ─────────────────────────────────────────────────────────────
+export const mockTreeNodes: TreeNode[] = [
+  { day: 1, title: 'Day 1', titleAr: 'اليوم ١', status: 'completed', tasks: [mockTasks[0]] },
+  { day: 2, title: 'Day 2', titleAr: 'اليوم ٢', status: 'completed', tasks: [] },
+  { day: 3, title: 'Day 3', titleAr: 'اليوم ٣', status: 'completed', tasks: [] },
+  { day: 4, title: 'Day 4', titleAr: 'اليوم ٤', status: 'current',   tasks: [mockTasks[1]] },
+  { day: 5, title: 'Day 5', titleAr: 'اليوم ٥', status: 'upcoming',  tasks: [] },
+  { day: 6, title: 'Day 6', titleAr: 'اليوم ٦', status: 'upcoming',  tasks: [] },
+  { day: 7, title: 'Day 7', titleAr: 'اليوم ٧', status: 'locked',    tasks: [] },
+];
+
+// ── REPORTS ───────────────────────────────────────────────────────────────────
 export const mockReports: Report[] = [
   {
-    id:          'report-001',
-    title:       'Weekly progress report',
+    id:          'rep-1',
+    title:       'Weekly Progress Report',
     titleAr:     'تقرير التقدم الأسبوعي',
-    body:        'Zaid showed great improvement in focus this week. He completed 3 out of 4 tasks and participated actively in group activities.',
-    bodyAr:      'أظهر زيد تحسناً ملحوظاً في التركيز هذا الأسبوع. أكمل ٣ من أصل ٤ مهام وشارك بفاعلية في الأنشطة الجماعية.',
+    body:        'Zaid has shown great improvement in focus this week. He completed all tasks on time.',
+    bodyAr:      'أظهر زيد تحسناً كبيراً في التركيز هذا الأسبوع. أتم جميع المهام في الوقت المحدد.',
     authorName:  'Ms. Sara Mahmoud',
     status:      'unread',
-    createdAt:   '2026-03-27T09:00:00Z',
-    childId:     'child-001',
+    createdAt:   '2026-03-31T10:00:00Z',
+    childId:     'child-1',
   },
   {
-    id:          'report-002',
-    title:       'Behavioral observation',
+    id:          'rep-2',
+    title:       'Behavioral Observation',
     titleAr:     'ملاحظة سلوكية',
-    body:        'Zaid had a particularly good day on Tuesday. He helped a classmate and stayed focused during reading time.',
-    bodyAr:      'كان لزيد يوم جيد بشكل خاص يوم الثلاثاء. ساعد زميلاً في الفصل وبقي مركزاً خلال وقت القراءة.',
-    authorName:  'Ms. Sara Mahmoud',
-    status:      'unread',
-    createdAt:   '2026-03-25T11:30:00Z',
-    childId:     'child-001',
-  },
-  {
-    id:          'report-003',
-    title:       'Monthly summary — February',
-    titleAr:     'ملخص شهر فبراير',
-    body:        'Overall a positive month. Recommend continuing daily reading practice at home.',
-    bodyAr:      'كان شهراً إيجابياً بشكل عام. يُنصح بمواصلة ممارسة القراءة اليومية في المنزل.',
+    body:        'Lara is responding well to the new structured routine.',
+    bodyAr:      'استجابت لارا بشكل جيد للروتين المنظم الجديد.',
     authorName:  'Ms. Sara Mahmoud',
     status:      'read',
-    createdAt:   '2026-03-01T08:00:00Z',
-    childId:     'child-001',
+    createdAt:   '2026-03-24T10:00:00Z',
+    childId:     'child-2',
   },
-]
+  {
+    id:          'rep-3',
+    title:       'Monthly Summary',
+    titleAr:     'ملخص شهري',
+    body:        'Overall performance is on track. Focus on motor skills.',
+    bodyAr:      'الأداء العام في المسار الصحيح. التركيز على المهارات الحركية.',
+    authorName:  'Ms. Sara Mahmoud',
+    status:      'unread',
+    createdAt:   '2026-03-15T10:00:00Z',
+    childId:     'child-1',
+  },
+];
 
+// ── NOTES ─────────────────────────────────────────────────────────────────────
 export const mockNotes: Note[] = [
   {
-    id:        'note-001',
-    title:     'Reminder — bring colored pencils',
-    titleAr:   'تذكير — أحضر أقلام التلوين',
-    body:      'Please make sure Zaid brings his colored pencils on Sunday for the art session.',
-    bodyAr:    'يرجى التأكد من إحضار زيد أقلام التلوين يوم الأحد لجلسة الفن.',
-    authorName: 'Ahmad Sami',
-    createdAt:  '2026-03-28T07:00:00Z',
-    childId:    'child-001',
-    teacherId:  'teacher-001',
+    id:         'note-1',
+    title:      'Reminder: Medication',
+    titleAr:    'تذكير: الدواء',
+    body:       'Please give Zaid his medication before school.',
+    bodyAr:     'يرجى إعطاء زيد دواءه قبل المدرسة.',
+    authorName: 'Ms. Sara Mahmoud',
+    createdAt:  '2026-04-01T08:00:00Z',
+    childId:    'child-1',
+    teacherId:  'teacher-1',
   },
-]
+  {
+    id:         'note-2',
+    title:      'Great Day!',
+    titleAr:    'يوم رائع!',
+    body:       'Zaid had an exceptional day — very focused and cooperative.',
+    bodyAr:     'كان لزيد يوم استثنائي — متركز للغاية ومتعاون.',
+    authorName: 'Ms. Sara Mahmoud',
+    createdAt:  '2026-03-28T14:00:00Z',
+    childId:    'child-1',
+    teacherId:  'teacher-1',
+  },
+];
 
-// ─────────────────────────────────────────────
-//  12. SUBJECT GRADES
-//  Used on the School Page → Grades tab
-// ─────────────────────────────────────────────
-
-export const mockSubjectGrades: SubjectGrade[] = [
-  { subject: 'Arabic',  subjectAr: 'عربي',    score: 79, maxScore: 100, color: '#4A8BF5' },
-  { subject: 'Math',    subjectAr: 'رياضيات', score: 59, maxScore: 100, color: '#F97316' },
-  { subject: 'Science', subjectAr: 'علوم',    score: 85, maxScore: 100, color: '#BA6DE9' },
-  { subject: 'English', subjectAr: 'إنجليزي', score: 92, maxScore: 100, color: '#22C55E' },
-  { subject: 'Art',     subjectAr: 'فنون',    score: 97, maxScore: 100, color: '#FFB84C' },
-  { subject: 'PE',      subjectAr: 'تربية بدنية', score: 88, maxScore: 100, color: '#EF4444' },
-]
-
-// ─────────────────────────────────────────────
-//  13. ARTICLES
-//  Explore screen
-// ─────────────────────────────────────────────
-
+// ── ARTICLES ──────────────────────────────────────────────────────────────────
 export const mockArticles: Article[] = [
   {
-    id:           'article-001',
-    title:        'How to support a child with ADD at home',
-    titleAr:      'كيف تدعم طفلاً مصاباً باضطراب انتباه في المنزل',
-    body:         'Children with ADD benefit greatly from structured routines...',
-    bodyAr:       'يستفيد الأطفال المصابون باضطراب الانتباه كثيراً من الروتين المنظم...',
+    id:           'art-1',
+    title:        '5 Ways to Support a Child with ADHD at Home',
+    titleAr:      '٥ طرق لدعم طفل مصاب بفرط الحركة في المنزل',
+    body:         'Creating a structured environment is key to helping children with ADHD thrive...',
+    bodyAr:       'إنشاء بيئة منظمة هو المفتاح لمساعدة الأطفال المصابين بفرط الحركة...',
     category:     'parenting',
-    readTimeMins: 8,
-    viewCount:    13000,
-    likeCount:    250,
+    readTimeMins: 4,
+    viewCount:    1204,
+    likeCount:    87,
     isSaved:      false,
-    authorName:   'Dr. Layla Hassan',
-    publishedAt:  '2026-03-20T08:00:00Z',
+    authorName:   'Dr. Rana Haddad',
+    publishedAt:  '2026-03-20T00:00:00Z',
   },
   {
-    id:           'article-002',
-    title:        '5 speech exercises you can do every day',
-    titleAr:      '٥ تمارين نطق يمكنك ممارستها يومياً',
-    body:         'Consistent practice is the key to improving speech clarity...',
-    bodyAr:       'الممارسة المتسقة هي مفتاح تحسين وضوح النطق...',
-    category:     'speech',
-    readTimeMins: 5,
-    viewCount:    8400,
-    likeCount:    180,
-    isSaved:      true,
-    authorName:   'Sara Nabulsi',
-    publishedAt:  '2026-03-18T10:00:00Z',
-  },
-  {
-    id:           'article-003',
-    title:        'Understanding sensory processing in children',
-    titleAr:      'فهم المعالجة الحسية عند الأطفال',
-    body:         'Sensory processing differences affect how children respond to their environment...',
-    bodyAr:       'تؤثر الفروقات في المعالجة الحسية على كيفية استجابة الأطفال لبيئتهم...',
+    id:           'art-2',
+    title:        'Understanding Autism Spectrum Disorder',
+    titleAr:      'فهم اضطراب طيف التوحد',
+    body:         'ASD is a developmental disorder that affects communication and behaviour...',
+    bodyAr:       'التوحد اضطراب تطوري يؤثر على التواصل والسلوك...',
     category:     'special_needs',
-    readTimeMins: 10,
-    viewCount:    6200,
-    likeCount:    140,
-    isSaved:      false,
-    authorName:   'Dr. Omar Farouk',
-    publishedAt:  '2026-03-15T09:00:00Z',
+    readTimeMins: 6,
+    viewCount:    3421,
+    likeCount:    215,
+    isSaved:      true,
+    authorName:   'Dr. Khalid Mansour',
+    publishedAt:  '2026-03-10T00:00:00Z',
   },
-]
+  {
+    id:           'art-3',
+    title:        'Speech Therapy Activities You Can Do at Home',
+    titleAr:      'أنشطة علاج النطق التي يمكنك ممارستها في المنزل',
+    body:         'Simple daily activities can make a huge difference in speech development...',
+    bodyAr:       'يمكن للأنشطة اليومية البسيطة أن تُحدث فرقاً كبيراً في تطور النطق...',
+    category:     'speech',
+    readTimeMins: 3,
+    viewCount:    890,
+    likeCount:    64,
+    isSaved:      false,
+    authorName:   'Ms. Lina Barakat',
+    publishedAt:  '2026-02-28T00:00:00Z',
+  },
+  {
+    id:           'art-4',
+    title:        'How to Build a Homework Routine for Special Needs Children',
+    titleAr:      'كيف تبني روتين واجبات للأطفال ذوي الاحتياجات الخاصة',
+    body:         'Consistency and patience are the two pillars of a successful homework routine...',
+    bodyAr:       'الاتساق والصبر هما ركيزتا روتين الواجبات الناجح...',
+    category:     'learning',
+    readTimeMins: 5,
+    viewCount:    672,
+    likeCount:    45,
+    isSaved:      true,
+    authorName:   'Ms. Hana Mansour',
+    publishedAt:  '2026-02-15T00:00:00Z',
+  },
+];
 
-// Saved articles — pre-filtered for the Saved screen
-export const mockSavedArticles: Article[] = mockArticles.filter(a => a.isSaved)
+export const mockSavedArticles: Article[] = mockArticles.filter((a) => a.isSaved);
 
-// ─────────────────────────────────────────────
-//  14. CHAT MESSAGES
-//  Chatbot screen — a short sample conversation
-// ─────────────────────────────────────────────
-
+// ── CHAT MESSAGES ─────────────────────────────────────────────────────────────
 export const mockChatMessages: ChatMessage[] = [
   {
-    id:        'msg-001',
-    role:      'assistant',
-    content:   'Hello! I\'m Rafeeq 🐧 How can I guide you today?',
-    timestamp: '2026-03-29T10:00:00Z',
-  },
-  {
-    id:        'msg-002',
+    id:        'msg-1',
     role:      'user',
-    content:   'How can I help Zaid focus better at home?',
-    timestamp: '2026-03-29T10:01:00Z',
+    content:   'How can I help my child focus better?',
+    timestamp: '2026-04-01T09:00:00Z',
   },
   {
-    id:        'msg-003',
+    id:        'msg-2',
     role:      'assistant',
-    content:   'Great question! Here are 3 things that help children with ADD focus:\n\n1. Short tasks with breaks (10 min work, 5 min break)\n2. A quiet, tidy workspace with no distractions\n3. Visual timers so they can see time passing\n\nWould you like more details on any of these?',
-    timestamp: '2026-03-29T10:01:30Z',
+    content:   'Great question! Here are 3 strategies: 1) Break tasks into small steps. 2) Use a visual timer. 3) Offer short movement breaks every 20 minutes.',
+    timestamp: '2026-04-01T09:00:05Z',
   },
-]
+];
 
-// ─────────────────────────────────────────────
-//  15. NOTIFICATIONS
-// ─────────────────────────────────────────────
-
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
 export const mockNotifications: Notification[] = [
   {
-    id:        'notif-001',
-    type:      'report',
-    title:     'New report from Ms. Sara',
-    titleAr:   'تقرير جديد من الأستاذة سارة',
-    body:      'A new weekly progress report has been added for Zaid.',
-    bodyAr:    'تم إضافة تقرير تقدم أسبوعي جديد لزيد.',
-    isRead:    false,
-    createdAt: '2026-03-27T09:05:00Z',
-  },
-  {
-    id:        'notif-002',
+    id:        'notif-1',
     type:      'homework',
-    title:     'New homework assigned',
+    title:     'New Homework Assigned',
     titleAr:   'تم تعيين واجب جديد',
-    body:      'Math worksheet due March 31.',
-    bodyAr:    'ورقة عمل رياضيات موعدها ٣١ مارس.',
+    body:      'Math Worksheet is due on April 5th.',
+    bodyAr:    'ورقة عمل الرياضيات مستحقة في ٥ أبريل.',
     isRead:    false,
-    createdAt: '2026-03-27T08:00:00Z',
+    createdAt: '2026-04-01T08:30:00Z',
+    targetId:  'hw-1',
   },
   {
-    id:        'notif-003',
-    type:      'achievement',
-    title:     'Zaid earned a new achievement!',
-    titleAr:   'حصل زيد على إنجاز جديد!',
-    body:      'Zaid completed 3 days in a row. Keep it up!',
-    bodyAr:    'أكمل زيد ٣ أيام متتالية. هكذا يكون!',
-    isRead:    true,
-    createdAt: '2026-03-26T15:00:00Z',
+    id:        'notif-2',
+    type:      'report',
+    title:     'New Report from Teacher',
+    titleAr:   'تقرير جديد من المعلم',
+    body:      'Ms. Sara has submitted a weekly progress report.',
+    bodyAr:    'أرسلت الأستاذة سارة تقرير التقدم الأسبوعي.',
+    isRead:    false,
+    createdAt: '2026-03-31T10:00:00Z',
+    targetId:  'rep-1',
   },
-]
+  {
+    id:        'notif-3',
+    type:      'achievement',
+    title:     'Achievement Unlocked!',
+    titleAr:   'تم فتح إنجاز جديد!',
+    body:      'Zaid completed 7 days in a row. Great job!',
+    bodyAr:    'أتمّ زيد ٧ أيام متتالية. أحسنت!',
+    isRead:    true,
+    createdAt: '2026-03-28T16:00:00Z',
+  },
+];
 
-// Unread count — useful for the bell badge
-export const mockUnreadCount = mockNotifications.filter(n => !n.isRead).length
-
-// ─────────────────────────────────────────────
-//  16. AUTH STATE
-//  The initial Zustand store state when logged
-//  in as the mock parent
-// ─────────────────────────────────────────────
-
-export const mockAuthState: AuthState = {
-  role:            'parent',
-  user:            mockParent,
-  token:           'mock-jwt-token-abc123',
-  selectedChild:   mockChildZaid,
-  language:        'en',
-  isRTL:           false,
-  isAuthenticated: true,
-}
-
-// Same thing but logged in as the mock teacher
-export const mockAuthStateTeacher: AuthState = {
-  role:            'teacher',
-  user:            mockTeacher,
-  token:           'mock-jwt-token-def456',
-  selectedChild:   null,
-  language:        'en',
-  isRTL:           false,
-  isAuthenticated: true,
-}
+// ── SUBJECT GRADES ─────────────────────────────────────────────────────────────
+export const mockSubjectGrades: SubjectGrade[] = [
+  { subject: 'Mathematics',  subjectAr: 'الرياضيات',       score: 92, maxScore: 100, color: '#4A8BF5' },
+  { subject: 'Arabic',       subjectAr: 'اللغة العربية',   score: 88, maxScore: 100, color: '#22C55E' },
+  { subject: 'Science',      subjectAr: 'العلوم',           score: 79, maxScore: 100, color: '#F97316' },
+  { subject: 'English',      subjectAr: 'اللغة الإنجليزية',score: 84, maxScore: 100, color: '#8B6CF6' },
+  { subject: 'Art',          subjectAr: 'التربية الفنية',   score: 55, maxScore: 100, color: '#EC4899' },
+  { subject: 'PE',           subjectAr: 'التربية البدنية',  score: 97, maxScore: 100, color: '#F59E0B' },
+];

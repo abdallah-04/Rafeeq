@@ -69,10 +69,10 @@ const VARIANT_MAP: Record<DayWorkVariant, DayWorkContent> = {
 };
 
 const PENGUIN_IMAGES: Record<DayWorkContent['penguinPose'], any> = {
-  waving:     require('@/assets/images/penguin_waving.png'),
-  celebrating:require('@/assets/images/penguin_celebrating.png'),
-  reading:    require('@/assets/images/penguin_reading.png'),
-  thinking:   require('@/assets/images/penguin_thinking.png'),
+  waving:     require('@/assets/images/mascot/rafeeq_waving.png'),
+  celebrating:require('@/assets/images/mascot/rafeeq_clabbing.png'),
+  reading:    require('@/assets/images/mascot/rafeeq_reading.png'),
+  thinking:   require('@/assets/images/mascot/rafeeq_reading.png'),
 };
 
 export default function DayWorkModal({ variant = 'whatTodayOkay', onHide }: Props) {

@@ -6,16 +6,16 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { z } from "zod";
 
@@ -37,9 +37,9 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const login = useAuthStore((s) => s.login)
-  const setLoading = useAuthStore((s) => s.setLoading)
-  const setError = useAuthStore((s) => s.setError)
+  const login    = useAuthStore((s) => s.login);
+  const setLoading = useAuthStore((s) => s.setLoading);
+  const setError   = useAuthStore((s) => s.setError);
 
   const {
     control,
@@ -51,27 +51,29 @@ export default function LoginScreen() {
   });
 
   const onSubmit = async (data: LoginForm) => {
-    setIsLoading(true)
-    setLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setLoading(true);
+    setError(null);
     try {
       // TODO: replace with real API call
-      // const res = await api.login(data)
+      // const res = await authApi.login({ identifier: data.identifier, password: data.password })
       // login(res.user, res.token)
 
       // Mock — remove when backend is ready
       login(
         { role: 'parent', language: 'en' } as any,
         'mock-token-123'
-      )
-      router.replace("/(parent)/home")
+      );
+      // ✅ Do NOT call router.replace() here.
+      // The root _layout.tsx watches isAuthenticated + role and
+      // redirects to the correct navigator automatically.
     } catch (err: any) {
-      setError(err?.message ?? 'Something went wrong')
+      setError(err?.message ?? 'Something went wrong');
     } finally {
-      setIsLoading(false)
-      setLoading(false)
+      setIsLoading(false);
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -110,10 +112,7 @@ export default function LoginScreen() {
                 name="identifier"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    style={[
-                      styles.input,
-                      errors.identifier && styles.inputError,
-                    ]}
+                    style={[styles.input, errors.identifier && styles.inputError]}
                     placeholder={t("auth.login.nationalId")}
                     placeholderTextColor={Colors.textMuted}
                     keyboardType="numeric"
@@ -174,9 +173,7 @@ export default function LoginScreen() {
                       onPress={() => setShowPassword((p) => !p)}
                       style={styles.eyeBtn}
                       accessibilityRole="button"
-                      accessibilityLabel={
-                        showPassword ? "Hide password" : "Show password"
-                      }
+                      accessibilityLabel={showPassword ? "Hide password" : "Show password"}
                     >
                       <Text style={styles.eyeIcon}>
                         {showPassword ? "🙈" : "👁"}
@@ -193,10 +190,7 @@ export default function LoginScreen() {
             </View>
 
             <TouchableOpacity
-              style={[
-                styles.continueBtn,
-                isLoading && styles.continueBtnDisabled,
-              ]}
+              style={[styles.continueBtn, isLoading && styles.continueBtnDisabled]}
               onPress={handleSubmit(onSubmit)}
               disabled={isLoading}
               accessibilityRole="button"
@@ -239,195 +233,36 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-  scroll: {
-    flexGrow: 1,
-    paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.xl * 2,
-  },
-  backBtn: {
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.sm,
-    alignSelf: "flex-start",
-  },
-  backIcon: {
-    fontSize: 22,
-    color: Colors.textDark,
-  },
-
-  mascot: {
-    alignItems: "center",
-    marginTop: Spacing.md,
-    marginBottom: Spacing.md,
-  },
-  mascotEmoji: {
-    fontSize: 64,
-  },
-
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: Colors.textDark,
-    fontFamily: "Lexend-Bold",
-    textAlign: "center",
-    marginBottom: Spacing.sm,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: Colors.textMedium,
-    fontFamily: "Lexend-Regular",
-    textAlign: "center",
-    marginBottom: Spacing.xl,
-    lineHeight: 22,
-  },
-
-  form: {
-    gap: Spacing.md,
-  },
-  fieldGroup: {
-    gap: 6,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: Colors.textDark,
-    fontFamily: "Lexend-SemiBold",
-  },
-  labelRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  forgotLink: {
-    fontSize: 13,
-    color: Colors.primary,
-    fontFamily: "Lexend-Regular",
-  },
-  input: {
-    backgroundColor: Colors.background,
-    borderRadius: Radius.md,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    paddingHorizontal: Spacing.lg,
-    height: 52,
-    fontSize: 15,
-    color: Colors.textDark,
-    fontFamily: "Lexend-Regular",
-  },
-  inputError: {
-    borderColor: Colors.red,
-  },
-  errorText: {
-    fontSize: 12,
-    color: Colors.red,
-    fontFamily: "Lexend-Regular",
-    marginTop: 2,
-  },
-
-  passwordWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.background,
-    borderRadius: Radius.md,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    height: 52,
-    paddingHorizontal: Spacing.lg,
-  },
-  passwordInput: {
-    flex: 1,
-    fontSize: 15,
-    color: Colors.textDark,
-    fontFamily: "Lexend-Regular",
-  },
-  eyeBtn: {
-    padding: Spacing.sm,
-  },
-  eyeIcon: {
-    fontSize: 18,
-  },
-
-  continueBtn: {
-    backgroundColor: Colors.primary,
-    borderRadius: Radius.md,
-    height: 54,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: Spacing.sm,
-    shadowColor: Colors.primary,
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 8,
-  },
-  continueBtnDisabled: {
-    opacity: 0.6,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  continueBtnText: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: Colors.white,
-    fontFamily: "Lexend-Bold",
-  },
-
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.md,
-    marginVertical: Spacing.sm,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.border,
-  },
-  dividerText: {
-    fontSize: 13,
-    color: Colors.textMuted,
-    fontFamily: "Lexend-Regular",
-  },
-
-  sanadBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: Spacing.sm,
-    borderRadius: Radius.md,
-    height: 54,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    backgroundColor: Colors.white,
-  },
-  sanadIcon: {
-    fontSize: 20,
-  },
-  sanadBtnText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: Colors.textDark,
-    fontFamily: "Lexend-SemiBold",
-  },
-
-  signupRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: Spacing.xl,
-  },
-  signupText: {
-    fontSize: 14,
-    color: Colors.textMedium,
-    fontFamily: "Lexend-Regular",
-  },
-  signupLink: {
-    fontSize: 14,
-    color: Colors.primary,
-    fontFamily: "Lexend-SemiBold",
-    fontWeight: "600",
-  },
+  safe: { flex: 1, backgroundColor: Colors.white },
+  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingBottom: Spacing.xl * 2 },
+  backBtn: { paddingTop: Spacing.md, paddingBottom: Spacing.sm, alignSelf: "flex-start" },
+  backIcon: { fontSize: 22, color: Colors.textDark },
+  mascot: { alignItems: "center", marginTop: Spacing.md, marginBottom: Spacing.md },
+  mascotEmoji: { fontSize: 64 },
+  title: { fontSize: 24, fontWeight: "700", color: Colors.textDark, fontFamily: "Lexend_700Bold", textAlign: "center", marginBottom: Spacing.sm },
+  subtitle: { fontSize: 14, color: Colors.textMedium, fontFamily: "Lexend_400Regular", textAlign: "center", marginBottom: Spacing.xl, lineHeight: 22 },
+  form: { gap: Spacing.md },
+  fieldGroup: { gap: 6 },
+  label: { fontSize: 14, fontWeight: "500", color: Colors.textDark, fontFamily: "Lexend_600SemiBold" },
+  labelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  forgotLink: { fontSize: 13, color: Colors.primary, fontFamily: "Lexend_400Regular" },
+  input: { backgroundColor: Colors.background, borderRadius: Radius.md, borderWidth: 1.5, borderColor: Colors.border, paddingHorizontal: Spacing.lg, height: 52, fontSize: 15, color: Colors.textDark, fontFamily: "Lexend_400Regular" },
+  inputError: { borderColor: Colors.red },
+  errorText: { fontSize: 12, color: Colors.red, fontFamily: "Lexend_400Regular", marginTop: 2 },
+  passwordWrap: { flexDirection: "row", alignItems: "center", backgroundColor: Colors.background, borderRadius: Radius.md, borderWidth: 1.5, borderColor: Colors.border, height: 52, paddingHorizontal: Spacing.lg },
+  passwordInput: { flex: 1, fontSize: 15, color: Colors.textDark, fontFamily: "Lexend_400Regular" },
+  eyeBtn: { padding: Spacing.sm },
+  eyeIcon: { fontSize: 18 },
+  continueBtn: { backgroundColor: Colors.primary, borderRadius: Radius.md, height: 54, alignItems: "center", justifyContent: "center", marginTop: Spacing.sm, shadowColor: Colors.primary, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
+  continueBtnDisabled: { opacity: 0.6, shadowOpacity: 0, elevation: 0 },
+  continueBtnText: { fontSize: 17, fontWeight: "700", color: Colors.white, fontFamily: "Lexend_700Bold" },
+  divider: { flexDirection: "row", alignItems: "center", gap: Spacing.md, marginVertical: Spacing.sm },
+  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
+  dividerText: { fontSize: 13, color: Colors.textMuted, fontFamily: "Lexend_400Regular" },
+  sanadBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.sm, borderRadius: Radius.md, height: 54, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.white },
+  sanadIcon: { fontSize: 20 },
+  sanadBtnText: { fontSize: 15, fontWeight: "600", color: Colors.textDark, fontFamily: "Lexend_600SemiBold" },
+  signupRow: { flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: Spacing.xl },
+  signupText: { fontSize: 14, color: Colors.textMedium, fontFamily: "Lexend_400Regular" },
+  signupLink: { fontSize: 14, color: Colors.primary, fontFamily: "Lexend_600SemiBold", fontWeight: "600" },
 });

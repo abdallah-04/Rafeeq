@@ -20,8 +20,8 @@ import {
   selectRole,
   selectIsRTL,
 } from '@/store/authStore'
+import { ModalProvider } from '@/components/modal/ModalProvider'
 import React from 'react'
-
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,13 +32,11 @@ const queryClient = new QueryClient({
   },
 })
 
-
 SplashScreen.preventAutoHideAsync()
 
-
 export default function RootLayout() {
-  const router     = useRouter()
-  const segments   = useSegments()   
+  const router   = useRouter()
+  const segments = useSegments()
 
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
   const role            = useAuthStore(selectRole)
@@ -57,7 +55,7 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError])
 
-
+  // Keep React Native layout direction in sync with store
   useEffect(() => {
     if (I18nManager.isRTL !== isRTL) {
       I18nManager.forceRTL(isRTL)
@@ -73,15 +71,13 @@ export default function RootLayout() {
     // const inSchoolGroup  = segments[0] === '(school)'
 
     if (!isAuthenticated) {
-
       if (!inAuthGroup) {
-        router.replace('./(auth)')
+        router.replace('/(auth)')
       }
       return
     }
 
-    // Logged in — send to role-appropriate navigator
-    // but only if not already there
+    // Logged in — redirect to the correct role navigator
     // if (role === 'parent' && !inParentGroup) {
     //   router.replace('/(parent)')
     //   return
@@ -100,14 +96,15 @@ export default function RootLayout() {
   }, [isAuthenticated, role, fontsLoaded, fontError, segments])
 
   if (!fontsLoaded && !fontError) {
-    return null  
+    return null
   }
-
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StatusBar style={isRTL ? 'dark' : 'dark'} />
-      <Slot />
+      <ModalProvider>
+        <StatusBar style="dark" />
+        <Slot />
+      </ModalProvider>
     </QueryClientProvider>
   )
 }
