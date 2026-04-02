@@ -5,6 +5,7 @@ import React from 'react';
 import PrimaryButton from '@/components/modal/shared/blueButton';   
 import SecondaryButton from '@/components/modal/shared/otherbutton';
 import { colors } from '@/constants';
+import ScreenWrapper from '@/components/modal/shared/ScreenWap';
 
 const SLIDES = [
     {
@@ -38,38 +39,37 @@ export default function OnboardingScreen() {
     const slide = SLIDES[index];
 
     return (
+        <ScreenWrapper style={styles.container}>
+            {/* Header */}
+            <Text style={styles.brand}>RAFEEQ</Text>
+            <Text style={styles.brandAr}>رفيق</Text>
 
-        <View style={styles.container}>
-        {/* Header */}
-        <Text style={styles.brand}>RAFEEQ</Text>
-        <Text style={styles.brandAr}>رفيق</Text>
+            {/* Text */}
+            <Text style={styles.title}>{slide.title}</Text>
+            <Text style={styles.desc}>{slide.desc}</Text>
 
-        {/* Text */}
-        <Text style={styles.title}>{slide.title}</Text>
-        <Text style={styles.desc}>{slide.desc}</Text>
+            {/* Illustration */}
+            <View style={styles.imageBox}>
+                <Image source={slide.image} style={styles.image} resizeMode="contain" />
+            </View>
 
-        {/* Illustration */}
-        <View style={styles.imageBox}>
-            <Image source={slide.image} style={styles.image} resizeMode="contain" />
-        </View>
+            {/* Dots */}
+            <View style={styles.dots}>
+                {SLIDES.map((_, i) => (
+                <View
+                    key={i}
+                    style={[styles.dot, i === index && styles.dotActive]}
+                />
+                ))}
+            </View>
 
-        {/* Dots */}
-        <View style={styles.dots}>
-            {SLIDES.map((_, i) => (
-            <View
-                key={i}
-                style={[styles.dot, i === index && styles.dotActive]}
-            />
-            ))}
-        </View>
+            {/* Buttons */}
+            <PrimaryButton title={isLast ? 'Get Started' : 'Next'} onPress={next} />
 
-        {/* Buttons */}
-        <PrimaryButton title={isLast ? 'Get Started' : 'Next'} onPress={next} />
-
-        {!isLast && (
-            <SecondaryButton title="Skip" onPress={skip} />
-        )}
-        </View>
+            {!isLast && (
+                <SecondaryButton title="Skip" onPress={skip} />
+            )}
+        </ScreenWrapper>
     );
     }
 
