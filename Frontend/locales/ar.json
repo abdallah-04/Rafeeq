@@ -466,5 +466,66 @@
       "error": { "empty": "يرجى إدخال رقم الهوية الوطنية.", "invalid": "يجب أن يتكون رقم الهوية من ١٠ أرقام." }
     },
     "wellDone": { "title": "أحسنت! 🎉", "scoreLabel": "نتيجتك هي", "btn": "متابعة" }
-  }
+  },
+"schoolSignup": {
+  "title": "مرحباً بك في رفيق",
+  "subtitle": "أنشئ ملف مدرستك لإدارة دعم الطلاب ومتابعة التقدم والتواصل مع أولياء الأمور.",
+  "schoolName": "اسم المدرسة",
+  "schoolNamePlaceholder": "أدخل اسم المدرسة",
+  "schoolId": "رقم المدرسة",
+  "schoolIdPlaceholder": "أدخل رقم المدرسة",
+  "advisorName": "اسم المشرف",
+  "advisorNamePlaceholder": "أدخل اسم المشرف",
+  "advisorNationalId": "الرقم الوطني للمشرف",
+  "advisorPhone": "رقم المشرف",
+  "createPassword": "إنشاء كلمة المرور",
+  "confirmPassword": "تأكيد كلمة المرور",
+  "alreadyHaveAccount": "هل لديك حساب بالفعل؟"
+},
+"schoolWelcome": {
+  "welcome": "مرحباً،",
+  "mr": "الأستاذ"
+},
+"teachers": {
+  "title": "معلموي",
+  "addTeacher": "إضافة معلم",
+  "addFirst": "أضف أول معلم",
+  "emptyTitle": "يبدو هادئاً هنا!",
+  "emptySubtitle": "أضف أول معلم لبدء إدارة مدرستك.",
+  "active": "نشط",
+  "children": "طالب"
+},
+"addTeacher": {
+  "title": "إضافة معلم",
+  "addPhoto": "إضافة صورة",
+  "fullName": "الاسم الكامل للمعلم",
+  "fullNamePlaceholder": "أدخل الاسم الكامل",
+  "nationalId": "الرقم الوطني",
+  "phone": "رقم الهاتف",
+  "createPassword": "إنشاء كلمة المرور",
+  "confirmPassword": "تأكيد كلمة المرور",
+  "submit": "إضافة المعلم"
+},
+"students": {
+  "title": "طلابي",
+  "addStudent": "إضافة طالب",
+  "addFirst": "أضف أول طالب",
+  "emptyTitle": "يبدو هادئاً هنا!",
+  "emptySubtitle": "أضف أول طالب لبدء متابعة تقدمه.",
+  "active": "نشط",
+  "level": "المستوى"
+},
+"addStudent": {
+  "title": "إضافة طالب",
+  "fullName": "الاسم الكامل للطفل",
+  "fullNamePlaceholder": "أدخل الاسم الكامل",
+  "nationalId": "الرقم الوطني",
+  "dateOfBirth": "تاريخ الميلاد",
+  "dateOfBirthPlaceholder": "يوم / شهر / سنة",
+  "difficulty": "صعوبة الطفل",
+  "difficultyPlaceholder": "اختر الصعوبة",
+  "gender": "الجنس",
+  "female": "أنثى",
+  "male": "ذكر"
+}
 }
