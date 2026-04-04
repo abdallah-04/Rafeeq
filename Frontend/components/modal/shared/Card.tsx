@@ -1,26 +1,56 @@
 import React, { ReactNode } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { colors } from '@/constants';
+import { View, StyleSheet, ViewStyle } from 'react-native';
+import { theme } from '@/theme';
 
 type Props = {
     children: ReactNode;
-    style?: object; 
+    variant?: 'default' | 'elevated' | 'outlined';
+    padded?: boolean;
+    style?: ViewStyle;
 };
 
-export default function Card({ children, style }: Props) {
-    return <View style={[styles.card, style]}>{children}</View>;
+export default function Card({ children, variant = 'default', padded = true, style }: Props) {
+    const variantStyles: Record<string, ViewStyle> = {
+        default: {
+            backgroundColor: theme.colors.surfaceCard,
+            borderWidth: 1,
+            borderColor: theme.colors.cardBorder,
+        },
+        elevated: {
+            backgroundColor: theme.colors.surfaceCard,
+            shadowColor: theme.colors.cardShadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.06,
+            shadowRadius: 8,
+            elevation: 3,
+        },
+        outlined: {
+            backgroundColor: 'transparent',
+            borderWidth: 1.5,
+            borderColor: theme.colors.border,
+        },
+    };
+
+    return (
+        <View
+        style={[
+            styles.base,
+            variantStyles[variant],
+            padded && styles.padded,
+            style,
+        ]}
+        >
+        {children}
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-    card: {
-        backgroundColor: colors.cardBackground,
-        borderRadius: 12,
-        padding: 15,
-        margin: 10,
-        shadowColor: colors.cardShadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 3,
+    base: {
+        borderRadius: theme.radius.lg,
+        overflow: 'hidden',
+    },
+    padded: {
+        padding: theme.spacing.lg,
     },
 });

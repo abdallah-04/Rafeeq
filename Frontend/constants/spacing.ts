@@ -1,5 +1,3 @@
-// src/constants/spacing.ts
-
 export const spacing = {
   xs: 4,
   sm: 8,
@@ -11,9 +9,9 @@ export const spacing = {
 } as const;
 
 export const borderRadius = {
-  sm: 4,
-  md: 8,
-  lg: 12,
+  sm: 6,
+  md: 10,
+  lg: 14,
   xl: 16,
   '2xl': 24,
   full: 9999,

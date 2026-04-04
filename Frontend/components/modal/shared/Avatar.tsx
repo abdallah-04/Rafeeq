@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { colors } from '@/constants';
+import { theme } from '@/theme';
 
 type AvatarSize = 'sm' | 'md' | 'lg';
 
 type Props = {
-  name?: string;       
+  name?: string;
   imageUri?: string;
   size?: AvatarSize;
 };
@@ -16,14 +16,9 @@ export default function Avatar({ name, imageUri, size = 'md' }: Props) {
     md: 50,
     lg: 80,
   };
-
   const dimension = sizeMap[size];
   const initials = name
-    ? name
-        .split(' ')
-        .map((part) => part[0])
-        .join('')
-        .toUpperCase()
+    ? name.split(' ').map((part) => part[0]).join('').toUpperCase()
     : '';
 
   return (
@@ -45,20 +40,19 @@ export default function Avatar({ name, imageUri, size = 'md' }: Props) {
 const styles = StyleSheet.create({
   container: {
     overflow: 'hidden',
-    backgroundColor: colors.inputPlaceholder,
+    backgroundColor: theme.colors.inputPlaceholder,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  image: {
-    resizeMode: 'cover',
-  },
+  image: { resizeMode: 'cover' },
   fallback: {
-    backgroundColor: colors.primaryLighter,
+    backgroundColor: theme.colors.primaryLighter,
     justifyContent: 'center',
     alignItems: 'center',
   },
   initials: {
-    color: colors.white,
-    fontWeight: 'bold',
+    color: theme.colors.white,
+    fontWeight: theme.typography.fontWeight.bold,
+    fontFamily: theme.typography.fontFamily.bold,
   },
 });

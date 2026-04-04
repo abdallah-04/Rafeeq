@@ -1,13 +1,14 @@
-// components/modal/variants/ErrorModal.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { ErrorVariant } from '../ModalProvider';
+import { theme } from '@/theme';
 
 interface Props {
   variant?: ErrorVariant;
   onHide: () => void;
 }
+
 const VARIANT_KEYS: Record<ErrorVariant, { title: string; message: string; btnLabel: string }> = {
   incompleteInfo:  { title: 'modal.error.incompleteInfo.title',  message: 'modal.error.incompleteInfo.message',  btnLabel: 'modal.error.btn.okay'    },
   invalidCode:     { title: 'modal.error.invalidCode.title',     message: 'modal.error.invalidCode.message',     btnLabel: 'modal.error.btn.tryAgain' },
@@ -40,13 +41,13 @@ export default function ErrorModal({ variant = 'invalidInfo', onHide }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius['2xl'],
     paddingHorizontal: 28,
     paddingTop: 32,
     paddingBottom: 28,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: theme.colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
@@ -56,50 +57,50 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#EF4444',
+    backgroundColor: theme.colors.error,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
   },
   iconText: {
-    color: '#FFFFFF',
+    color: theme.colors.textWhite,
     fontSize: 32,
-    fontWeight: '800',
+    fontWeight: theme.typography.fontWeight.bold,
     lineHeight: 36,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#334155',
+    fontSize: theme.typography.fontSize.xl,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.textPrimary,
     textAlign: 'center',
     marginBottom: 10,
-    fontFamily: 'Lexend',
+    fontFamily: theme.typography.fontFamily.bold,
   },
   message: {
-    fontSize: 14,
-    fontWeight: '400',
-    color: '#64748B',
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: theme.typography.fontWeight.regular,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 24,
-    fontFamily: 'Lexend',
+    fontFamily: theme.typography.fontFamily.regular,
   },
   btn: {
-    backgroundColor: '#508DF7',
-    borderRadius: 16,
-    paddingVertical: 14,
+    backgroundColor: theme.colors.buttonPrimary,
+    borderRadius: theme.radius.lg,
+    paddingVertical: theme.spacing.sm,
     width: '100%',
     alignItems: 'center',
-    shadowColor: '#508DF7',
+    shadowColor: theme.colors.buttonPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
     elevation: 6,
   },
   btnText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-    fontFamily: 'Lexend',
+    color: theme.colors.textWhite,
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: theme.typography.fontWeight.bold,
+    fontFamily: theme.typography.fontFamily.bold,
   },
 });

@@ -1,15 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '@/constants';
-
-type Unit = 'H.W' | 'Quiz' | 'Activities' | 'tasks';
-type Period = 'today' | 'This week';
+import { View, StyleSheet } from 'react-native';
+import { Text } from './Text';
+import { theme } from '@/theme';
 
 type Props = {
     completed: number;
     total: number;
-    unit: Unit;
-    period: Period;
+    unit: string;
+    period: string;
 };
 
 export default function KeepGoingBanner({ completed, total, unit, period }: Props) {
@@ -18,8 +16,9 @@ export default function KeepGoingBanner({ completed, total, unit, period }: Prop
     return (
         <View style={styles.container}>
         <Text style={styles.text}>
-            Keep going! {completed}/{total} {unit} done {period === 'today' ? 'today' : 'this week'} ({percentage}%)
+            Keep going! {completed}/{total} {unit} done {period} ({percentage}%)
         </Text>
+
         <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${percentage}%` }]} />
         </View>
@@ -29,25 +28,24 @@ export default function KeepGoingBanner({ completed, total, unit, period }: Prop
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: colors.primaryLighter,
-        padding: 15,
-        borderRadius: 12,
-        marginVertical: 10,
+        backgroundColor: theme.colors.primaryLighter,
+        padding: theme.spacing.md,
+        borderRadius: theme.radius.lg,
+        marginVertical: theme.spacing.sm,
     },
     text: {
-        color: colors.textPrimary,
-        fontWeight: 'bold',
-        marginBottom: 8,
+        color: theme.colors.textPrimary,
+        marginBottom: theme.spacing.xs,
     },
     progressBar: {
         width: '100%',
         height: 10,
-        backgroundColor: colors.progressNotStarted,
-        borderRadius: 5,
+        backgroundColor: theme.colors.progressNotStarted,
+        borderRadius: theme.radius.full,
     },
     progressFill: {
         height: '100%',
-        backgroundColor: colors.progressComplete,
-        borderRadius: 5,
+        backgroundColor: theme.colors.progressComplete,
+        borderRadius: theme.radius.full,
     },
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { theme } from '@/theme';
 
 interface Props {
   score: number;
@@ -28,7 +29,6 @@ export default function WellDoneModal({ score, total, onHide }: Props) {
         </Text>
       </View>
 
- 
       <TouchableOpacity style={styles.btn} onPress={onHide} activeOpacity={0.8}>
         <Text style={styles.btnText}>{t('modal.wellDone.btn')}</Text>
       </TouchableOpacity>
@@ -38,13 +38,13 @@ export default function WellDoneModal({ score, total, onHide }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#EDF4FE',
-    borderRadius: 24,
+    backgroundColor: theme.colors.primaryLighter,
+    borderRadius: theme.radius['2xl'],
     paddingHorizontal: 28,
     paddingTop: 32,
     paddingBottom: 28,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: theme.colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.10,
     shadowRadius: 20,
@@ -53,52 +53,52 @@ const styles = StyleSheet.create({
   penguin: {
     width: 130,
     height: 130,
-    marginBottom: 16,
+    marginBottom: theme.spacing.md,
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#334155',
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.textPrimary,
     textAlign: 'center',
     marginBottom: 6,
-    fontFamily: 'Lexend',
+    fontFamily: theme.typography.fontFamily.bold,
   },
   scoreLabel: {
-    fontSize: 14,
-    color: '#64748B',
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 12,
-    fontFamily: 'Lexend',
+    marginBottom: theme.spacing.sm,
+    fontFamily: theme.typography.fontFamily.regular,
   },
   scoreBadge: {
-    backgroundColor: '#508DF7',
-    borderRadius: 20,
-    paddingHorizontal: 24,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.xl,
+    paddingHorizontal: theme.spacing.lg,
     paddingVertical: 10,
     marginBottom: 28,
   },
   scoreText: {
-    color: '#FFFFFF',
+    color: theme.colors.textWhite,
     fontSize: 22,
-    fontWeight: '800',
-    fontFamily: 'Lexend',
+    fontWeight: theme.typography.fontWeight.bold,
+    fontFamily: theme.typography.fontFamily.bold,
   },
   btn: {
-    backgroundColor: '#508DF7',
-    borderRadius: 16,
-    paddingVertical: 14,
+    backgroundColor: theme.colors.buttonPrimary,
+    borderRadius: theme.radius.lg,
+    paddingVertical: theme.spacing.sm,
     width: '100%',
     alignItems: 'center',
-    shadowColor: '#508DF7',
+    shadowColor: theme.colors.buttonPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
     elevation: 6,
   },
   btnText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-    fontFamily: 'Lexend',
+    color: theme.colors.textWhite,
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: theme.typography.fontWeight.bold,
+    fontFamily: theme.typography.fontFamily.bold,
   },
 });
