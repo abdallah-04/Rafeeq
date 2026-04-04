@@ -16,7 +16,7 @@ import Animated, {
     withSpring,
 } from "react-native-reanimated";
 
-type Role = "parent" | "school";
+type Role = "parent" | "school" | "teacher";
 
 interface RoleOption {
   key: Role;
@@ -41,6 +41,14 @@ const ROLES: RoleOption[] = [
     descKey: "roleSelect.schoolDesc",
     route: "/(auth)/signup-school",
   },
+    {
+    key: "teacher",
+    icon: "👩‍🏫",
+    titleKey: "roleSelect.teacherTitle",
+    descKey: "roleSelect.teacherDesc",
+    route: "/(teacher)/add-student",
+  },
+
 ];
 
 interface RoleSelectProps {
