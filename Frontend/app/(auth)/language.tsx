@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import { Image, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import { colors } from '@/constants';
-import PrimaryButton from '@/components/modal/shared/blueButton';
-import ScreenWrapper from '@/components/modal/shared/ScreenWap';
+import { I18nManager } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { theme } from '@/theme';
+import { Text } from '@/components/modal/shared/Text';
+import { Button } from '@/components/modal/shared/Button';
 import { useAuthStore } from '@/store/authStore';
 import { changeLanguage } from '@/i18n';
-import { I18nManager } from 'react-native';
 
 export default function LanguageSelectionScreen() {
   const [selected, setSelected] = useState<'en' | 'ar' | null>(null);
-
   const setLanguage         = useAuthStore((s) => s.setLanguage);
   const setLanguageSelected = useAuthStore((s) => s.setLanguageSelected);
 
   const handleContinue = () => {
     if (!selected) return;
-
     setLanguage(selected);
     changeLanguage(selected);
     I18nManager.forceRTL(selected === 'ar');
@@ -25,119 +25,161 @@ export default function LanguageSelectionScreen() {
   };
 
   return (
-    <ScreenWrapper style={styles.container}>
-      <Image
-        source={require('@/assets/images/mascot/rafeeq_like.png')}
-        style={styles.pic}
-        resizeMode="contain"
-      />
-      <Text style={styles.logoText}>رفيق</Text>
-      <Text style={styles.logoText}>Rafeeq</Text>
-
-      <Text style={styles.title}>Choose your language</Text>
-      <Text style={styles.title}>اختر لغتك</Text>
-
-      <View style={styles.options}>
-        <TouchableOpacity
-          style={[styles.card, selected === 'en' && styles.cardSelected]}
-          onPress={() => setSelected('en')}
-          accessibilityRole="button"
-          accessibilityLabel="Select English"
-        >
-          <Text style={styles.flag}>🇬🇧</Text>
-          <View>
-            <Text style={styles.lang}>English</Text>
-            <Text style={styles.sub}>الإنجليزية</Text>
-          </View>
-          {selected === 'en' && <Text style={styles.check}>✓</Text>}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.card, selected === 'ar' && styles.cardSelected]}
-          onPress={() => setSelected('ar')}
-          accessibilityRole="button"
-          accessibilityLabel="Select Arabic"
-        >
-          <Text style={styles.flag}>🇯🇴</Text>
-          <View>
-            <Text style={styles.lang}>العربية</Text>
-            <Text style={styles.sub}>Arabic</Text>
-          </View>
-          {selected === 'ar' && <Text style={styles.check}>✓</Text>}
-        </TouchableOpacity>
+    <SafeAreaView style={styles.safe}>
+      {/* Mascot */}
+      <View style={styles.mascotWrap}>
+        <Image
+          source={require('@/assets/images/mascot/rafeeq_like.png')}
+          style={styles.mascot}
+          resizeMode="contain"
+        />
       </View>
 
-      <PrimaryButton
-        title="Continue / متابعة"
-        onPress={handleContinue}
-        disabled={!selected}
-      />
-    </ScreenWrapper>
+      {/* Title */}
+      <Text style={styles.title}>Choose your language</Text>
+      <Text style={styles.titleAr}>اختر لغتك</Text>
+
+      {/* Cards */}
+      <View style={styles.cards}>
+        {[
+          { lang: 'en', flag: '🇬🇧', label: 'English', sub: 'الإنجليزية' },
+          { lang: 'ar', flag: '🇯🇴', label: 'العربية', sub: 'Arabic' },
+        ].map(({ lang, flag, label, sub }) => (
+          <TouchableOpacity
+            key={lang}
+            style={[styles.card, selected === lang && styles.cardSelected]}
+            onPress={() => setSelected(lang as 'en' | 'ar')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.flag}>{flag}</Text>
+            <View style={styles.cardText}>
+              <Text style={styles.lang}>{label}</Text>
+              <Text style={styles.sub}>{sub}</Text>
+            </View>
+            <View style={[styles.radio, selected === lang && styles.radioSelected]}>
+              {selected === lang && <View style={styles.radioDot} />}
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Button */}
+      <View style={styles.footer}>
+        <Button
+          label="Continue / متابعة"
+          onPress={handleContinue}
+          disabled={!selected}
+          style={styles.btn}
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: theme.colors.background,
+    paddingHorizontal: theme.spacing.lg,
+  },
+
+  mascotWrap: {
     alignItems: 'center',
-    paddingHorizontal: 30,
-    paddingTop: 40,
+    marginTop: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
   },
-  logoText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.primary,
-    marginBottom: 6,
+
+  mascot: {
+    width: 130,
+    height: 130,
   },
+
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
+    fontSize: theme.typography.fontSize['2xl'],
+    fontFamily: theme.typography.fontFamily.bold,
+    color: theme.colors.textPrimary,
     textAlign: 'center',
   },
-  options: {
-    width: '100%',
-    gap: 12,
-    marginBottom: 24,
-    marginTop: 16,
+
+  titleAr: {
+    fontSize: theme.typography.fontSize.lg,
+    fontFamily: theme.typography.fontFamily.regular,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 4,
+    marginBottom: theme.spacing.lg,
   },
+
+  cards: {
+    gap: theme.spacing.md,
+  },
+
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.cardBackground,
-    padding: 16,
-    borderRadius: 14,
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.md,
+    borderRadius: theme.radius.xl,
     borderWidth: 1.5,
-    borderColor: colors.border,
-    gap: 12,
+    borderColor: theme.colors.border,
+    gap: theme.spacing.md,
   },
+
   cardSelected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.backgroundGray,
+    borderColor: theme.colors.primary,
+    backgroundColor: '#EEF4FF',
   },
+
   flag: {
-    fontSize: 26,
+    fontSize: 28,
   },
+
+  cardText: {
+    flex: 1,
+  },
+
   lang: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.textPrimary,
+    fontSize: theme.typography.fontSize.base,
+    fontFamily: theme.typography.fontFamily.semiBold,
+    color: theme.colors.textPrimary,
   },
+
   sub: {
-    fontSize: 12,
-    color: colors.textSecondary,
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.regular,
+    color: theme.colors.textSecondary,
     marginTop: 2,
   },
-  check: {
-    marginLeft: 'auto',
-    fontSize: 18,
-    color: colors.primary,
-    fontWeight: '700',
+
+  radio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  pic: {
-    width: 114,
-    height: 114,
-    marginBottom: 8,
+
+  radioSelected: {
+    borderColor: theme.colors.primary,
+  },
+
+  radioDot: {
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    backgroundColor: theme.colors.primary,
+  },
+
+  footer: {
+    position: 'absolute',
+    bottom: theme.spacing.xl,
+    left: theme.spacing.lg,
+    right: theme.spacing.lg,
+  },
+
+  btn: {
+    width: '100%',
   },
 });

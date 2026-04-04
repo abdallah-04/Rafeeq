@@ -1,268 +1,264 @@
-import { useAuthStore } from "@/store/authStore";
-import { Colors, Radius, Spacing } from "@/theme";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { router } from "expo-router";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+import React, { useState } from 'react';
 import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { z } from "zod";
+  Image,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
+import { StatusBar } from 'expo-status-bar';
+
+import { theme } from '@/theme';
+import { Text } from '@/components/modal/shared/Text';
+import { Button } from '@/components/modal/shared/Button';
+import Input from '@/components/modal/shared/TextInput';
+import BackButton from '@/components/modal/shared/BackButton';
+import { useAuthStore } from '@/store/authStore';
 
 const loginSchema = z.object({
-  identifier: z
-    .string()
-    .min(1, "modal.error.invalidId.message")
-    .min(5, "modal.error.invalidId.message"),
-  password: z
-    .string()
-    .min(1, "modal.error.invalidInfo.message")
-    .min(6, "modal.error.invalidInfo.message"),
+  identifier: z.string().min(5),
+  password:   z.string().min(6),
 });
-
-type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const { t } = useTranslation();
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const login = useAuthStore((s) => s.login);
 
-  const login    = useAuthStore((s) => s.login);
-  const setLoading = useAuthStore((s) => s.setLoading);
-  const setError   = useAuthStore((s) => s.setError);
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginForm>({
+  const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
-    defaultValues: { identifier: "", password: "" },
+    defaultValues: { identifier: '', password: '' },
   });
 
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = async () => {
     setIsLoading(true);
-    setLoading(true);
-    setError(null);
-    try {
-      // TODO: replace with real API call
-      // const res = await authApi.login({ identifier: data.identifier, password: data.password })
-      // login(res.user, res.token)
-
-      // Mock — remove when backend is ready
-      login(
-        { role: 'parent', language: 'en' } as any,
-        'mock-token-123'
-      );
-      // ✅ Do NOT call router.replace() here.
-      // The root _layout.tsx watches isAuthenticated + role and
-      // redirects to the correct navigator automatically.
-    } catch (err: any) {
-      setError(err?.message ?? 'Something went wrong');
-    } finally {
+    setTimeout(() => {
+      login({ role: 'parent', language: 'en' } as any, 'token');
       setIsLoading(false);
-      setLoading(false);
-    }
+    }, 1000);
   };
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
+      <StatusBar style="dark" />
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-          >
-            <Text style={styles.backIcon}>←</Text>
-          </TouchableOpacity>
+          <BackButton />
 
-          <View style={styles.mascot}>
-            <Text style={styles.mascotEmoji}>🐧</Text>
+          {/* Mascot */}
+          <View style={styles.mascotWrap}>
+            {/*<Text style={styles.mascotEmoji}>🐧</Text>*/}
+            <Image source={require('@/assets/images/mascot/rafeeq_like.png')} style={{ width: 120, height: 120 }} />
           </View>
 
-          <Text style={styles.title}>{t("auth.login.title")}</Text>
-          <Text style={styles.subtitle}>{t("auth.login.subtitle")}</Text>
+          {/* Title */}
+          <Text style={styles.title}>{t('auth.login.title')}</Text>
+          <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
 
+          {/* Form */}
           <View style={styles.form}>
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>{t("auth.login.nationalId")}</Text>
-              <Controller
-                control={control}
-                name="identifier"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={[styles.input, errors.identifier && styles.inputError]}
-                    placeholder={t("auth.login.nationalId")}
-                    placeholderTextColor={Colors.textMuted}
-                    keyboardType="numeric"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    returnKeyType="next"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    accessibilityLabel={t("auth.login.nationalId")}
-                  />
-                )}
-              />
-              {errors.identifier && (
-                <Text style={styles.errorText}>
-                  {t(errors.identifier.message!)}
-                </Text>
+            <Controller
+              control={control}
+              name="identifier"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder={t('auth.login.nationalId')}
+                  keyboardType="numeric"
+                  errorMsg={errors.identifier ? t(errors.identifier.message!) : undefined}
+                />
               )}
-            </View>
+            />
 
-            <View style={styles.fieldGroup}>
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>{t("auth.login.password")}</Text>
-                <TouchableOpacity
-                  onPress={() => router.push("/(auth)/forgot-password")}
-                  accessibilityRole="link"
-                >
-                  <Text style={styles.forgotLink}>
-                    {t("auth.login.forgotPassword")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <View
-                    style={[
-                      styles.passwordWrap,
-                      errors.password && styles.inputError,
-                    ]}
-                  >
-                    <TextInput
-                      style={styles.passwordInput}
-                      placeholder={t("auth.login.password")}
-                      placeholderTextColor={Colors.textMuted}
-                      secureTextEntry={!showPassword}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      returnKeyType="done"
-                      onSubmitEditing={handleSubmit(onSubmit)}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      accessibilityLabel={t("auth.login.password")}
-                    />
-                    <TouchableOpacity
-                      onPress={() => setShowPassword((p) => !p)}
-                      style={styles.eyeBtn}
-                      accessibilityRole="button"
-                      accessibilityLabel={showPassword ? "Hide password" : "Show password"}
-                    >
-                      <Text style={styles.eyeIcon}>
-                        {showPassword ? "🙈" : "👁"}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              />
-              {errors.password && (
-                <Text style={styles.errorText}>
-                  {t(errors.password.message!)}
-                </Text>
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder={t('auth.login.password')}
+                  secureEntry
+                  errorMsg={errors.password ? t(errors.password.message!) : undefined}
+                />
               )}
-            </View>
+            />
 
-            <TouchableOpacity
-              style={[styles.continueBtn, isLoading && styles.continueBtnDisabled]}
+            <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
+              <Text style={styles.forgot}>{t('auth.login.forgotPassword')}</Text>
+            </TouchableOpacity>
+
+            <Button
+              label={t('auth.login.loginButton')}
               onPress={handleSubmit(onSubmit)}
-              disabled={isLoading}
-              accessibilityRole="button"
-              accessibilityLabel={t("auth.login.loginButton")}
-            >
-              <Text style={styles.continueBtnText}>
-                {isLoading ? t("common.loading") : t("auth.login.loginButton")}
-              </Text>
-            </TouchableOpacity>
+              loading={isLoading}
+              style={styles.btn}
+            />
 
+            {/* Divider */}
             <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>{t("common.orContinueWith")}</Text>
-              <View style={styles.dividerLine} />
+              <View style={styles.line} />
+              <Text style={styles.dividerText}>{t('common.orContinueWith')}</Text>
+              <View style={styles.line} />
             </View>
 
-            <TouchableOpacity
-              style={styles.sanadBtn}
-              accessibilityRole="button"
-              accessibilityLabel="Sign up with Sanad"
+            {/* Sanad */}
+            {/* <TouchableOpacity style={styles.sanad}>
+              <Text style={styles.sanadFlag}>🇯🇴</Text>
+              <Text style={styles.sanadText}>{t('auth.login.sanad')}</Text>
+            </TouchableOpacity> */}
+
+            <TouchableOpacity 
+              style={styles.sanad}
+              activeOpacity={0.7}
+              onPress={() => {
+                // TODO: Implement Sanad login
+                console.log('Sanad login pressed');
+              }}
             >
-              <Text style={styles.sanadIcon}>🇯🇴</Text>
-              <Text style={styles.sanadBtnText}>{t("auth.login.sanad")}</Text>
+              <Image 
+                source={require('@/assets/images/Sanad.png')} 
+                style={styles.sanadLogo} 
+                resizeMode="contain"
+              />
+              <Text style={styles.sanadText}>{t('auth.login.sanad')}</Text>
             </TouchableOpacity>
           </View>
 
+          {/* Signup link */}
           <View style={styles.signupRow}>
-            <Text style={styles.signupText}>{t("auth.login.noAccount")} </Text>
-            <TouchableOpacity
-              onPress={() => router.push("/(auth)/role-select")}
-              accessibilityRole="link"
-            >
-              <Text style={styles.signupLink}>{t("auth.login.signUp")}</Text>
+            <Text style={styles.signupText}>{t('auth.login.noAccount')} </Text>
+            <TouchableOpacity onPress={() => router.push('/(auth)/role-select')}>
+              <Text style={styles.signupLink}>{t('auth.login.signUp')}</Text>
             </TouchableOpacity>
           </View>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
+const { colors, spacing, typography, radius } = theme;
+
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.white },
-  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingBottom: Spacing.xl * 2 },
-  backBtn: { paddingTop: Spacing.md, paddingBottom: Spacing.sm, alignSelf: "flex-start" },
-  backIcon: { fontSize: 22, color: Colors.textDark },
-  mascot: { alignItems: "center", marginTop: Spacing.md, marginBottom: Spacing.md },
-  mascotEmoji: { fontSize: 64 },
-  title: { fontSize: 24, fontWeight: "700", color: Colors.textDark, fontFamily: "Lexend_700Bold", textAlign: "center", marginBottom: Spacing.sm },
-  subtitle: { fontSize: 14, color: Colors.textMedium, fontFamily: "Lexend_400Regular", textAlign: "center", marginBottom: Spacing.xl, lineHeight: 22 },
-  form: { gap: Spacing.md },
-  fieldGroup: { gap: 6 },
-  label: { fontSize: 14, fontWeight: "500", color: Colors.textDark, fontFamily: "Lexend_600SemiBold" },
-  labelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  forgotLink: { fontSize: 13, color: Colors.primary, fontFamily: "Lexend_400Regular" },
-  input: { backgroundColor: Colors.background, borderRadius: Radius.md, borderWidth: 1.5, borderColor: Colors.border, paddingHorizontal: Spacing.lg, height: 52, fontSize: 15, color: Colors.textDark, fontFamily: "Lexend_400Regular" },
-  inputError: { borderColor: Colors.red },
-  errorText: { fontSize: 12, color: Colors.red, fontFamily: "Lexend_400Regular", marginTop: 2 },
-  passwordWrap: { flexDirection: "row", alignItems: "center", backgroundColor: Colors.background, borderRadius: Radius.md, borderWidth: 1.5, borderColor: Colors.border, height: 52, paddingHorizontal: Spacing.lg },
-  passwordInput: { flex: 1, fontSize: 15, color: Colors.textDark, fontFamily: "Lexend_400Regular" },
-  eyeBtn: { padding: Spacing.sm },
-  eyeIcon: { fontSize: 18 },
-  continueBtn: { backgroundColor: Colors.primary, borderRadius: Radius.md, height: 54, alignItems: "center", justifyContent: "center", marginTop: Spacing.sm, shadowColor: Colors.primary, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
-  continueBtnDisabled: { opacity: 0.6, shadowOpacity: 0, elevation: 0 },
-  continueBtnText: { fontSize: 17, fontWeight: "700", color: Colors.white, fontFamily: "Lexend_700Bold" },
-  divider: { flexDirection: "row", alignItems: "center", gap: Spacing.md, marginVertical: Spacing.sm },
-  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
-  dividerText: { fontSize: 13, color: Colors.textMuted, fontFamily: "Lexend_400Regular" },
-  sanadBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.sm, borderRadius: Radius.md, height: 54, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.white },
-  sanadIcon: { fontSize: 20 },
-  sanadBtnText: { fontSize: 15, fontWeight: "600", color: Colors.textDark, fontFamily: "Lexend_600SemiBold" },
-  signupRow: { flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: Spacing.xl },
-  signupText: { fontSize: 14, color: Colors.textMedium, fontFamily: "Lexend_400Regular" },
-  signupLink: { fontSize: 14, color: Colors.primary, fontFamily: "Lexend_600SemiBold", fontWeight: "600" },
+  safe: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+
+  scroll: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
+  },
+
+  mascotWrap: {
+    alignItems: 'center',
+    marginVertical: spacing.lg,
+  },
+
+  // mascotEmoji: {
+  //   fontSize: 72,
+  // },
+
+  title: {
+    fontSize: typography.fontSize['2xl'],
+    fontFamily: typography.fontFamily.bold,
+    textAlign: 'center',
+    color: colors.textPrimary,
+    marginBottom: spacing.xs,
+  },
+
+  subtitle: {
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.regular,
+    textAlign: 'center',
+    color: colors.textSecondary,
+    marginBottom: spacing.lg,
+    lineHeight: 22,
+  },
+
+  form: {
+    gap: 14,
+  },
+
+  forgot: {
+    fontSize: typography.fontSize.sm,
+    color: colors.primary,
+    textAlign: 'right',
+    fontFamily: typography.fontFamily.medium,
+  },
+
+  btn: {
+    width: '100%',
+  },
+
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginVertical: spacing.xs,
+  },
+
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+
+  dividerText: {
+    fontSize: typography.fontSize.xs,
+    color: colors.textMuted,
+  },
+
+  sanad: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.sm,
+    height: 52,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+  },
+
+  sanadLogo: {
+      width: 55,
+      height: 55,
+    },
+
+
+  sanadText: {
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.medium,
+    color: colors.textPrimary,
+  },
+
+  signupRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: spacing.lg,
+  },
+
+  signupText: {
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
+  },
+
+  signupLink: {
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.semiBold,
+    color: colors.primary,
+  },
 });

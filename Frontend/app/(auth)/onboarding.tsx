@@ -1,34 +1,36 @@
-import { useState } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Image, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
-import PrimaryButton from '@/components/modal/shared/blueButton';
-import SecondaryButton from '@/components/modal/shared/otherbutton';
-import { colors } from '@/constants';
-import ScreenWrapper from '@/components/modal/shared/ScreenWap';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Button } from '@/components/modal/shared/Button';
+import { Text } from '@/components/modal/shared/Text';
+import { theme } from '@/theme';
+
+const { colors, spacing, typography, radius } = theme;
+
+const SLIDES = [
+  {
+    titleKey: 'onboarding.slide1.title',
+    descKey:  'onboarding.slide1.subtitle',
+    image:    require('@/assets/images/mascot/rafeeq_reading.png'),
+  },
+  {
+    titleKey: 'onboarding.slide2.title',
+    descKey:  'onboarding.slide2.subtitle',
+    image:    require('@/assets/images/mascot/rafeeq_reading.png'),
+  },
+  {
+    titleKey: 'onboarding.slide3.title',
+    descKey:  'onboarding.slide3.subtitle',
+    image:    require('@/assets/images/mascot/rafeeq_reading.png'),
+  },
+];
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
   const [index, setIndex] = useState(0);
-
-  const SLIDES = [
-    {
-      titleKey: 'onboarding.slide1.title',
-      descKey:  'onboarding.slide1.subtitle',
-      image:    require('@/assets/images/mascot/rafeeq_reading.png'),
-    },
-    {
-      titleKey: 'onboarding.slide2.title',
-      descKey:  'onboarding.slide2.subtitle',
-      image:    require('@/assets/images/mascot/rafeeq_reading.png'),
-    },
-    {
-      titleKey: 'onboarding.slide3.title',
-      descKey:  'onboarding.slide3.subtitle',
-      image:    require('@/assets/images/mascot/rafeeq_reading.png'),
-    },
-  ];
 
   const isLast = index === SLIDES.length - 1;
   const slide  = SLIDES[index];
@@ -37,20 +39,17 @@ export default function OnboardingScreen() {
     if (isLast) router.replace('/(auth)/welcome');
     else setIndex(index + 1);
   };
-
   const skip = () => router.replace('/(auth)/welcome');
 
   return (
-    <ScreenWrapper style={styles.container}>
+    <SafeAreaView style={styles.safe}>
       {/* Brand */}
-      <Text style={styles.brand}>RAFEEQ</Text>
-      <Text style={styles.brandAr}>رفيق</Text>
+      <View style={styles.brandRow}>
+        <Text style={styles.brand}>RAFEEQ</Text>
+        <Text style={styles.brandAr}> · رفيق</Text>
+      </View>
 
-      {/* Slide text */}
-      <Text style={styles.title}>{t(slide.titleKey)}</Text>
-      <Text style={styles.desc}>{t(slide.descKey)}</Text>
-
-      {/* Illustration */}
+      {/* Image */}
       <View style={styles.imageBox}>
         <Image source={slide.image} style={styles.image} resizeMode="contain" />
       </View>
@@ -62,72 +61,110 @@ export default function OnboardingScreen() {
         ))}
       </View>
 
+      {/* Text */}
+      <Text style={styles.title}>{t(slide.titleKey)}</Text>
+      <Text style={styles.desc}>{t(slide.descKey)}</Text>
+
       {/* Buttons */}
-      <PrimaryButton
-        title={isLast ? t('common.getStarted') : t('common.next')}
-        onPress={next}
-      />
-      {!isLast && (
-        <SecondaryButton title={t('common.skip')} onPress={skip} />
-      )}
-    </ScreenWrapper>
+      <View style={styles.actions}>
+        <Button
+          label={isLast ? t('common.getStarted') : t('common.next')}
+          onPress={next}
+          variant="primary"
+          style={styles.btn}
+        />
+        {!isLast && (
+          <Button label={t('common.skip')} onPress={skip} variant="ghost" />
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
     backgroundColor: colors.background,
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
+
+  brandRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+
   brand: {
-    fontSize: 18,
-    fontFamily: 'Lexend_700Bold',
-    fontWeight: '700',
-    color: colors.buttonPrimary,
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.primary,
     letterSpacing: 1,
   },
+
   brandAr: {
-    fontSize: 16,
-    fontFamily: 'Lexend_400Regular',
-    color: colors.buttonPrimary,
-    marginBottom: 20,
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.regular,
+    color: colors.primary,
   },
-  title: {
-    fontSize: 28,
-    fontFamily: 'Lexend_700Bold',
-    fontWeight: '700',
-    textAlign: 'center',
-    color: colors.textPrimary,
-    lineHeight: 36,
-  },
-  desc: {
-    fontSize: 14,
-    fontFamily: 'Lexend_400Regular',
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 12,
-    lineHeight: 22,
-  },
+
   imageBox: {
     flex: 1,
-    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 24,
   },
-  image: { width: '90%', height: '90%' },
-  dots: { flexDirection: 'row', gap: 8, marginBottom: 24 },
+
+  image: {
+    width: 240,
+    height: 240,
+  },
+
+  dots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    marginVertical: spacing.md,
+  },
+
   dot: {
     width: 8,
     height: 8,
-    borderRadius: 4,
-    backgroundColor: '#D1D5DB',
+    borderRadius: radius.full,
+    backgroundColor: colors.border,
   },
+
   dotActive: {
-    backgroundColor: colors.buttonPrimary,
     width: 24,
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
+  },
+
+  title: {
+    fontSize: typography.fontSize['2xl'],
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    lineHeight: 36,
+    marginBottom: spacing.sm,
+  },
+
+  desc: {
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.regular,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: spacing.md,
+  },
+
+  actions: {
+    marginTop: spacing.xl,
+    marginBottom: spacing.lg,
+    gap: spacing.xs,
+  },
+
+  btn: {
+    width: '100%',
   },
 });
