@@ -45,7 +45,7 @@ function EmptyState({ t }: { t: any }) {
   return (
     <View style={styles.emptyContainer}>
       <Image
-        source={require("@/assets/images/penguin-grad.png")}
+        source={require("@/assets/images/mascot/rafeeq_clabbing.png")}
         style={styles.emptyPenguin}
         resizeMode="contain"
       />

@@ -44,7 +44,7 @@ export default function SchoolWelcomeScreen() {
             </Text>
           </View>
           <Image
-            source={require("@/assets/images/penguin-grad.png")}
+            source={require("@/assets/images/mascot/rafeeq_clabbing.png")}
             style={styles.penguin}
             resizeMode="contain"
           />
