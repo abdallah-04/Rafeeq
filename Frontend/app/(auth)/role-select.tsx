@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { router } from 'expo-router';
@@ -7,6 +8,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 
 import { Text } from '@/components/modal/shared/Text';
 import BackButton from '@/components/modal/shared/BackButton';
+import Footer from '@/components/modal/shared/Footer';
 import { theme } from '@/theme';
 
 const { colors, spacing, typography, radius } = theme;
@@ -68,6 +70,21 @@ function RoleCard({ option, onPress }: { option: RoleOption; onPress: (r: string
 export default function RoleSelectionScreen() {
   const { t } = useTranslation();
 
+  // const handleLanguagePress = () => {
+  //   // TODO: open language selector modal
+  //   console.log('Language selector pressed');
+  // };
+
+  // const handlePrivacyPress = () => {
+  //   // TODO: navigate to privacy policy screen
+  //   router.push('/(auth)/privacy-policy');
+  // };
+
+  // const handleTermsPress = () => {
+  //   // TODO: navigate to terms of service screen
+  //   router.push('/(auth)/terms-of-service');
+  // };
+
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
@@ -98,13 +115,12 @@ export default function RoleSelectionScreen() {
         </View>
       </View>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerLink}>🌐 {t('common.language')}</Text>
-        <Text style={styles.footerDot}>·</Text>
-        <Text style={styles.footerLink}>{t('common.privacyPolicy')}</Text>
-        <Text style={styles.footerDot}>·</Text>
-        <Text style={styles.footerLink}>{t('common.terms')}</Text>
-      </View>
+      <Footer
+        onLanguagePress={() => {}}
+        onPrivacyPress={() => {}}
+        onTermsPress={() => {}}
+        currentLanguage="English (US)"
+      />
     </SafeAreaView>
   );
 }
@@ -217,23 +233,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.sm,
     fontFamily: typography.fontFamily.semiBold,
     color: colors.primary,
-  },
-
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingBottom: spacing.lg,
-  },
-
-  footerLink: {
-    fontSize: typography.fontSize.xs,
-    color: colors.textMuted,
-  },
-
-  footerDot: {
-    fontSize: typography.fontSize.xs,
-    color: colors.textMuted,
   },
 });

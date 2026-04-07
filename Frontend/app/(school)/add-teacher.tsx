@@ -1,124 +1,92 @@
-// app/(school)/add-teacher.tsx
-
-import { Colors, Radius, Spacing } from "@/theme";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+import React, { useState } from 'react'
 import {
-  ActivityIndicator,
-  Image,
+  View,
+  TextInput,
+  StyleSheet,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
-  View,
-} from "react-native";
-import { addTeacherSchema, AddTeacherForm } from "@/lib/schemas/teacherSchema";
+  Image,
+} from 'react-native'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as ImagePicker from 'expo-image-picker'
+import { router } from 'expo-router'
+import { useTranslation } from 'react-i18next'
+import { addTeacherSchema, AddTeacherForm } from '@/lib/schemas/teacherSchema'
+import { Text } from '@/components/modal/shared/Text'
+import { Button } from '@/components/modal/shared/Button'
+import Card from '@/components/modal/shared/Card'
+import Header from '@/components/modal/shared/Header'
+import ScreenWrapper from '@/components/modal/shared/ScreenWap'
+import { theme } from '@/theme'
+import { StatusBar } from 'expo-status-bar'
+
+const { colors, spacing, typography, radius } = theme
 
 export default function AddTeacherScreen() {
-  const { t } = useTranslation();
-  const [photo, setPhoto]               = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm]   = useState(false);
-  const [loading, setLoading]           = useState(false);
+  const { t } = useTranslation()
+  const [photo, setPhoto]               = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm]   = useState(false)
+  const [loading, setLoading]           = useState(false)
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<AddTeacherForm>({
+  const { control, handleSubmit, formState: { errors } } = useForm<AddTeacherForm>({
     resolver: zodResolver(addTeacherSchema),
-  });
+  })
 
-  // ── Photo picker ──────────────────────────────────────────────────────────
   const pickPhoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
-    });
-    if (!result.canceled) {
-      setPhoto(result.assets[0].uri);
-    }
-  };
+    })
+    if (!result.canceled) setPhoto(result.assets[0].uri)
+  }
 
-  // ── Submit ────────────────────────────────────────────────────────────────
-  // TODO: replace mock with real API call → POST /school/teachers
   const onSubmit = async (data: AddTeacherForm) => {
     try {
-      setLoading(true);
-      await new Promise((res) => setTimeout(res, 1000)); // mock delay
-      console.log("New teacher payload:", {
-        fullName:   data.fullName,
-        nationalId: data.nationalId,
-        phone:      `+962${data.phone}`,
-        password:   data.password,
-        photo,
-      });
-      router.back(); // go back to teacher list
+      setLoading(true)
+      await new Promise(res => setTimeout(res, 1000))
+      console.log('New teacher:', { ...data, photo })
+      router.back()
     } catch (e) {
-      console.error(e);
+      console.error(e)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
+    <ScreenWrapper scroll={false} padded={false}>
+      <StatusBar style="dark" />
+      <Header title={t('addTeacher.title')} />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-        >
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t("addTeacher.title")}</Text>
-        <View style={{ width: 32 }} />
-      </View>
-
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
-          contentContainerStyle={styles.container}
+          contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {/* ── Photo picker ── */}
-          <TouchableOpacity
-            style={styles.photoCircle}
-            onPress={pickPhoto}
-            accessibilityRole="button"
-            accessibilityLabel={t("addTeacher.addPhoto")}
-          >
+
+          {/* Photo picker */}
+          <TouchableOpacity style={styles.photoCircle} onPress={pickPhoto}>
             {photo ? (
               <Image source={{ uri: photo }} style={styles.photoImage} />
             ) : (
               <View style={styles.photoPlaceholder}>
                 <Text style={styles.photoIcon}>📷</Text>
-                <Text style={styles.photoLabel}>{t("addTeacher.addPhoto")}</Text>
+                <Text variant="caption" color="textSecondary">{t('addTeacher.addPhoto')}</Text>
               </View>
             )}
           </TouchableOpacity>
 
-          {/* ── Form card ── */}
-          <View style={styles.card}>
+          <Card variant="elevated" padded style={styles.card}>
 
             {/* Full Name */}
-            <Text style={styles.label}>{t("addTeacher.fullName")}</Text>
+            <Text variant="label" style={styles.label}>{t('addTeacher.fullName')}</Text>
             <Controller
               control={control}
               name="fullName"
@@ -127,14 +95,15 @@ export default function AddTeacherScreen() {
                   style={[styles.input, errors.fullName && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
-                  placeholder={t("addTeacher.fullNamePlaceholder")}
+                  placeholder={t('addTeacher.fullNamePlaceholder')}
+                  placeholderTextColor={colors.textMuted}
                 />
               )}
             />
             {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
 
             {/* National ID */}
-            <Text style={styles.label}>{t("addTeacher.nationalId")}</Text>
+            <Text variant="label" style={styles.label}>{t('addTeacher.nationalId')}</Text>
             <Controller
               control={control}
               name="nationalId"
@@ -144,6 +113,7 @@ export default function AddTeacherScreen() {
                   onChangeText={onChange}
                   value={value}
                   placeholder="0000000000"
+                  placeholderTextColor={colors.textMuted}
                   keyboardType="numeric"
                   maxLength={10}
                 />
@@ -152,7 +122,7 @@ export default function AddTeacherScreen() {
             {errors.nationalId && <Text style={styles.error}>{errors.nationalId.message}</Text>}
 
             {/* Phone */}
-            <Text style={styles.label}>{t("addTeacher.phone")}</Text>
+            <Text variant="label" style={styles.label}>{t('addTeacher.phone')}</Text>
             <Controller
               control={control}
               name="phone"
@@ -165,6 +135,7 @@ export default function AddTeacherScreen() {
                     onChangeText={onChange}
                     value={value}
                     placeholder="7X XXX XXXX"
+                    placeholderTextColor={colors.textMuted}
                     keyboardType="phone-pad"
                     maxLength={9}
                   />
@@ -173,8 +144,8 @@ export default function AddTeacherScreen() {
             />
             {errors.phone && <Text style={styles.error}>{errors.phone.message}</Text>}
 
-            {/* Create Password */}
-            <Text style={styles.label}>{t("addTeacher.createPassword")}</Text>
+            {/* Password */}
+            <Text variant="label" style={styles.label}>{t('addTeacher.createPassword')}</Text>
             <Controller
               control={control}
               name="password"
@@ -185,10 +156,11 @@ export default function AddTeacherScreen() {
                     onChangeText={onChange}
                     value={value}
                     placeholder="••••••••"
+                    placeholderTextColor={colors.textMuted}
                     secureTextEntry={!showPassword}
                   />
-                  <TouchableOpacity onPress={() => setShowPassword((p) => !p)}>
-                    <Text style={styles.eyeIcon}>{showPassword ? "🙈" : "👁️"}</Text>
+                  <TouchableOpacity onPress={() => setShowPassword(p => !p)}>
+                    <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -196,7 +168,7 @@ export default function AddTeacherScreen() {
             {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
             {/* Confirm Password */}
-            <Text style={styles.label}>{t("addTeacher.confirmPassword")}</Text>
+            <Text variant="label" style={styles.label}>{t('addTeacher.confirmPassword')}</Text>
             <Controller
               control={control}
               name="confirmPassword"
@@ -207,217 +179,143 @@ export default function AddTeacherScreen() {
                     onChangeText={onChange}
                     value={value}
                     placeholder="••••••••"
+                    placeholderTextColor={colors.textMuted}
                     secureTextEntry={!showConfirm}
                   />
-                  <TouchableOpacity onPress={() => setShowConfirm((p) => !p)}>
-                    <Text style={styles.eyeIcon}>{showConfirm ? "🙈" : "👁️"}</Text>
+                  <TouchableOpacity onPress={() => setShowConfirm(p => !p)}>
+                    <Text style={styles.eyeIcon}>{showConfirm ? '🙈' : '👁️'}</Text>
                   </TouchableOpacity>
                 </View>
               )}
             />
-            {errors.confirmPassword && (
-              <Text style={styles.error}>{errors.confirmPassword.message}</Text>
-            )}
+            {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
 
-            {/* Submit */}
-            <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
+            <Button
+              label={t('addTeacher.submit')}
               onPress={handleSubmit(onSubmit)}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color={Colors.white} />
-              ) : (
-                <Text style={styles.buttonText}>{t("addTeacher.submit")}</Text>
-              )}
-            </TouchableOpacity>
+              loading={loading}
+              style={styles.btn}
+            />
 
-          </View>
+          </Card>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
-  );
+    </ScreenWrapper>
+  )
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  backIcon: {
-    fontSize: 22,
-    color: Colors.textDark,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontFamily: "Lexend-Bold",
-    fontWeight: "700",
-    color: Colors.textDark,
-  },
-  container: {
+  scroll: {
     flexGrow: 1,
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xl,
-    alignItems: "center",
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
+    alignItems: 'center',
+    gap: spacing.lg,
   },
-
-  // Photo
   photoCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: Colors.background,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: colors.surfaceElevated,
     borderWidth: 2,
-    borderColor: Colors.border,
-    borderStyle: "dashed",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: Spacing.xl,
-    overflow: "hidden",
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   photoImage: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   photoPlaceholder: {
-    alignItems: "center",
-    gap: 4,
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   photoIcon: {
     fontSize: 26,
   },
-  photoLabel: {
-    fontSize: 10,
-    fontFamily: "Lexend-Regular",
-    color: Colors.textMedium,
-    textAlign: "center",
-  },
-
-  // Card
   card: {
-    width: "100%",
-    backgroundColor: Colors.white,
-    borderRadius: Radius.lg,
-    padding: Spacing.xl,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    width: '100%',
+    gap: spacing.xs,
   },
   label: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: Colors.textDark,
-    fontFamily: "Lexend-SemiBold",
-    marginBottom: 6,
-    marginTop: Spacing.md,
+    color: colors.textPrimary,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
   },
   input: {
-    backgroundColor: Colors.background,
-    borderRadius: Radius.md,
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: radius.md,
     height: 52,
-    paddingHorizontal: Spacing.md,
-    fontFamily: "Lexend-Regular",
-    fontSize: 14,
-    color: Colors.textDark,
+    paddingHorizontal: spacing.md,
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.sm,
+    color: colors.textPrimary,
     borderWidth: 1.5,
-    borderColor: "transparent",
+    borderColor: 'transparent',
   },
   inputError: {
-    borderColor: "#EF4444",
+    borderColor: colors.error,
   },
   error: {
-    fontSize: 11,
-    color: "#EF4444",
-    marginTop: 4,
-    fontFamily: "Lexend-Regular",
+    fontSize: typography.fontSize.xs,
+    color: colors.error,
+    marginTop: spacing.xs,
+    fontFamily: typography.fontFamily.regular,
   },
-
-  // Phone
   phoneRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.background,
-    borderRadius: Radius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: radius.md,
     height: 52,
     borderWidth: 1.5,
-    borderColor: "transparent",
-    paddingHorizontal: Spacing.md,
-    gap: Spacing.sm,
+    borderColor: 'transparent',
+    paddingHorizontal: spacing.md,
+    gap: spacing.sm,
   },
   prefix: {
-    fontSize: 14,
-    fontFamily: "Lexend-SemiBold",
-    color: Colors.textDark,
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.semiBold,
+    color: colors.textPrimary,
   },
   phoneDivider: {
     width: 1,
     height: 20,
-    backgroundColor: Colors.border,
+    backgroundColor: colors.border,
   },
   phoneInput: {
     flex: 1,
-    fontSize: 14,
-    fontFamily: "Lexend-Regular",
-    color: Colors.textDark,
-    height: "100%",
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.regular,
+    color: colors.textPrimary,
+    height: '100%',
   },
-
-  // Password
   passwordRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.background,
-    borderRadius: Radius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: radius.md,
     height: 52,
     borderWidth: 1.5,
-    borderColor: "transparent",
-    paddingHorizontal: Spacing.md,
+    borderColor: 'transparent',
+    paddingHorizontal: spacing.md,
   },
   passwordInput: {
     flex: 1,
-    fontSize: 14,
-    fontFamily: "Lexend-Regular",
-    color: Colors.textDark,
-    height: "100%",
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.regular,
+    color: colors.textPrimary,
+    height: '100%',
   },
   eyeIcon: {
     fontSize: 18,
-    paddingLeft: Spacing.sm,
+    paddingLeft: spacing.sm,
   },
-
-  // Button
-  button: {
-    backgroundColor: Colors.primary,
-    borderRadius: Radius.md,
-    height: 52,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: Spacing.xl,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 6,
+  btn: {
+    marginTop: spacing.md,
+    width: '100%',
   },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    fontFamily: "Lexend-Bold",
-    fontSize: 16,
-    fontWeight: "700",
-    color: Colors.white,
-  },
-});
+})

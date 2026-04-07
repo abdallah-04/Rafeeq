@@ -3,6 +3,7 @@ import {
     View,
     StyleSheet,
     TouchableOpacity,
+    ScrollView,
     Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,30 +14,80 @@ import { theme } from '@/theme';
 import { Text } from '@/components/modal/shared/Text';
 import { Button } from '@/components/modal/shared/Button';
 import BackButton from '@/components/modal/shared/BackButton';
+import Avatar from '@/components/modal/shared/Avatar';
+import ProgressBar from '@/components/modal/shared/progressBar';
 import { useModal } from '@/components/modal/ModalProvider';
+import Footer from '@/components/modal/shared/Footer';
 
 const { colors, spacing, typography, radius } = theme;
 
-/* ── Dashed placeholder slot ── */
-function EmptySlot({ onPress }: { onPress: () => void }) {
+/* ── Types ── */
+interface Child {
+    id: string;
+    name: string;
+    age: number;
+    progress: number;
+    imageUri?: string;
+    }
+
+/* ── Child Card ── */
+function ChildCard({ child }: { child: Child }) {
+    return (
+        <TouchableOpacity
+        style={styles.card}
+        activeOpacity={0.8}
+        onPress={() => router.replace('/(parent)/Home-parent')}
+        >
+        <Avatar imageUri={child.imageUri} name={child.name} size="md" />
+
+        <View style={styles.cardInfo}>
+            <Text style={styles.cardName}>
+            {child.name}, {child.age} years
+            </Text>
+            <ProgressBar value={child.progress} height={6} showLabel={false} />
+        </View>
+
+        <Text style={styles.cardPercent}>{child.progress}%</Text>
+        </TouchableOpacity>
+    );
+}
+
+/* ── Add Slot ── */
+function AddSlot({ onPress }: { onPress: () => void }) {
     return (
         <TouchableOpacity style={styles.slot} onPress={onPress} activeOpacity={0.7}>
         <View style={styles.slotCircle}>
             <Text style={styles.slotPlus}>+</Text>
         </View>
+
         <View style={styles.slotLines}>
             <View style={styles.slotLine} />
             <View style={[styles.slotLine, { width: '55%' }]} />
         </View>
         </TouchableOpacity>
     );
-    }
+}
 
-    /* ── Screen ── */
-    export default function MyChildrenEmptyScreen() {
+/* ── Screen ── */
+export default function MyChildrenListScreen() {
     const { show } = useModal();
 
     const handleAdd = () => show('addChild');
+
+    const children: Child[] = [
+        {
+        id: '1',
+        name: 'Ahmad',
+        age: 8,
+        progress: 75,
+        },
+        {
+        id: '2',
+        name: 'Lina',
+        age: 6,
+        progress: 40,
+        },
+    ];
 
     return (
         <SafeAreaView style={styles.safe}>
@@ -49,55 +100,47 @@ function EmptySlot({ onPress }: { onPress: () => void }) {
             <View style={{ width: 36 }} />
         </View>
 
-        <View style={styles.body}>
+        <ScrollView
+            contentContainerStyle={styles.scroll}
+            showsVerticalScrollIndicator={false}
+        >
             {/* Mascot */}
             <Image
-            source={require('@/assets/images/mascot/rafeeq_clabbing.png')}
+            source={require('@/assets/images/mascot/rafeeq_like.png')}
             style={styles.mascot}
             resizeMode="contain"
             />
 
-            {/* Empty message */}
-            <Text style={styles.emptyTitle}>Its a little quiet here !</Text>
-            <Text style={styles.emptyDesc}>
-            You haven't added any children yet add your first child to start learning journey with Rafeeq
-            </Text>
+            <Text style={styles.listTitle}>Manage your children</Text>
 
-            {/* Dashed slots */}
-            <View style={styles.slots}>
-            <EmptySlot onPress={handleAdd} />
-            <EmptySlot onPress={handleAdd} />
+            {/* List */}
+            <View style={styles.list}>
+            {children.map((child) => (
+                <ChildCard key={child.id} child={child} />
+            ))}
+
+            <AddSlot onPress={handleAdd} />
             </View>
 
-            {/* CTA */}
+            {/* Button */}
             <Button
-            label="Add your first child"
+            label="Add more children"
             onPress={handleAdd}
             style={styles.btn}
-            />
-            <Button
-                label="Continue"
-                onPress={() => router.push('/(auth)/myChildren')}
-                variant="outline"
-                style={styles.btn}
-            />
+        />
 
-            {/* Footer */}
-            <View style={styles.footer}>
-            <TouchableOpacity>
-                <Text style={styles.footerLink}>🌐 English (US) ∨</Text>
-            </TouchableOpacity>
-            <View style={styles.footerLinks}>
-                <Text style={styles.footerLink}>Privacy Policy</Text>
-                <Text style={styles.footerDot}>·</Text>
-                <Text style={styles.footerLink}>Terms of Service</Text>
-            </View>
-            </View>
-        </View>
+        {/* Footer */}
+        <Footer
+            onLanguagePress={() => {}}
+            onPrivacyPress={() => {}}
+            onTermsPress={() => {}}
+            currentLanguage="English (US)"  />
+        </ScrollView>
         </SafeAreaView>
     );
 }
 
+/* ── Styles ── */
 const styles = StyleSheet.create({
     safe: {
         flex: 1,
@@ -120,39 +163,58 @@ const styles = StyleSheet.create({
         color: colors.textPrimary,
     },
 
-    body: {
-        flex: 1,
+    scroll: {
         paddingHorizontal: spacing.lg,
-        paddingTop: spacing.xl,
+        paddingTop: spacing.lg,
+        paddingBottom: spacing.xl,
         alignItems: 'center',
         gap: spacing.md,
     },
 
     mascot: {
-        width: 110,
-        height: 110,
+        width: 100,
+        height: 100,
     },
 
-    emptyTitle: {
+    listTitle: {
         fontSize: typography.fontSize['2xl'],
         fontFamily: typography.fontFamily.bold,
         color: colors.primary,
         textAlign: 'center',
     },
 
-    emptyDesc: {
-        fontSize: typography.fontSize.sm,
-        fontFamily: typography.fontFamily.regular,
-        color: colors.textSecondary,
-        textAlign: 'center',
-        lineHeight: 22,
-        paddingHorizontal: spacing.md,
-    },
-
-    slots: {
+    list: {
         width: '100%',
         gap: spacing.md,
         marginTop: spacing.sm,
+    },
+
+    card: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.surface,
+        borderRadius: radius.xl,
+        borderWidth: 1.5,
+        borderColor: colors.border,
+        padding: spacing.md,
+        gap: spacing.md,
+    },
+
+    cardInfo: {
+        flex: 1,
+        gap: spacing.xs,
+    },
+
+    cardName: {
+        fontSize: typography.fontSize.base,
+        fontFamily: typography.fontFamily.semiBold,
+        color: colors.textPrimary,
+    },
+
+    cardPercent: {
+        fontSize: typography.fontSize.sm,
+        fontFamily: typography.fontFamily.bold,
+        color: colors.primary,
     },
 
     slot: {
@@ -202,8 +264,7 @@ const styles = StyleSheet.create({
     footer: {
         alignItems: 'center',
         gap: spacing.xs,
-        marginTop: 'auto',
-        paddingBottom: spacing.lg,
+        marginTop: spacing.lg,
     },
 
     footerLinks: {

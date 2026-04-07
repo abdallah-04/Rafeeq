@@ -14,6 +14,8 @@ import { Text } from '@/components/modal/shared/Text';
 import { Button } from '@/components/modal/shared/Button';
 import BackButton from '@/components/modal/shared/BackButton';
 import OTPInput from '@/components/modal/shared/OTPInput';
+import Footer from '@/components/modal/shared/Footer';
+import { useAuthStore } from '@/store/authStore';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -76,6 +78,8 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
     const [error, setError] = useState('');
     const [trustDevice, setTrustDevice] = useState(false);
 
+    const login = useAuthStore((s) => s.login);
+
     const isComplete = otp.every((d) => d !== '');
 
     const handleConfirm = () => {
@@ -84,7 +88,8 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
         setLoading(true);
         setTimeout(() => {
         setLoading(false);
-        router.replace('/(auth)/addchild-parent');
+        login({ role: 'parent', language: 'en' } as any, 'mock-token');
+        router.replace('/(parent)/addchild-parent');
         }, 1200);
     };
 
@@ -159,18 +164,12 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
                 style={styles.btn}
             />
             </View>
-
-            {/* Footer */}
-            <View style={styles.footer}>
-            <TouchableOpacity>
-                <Text style={styles.footerLink}>🌐 English (US) ∨</Text>
-            </TouchableOpacity>
-            <View style={styles.footerLinks}>
-                <Text style={styles.footerLink}>Privacy Policy</Text>
-                <Text style={styles.footerDot}>·</Text>
-                <Text style={styles.footerLink}>Terms of Service</Text>
-            </View>
-            </View>
+            <Footer
+                onLanguagePress={() => {}}
+                onPrivacyPress={() => {}}
+                onTermsPress={() => {}}
+                currentLanguage="English (US)"
+                />
         </View>
         </SafeAreaView>
     );
