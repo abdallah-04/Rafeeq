@@ -22,6 +22,7 @@ import { Button } from '@/components/modal/shared/Button';
 import Input from '@/components/modal/shared/TextInput';
 import BackButton from '@/components/modal/shared/BackButton';
 import { useAuthStore } from '@/store/authStore';
+import Footer from '@/components/modal/shared/Footer';
 
 const loginSchema = z.object({
   identifier: z.string().min(5),
@@ -143,6 +144,12 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
+          <Footer
+            onLanguagePress={() => {}}
+            onPrivacyPress={() => {}}
+            onTermsPress={() => {}}
+            currentLanguage="English (US)"
+            />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

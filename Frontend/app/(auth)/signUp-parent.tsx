@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { StatusBar } from 'expo-status-bar';
-
+import Footer from '@/components/modal/shared/Footer';
 import { theme } from '@/theme';
 import { Text } from '@/components/modal/shared/Text';
 import { Button } from '@/components/modal/shared/Button';
@@ -183,17 +183,13 @@ export default function SignUpParentScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* Footer */}
-            <View style={styles.footer}>
-                <TouchableOpacity style={styles.langBtn}>
-                <Text style={styles.footerLink}>🌐 English (US) ∨</Text>
-                </TouchableOpacity>
-                <View style={styles.footerLinks}>
-                <Text style={styles.footerLink}>Privacy Policy</Text>
-                <Text style={styles.footerDot}>·</Text>
-                <Text style={styles.footerLink}>Terms of Service</Text>
-                </View>
-            </View>
+            <Footer
+                onLanguagePress={() => {}}
+                onPrivacyPress={() => {}}
+                onTermsPress={() => {}}
+                currentLanguage="English (US)"
+            />
+                
             </ScrollView>
         </KeyboardAvoidingView>
         </SafeAreaView>

@@ -1,11 +1,20 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
+import React from 'react'
+import { View, TextInput, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { schoolStep1Schema, SchoolStep1Form } from '@/lib/schemas/schoolSignup'
 import { useSchoolSignupStore } from '@/store/schoolSignupStore'
-import React from 'react'
+import Footer from '@/components/modal/shared/Footer'
+import { Text } from '@/components/modal/shared/Text'
+import { Button } from '@/components/modal/shared/Button'
+import Card from '@/components/modal/shared/Card'
+import ScreenWrapper from '@/components/modal/shared/ScreenWap'
+import { theme } from '@/theme'
+import { StatusBar } from 'expo-status-bar'
+
+const { colors, spacing, typography, radius } = theme
 
 export default function SchoolSignupStep1() {
   const { t } = useTranslation()
@@ -21,199 +30,198 @@ export default function SchoolSignupStep1() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <Text style={styles.title}>{t('schoolSignup.title')}</Text>
-      <Text style={styles.subtitle}>{t('schoolSignup.subtitle')}</Text>
+    <ScreenWrapper scroll={false} padded={false}>
+      <StatusBar style="dark" />
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Title */}
+          <View style={styles.titleBlock}>
+            <Text variant="heading" style={styles.title}>{t('schoolSignup.title')}</Text>
+            <Text variant="caption" color="textSecondary" style={styles.subtitle}>{t('schoolSignup.subtitle')}</Text>
+          </View>
 
-      <View style={styles.card}>
+          <Card variant="elevated" padded style={styles.card}>
 
-        <Text style={styles.label}>{t('schoolSignup.schoolName')}</Text>
-        <Controller
-          control={control}
-          name="schoolName"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              style={[styles.input, errors.schoolName && styles.inputError]}
-              onChangeText={onChange}
-              value={value}
-              placeholder={t('schoolSignup.schoolNamePlaceholder')}
+            {/* School Name */}
+            <Text variant="label" style={styles.label}>{t('schoolSignup.schoolName')}</Text>
+            <Controller
+              control={control}
+              name="schoolName"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={[styles.input, errors.schoolName && styles.inputError]}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder={t('schoolSignup.schoolNamePlaceholder')}
+                  placeholderTextColor={colors.textMuted}
+                />
+              )}
             />
-          )}
-        />
-        {errors.schoolName && <Text style={styles.error}>{errors.schoolName.message}</Text>}
+            {errors.schoolName && <Text style={styles.error}>{errors.schoolName.message}</Text>}
 
-        <Text style={styles.label}>{t('schoolSignup.schoolId')}</Text>
-        <Controller
-          control={control}
-          name="schoolId"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              style={[styles.input, errors.schoolId && styles.inputError]}
-              onChangeText={onChange}
-              value={value}
-              placeholder={t('schoolSignup.schoolIdPlaceholder')}
-              keyboardType="default"
+            {/* School ID */}
+            <Text variant="label" style={styles.label}>{t('schoolSignup.schoolId')}</Text>
+            <Controller
+              control={control}
+              name="schoolId"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={[styles.input, errors.schoolId && styles.inputError]}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder={t('schoolSignup.schoolIdPlaceholder')}
+                  placeholderTextColor={colors.textMuted}
+                />
+              )}
             />
-          )}
-        />
-        {errors.schoolId && <Text style={styles.error}>{errors.schoolId.message}</Text>}
+            {errors.schoolId && <Text style={styles.error}>{errors.schoolId.message}</Text>}
 
-        <Text style={styles.label}>{t('schoolSignup.advisorName')}</Text>
-        <Controller
-          control={control}
-          name="advisorName"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              style={[styles.input, errors.advisorName && styles.inputError]}
-              onChangeText={onChange}
-              value={value}
-              placeholder={t('schoolSignup.advisorNamePlaceholder')}
+            {/* Advisor Name */}
+            <Text variant="label" style={styles.label}>{t('schoolSignup.advisorName')}</Text>
+            <Controller
+              control={control}
+              name="advisorName"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={[styles.input, errors.advisorName && styles.inputError]}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder={t('schoolSignup.advisorNamePlaceholder')}
+                  placeholderTextColor={colors.textMuted}
+                />
+              )}
             />
-          )}
-        />
-        {errors.advisorName && <Text style={styles.error}>{errors.advisorName.message}</Text>}
+            {errors.advisorName && <Text style={styles.error}>{errors.advisorName.message}</Text>}
 
-        <Text style={styles.label}>{t('schoolSignup.advisorNationalId')}</Text>
-        <Controller
-          control={control}
-          name="advisorNationalId"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              style={[styles.input, errors.advisorNationalId && styles.inputError]}
-              onChangeText={onChange}
-              value={value}
-              placeholder="0000000000"
-              keyboardType="numeric"
-              maxLength={10}
+            {/* Advisor National ID */}
+            <Text variant="label" style={styles.label}>{t('schoolSignup.advisorNationalId')}</Text>
+            <Controller
+              control={control}
+              name="advisorNationalId"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={[styles.input, errors.advisorNationalId && styles.inputError]}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder="0000000000"
+                  placeholderTextColor={colors.textMuted}
+                  keyboardType="numeric"
+                  maxLength={10}
+                />
+              )}
             />
-          )}
-        />
-        {errors.advisorNationalId && <Text style={styles.error}>{errors.advisorNationalId.message}</Text>}
+            {errors.advisorNationalId && <Text style={styles.error}>{errors.advisorNationalId.message}</Text>}
 
-        <TouchableOpacity style={styles.button} onPress={handleSubmit(onContinue)}>
-          <Text style={styles.buttonText}>{t('common.continue')}</Text>
-        </TouchableOpacity>
+            <Button label={t('common.continue')} onPress={handleSubmit(onContinue)} style={styles.btn} />
 
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>{t('common.or')}</Text>
-          <View style={styles.dividerLine} />
-        </View>
+            {/* Divider */}
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text variant="caption" color="textMuted" style={styles.dividerText}>{t('common.or')}</Text>
+              <View style={styles.dividerLine} />
+            </View>
 
-        <Text style={styles.loginText}>
-          {t('schoolSignup.alreadyHaveAccount')}{' '}
-          <Text style={styles.loginLink} onPress={() => router.push('/(auth)/login')}>
-            {t('common.logIn')}
-          </Text>
-        </Text>
+            <Text variant="caption" style={styles.loginText}>
+              {t('schoolSignup.alreadyHaveAccount')}{' '}
+              <Text
+                variant="caption"
+                style={styles.loginLink}
+                onPress={() => router.push('/(auth)/login')}
+              >
+                {t('common.logIn')}
+              </Text>
+            </Text>
 
-      </View>
-    </ScrollView>
+          </Card>
+
+          <Footer
+            onLanguagePress={() => {}}
+            onPrivacyPress={() => {}}
+            onTermsPress={() => {}}
+            currentLanguage="English (US)"
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ScreenWrapper>
   )
 }
+
 const styles = StyleSheet.create({
-  container: {
+  scroll: {
     flexGrow: 1,
-    backgroundColor: '#F8FAFF',
-    padding: 24,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    gap: spacing.lg,
+  },
+  titleBlock: {
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   title: {
-    fontFamily: 'Lexend',
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#1A1A2E',
+    color: colors.primary,
     textAlign: 'center',
-    marginBottom: 8,
   },
   subtitle: {
-    fontFamily: 'Lexend',
-    fontSize: 13,
-    color: '#64748B',
     textAlign: 'center',
-    marginBottom: 24,
     lineHeight: 20,
   },
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    gap: spacing.xs,
   },
   label: {
-    fontFamily: 'Lexend',
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1A1A2E',
-    marginBottom: 6,
-    marginTop: 12,
+    color: colors.textPrimary,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
   },
   input: {
-    backgroundColor: '#F1F5FB',
-    borderRadius: 16,
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: radius.md,
     height: 52,
-    paddingHorizontal: 16,
-    fontFamily: 'Lexend',
-    fontSize: 14,
-    color: '#1A1A2E',
+    paddingHorizontal: spacing.md,
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.sm,
+    color: colors.textPrimary,
     borderWidth: 1.5,
     borderColor: 'transparent',
   },
   inputError: {
-    borderColor: '#EF4444',
+    borderColor: colors.error,
   },
   error: {
-    fontSize: 11,
-    color: '#EF4444',
-    marginTop: 4,
-    fontFamily: 'Lexend',
+    fontSize: typography.fontSize.xs,
+    color: colors.error,
+    marginTop: spacing.xs,
+    fontFamily: typography.fontFamily.regular,
   },
-  button: {
-    backgroundColor: '#508DF7',
-    borderRadius: 16,
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 24,
-    shadowColor: '#508DF7',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  buttonText: {
-    fontFamily: 'Lexend',
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
+  btn: {
+    marginTop: spacing.md,
+    width: '100%',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: spacing.sm,
+    gap: spacing.sm,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: colors.border,
   },
   dividerText: {
-    marginHorizontal: 12,
-    fontFamily: 'Lexend',
-    fontSize: 12,
-    color: '#94A3B8',
+    paddingHorizontal: spacing.xs,
   },
   loginText: {
     textAlign: 'center',
-    fontFamily: 'Lexend',
-    fontSize: 13,
-    color: '#64748B',
+    color: colors.textSecondary,
   },
   loginLink: {
-    color: '#508DF7',
-    fontWeight: '700',
+    color: colors.primary,
+    fontFamily: typography.fontFamily.semiBold,
   },
 })
