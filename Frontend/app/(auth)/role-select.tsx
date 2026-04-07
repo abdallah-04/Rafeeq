@@ -46,7 +46,7 @@ const ROLES: RoleOption[] = [
     icon: "👩‍🏫",
     titleKey: "roleSelect.teacherTitle",
     descKey: "roleSelect.teacherDesc",
-    route: "/(teacher)/add-student",
+    route: "/(teacher)/students",
   },
 
 ];

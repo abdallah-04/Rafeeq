@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
@@ -5,11 +6,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { TEACHER_STUDENTS, type TeacherStudent } from './_students';
+import { TEACHER_STUDENTS, type TeacherStudent } from '../_students';
 
 function TeacherStudentCard({
   student,
@@ -110,19 +110,11 @@ export default function TeacherHomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Header ── */}
-        <View style={[styles.header, isRTL && styles.rowReverse]}>
-          <View>
-            <Text style={styles.logoEN}>RAFEEQ</Text>
-            <Text style={styles.logoAR}>رفيق</Text>
-          </View>
-          {/* Penguin placeholder — swap with Image asset */}
+
           <View style={styles.penguinBox}>
             <Text style={styles.penguinEmoji}>🐧</Text>
           </View>
-        </View>
 
-        {/* ── Welcome ── */}
         <View style={styles.welcomeBlock}>
           <Text style={[styles.welcomeText, isRTL && styles.textRight]}>
             {t('teacher.home.welcome', 'Welcome,')}{'\n'}

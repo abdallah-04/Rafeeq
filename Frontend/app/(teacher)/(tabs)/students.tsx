@@ -1,11 +1,12 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  SafeAreaView, FlatList,
+  FlatList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { TEACHER_STUDENTS } from './_students';
+import { TEACHER_STUDENTS } from '../_students';
 
 export default function StudentsScreen() {
   const router = useRouter();
