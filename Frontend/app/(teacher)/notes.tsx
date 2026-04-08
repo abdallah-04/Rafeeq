@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   ScrollView,
@@ -7,6 +7,8 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { TEACHER_STUDENTS_MAP } from './_students';
+import { NotesFeedSkeleton } from '@/components/LoadingSkeleton';
+import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
 
 const PARENT_NOTES = [
   { id: '1', author: 'Ayoub Parent', authorAr: 'والد أيوب', date: 'Today', text: 'Reviewed last Exam. Please focus more on new TASKS!', avatarBg: '#FFD9B3', initials: 'AP' },
@@ -42,6 +44,14 @@ export default function NotesScreen() {
   const isRTL = i18n.language === 'ar';
   const student = TEACHER_STUDENTS_MAP[studentId ?? '1'] ?? TEACHER_STUDENTS_MAP['1'];
   const [activeTab, setActiveTab] = useState<'teacher' | 'parent'>('teacher');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) return <NotesFeedSkeleton count={4} />;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -61,9 +71,7 @@ export default function NotesScreen() {
         </View>
 
         {/* Progress circle in header */}
-        <View style={styles.progressCircle}>
-          <Text style={styles.progressCircleText}>{student.progress}%</Text>
-        </View>
+        <AnimatedProgressCircle progress={student.progress} size={64} color="#FFB84C" />
       </View>
 
       {/* Tabs */}

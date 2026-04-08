@@ -68,10 +68,10 @@ export default function RootLayout() {
     const inAuthGroup    = segments[0] === '(auth)'
     // const inParentGroup  = segments[0] === '(parent)'
     const inTeacherGroup = segments[0] === '(teacher)'
-    // const inSchoolGroup  = segments[0] === '(school)'
+    const inSchoolGroup  = segments[0] === '(school)'
 
     if (!isAuthenticated) {
-      if (!inAuthGroup && !inTeacherGroup) {
+      if (!inAuthGroup && !inTeacherGroup && !inSchoolGroup) {
         router.replace('/(auth)/language')
       }
       return

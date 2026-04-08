@@ -16,6 +16,7 @@ export default function TeacherLayout() {
         <Stack.Screen name="add-student" />
         <Stack.Screen name="monthly-exam" />
         <Stack.Screen name="road-map" />
+        <Stack.Screen name="wiring-audit" />
       </Stack>
     </SafeAreaProvider>
   );

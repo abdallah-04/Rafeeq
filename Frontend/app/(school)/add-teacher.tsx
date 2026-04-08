@@ -12,7 +12,6 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -21,6 +20,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { addTeacherSchema, AddTeacherForm } from "@/lib/schemas/teacherSchema";
 
 export default function AddTeacherScreen() {

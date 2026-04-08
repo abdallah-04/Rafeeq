@@ -1,9 +1,8 @@
 import { Colors, Radius, Spacing } from "@/theme";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // ─── Mock Data ────────────────────────────────────────────────
 const MOCK_TEACHERS: Record<string, {
@@ -126,7 +126,7 @@ function StudentRow({ student }: { student: typeof MOCK_STUDENTS[0] }) {
   return (
     <TouchableOpacity
       style={rowStyles.row}
-      onPress={() => router.push(`/(school)/student/${student.id}`)}
+      onPress={() => router.push(`/(school)/student/${student.id}` as any)}
       accessibilityRole="button"
       accessibilityLabel={student.name}
     >

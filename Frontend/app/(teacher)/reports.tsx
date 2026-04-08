@@ -1,11 +1,12 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   ScrollView, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { ReportsListSkeleton } from '@/components/LoadingSkeleton';
 
 type ReportItem = { id: string; title: string; date: string; icon: string };
 
@@ -24,6 +25,14 @@ export default function ReportsScreen() {
   const [showForm, setShowForm] = useState(false);
   const [reportTitle, setReportTitle] = useState('');
   const [reportSubject, setReportSubject] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) return <ReportsListSkeleton count={3} />;
 
   return (
     <SafeAreaView style={styles.safe}>

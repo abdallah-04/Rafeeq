@@ -5,33 +5,18 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  
   ScrollView,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { TEACHER_STUDENTS_MAP } from './_students';
+import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
 
 const RECENT_NOTES = [
   { id: '1', author: 'Ayoub Parent', authorAr: 'والد أيوب', time: 'Today', timeAr: 'اليوم', text: 'Reviewed last Exam. Please focus more on new TASKS!', avatarBg: '#FFD9B3', initials: 'AP' },
   { id: '2', author: 'Mr. Ahmad',    authorAr: 'الأستاذ أحمد', time: 'Today', timeAr: 'اليوم', text: 'Modify done. Please review the IEP', avatarBg: '#BBDEFB', initials: 'MA' },
 ];
 
-function CircularProgress({ progress }: { progress: number }) {
-  return (
-    <View style={cpStyles.container}>
-      <View style={cpStyles.circle}>
-        <Text style={cpStyles.progressText}>{progress}%</Text>
-      </View>
-    </View>
-  );
-}
-
-const cpStyles = StyleSheet.create({
-  container: { width: 88, height: 88, alignItems: 'center', justifyContent: 'center' },
-  circle: { width: 88, height: 88, borderRadius: 44, backgroundColor: '#EEF4FF', alignItems: 'center', justifyContent: 'center', borderWidth: 7, borderColor: '#508DF7' },
-  progressText: { fontFamily: 'Lexend_700Bold', fontSize: 16, color: '#508DF7' },
-});
 
 export default function TeacherStudentDashboard() {
   const router = useRouter();
@@ -91,7 +76,7 @@ export default function TeacherStudentDashboard() {
                 </View>
               </View>
             </View>
-            <CircularProgress progress={student.progress} />
+            <AnimatedProgressCircle progress={student.progress} size={88} color="#508DF7" />
           </View>
 
           <View style={[styles.statsRow, isRTL && styles.rowReverse]}>

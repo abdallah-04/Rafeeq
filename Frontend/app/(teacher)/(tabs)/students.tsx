@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   FlatList,
@@ -7,11 +7,20 @@ import {
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { TEACHER_STUDENTS } from '../_students';
+import { StudentListSkeleton } from '@/components/LoadingSkeleton';
 
 export default function StudentsScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (isLoading) return <StudentListSkeleton count={3} />;
 
   return (
     <SafeAreaView style={styles.safe}>
