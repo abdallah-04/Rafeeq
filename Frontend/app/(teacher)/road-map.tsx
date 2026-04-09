@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import BackButton from '@/components/BackButton';
 
 // ─── Road map days ─────────────────────────────────────────────
 const DAYS = [
@@ -142,9 +143,7 @@ export default function TeacherRoadMapScreen() {
     <SafeAreaView style={styles.safe}>
       {/* Nav */}
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>{isRTL ? '→' : '←'}</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => router.back()} />
         <Text style={styles.navTitle}>{t('teacher.roadmap.title', "Ayoub's Tree")}</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -189,8 +188,6 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F5F7FF' },
   navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },
   rowReverse: { flexDirection: 'row-reverse' },
-  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  backIcon: { fontSize: 18, color: '#508DF7' },
   navTitle: { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
 
   treeScroll: { paddingBottom: 60, paddingHorizontal: 16 },

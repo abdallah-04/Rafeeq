@@ -11,6 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { TEACHER_STUDENTS_MAP } from './_students';
+import BackButton from '@/components/BackButton';
 
 // ─── Quick Access items ───────────────────────────────────────
 const QUICK_ACCESS = [
@@ -32,9 +33,7 @@ export default function StudentQuickAccessScreen() {
     <SafeAreaView style={styles.safe}>
       {/* ── Header ── */}
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>{isRTL ? '→' : '←'}</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => router.back()} />
         <Text style={styles.navTitle}>
           {t('teacher.quickAccess.title', 'Student Profile')}
         </Text>
@@ -133,23 +132,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
     backgroundColor: '#F5F7FF',
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  backIcon: {
-    fontSize: 18,
-    color: '#508DF7',
   },
   navTitle: {
     fontFamily: 'Lexend_700Bold',

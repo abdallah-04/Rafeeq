@@ -1,6 +1,7 @@
 import { Colors, Radius, Spacing } from "@/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
+import BackButton from "@/components/BackButton";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -324,13 +325,7 @@ export default function AddStudentScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-        >
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => router.back()} />
         <Text style={styles.headerTitle}>{t("addStudent.title")}</Text>
         {/* Penguin top-right */}
         <Text style={styles.penguinIcon}>🐧</Text>
@@ -497,10 +492,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-  },
-  backIcon: {
-    fontSize: 22,
-    color: Colors.textDark,
   },
   headerTitle: {
     fontSize: 18,

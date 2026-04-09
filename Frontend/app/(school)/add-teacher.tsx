@@ -4,6 +4,7 @@ import { Colors, Radius, Spacing } from "@/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
+import BackButton from "@/components/BackButton";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -78,13 +79,7 @@ export default function AddTeacherScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-        >
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => router.back()} />
         <Text style={styles.headerTitle}>{t("addTeacher.title")}</Text>
         <View style={{ width: 32 }} />
       </View>
@@ -252,10 +247,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-  },
-  backIcon: {
-    fontSize: 22,
-    color: Colors.textDark,
   },
   headerTitle: {
     fontSize: 18,

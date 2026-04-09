@@ -7,6 +7,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ReportsListSkeleton } from '@/components/LoadingSkeleton';
+import BackButton from '@/components/BackButton';
 
 type ReportItem = { id: string; title: string; date: string; icon: string };
 
@@ -39,9 +40,7 @@ export default function ReportsScreen() {
       {/* Purple gradient header */}
       <View style={styles.header}>
         <View style={[styles.headerRow, isRTL && styles.rowReverse]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backIcon}>{isRTL ? '→' : '←'}</Text>
-          </TouchableOpacity>
+          <BackButton onPress={() => router.back()} />
           <Text style={styles.headerTitle}>{t('teacher.reports.title', 'Reports')}</Text>
           <TouchableOpacity onPress={() => setShowForm(!showForm)} style={styles.addBtn}>
             <Text style={styles.addBtnText}>+ {t('teacher.reports.add', 'Add')}</Text>
@@ -143,8 +142,6 @@ const styles = StyleSheet.create({
 
   header: { backgroundColor: '#BA6DE9', borderBottomLeftRadius: 28, borderBottomRightRadius: 28, paddingBottom: 20 },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 16 },
-  backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.25)', alignItems: 'center', justifyContent: 'center' },
-  backIcon: { fontSize: 18, color: '#fff' },
   headerTitle: { fontFamily: 'Lexend_700Bold', fontSize: 22, color: '#fff' },
   addBtn: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: 14, paddingVertical: 7, borderRadius: 99 },
   addBtnText: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#fff' },

@@ -9,6 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import BackButton from '@/components/BackButton';
 
 // ─── Mock Data ────────────────────────────────────────────────
 const STUDENTS: Record<string, {
@@ -237,9 +238,7 @@ export default function SchoolStudentDetailScreen() {
     <SafeAreaView style={styles.safe}>
       {/* ── Nav Bar ── */}
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>{isRTL ? '→' : '←'}</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => router.back()} />
         <View style={styles.navCenter}>
           <Text style={styles.navTitle}>{student.name}</Text>
           <Text style={styles.navSub}>{student.grade}</Text>
@@ -329,8 +328,6 @@ const styles = StyleSheet.create({
 
   // Nav
   navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },
-  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  backIcon: { fontSize: 18, color: '#508DF7' },
   navCenter: { alignItems: 'center' },
   navTitle: { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
   navSub: { fontFamily: 'Lexend_400Regular', fontSize: 12, color: '#9CA3AF', marginTop: 1 },

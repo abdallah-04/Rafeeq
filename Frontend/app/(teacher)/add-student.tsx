@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import BackButton from '@/components/BackButton';
 
 const CONDITIONS = ['ADD', 'ADHD', 'IFD', 'Autism', 'Down Syndrome', 'Other'];
 
@@ -30,9 +31,7 @@ export default function AddStudentScreen() {
 
         {/* Nav */}
         <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backIcon}>{isRTL ? '→' : '←'}</Text>
-          </TouchableOpacity>
+          <BackButton onPress={() => router.back()} />
           <Text style={styles.navTitle}>{t('teacher.addStudent.title', 'Add Student')}</Text>
           <View style={{ width: 40 }} />
         </View>
@@ -157,8 +156,6 @@ const styles = StyleSheet.create({
   textRight: { textAlign: 'right' },
 
   navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },
-  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  backIcon: { fontSize: 18, color: '#508DF7' },
   navTitle: { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
 
   label: { fontFamily: 'Lexend_600SemiBold', fontSize: 14, color: '#374151', marginBottom: 8, marginTop: 16 },

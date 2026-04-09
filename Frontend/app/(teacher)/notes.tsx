@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { TEACHER_STUDENTS_MAP } from './_students';
 import { NotesFeedSkeleton } from '@/components/LoadingSkeleton';
 import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
+import BackButton from '@/components/BackButton';
 
 const PARENT_NOTES = [
   { id: '1', author: 'Ayoub Parent', authorAr: 'والد أيوب', date: 'Today', text: 'Reviewed last Exam. Please focus more on new TASKS!', avatarBg: '#FFD9B3', initials: 'AP' },
@@ -58,9 +59,7 @@ export default function NotesScreen() {
       {/* Orange header */}
       <View style={styles.header}>
         <View style={[styles.headerInner, isRTL && styles.rowReverse]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backIcon}>{isRTL ? '→' : '←'}</Text>
-          </TouchableOpacity>
+          <BackButton onPress={() => router.back()} />
           <Text style={styles.headerTitle}>{t('teacher.notes.title', 'Notes')}</Text>
           <TouchableOpacity
             style={styles.addBtn}
@@ -109,8 +108,6 @@ const styles = StyleSheet.create({
 
   header: { backgroundColor: '#FFB84C', paddingBottom: 20, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   headerInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 },
-  backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center' },
-  backIcon: { fontSize: 18, color: '#fff' },
   headerTitle: { fontFamily: 'Lexend_700Bold', fontSize: 20, color: '#fff' },
   addBtn: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: 14, paddingVertical: 7, borderRadius: 99 },
   addBtnText: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#fff' },

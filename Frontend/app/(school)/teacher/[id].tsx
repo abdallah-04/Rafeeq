@@ -1,5 +1,6 @@
 import { Colors, Radius, Spacing } from "@/theme";
 import { router, useLocalSearchParams } from "expo-router";
+import BackButton from "@/components/BackButton";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -279,13 +280,7 @@ export default function TeacherDetailScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-        >
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => router.back()} />
         <Text style={styles.headerTitle}>{teacher.name}</Text>
         {/* Edit button */}
         <TouchableOpacity style={styles.editBtn}>
@@ -416,10 +411,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-  },
-  backIcon: {
-    fontSize: 22,
-    color: Colors.textDark,
   },
   headerTitle: {
     fontSize: 18,

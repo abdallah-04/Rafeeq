@@ -11,6 +11,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { TEACHER_STUDENTS_MAP } from './_students';
 import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
+import BackButton from '@/components/BackButton';
 
 const RECENT_NOTES = [
   { id: '1', author: 'Ayoub Parent', authorAr: 'والد أيوب', time: 'Today', timeAr: 'اليوم', text: 'Reviewed last Exam. Please focus more on new TASKS!', avatarBg: '#FFD9B3', initials: 'AP' },
@@ -35,9 +36,7 @@ export default function TeacherStudentDashboard() {
     <SafeAreaView style={styles.safe}>
       {/* Nav bar */}
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>{isRTL ? '→' : '←'}</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => router.back()} />
         <Text style={styles.navTitle}>{student.name}</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -123,8 +122,6 @@ const styles = StyleSheet.create({
   textRight: { textAlign: 'right' },
 
   navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },
-  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  backIcon: { fontSize: 18, color: '#508DF7' },
   navTitle: { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
 
   actionsRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 10, marginBottom: 16 },
