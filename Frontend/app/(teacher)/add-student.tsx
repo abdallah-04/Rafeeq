@@ -2,9 +2,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, TextInput,
+  ScrollView, TextInput, Image,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
+
+const MALE_PING   = require('@/assets/images/mascot/male_ping.png');
+const FEMALE_PING = require('@/assets/images/mascot/female_ping.png');
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import BackButton from '@/components/BackButton';
@@ -124,7 +127,7 @@ export default function AddStudentScreen() {
                 onPress={() => setGender(g)}
                 activeOpacity={0.8}
               >
-                <Text style={styles.genderEmoji}>{g === 'male' ? '🐧' : '🐧🎀'}</Text>
+                <Image source={g === 'male' ? MALE_PING : FEMALE_PING} style={styles.genderEmoji} />
                 <Text style={[styles.genderLabel, gender === g && styles.genderLabelSelected]}>
                   {t(`teacher.addStudent.${g}`, g === 'male' ? 'Male' : 'Female')}
                 </Text>
@@ -176,7 +179,7 @@ const styles = StyleSheet.create({
   genderRow: { flexDirection: 'row', gap: 12 },
   genderCard: { flex: 1, backgroundColor: '#fff', borderRadius: 20, padding: 20, alignItems: 'center', gap: 8, borderWidth: 2, borderColor: '#E8EEFF', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
   genderCardSelected: { borderColor: '#508DF7', backgroundColor: '#EEF4FF' },
-  genderEmoji: { fontSize: 40 },
+  genderEmoji: { width: 60, height: 60, resizeMode: 'contain' },
   genderLabel: { fontFamily: 'Lexend_600SemiBold', fontSize: 14, color: '#9CA3AF' },
   genderLabelSelected: { color: '#508DF7' },
 
