@@ -1,19 +1,17 @@
-import React, { useState } from 'react'
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native'
-import { router } from 'expo-router'
-import { useTranslation } from 'react-i18next'
-import { Text } from '@/components/modal/shared/Text'
-import { Button } from '@/components/modal/shared/Button'
-import Card from '@/components/modal/shared/Card'
-import Avatar from '@/components/modal/shared/Avatar'
-import Badge from '@/components/modal/shared/Badge'
-import ProgressBar from '@/components/modal/shared/progressBar'
-import Header from '@/components/modal/shared/Header'
-import ScreenWrapper from '@/components/modal/shared/ScreenWap'
-import { theme } from '@/theme'
-import { StatusBar } from 'expo-status-bar'
-
-const { colors, spacing, typography, radius } = theme
+import { Colors, Radius, Spacing } from "@/theme";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const MOCK_TEACHERS = [
   { id: '1', name: 'Ahmad Sami', childCount: 3, progress: 62 },
@@ -52,12 +50,12 @@ function EmptyState({ t }: { t: any }) {
   return (
     <View style={styles.emptyContainer}>
       <Image
-        source={require('@/assets/images/school.png')}
+        source={require("@/assets/images/mascot/rafeeq_clabbing.png")}
         style={styles.emptyIllustration}
         resizeMode="contain"
       />
       <Image
-        source={require('@/assets/images/mascot/rafeeq_waving.png')}
+        source={require("@/assets/images/mascot/rafeeq_clabbing.png")}
         style={styles.emptyPenguin}
         resizeMode="contain"
       />

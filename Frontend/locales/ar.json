@@ -1,11 +1,14 @@
 {
   "common": {
+    "appName": "رفيق",
     "continue": "متابعة",
     "confirm": "تأكيد",
     "cancel": "إلغاء",
     "save": "حفظ",
-    "delete": "حذف",
+    "add": "إضافة",
     "edit": "تعديل",
+    "delete": "حذف",
+    "remove": "إزالة",
     "back": "رجوع",
     "next": "التالي",
     "skip": "تخطي",
@@ -13,19 +16,19 @@
     "okay": "حسناً",
     "yes": "نعم",
     "no": "لا",
-    "loading": "جارٍ التحميل...",
-    "error": "حدث خطأ ما",
-    "retry": "حاول مجدداً",
     "close": "إغلاق",
     "search": "بحث",
     "seeAll": "عرض الكل",
     "viewAll": "عرض الكل",
     "submit": "إرسال",
     "send": "إرسال",
-    "add": "إضافة",
-    "remove": "إزالة",
-    "download": "تحميل",
     "share": "مشاركة",
+    "download": "تحميل",
+    "upload": "رفع ملف",
+    "tapToUpload": "اضغط للرفع",
+    "loading": "جارٍ التحميل...",
+    "error": "حدث خطأ ما",
+    "retry": "حاول مجدداً",
     "or": "أو",
     "orContinueWith": "أو تابع بواسطة",
     "privacyPolicy": "سياسة الخصوصية",
@@ -33,7 +36,18 @@
     "language": "اللغة",
     "getStarted": "ابدأ الآن",
     "letsGo": "هيّا بنا!",
-    "comingSoon": "قريباً"
+    "comingSoon": "قريباً",
+    "active": "نشط",
+    "level": "المستوى",
+    "details": "التفاصيل",
+    "date": "التاريخ",
+    "score": "النتيجة",
+    "start": "ابدأ",
+    "finish": "إنهاء",
+    "completed": "مكتمل",
+    "inProgress": "قيد التنفيذ",
+    "new": "جديد",
+    "underReview": "قيد المراجعة"
   },
 
   "language": {
@@ -232,11 +246,21 @@
   "teacher": {
     "home": {
       "greeting": "أهلاً،",
+      "welcome": "أهلاً، أستاذ {{name}}",
       "class": "فصلي",
       "totalStudents": "إجمالي الطلاب",
       "avgProgress": "متوسط التقدم",
+      "myStudents": "طلابي",
       "roster": "طلابي",
+      "addStudent": "إضافة طالب",
+      "emptyState": "لا يوجد طلاب بعد!",
+      "emptyStateSubtitle": "أضف أول طلابك",
       "notifications": "الإشعارات"
+    },
+    "bottomNav": {
+      "home": "الرئيسية",
+      "profile": "الملف الشخصي",
+      "students": "الطلاب"
     },
     "students": {
       "title": "طلابي",
@@ -246,24 +270,56 @@
       "level": "المستوى",
       "progress": "التقدم"
     },
-    "addStudent": {
-      "title": "إضافة طالب",
-      "name": "الاسم الكامل للطفل",
-      "nationalId": "رقم الهوية الوطنية",
-      "dateOfBirth": "تاريخ الميلاد",
-      "difficulty": "صعوبة الطفل",
-      "gender": "الجنس",
-      "male": "ذكر",
-      "female": "أنثى",
-      "addButton": "متابعة"
+    "studentCard": {
+      "level": "المستوى {{level}}",
+      "active": "نشط",
+      "progress": "{{percent}}%"
+    },
+    "studentQuickAccess": {
+      "title": "الوصول السريع",
+      "roadMap": "خارطة الطريق",
+      "monthlyExam": "الاختبار الشهري",
+      "reports": "التقارير",
+      "age": "{{age}} سنوات",
+      "level": "المستوى {{level}}"
+    },
+    "studentDashboard": {
+      "title": "لوحة الطالب",
+      "notes": "الملاحظات",
+      "addHomework": "إضافة واجب",
+      "addReports": "إضافة تقرير",
+      "progressCircle": "{{percent}}%",
+      "tasks": "{{count}} مهمة",
+      "daysInRow": "{{count}} يوم متتالي",
+      "achievements": "{{count}} إنجاز",
+      "recentNotes": "الملاحظات الأخيرة"
+    },
+    "notes": {
+      "title": "الملاحظات",
+      "add": "إضافة ملاحظة",
+      "addNote": "+ إضافة",
+      "parentNotes": "ملاحظات ولي الأمر",
+      "yourNotes": "ملاحظاتك",
+      "teacherFeed": "تغذية المعلم",
+      "noteTitle": "عنوان الملاحظة",
+      "noteSubject": "الموضوع",
+      "noteDetails": "التفاصيل...",
+      "addButton": "إضافة ملاحظة"
     },
     "homework": {
       "title": "الواجبات",
       "add": "إضافة واجب",
+      "addTitle": "إضافة واجب",
+      "hwTitle": "العنوان",
       "subject": "المادة",
       "description": "الوصف",
+      "instructions": "التعليمات",
+      "hwDetails": "تفاصيل الواجب",
       "dueDate": "تاريخ التسليم",
       "addButton": "إضافة الواجب",
+      "history": "سجل الواجبات",
+      "today": "اليوم",
+      "detailsButton": "التفاصيل",
       "status": {
         "not_submitted": "لم يُسلَّم",
         "submitted": "تم التسليم",
@@ -273,14 +329,129 @@
     "reports": {
       "title": "التقارير",
       "add": "إضافة تقرير",
+      "addTitle": "إضافة تقرير",
+      "reportTitle": "عنوان التقرير",
+      "reportSubject": "موضوع التقرير",
+      "details": "التفاصيل...",
+      "addButton": "إضافة",
       "unread": "غير مقروء",
       "read": "مقروء",
-      "addButton": "إضافة تقرير"
+      "uploadedReports": "التقارير المرفوعة",
+      "examSchedule": "جدول الاختبارات",
+      "mathTestAnswer": "إجابات اختبار الرياضيات",
+      "newTasks": "مهام جديدة"
     },
-    "notes": {
-      "title": "الملاحظات",
-      "add": "إضافة ملاحظة",
-      "addButton": "إضافة ملاحظة"
+    "monthlyExam": {
+      "title": "الاختبار الشهري",
+      "examInfo": "معلومات الاختبار",
+      "levelGrade": "الصف {{grade}}",
+      "topic": "الموضوع: {{topic}}",
+      "date": "التاريخ: {{date}}",
+      "nextExam": "القادم: {{date}}",
+      "levelBadge": "المستوى {{level}}",
+      "progressCircle": "{{percent}}%",
+      "startExam": "ابدأ الاختبار",
+      "download": "تحميل",
+      "recentActivity": "النشاط الأخير",
+      "score": "النتيجة {{score}}"
+    },
+    "examQuestion": {
+      "header": "أسئلة الاختبار",
+      "question": "السؤال {{current}}",
+      "nextQuestion": "السؤال التالي",
+      "finish": "إنهاء",
+      "selectedAnswer": "الإجابة المختارة"
+    },
+    "roadMap": {
+      "title": "خارطة الطريق",
+      "day": "اليوم {{number}}",
+      "completed": "مكتمل",
+      "current": "الحالي",
+      "upcoming": "قادم",
+      "crown": "الهدف النهائي"
+    },
+    "addStudent": {
+      "title": "إضافة طالب",
+      "fullName": "الاسم الكامل للطفل",
+      "fullNamePlaceholder": "أدخل الاسم الكامل",
+      "nationalId": "الرقم الوطني",
+      "dateOfBirth": "تاريخ الميلاد",
+      "dateOfBirthPlaceholder": "يوم / شهر / سنة",
+      "difficulty": "صعوبة التعلم",
+      "difficultyPlaceholder": "اختر الصعوبة",
+      "gender": "الجنس",
+      "male": "ذكر",
+      "female": "أنثى",
+      "continue": "متابعة",
+      "addButton": "متابعة",
+      "successModal": "تمت إضافة الطالب بنجاح",
+      "countdown": "سيتم الانتقال خلال {{seconds}} ثوانٍ"
+    },
+    "myStudents": {
+      "title": "طلابي",
+      "empty": "لا يوجد طلاب بعد!",
+      "emptySubtitle": "أضف أول طلابك",
+      "addCard": "+"
+    },
+    "todayExam": {
+      "title": "اختبار اليوم",
+      "questions": "{{count}} أسئلة",
+      "examNumber": "اختبار {{number}}",
+      "duration": "{{minutes}} دقيقة",
+      "start": "ابدأ"
+    },
+    "todayQuiz": {
+      "title": "اختبار قصير اليوم",
+      "questions": "{{count}} أسئلة",
+      "quizNumber": "اختبار {{number}}",
+      "duration": "{{minutes}} دقيقة",
+      "start": "ابدأ"
+    },
+    "dayWorkModals": {
+      "whatToDoToday": "ماذا تفعل اليوم",
+      "okay": "حسناً",
+      "letsGo": "هيا بنا",
+      "day5Work": "عمل اليوم الخامس",
+      "task7hw5": "المهمة 7 والواجب 5",
+      "day6Work": "عمل اليوم السادس",
+      "quiz3hw5": "الاختبار 3 والواجب 5",
+      "day7Work": "عمل اليوم السابع",
+      "exam1": "الاختبار 1",
+      "greatJob": "عمل رائع!",
+      "youDidGreat": "لقد أديت عملاً رائعاً!",
+      "weAreSoProudOfYou": "نحن فخورون جداً بك",
+      "weAreWaitingForYou": "نحن بانتظارك"
+    },
+    "wellDoneCard": {
+      "title": "أحسنت!",
+      "score": "نتيجتك {{score}}"
+    },
+    "addTeacher": {
+      "title": "إضافة معلم",
+      "addPhoto": "إضافة صورة",
+      "fullName": "الاسم الكامل للمعلم",
+      "fullNamePlaceholder": "أدخل الاسم الكامل",
+      "nationalId": "الرقم الوطني",
+      "phone": "رقم الهاتف",
+      "createPassword": "إنشاء كلمة مرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "addButton": "إضافة معلم",
+      "submit": "إضافة المعلم"
+    },
+    "teacherList": {
+      "title": "المعلمون",
+      "empty": "لا يوجد معلمون بعد!",
+      "emptySubtitle": "أضف أول معلميك",
+      "active": "نشط",
+      "children": "{{count}} طفل"
+    },
+    "profile": {
+      "title": "الملف الشخصي",
+      "editProfile": "تعديل الملف",
+      "name": "الاسم",
+      "nationalId": "الرقم الوطني",
+      "phone": "الهاتف",
+      "logout": "تسجيل الخروج"
     }
   },
 
@@ -310,6 +481,73 @@
       "confirmPassword": "تأكيد كلمة المرور",
       "addButton": "إضافة معلم"
     }
+  },
+
+  "schoolSignup": {
+    "title": "مرحباً بك في رفيق",
+    "subtitle": "أنشئ ملف مدرستك لإدارة دعم الطلاب ومتابعة التقدم والتواصل مع أولياء الأمور.",
+    "schoolName": "اسم المدرسة",
+    "schoolNamePlaceholder": "أدخل اسم المدرسة",
+    "schoolId": "رقم المدرسة",
+    "schoolIdPlaceholder": "أدخل رقم المدرسة",
+    "advisorName": "اسم المشرف",
+    "advisorNamePlaceholder": "أدخل اسم المشرف",
+    "advisorNationalId": "الرقم الوطني للمشرف",
+    "advisorPhone": "رقم المشرف",
+    "createPassword": "إنشاء كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "alreadyHaveAccount": "هل لديك حساب بالفعل؟"
+  },
+
+  "schoolWelcome": {
+    "welcome": "مرحباً،",
+    "mr": "الأستاذ"
+  },
+
+  "teachers": {
+    "title": "معلموي",
+    "addTeacher": "إضافة معلم",
+    "addFirst": "أضف أول معلم",
+    "emptyTitle": "يبدو هادئاً هنا!",
+    "emptySubtitle": "أضف أول معلم لبدء إدارة مدرستك.",
+    "active": "نشط",
+    "children": "طالب"
+  },
+
+  "addTeacher": {
+    "title": "إضافة معلم",
+    "addPhoto": "إضافة صورة",
+    "fullName": "الاسم الكامل للمعلم",
+    "fullNamePlaceholder": "أدخل الاسم الكامل",
+    "nationalId": "الرقم الوطني",
+    "phone": "رقم الهاتف",
+    "createPassword": "إنشاء كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "submit": "إضافة المعلم"
+  },
+
+  "students": {
+    "title": "طلابي",
+    "addStudent": "إضافة طالب",
+    "addFirst": "أضف أول طالب",
+    "emptyTitle": "يبدو هادئاً هنا!",
+    "emptySubtitle": "أضف أول طالب لبدء متابعة تقدمه.",
+    "active": "نشط",
+    "level": "المستوى"
+  },
+
+  "addStudent": {
+    "title": "إضافة طالب",
+    "fullName": "الاسم الكامل للطفل",
+    "fullNamePlaceholder": "أدخل الاسم الكامل",
+    "nationalId": "الرقم الوطني",
+    "dateOfBirth": "تاريخ الميلاد",
+    "dateOfBirthPlaceholder": "يوم / شهر / سنة",
+    "difficulty": "صعوبة الطفل",
+    "difficultyPlaceholder": "اختر الصعوبة",
+    "gender": "الجنس",
+    "female": "أنثى",
+    "male": "ذكر"
   },
 
   "schoolPage": {
@@ -438,15 +676,15 @@
     },
     "success": {
       "btn": { "okay": "حسناً" },
-      "greatJob":       { "title": "أحسنت! 🎉",                        "message": "" },
-      "reportAdded":    { "title": "تمت إضافة التقرير",                 "message": "تمت إضافة التقرير بنجاح." },
-      "hwAdded":        { "title": "تمت إضافة الواجب",                  "message": "تمت إضافة الواجب المنزلي بنجاح." },
-      "noteAdded":      { "title": "تمت إضافة الملاحظة",                "message": "تم حفظ ملاحظتك." },
-      "saved":          { "title": "تم الحفظ!",                         "message": "تم حفظ هذا المقال في مكتبتك." },
-      "downloadDone":   { "title": "اكتمل التنزيل",                     "message": "تم تنزيل الملف بنجاح." },
-      "passwordUpdate": { "title": "تم تحديث كلمة المرور",              "message": "تم تغيير كلمة المرور بنجاح." },
-      "submitSuccess":  { "title": "تم الإرسال بنجاح",                  "message": "تم إرسال إجابتك." },
-      "childAdded":     { "title": "تمت إضافة الطفل بنجاح! 🎉",        "message": "العودة خلال {{seconds}} ثانية..." }
+      "greatJob":       { "title": "أحسنت! 🎉",                  "message": "" },
+      "reportAdded":    { "title": "تمت إضافة التقرير",           "message": "تمت إضافة التقرير بنجاح." },
+      "hwAdded":        { "title": "تمت إضافة الواجب",            "message": "تمت إضافة الواجب المنزلي بنجاح." },
+      "noteAdded":      { "title": "تمت إضافة الملاحظة",          "message": "تم حفظ ملاحظتك." },
+      "saved":          { "title": "تم الحفظ!",                   "message": "تم حفظ هذا المقال في مكتبتك." },
+      "downloadDone":   { "title": "اكتمل التنزيل",               "message": "تم تنزيل الملف بنجاح." },
+      "passwordUpdate": { "title": "تم تحديث كلمة المرور",        "message": "تم تغيير كلمة المرور بنجاح." },
+      "submitSuccess":  { "title": "تم الإرسال بنجاح",            "message": "تم إرسال إجابتك." },
+      "childAdded":     { "title": "تمت إضافة الطفل بنجاح! 🎉",  "message": "العودة خلال {{seconds}} ثانية..." }
     },
     "daywork": {
       "btn": { "okay": "حسناً", "letsGo": "هيا بنا! 🚀", "start": "ابدأ ▷" },
@@ -467,65 +705,14 @@
     },
     "wellDone": { "title": "أحسنت! 🎉", "scoreLabel": "نتيجتك هي", "btn": "متابعة" }
   },
-"schoolSignup": {
-  "title": "مرحباً بك في رفيق",
-  "subtitle": "أنشئ ملف مدرستك لإدارة دعم الطلاب ومتابعة التقدم والتواصل مع أولياء الأمور.",
-  "schoolName": "اسم المدرسة",
-  "schoolNamePlaceholder": "أدخل اسم المدرسة",
-  "schoolId": "رقم المدرسة",
-  "schoolIdPlaceholder": "أدخل رقم المدرسة",
-  "advisorName": "اسم المشرف",
-  "advisorNamePlaceholder": "أدخل اسم المشرف",
-  "advisorNationalId": "الرقم الوطني للمشرف",
-  "advisorPhone": "رقم المشرف",
-  "createPassword": "إنشاء كلمة المرور",
-  "confirmPassword": "تأكيد كلمة المرور",
-  "alreadyHaveAccount": "هل لديك حساب بالفعل؟"
-},
-"schoolWelcome": {
-  "welcome": "مرحباً،",
-  "mr": "الأستاذ"
-},
-"teachers": {
-  "title": "معلموي",
-  "addTeacher": "إضافة معلم",
-  "addFirst": "أضف أول معلم",
-  "emptyTitle": "يبدو هادئاً هنا!",
-  "emptySubtitle": "أضف أول معلم لبدء إدارة مدرستك.",
-  "active": "نشط",
-  "children": "طالب"
-},
-"addTeacher": {
-  "title": "إضافة معلم",
-  "addPhoto": "إضافة صورة",
-  "fullName": "الاسم الكامل للمعلم",
-  "fullNamePlaceholder": "أدخل الاسم الكامل",
-  "nationalId": "الرقم الوطني",
-  "phone": "رقم الهاتف",
-  "createPassword": "إنشاء كلمة المرور",
-  "confirmPassword": "تأكيد كلمة المرور",
-  "submit": "إضافة المعلم"
-},
-"students": {
-  "title": "طلابي",
-  "addStudent": "إضافة طالب",
-  "addFirst": "أضف أول طالب",
-  "emptyTitle": "يبدو هادئاً هنا!",
-  "emptySubtitle": "أضف أول طالب لبدء متابعة تقدمه.",
-  "active": "نشط",
-  "level": "المستوى"
-},
-"addStudent": {
-  "title": "إضافة طالب",
-  "fullName": "الاسم الكامل للطفل",
-  "fullNamePlaceholder": "أدخل الاسم الكامل",
-  "nationalId": "الرقم الوطني",
-  "dateOfBirth": "تاريخ الميلاد",
-  "dateOfBirthPlaceholder": "يوم / شهر / سنة",
-  "difficulty": "صعوبة الطفل",
-  "difficultyPlaceholder": "اختر الصعوبة",
-  "gender": "الجنس",
-  "female": "أنثى",
-  "male": "ذكر"
-}
+
+  "difficulties": {
+    "ADD": "اضطراب نقص الانتباه",
+    "ADHD": "اضطراب فرط الحركة ونقص الانتباه",
+    "ASD": "طيف التوحد",
+    "DYS": "عسر القراءة",
+    "IFD": "الإعاقة الذهنية والوظيفية",
+    "Autism": "التوحد",
+    "OTHER": "أخرى"
+  }
 }

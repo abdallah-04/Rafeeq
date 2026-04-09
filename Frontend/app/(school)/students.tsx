@@ -1,21 +1,21 @@
-import React, { useState } from 'react'
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native'
-import { router } from 'expo-router'
-import { useTranslation } from 'react-i18next'
-import { Text } from '@/components/modal/shared/Text'
-import { Button } from '@/components/modal/shared/Button'
-import Card from '@/components/modal/shared/Card'
-import Avatar from '@/components/modal/shared/Avatar'
-import Badge from '@/components/modal/shared/Badge'
-import ProgressBar from '@/components/modal/shared/progressBar'
-import Header from '@/components/modal/shared/Header'
-import ScreenWrapper from '@/components/modal/shared/ScreenWap'
-import { theme } from '@/theme'
-import { StatusBar } from 'expo-status-bar'
+import { Colors, Radius, Spacing } from "@/theme";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const { colors, spacing, typography, radius } = theme
 
-type Difficulty = 'ADD' | 'ADHD' | 'IFD'
+type Difficulty = "ADD" | "ADHD" | "IFD";
+type Status = "Active" | "Inactive";
 
 interface Student {
   id: string
@@ -26,15 +26,39 @@ interface Student {
 }
 
 const MOCK_STUDENTS: Student[] = [
-  { id: '1', name: 'Ayoub Maher', level: 3, difficulty: 'ADD',  progress: 62 },
-  { id: '2', name: 'Mona Ramzi',  level: 5, difficulty: 'ADHD', progress: 78 },
-  { id: '3', name: 'Nagham Marq', level: 1, difficulty: 'IFD',  progress: 45 },
-]
+  { id: "1", name: "Ayoub Maher", level: 3, difficulty: "ADD",  status: "Active", progress: 62 },
+  { id: "2", name: "Mona Ramzi",  level: 5, difficulty: "ADHD", status: "Active", progress: 62 },
+  { id: "3", name: "Nagham Marq", level: 1, difficulty: "IFD",  status: "Active", progress: 62 },
+];
 
-const DIFFICULTY_BADGE: Record<Difficulty, 'blue' | 'purple' | 'orange'> = {
-  ADD:  'blue',
-  ADHD: 'purple',
-  IFD:  'orange',
+
+const DIFFICULTY_COLORS: Record<Difficulty, { bg: string; text: string }> = {
+  ADD:  { bg: "#EFF6FF", text: "#3B82F6" },
+  ADHD: { bg: "#FDF4FF", text: "#A855F7" },
+  IFD:  { bg: "#FFF7ED", text: "#F97316" },
+};
+
+
+function EmptyState({ t }: { t: any }) {
+  return (
+    <View style={styles.emptyContainer}>
+      <Image
+        source={require("@/assets/images/mascot/rafeeq_clabbing.png")}
+        style={styles.emptyPenguin}
+        resizeMode="contain"
+      />
+      <Text style={styles.emptyTitle}>{t("students.emptyTitle")}</Text>
+      <Text style={styles.emptySubtitle}>{t("students.emptySubtitle")}</Text>
+      <View style={styles.ghostCard} />
+      <View style={styles.ghostCard} />
+      <TouchableOpacity
+        style={styles.ctaButton}
+        onPress={() => router.push("/(school)/add-student")}
+      >
+        <Text style={styles.ctaButtonText}>{t("students.addFirst")}</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
 
 function StudentCard({ student }: { student: Student }) {

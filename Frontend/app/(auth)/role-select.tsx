@@ -38,6 +38,14 @@ const ROLES: RoleOption[] = [
     descKey: 'roleSelect.schoolDesc',
     route: '/(auth)/signup-school',
   },
+    {
+    key: "teacher",
+    icon: "👩‍🏫",
+    titleKey: "roleSelect.teacherTitle",
+    descKey: "roleSelect.teacherDesc",
+    route: "/(teacher)/students",
+  },
+
 ];
 
 function RoleCard({ option, onPress }: { option: RoleOption; onPress: (r: string) => void }) {

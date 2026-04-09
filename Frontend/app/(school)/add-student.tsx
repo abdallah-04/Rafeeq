@@ -70,7 +70,7 @@ function DifficultyDropdown({ value, onChange, error, t }: {
   const [open, setOpen] = useState(false)
 
   return (
-    <>
+    <View>
       <TouchableOpacity
         style={[styles.dropdown, error && styles.inputError]}
         onPress={() => setOpen(true)}
@@ -78,7 +78,7 @@ function DifficultyDropdown({ value, onChange, error, t }: {
         <Text style={value ? styles.dropdownValue : styles.dropdownPlaceholder}>
           {value ?? t('addStudent.difficultyPlaceholder')}
         </Text>
-        <Text style={styles.dropdownArrow}>▾</Text>
+        <Text style={styles.dropdownArrow}>{open ? "▲" : "▼"}</Text>
       </TouchableOpacity>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
@@ -127,6 +127,7 @@ export default function AddStudentScreen() {
     d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
   const onSubmit = async (data: AddStudentForm) => {
+    if (!gender) return;
     try {
       setLoading(true)
       await new Promise(res => setTimeout(res, 1000))
@@ -150,10 +151,11 @@ export default function AddStudentScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Card variant="elevated" padded style={styles.card}>
+          {/* ── Form card ── */}
+          <View style={styles.card}>
 
-            {/* Full Name */}
-            <Text variant="label" style={styles.label}>{t('addStudent.fullName')}</Text>
+            {/* Child's Full Name */}
+            <Text style={styles.label}>{t("addStudent.fullName")}</Text>
             <Controller
               control={control}
               name="fullName"
@@ -162,15 +164,15 @@ export default function AddStudentScreen() {
                   style={[styles.input, errors.fullName && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
-                  placeholder={t('addStudent.fullNamePlaceholder')}
-                  placeholderTextColor={colors.textMuted}
+                  placeholder={t("addStudent.fullNamePlaceholder")}
+                  placeholderTextColor={Colors.textLight}
                 />
               )}
             />
             {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
 
             {/* National ID */}
-            <Text variant="label" style={styles.label}>{t('addStudent.nationalId')}</Text>
+            <Text style={styles.label}>{t("addStudent.nationalId")}</Text>
             <Controller
               control={control}
               name="nationalId"
@@ -180,7 +182,7 @@ export default function AddStudentScreen() {
                   onChangeText={onChange}
                   value={value}
                   placeholder="0000000000"
-                  placeholderTextColor={colors.textMuted}
+                  placeholderTextColor={Colors.textLight}
                   keyboardType="numeric"
                   maxLength={10}
                 />
@@ -188,82 +190,145 @@ export default function AddStudentScreen() {
             />
             {errors.nationalId && <Text style={styles.error}>{errors.nationalId.message}</Text>}
 
-            {/* Date of Birth */}
-            <Text variant="label" style={styles.label}>{t('addStudent.dateOfBirth')}</Text>
-            <Controller
-              control={control}
-              name="dateOfBirth"
-              render={({ field: { value } }) => (
-                <TouchableOpacity
-                  style={[styles.input, styles.dateInput, errors.dateOfBirth && styles.inputError]}
-                  onPress={() => setShowDatePicker(true)}
-                >
-                  <Text style={value ? styles.dateValue : styles.datePlaceholder}>
-                    {value ? formatDate(selectedDate) : t('addStudent.dateOfBirthPlaceholder')}
-                  </Text>
-                  <Text>📅</Text>
-                </TouchableOpacity>
-              )}
-            />
-            {errors.dateOfBirth && <Text style={styles.error}>{errors.dateOfBirth.message}</Text>}
-            {showDatePicker && (
-              <DateTimePicker
-                value={selectedDate}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={onDateChange}
-                maximumDate={new Date()}
-              />
+            {/* Date of Birth — calendar trigger */}
+            <Text style={styles.label}>{t("addStudent.dateOfBirth")}</Text>
+            <TouchableOpacity
+              style={[
+                styles.dateRow,
+                errors.dateOfBirth && styles.inputError,
+              ]}
+              onPress={() => setShowDatePicker(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Select date of birth"
+            >
+              <Text
+                style={[
+                  styles.dateText,
+                  !dateOfBirth && styles.datePlaceholder,
+                ]}
+              >
+                {dateOfBirth || "MM/DD/YYYY"}
+              </Text>
+              <Text style={styles.calendarIcon}>📅</Text>
+            </TouchableOpacity>
+            {errors.dateOfBirth && (
+              <Text style={styles.error}>{errors.dateOfBirth.message}</Text>
             )}
 
-            {/* Difficulty */}
-            <Text variant="label" style={styles.label}>{t('addStudent.difficulty')}</Text>
+            {/* Child's Difficulty */}
+            <Text style={styles.label}>{t("addStudent.difficulty")}</Text>
             <Controller
               control={control}
               name="difficulty"
               render={({ field: { onChange, value } }) => (
-                <DifficultyDropdown value={value} onChange={onChange} error={!!errors.difficulty} t={t} />
+                <DifficultyDropdown
+                  value={value}
+                  onChange={onChange}
+                  error={errors.difficulty?.message}
+                  t={t}
+                />
               )}
             />
-            {errors.difficulty && <Text style={styles.error}>{errors.difficulty.message}</Text>}
+            {errors.difficulty && (
+              <Text style={styles.error}>{errors.difficulty.message}</Text>
+            )}
+          </View>
 
-            {/* Gender */}
-            <Text variant="label" style={styles.label}>{t('addStudent.gender')}</Text>
-            <Controller
-              control={control}
-              name="gender"
-              render={({ field: { onChange } }) => (
-                <View style={styles.genderRow}>
-                  <GenderCard gender="female" selected={selectedGender === 'female'} onPress={() => onChange('female')} t={t} />
-                  <GenderCard gender="male"   selected={selectedGender === 'male'}   onPress={() => onChange('male')}   t={t} />
-                </View>
-              )}
-            />
-            {errors.gender && <Text style={styles.error}>{errors.gender.message}</Text>}
+          {/* ── Gender section ── */}
+          <View style={styles.genderSection}>
+            <Text style={styles.genderTitle}>{t("addStudent.gender")}</Text>
+            <View style={styles.genderRow}>
+              <GenderCard
+                gender="female"
+                selected={gender === "female"}
+                onSelect={() => setGender("female")}
+              />
+              <GenderCard
+                gender="male"
+                selected={gender === "male"}
+                onSelect={() => setGender("male")}
+              />
+            </View>
+            {!gender && loading && (
+              <Text style={styles.error}>Please select a gender</Text>
+            )}
+          </View>
 
-            <Button
-              label={t('common.continue')}
-              onPress={handleSubmit(onSubmit)}
-              loading={loading}
-              style={styles.btn}
-            />
-
-          </Card>
+          {/* ── Continue button ── */}
+          <TouchableOpacity
+            style={[
+              styles.button,
+              (loading || !gender) && styles.buttonDisabled,
+            ]}
+            onPress={handleSubmit(onSubmit)}
+            disabled={loading || !gender}
+          >
+            {loading ? (
+              <ActivityIndicator color={Colors.white} />
+            ) : (
+              <Text style={styles.buttonText}>{t("addStudent.continue")}</Text>
+            )}
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-    </ScreenWrapper>
-  )
+
+      {/* Date Picker Modal */}
+      <DatePickerModal
+        visible={showDatePicker}
+        value={dateOfBirth}
+        onConfirm={(date) => setValue("dateOfBirth", date, { shouldValidate: true })}
+        onClose={() => setShowDatePicker(false)}
+      />
+    </SafeAreaView>
+  );
 }
 
+// ─── Styles ───────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  scroll: {
+  safe: {
+    flex: 1,
+    backgroundColor: Colors.white,
+  },
+
+  // Header
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontFamily: "Lexend-Bold",
+    fontWeight: "700",
+    color: Colors.textDark,
+  },
+  penguinIcon: {
+    fontSize: 28,
+  },
+
+  container: {
     flexGrow: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: spacing.lg,
   },
+
+  // Form card
   card: {
-    gap: spacing.xs,
+    width: "100%",
+    backgroundColor: Colors.white,
+    borderRadius: Radius.lg,
+    padding: Spacing.xl,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+    marginBottom: Spacing.xl,
   },
   label: {
     color: colors.textPrimary,
@@ -290,127 +355,134 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     fontFamily: typography.fontFamily.regular,
   },
-  dateInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingRight: spacing.md,
+
+  // Date row
+  dateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: Colors.background,
+    borderRadius: Radius.md,
+    height: 52,
+    paddingHorizontal: Spacing.md,
+    borderWidth: 1.5,
+    borderColor: "transparent",
   },
-  dateValue: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.textPrimary,
+  dateText: {
+    fontFamily: "Lexend-Regular",
+    fontSize: 14,
+    color: Colors.textDark,
   },
   datePlaceholder: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.textMuted,
+    color: Colors.textLight,
+  },
+  calendarIcon: {
+    fontSize: 18,
   },
 
-  /* Dropdown */
-  dropdown: {
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: radius.md,
+  // Dropdown
+  dropdownBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: Colors.background,
+    borderRadius: Radius.md,
     height: 52,
-    paddingHorizontal: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
     borderWidth: 1.5,
     borderColor: 'transparent',
   },
-  dropdownValue: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.textPrimary,
+  dropdownText: {
+    fontFamily: "Lexend-Regular",
+    fontSize: 14,
+    color: Colors.textDark,
   },
   dropdownPlaceholder: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.textMuted,
+    color: Colors.textLight,
   },
   dropdownArrow: {
-    fontSize: 14,
-    color: colors.textSecondary,
+    fontSize: 11,
+    color: Colors.textLight,
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: colors.overlay,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  dropdownMenu: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-    shadowColor: '#000',
+  dropdownList: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginTop: 4,
+    overflow: "hidden",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   dropdownItem: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 13,
+    paddingHorizontal: Spacing.md,
+    borderBottomWidth: 0.5,
+    borderBottomColor: Colors.border,
   },
-  dropdownItemSelected: {
-    backgroundColor: colors.primaryLighter,
+  dropdownItemActive: {
+    backgroundColor: Colors.primaryLight,
   },
   dropdownItemText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.textPrimary,
+    fontFamily: "Lexend-Regular",
+    fontSize: 14,
+    color: Colors.textDark,
   },
-  dropdownItemTextSelected: {
-    fontFamily: typography.fontFamily.bold,
-    color: colors.primary,
+  dropdownItemTextActive: {
+    fontFamily: "Lexend-SemiBold",
+    color: Colors.primary,
+  },
+  checkmark: {
+    fontSize: 14,
+    color: Colors.primary,
+    fontWeight: "700",
   },
 
-  /* Gender cards */
+  // Gender
+  genderSection: {
+    marginBottom: Spacing.xl,
+  },
+  genderTitle: {
+    fontFamily: "Lexend-Bold",
+    fontSize: 18,
+    fontWeight: "700",
+    color: Colors.textDark,
+    textAlign: "center",
+    marginBottom: Spacing.lg,
+  },
   genderRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginTop: spacing.xs,
+    flexDirection: "row",
+    gap: Spacing.md,
+    justifyContent: "center",
   },
   genderCard: {
     flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.lg,
-    borderRadius: radius.lg,
+    backgroundColor: Colors.white,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+    alignItems: "center",
+    gap: Spacing.sm,
     borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    position: 'relative',
+    borderColor: Colors.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+    position: "relative",
+    minHeight: 140,
+    justifyContent: "center",
   },
-  genderCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.sm,
-  },
-  genderEmoji: {
-    fontSize: 34,
-  },
-  genderDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    position: 'absolute',
-    bottom: 2,
-    right: 2,
-  },
-  genderLabel: {
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  checkBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
+  genderCheck: {
+    position: "absolute",
+    top: 10,
+    right: 10,
     width: 22,
     height: 22,
     borderRadius: 11,
@@ -422,9 +494,36 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontFamily: typography.fontFamily.bold,
   },
+  genderEmoji: {
+    fontSize: 52,
+  },
+  genderLabel: {
+    fontFamily: "Lexend-SemiBold",
+    fontSize: 15,
+    color: Colors.textMedium,
+    fontWeight: "600",
+  },
 
-  btn: {
-    marginTop: spacing.md,
-    width: '100%',
+  // Button
+  button: {
+    backgroundColor: Colors.primary,
+    borderRadius: Radius.md,
+    height: 52,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  buttonText: {
+    fontFamily: "Lexend-Bold",
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.white,
   },
 })

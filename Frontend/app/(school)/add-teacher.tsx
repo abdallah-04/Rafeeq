@@ -1,4 +1,13 @@
-import React, { useState } from 'react'
+// app/(school)/add-teacher.tsx
+
+import { Colors, Radius, Spacing } from "@/theme";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
+import BackButton from "@/components/BackButton";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import {
   View,
   TextInput,
@@ -6,24 +15,16 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
   TouchableOpacity,
-  Image,
-} from 'react-native'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as ImagePicker from 'expo-image-picker'
-import { router } from 'expo-router'
-import { useTranslation } from 'react-i18next'
-import { addTeacherSchema, AddTeacherForm } from '@/lib/schemas/teacherSchema'
-import { Text } from '@/components/modal/shared/Text'
-import { Button } from '@/components/modal/shared/Button'
-import Card from '@/components/modal/shared/Card'
-import Header from '@/components/modal/shared/Header'
-import ScreenWrapper from '@/components/modal/shared/ScreenWap'
-import { theme } from '@/theme'
-import { StatusBar } from 'expo-status-bar'
-
-const { colors, spacing, typography, radius } = theme
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { addTeacherSchema, AddTeacherForm } from "@/lib/schemas/teacherSchema";
 
 export default function AddTeacherScreen() {
   const { t } = useTranslation()
@@ -64,7 +65,17 @@ export default function AddTeacherScreen() {
       <StatusBar style="dark" />
       <Header title={t('addTeacher.title')} />
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      {/* Header */}
+      <View style={styles.header}>
+        <BackButton onPress={() => router.back()} />
+        <Text style={styles.headerTitle}>{t("addTeacher.title")}</Text>
+        <View style={{ width: 32 }} />
+      </View>
+
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
@@ -205,7 +216,26 @@ export default function AddTeacherScreen() {
 }
 
 const styles = StyleSheet.create({
-  scroll: {
+  safe: {
+    flex: 1,
+    backgroundColor: Colors.white,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontFamily: "Lexend-Bold",
+    fontWeight: "700",
+    color: Colors.textDark,
+  },
+  container: {
     flexGrow: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
