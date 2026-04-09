@@ -66,7 +66,7 @@ export interface SkillItem {
 
 const styles = StyleSheet.create({
     container: {
-        marginHorizontal: theme.spacing.xl,
+        marginHorizontal: theme.spacing.sm,
         marginTop: theme.spacing.lg,
         backgroundColor: theme.colors.white,
         borderRadius: theme.radius.lg,

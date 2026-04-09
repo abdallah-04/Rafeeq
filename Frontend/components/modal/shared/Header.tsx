@@ -6,18 +6,26 @@ import { theme } from '@/theme';
 
 interface Props {
   title: string;
+  subtitle?: string;
   onBack?: () => void;
   rightElement?: ReactNode;
 }
 
-export default function Header({ title, onBack, rightElement }: Props) {
+export default function Header({ title, subtitle, onBack, rightElement }: Props) {
   return (
     <View style={styles.container}>
       <BackButton onPress={onBack} />
 
-      <Text variant="heading" style={styles.title}>
-        {title}
-      </Text>
+      <View style={styles.titleContainer}>
+        <Text variant="heading" style={styles.title}>
+          {title}
+        </Text>
+        {subtitle && (
+          <Text variant="caption" style={styles.subtitle}>
+            {subtitle}
+          </Text>
+        )}
+      </View>
 
       <View style={styles.right}>
         {rightElement ?? <View style={styles.placeholder} />}
@@ -37,10 +45,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
-  title: {
+  titleContainer: {
     flex: 1,
+    alignItems: 'center',
+  },
+  title: {
     textAlign: 'center',
     color: theme.colors.textPrimary,
+  },
+  subtitle: {
+    textAlign: 'center',
+    color: theme.colors.textSecondary,
+    marginTop: 2,
   },
   right: {
     width: 36,
