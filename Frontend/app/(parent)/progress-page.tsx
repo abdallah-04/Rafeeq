@@ -1,24 +1,22 @@
-import React, { useState } from 'react'
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    ScrollView,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-} from 'react-native'
-import { router } from 'expo-router'
-import { theme } from '@/theme';
+// 
 
+
+
+
+import React, { useState } from 'react'
+import { View, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
+import { router } from 'expo-router'
+import { theme } from '@/theme'
+import { Text } from '@/components/modal/shared/Text'
+import ScreenWrapper from '@/components/modal/shared/ScreenWap'
+import Header from '@/components/modal/shared/Header'
 import ChildSelector from '@/components/modal/parent/ChildSelector'
 import TabBar from '@/components/modal/shared/TabBar'
 import ProgressCard from '@/components/modal/parent/ProgressCard'
 import ProgressSummary, { SkillItem } from '@/components/modal/parent/ProgressSummary'
-import BottomNav from '@/components/modal/shared/BottomNav' // Import the BottomNav component
+import BottomNav from '@/components/modal/shared/BottomNav'
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
-
 const MOCK_CHILD = {
     name: 'Ayoub',
     age: 6,
@@ -44,148 +42,88 @@ const MOCK_SKILLS: SkillItem[] = [
     { label: 'Social Skills',     percentage: 90, color: '#F97316' },
 ]
 
-const TABS = ['Progress', 'Quizes', 'Activities']
-
-// ─── Component ────────────────────────────────────────────────────────────────
+const TABS = ['Progress', 'Quizes', 'Activities', 'Homeworks']
 
 export default function ProgressScreen() {
     const [activeTab, setActiveTab] = useState('Progress')
 
     const handleTabChange = (tab: string) => {
         if (tab === 'Quizes') {
-            router.replace('/(parent)/quizes')
-            return
+        router.replace('/(parent)/quiz')
+        return
         }
         if (tab === 'Activities') {
-            router.replace('/(parent)/activities')
+        router.replace('/(parent)/activities')
+        return
+        }
+        if (tab === 'Homeworks') {
+            router.replace('/(parent)/homeworks')
             return
         }
         setActiveTab(tab)
     }
 
     return (
-        <SafeAreaView style={styles.safe}>
-            <StatusBar barStyle="dark-content" backgroundColor={theme.colors.white} />
+        <ScreenWrapper scroll={false}>
+        <StatusBar barStyle="dark-content" backgroundColor={theme.colors.white} />
 
-            {/* ── Header ── */}
-            <View style={styles.header}>
-                <TouchableOpacity
-                    onPress={() => router.back()}
-                    style={styles.backBtn}
-                    accessibilityRole="button"
-                    accessibilityLabel="Go back"
-                >
-                    <Text style={styles.backIcon}>←</Text>
-                </TouchableOpacity>
+        <Header
+            title="Progress"
+            onBack={() => router.back()}
+            rightElement={
+            <HeaderRightButton onPress={() => router.push('/(parent)/settings')} />
+            }
+        />
 
-                <Text style={styles.headerTitle}>Progress</Text>
+        <ChildSelector
+        name={MOCK_CHILD.name}
+        age={MOCK_CHILD.age}
+        avatar={MOCK_CHILD.avatar}
+        badges={MOCK_CHILD.badges}
+        onPress={() => {}}
+    />
 
-                <TouchableOpacity
-                    onPress={() => router.push('/(parent)/settings')}
-                    style={styles.settingsBtn}
-                    accessibilityRole="button"
-                    accessibilityLabel="Settings"
-                >
-                    <Text style={styles.settingsIcon}>⚙️</Text>
-                </TouchableOpacity>
-            </View>
+        <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
-            {/* ── Child Selector ── */}
-            <ChildSelector
-                name={MOCK_CHILD.name}
-                age={MOCK_CHILD.age}
-                avatar={MOCK_CHILD.avatar}
-                badges={MOCK_CHILD.badges}
-                onPress={() => {
-                    // TODO: open child switcher modal
-                }}
+        <View style={styles.content}>
+            <ProgressCard {...MOCK_PROGRESS_CARD} />
+            <ProgressSummary
+            title="Progress Summary"
+            items={MOCK_SKILLS}
+            onViewDetails={() => router.push('/(parent)/progress-details')}
             />
+        </View>
 
-            {/* ── Tab Bar ── */}
-            <TabBar
-                tabs={TABS}
-                activeTab={activeTab}
-                onTabChange={handleTabChange}
-            />
+        <BottomNav />
+        </ScreenWrapper>
+    )
+    }
 
-            {/* ── Content ── */}
-            <ScrollView
-                style={styles.scroll}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Progress Card */}
-                <ProgressCard
-                    childName={MOCK_PROGRESS_CARD.childName}
-                    monthLabel={MOCK_PROGRESS_CARD.monthLabel}
-                    description={MOCK_PROGRESS_CARD.description}
-                    percentage={MOCK_PROGRESS_CARD.percentage}
-                    mascotImage={MOCK_PROGRESS_CARD.mascotImage}
-                />
-
-                {/* Progress Summary */}
-                <ProgressSummary
-                    title="Progress Summary"
-                    items={MOCK_SKILLS}
-                    onViewDetails={() => router.push('/(parent)/progress-details')}
-                />
-            </ScrollView>
-
-            {/* ── Bottom Navigation ── */}
-            <BottomNav />
-        </SafeAreaView>
+// Helper component for header right button (settings)
+function HeaderRightButton({ onPress }: { onPress: () => void }) {
+    return (
+        <TouchableOpacity onPress={onPress} style={styles.settingsBtn}>
+        <Text style={styles.settingsIcon}>⚙️</Text>
+        </TouchableOpacity>
     )
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
 const styles = StyleSheet.create({
-    safe: {
+    content: {
+        marginTop: 0.09,
         flex: 1,
-        backgroundColor: theme.colors.background,
-    },
-
-    // Header
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: theme.spacing.xl,
-        paddingVertical: theme.spacing.md,
-        backgroundColor: theme.colors.white,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-    },
-    backBtn: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
-    },
-    backIcon: {
-        fontSize: 22,
-        color: theme.colors.textPrimary,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontFamily: 'Lexend_700Bold',
-        fontWeight: '700',
-        color: theme.colors.textPrimary,
+        paddingHorizontal: theme.spacing.sm,
+        paddingTop: theme.spacing.sm,
+        paddingBottom: theme.spacing.sm,
+        gap: theme.spacing.sm,
     },
     settingsBtn: {
-        width: 40,
-        height: 40,
+        width: 36,
+        height: 36,
         justifyContent: 'center',
         alignItems: 'flex-end',
     },
     settingsIcon: {
         fontSize: 20,
-    },
-
-    // Scroll
-    scroll: {
-        flex: 1,
-    },
-    scrollContent: {
-        paddingBottom: theme.spacing.xl,
     },
 })

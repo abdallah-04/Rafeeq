@@ -1,3 +1,4 @@
+// 
 import React from 'react'
 import {
     View,
@@ -20,6 +21,7 @@ export default function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
+                bounces={false}
                 contentContainerStyle={styles.container}
             >
                 {tabs.map((tab) => {
@@ -31,6 +33,7 @@ export default function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
                             style={[styles.tab, isActive && styles.activeTab]}
                             accessibilityRole="tab"
                             accessibilityState={{ selected: isActive }}
+                            activeOpacity={0.7}
                         >
                             <Text style={[styles.tabText, isActive && styles.activeTabText]}>
                                 {tab}
@@ -47,15 +50,16 @@ export default function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
 const styles = StyleSheet.create({
     wrapper: {
         marginTop: theme.spacing.sm,
+        backgroundColor: theme.colors.white,
     },
     container: {
         paddingHorizontal: theme.spacing.xl,
-        gap: theme.spacing.lg,
         flexDirection: 'row',
+        gap: theme.spacing.lg,
     },
     tab: {
         paddingVertical: theme.spacing.sm,
-        paddingHorizontal: 4,
+        paddingHorizontal: 6,
         borderBottomWidth: 2,
         borderBottomColor: 'transparent',
     },
@@ -74,6 +78,5 @@ const styles = StyleSheet.create({
     bottomBorder: {
         height: 1,
         backgroundColor: theme.colors.border,
-        marginTop: -1,
     },
 })

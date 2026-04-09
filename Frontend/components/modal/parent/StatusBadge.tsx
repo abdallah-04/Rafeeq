@@ -7,6 +7,7 @@ export type BadgeVariant =
     | 'completed'
     | 'in_progress'
     | 'new'
+    | 'later'
 
 interface StatusBadgeProps {
     variant: BadgeVariant
@@ -21,6 +22,7 @@ const BADGE_CONFIG: Record<
     completed:   { label: 'Completed',    bg: '#D1FAE5', text: '#059669' },
     in_progress: { label: 'In progress',  bg: '#DBEAFE', text: '#2563EB' },
     new:         { label: 'New',          bg: '#FEF3C7', text: '#D97706' },
+    later:       { label: 'Later',        bg: '#FEF3C7', text: '#D97706' },
 }
 
 export default function StatusBadge({ variant }: StatusBadgeProps) {

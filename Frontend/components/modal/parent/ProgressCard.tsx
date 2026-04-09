@@ -56,7 +56,7 @@ export default function ProgressCard({
 
     const styles = StyleSheet.create({
     card: {
-        marginHorizontal: theme.spacing.xl,
+        marginHorizontal: theme.spacing.sm,
         marginTop: theme.spacing.lg,
         backgroundColor: theme.colors.white,
         borderRadius: theme.radius.lg,
