@@ -1,8 +1,8 @@
 import React from 'react';
 import { Image, StyleSheet, ImageSourcePropType } from 'react-native';
-import { colors } from '@/constants';
+import { theme } from '@/theme';
 
-type Pose = 'waving' | 'reading' | 'Rafeeq' | 'celebrating' | 'Rafeeqa' | 'spalsh';
+type Pose = 'waving' | 'reading' | 'rafeeq' | 'celebrating' | 'rafeeqa' | 'splash';
 type Size = 'sm' | 'md' | 'lg';
 
 type Props = {
@@ -13,10 +13,10 @@ type Props = {
 const poseImages: Record<Pose, ImageSourcePropType> = {
     waving: require('@/assets/images/mascot/rafeeq_waving.png'),
     reading: require('@/assets/images/mascot/rafeeq_reading.png'),
-    Rafeeq: require('@/assets/images/mascot/rafeeq.png'),
+    rafeeq: require('@/assets/images/mascot/rafeeq.png'),
     celebrating: require('@/assets/images/mascot/rafeeq_clabbing.png'),
-    Rafeeqa: require('@/assets/images/mascot/rafeeqa.png'),
-    spalsh: require('@/assets/images/mascot/splash-icon.png'),
+    rafeeqa: require('@/assets/images/mascot/rafeeqa.png'),
+    splash: require('@/assets/images/mascot/splash-icon.png'),
 };
 
 const sizeMap: Record<Size, number> = {
@@ -25,20 +25,20 @@ const sizeMap: Record<Size, number> = {
     lg: 150,
 };
 
-export default function PenguinMascot({ pose, size = 'md' }: Props) {
+export default function Mascot({ pose, size = 'md' }: Props) {
     const dimension = sizeMap[size];
 
     return (
         <Image
-        source={poseImages[pose]}
-        style={[styles.image, { width: dimension, height: dimension }]}
-        resizeMode="contain"
+            source={poseImages[pose]}
+            style={[styles.image, { width: dimension, height: dimension }]}
+            resizeMode="contain"
         />
     );
 }
 
 const styles = StyleSheet.create({
     image: {
-        backgroundColor: colors.transparent,
+        backgroundColor: theme.colors.transparent,
     },
 });

@@ -1,21 +1,27 @@
-import { View, Text, Image, StyleSheet } from 'react-native';
-import { router } from 'expo-router';
 import React from 'react';
+import { View, Image, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import PrimaryButton from '@/components/modal/shared/blueButton';
-import SecondaryButton from '@/components/modal/shared/otherbutton';
-import { colors } from '@/constants';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Button } from '@/components/modal/shared/Button';
+import { Text } from '@/components/modal/shared/Text';
+import { theme } from '@/theme';
+
+const { colors, spacing, typography, radius } = theme;
 
 export default function LandingScreen() {
   const { t } = useTranslation();
 
   return (
-    <View style={styles.container}>
-      {/* Brand header */}
-      <Text style={styles.brand}>RAFEEQ</Text>
-      <Text style={styles.brandAr}>رفيق</Text>
+    <SafeAreaView style={styles.safe}>
+      {/* Brand */}
+      <View style={styles.brandRow}>
+        <Text style={styles.brand}>RAFEEQ</Text>
+        <Text style={styles.brandAr}> · رفيق</Text>
+      </View>
 
-      {/* Mascot */}
+      {/* Mascot card */}
       <View style={styles.imageBox}>
         <Image
           source={require('@/assets/images/mascot/rafeeq_waving.png')}
@@ -27,71 +33,96 @@ export default function LandingScreen() {
       {/* Copy */}
       <Text style={styles.heading}>{t('landing.tagline')}</Text>
       <Text style={styles.sub}>
-        The companion for your child's educational journey and personalised growth.
+        {t('landing.subtitle')}
       </Text>
 
       {/* Actions */}
-      <PrimaryButton
-        title={t('landing.getStarted')}
-        onPress={() => router.push('/(auth)/role-select')}
-      />
-      <SecondaryButton
-        title={t('landing.login')}
-        onPress={() => router.push('/(auth)/login')}
-      />
-    </View>
+      <View style={styles.actions}>
+        <Button
+          label={t('landing.getStarted')}
+          variant="primary"
+          onPress={() => router.push('/(auth)/role-select')}
+          style={styles.btn}
+        />
+        <Button
+          label={t('landing.login')}
+          variant="outline"
+          onPress={() => router.push('/(auth)/login')}
+          style={styles.btn}
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
-    backgroundColor: colors.white,
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 60,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
+
+  brandRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+
   brand: {
-    fontSize: 18,
-    fontFamily: 'Lexend_700Bold',
-    fontWeight: '900',
-    color: colors.buttonPrimary,
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.primary,
     letterSpacing: 1,
   },
+
   brandAr: {
-    fontSize: 16,
-    fontFamily: 'Lexend_400Regular',
-    color: colors.buttonPrimary,
-    marginBottom: 16,
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.regular,
+    color: colors.primary,
   },
+
   imageBox: {
     flex: 1,
-    width: '100%',
-    backgroundColor: '#EEF4FF',
-    borderRadius: 24,
+    backgroundColor: colors.backgroundLight,
+    borderRadius: radius.xl,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.lg,
+    maxHeight: 320,
   },
+
   penguin: {
-    width: '70%',
-    height: '70%',
+    width: 220,
+    height: 220,
   },
+
   heading: {
-    fontSize: 22,
-    fontFamily: 'Lexend_700Bold',
-    fontWeight: '700',
+    fontSize: typography.fontSize['2xl'],
+    fontFamily: typography.fontFamily.bold,
     textAlign: 'center',
     color: colors.textPrimary,
-    lineHeight: 30,
-    marginBottom: 8,
+    lineHeight: 36,
+    marginBottom: spacing.sm,
   },
+
   sub: {
-    fontSize: 13,
-    fontFamily: 'Lexend_400Regular',
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.regular,
     color: colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 24,
+    lineHeight: 22,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.sm,
+  },
+
+  actions: {
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+
+  btn: {
+    width: '100%',
   },
 });

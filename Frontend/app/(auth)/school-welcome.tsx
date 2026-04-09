@@ -1,134 +1,101 @@
-import { Colors, Radius, Spacing } from "@/theme";
-import { useSchoolSignupStore } from "@/store/schoolSignupStore";
-import { router } from "expo-router";
-import React, { useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import {
-  Image,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useEffect } from 'react'
+import { View, Image, StyleSheet } from 'react-native'
+import { useSchoolSignupStore } from '@/store/schoolSignupStore'
+import { router } from 'expo-router'
+import { useTranslation } from 'react-i18next'
+import { Text } from '@/components/modal/shared/Text'
+import { Button } from '@/components/modal/shared/Button'
+import ScreenWrapper from '@/components/modal/shared/ScreenWap'
+import { theme } from '@/theme'
+import { StatusBar } from 'expo-status-bar'
+
+const { colors, spacing, typography } = theme
 
 export default function SchoolWelcomeScreen() {
-  const { t } = useTranslation();
-  const { step1, clearSignup } = useSchoolSignupStore();
+  const { t } = useTranslation()
+  const { step1, clearSignup } = useSchoolSignupStore()
 
   useEffect(() => {
-    clearSignup();
-  }, []);
-
-  const handleGetStarted = () => {
-    router.replace("/(school)/teachers");
-  };
+    clearSignup()
+  }, [])
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
+    <ScreenWrapper scroll={false} padded={false}>
+      <StatusBar style="dark" />
 
       <View style={styles.container}>
 
+        {/* Logo */}
         <View style={styles.logoRow}>
           <Text style={styles.logoEn}>RAFEEQ</Text>
           <Text style={styles.logoAr}>رفيق</Text>
         </View>
 
+        {/* Hero */}
         <View style={styles.heroRow}>
           <View style={styles.heroText}>
-            <Text style={styles.welcomeLabel}>{t("schoolWelcome.welcome")}</Text>
-            <Text style={styles.advisorName}>
-              {t("schoolWelcome.mr")} {step1.advisorName ?? "Ahmad"}
+            <Text variant="heading" style={styles.welcomeLabel}>{t('schoolWelcome.welcome')}</Text>
+            <Text variant="heading" style={styles.advisorName}>
+              {t('schoolWelcome.mr')} {step1.advisorName ?? 'Ahmad'}
             </Text>
           </View>
           <Image
-            source={require("@/assets/images/mascot/rafeeq_clabbing.png")}
+            source={require('@/assets/images/mascot/rafeeq_waving.png')}
             style={styles.penguin}
             resizeMode="contain"
           />
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleGetStarted}>
-          <Text style={styles.buttonText}>{t("common.getStarted")}</Text>
-        </TouchableOpacity>
+        <Button
+          label={t('common.getStarted')}
+          onPress={() => router.replace('/(school)/teachers')}
+        />
 
       </View>
-    </SafeAreaView>
-  );
+    </ScreenWrapper>
+  )
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
   container: {
     flex: 1,
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.xl,
-    justifyContent: "center",
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    justifyContent: 'center',
+    gap: spacing.xl,
   },
   logoRow: {
-    alignItems: "center",
-    marginBottom: Spacing.xl * 2,
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   logoEn: {
-    fontSize: 22,
-    fontFamily: "Lexend-Bold",
-    fontWeight: "700",
-    color: Colors.primary,
+    fontSize: typography.fontSize.xl,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.primary,
     letterSpacing: 1.5,
   },
   logoAr: {
-    fontSize: 18,
-    fontFamily: "Lexend-Regular",
-    color: Colors.primary,
-    marginTop: 2,
+    fontSize: typography.fontSize.lg,
+    fontFamily: typography.fontFamily.regular,
+    color: colors.primary,
   },
   heroRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: Spacing.xl * 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   heroText: {
     flex: 1,
+    gap: spacing.xs,
   },
   welcomeLabel: {
-    fontSize: 28,
-    fontFamily: "Lexend-Bold",
-    fontWeight: "800",
-    color: Colors.textDark,
-    marginBottom: 4,
+    color: colors.primary,
   },
   advisorName: {
-    fontSize: 28,
-    fontFamily: "Lexend-Bold",
-    fontWeight: "800",
-    color: Colors.textDark,
+    color: colors.primary,
   },
   penguin: {
     width: 130,
     height: 130,
   },
-  button: {
-    backgroundColor: Colors.primary,
-    borderRadius: Radius.md,
-    height: 52,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  buttonText: {
-    fontFamily: "Lexend-Bold",
-    fontSize: 16,
-    fontWeight: "700",
-    color: Colors.white,
-  },
-});
+})

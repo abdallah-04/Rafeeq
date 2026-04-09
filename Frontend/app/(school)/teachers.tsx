@@ -14,10 +14,37 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const MOCK_TEACHERS = [
-  { id: "1", name: "Ahmad Sami", status: "Active", childCount: 3, progress: 62 },
-  { id: "2", name: "Tala Kamal", status: "Active", childCount: 3, progress: 62 },
-];
+  { id: '1', name: 'Ahmad Sami', childCount: 3, progress: 62 },
+  { id: '2', name: 'Tala Kamal', childCount: 5, progress: 78 },
+]
 
+function TeacherCard({ teacher, t }: { teacher: typeof MOCK_TEACHERS[0]; t: any }) {
+  return (
+    <TouchableOpacity
+      onPress={() => router.push(`/(school)/teacher/${teacher.id}` as any)}
+      activeOpacity={0.7}
+    >
+      <Card variant="elevated" padded style={styles.card}>
+        <View style={styles.cardRow}>
+          <Avatar name={teacher.name} size="md" />
+          <View style={styles.cardInfo}>
+            <View style={styles.cardTopRow}>
+              <Text variant="body" style={styles.teacherName}>{teacher.name}</Text>
+              <View style={styles.activeBadge}>
+                <Text style={styles.activeText}>{t('teachers.active')}</Text>
+              </View>
+            </View>
+            <Badge label={`${teacher.childCount} ${t('teachers.children')}`} variant="blue" />
+            <ProgressBar value={teacher.progress} height={6} showLabel={false} />
+            <Text variant="caption" color="textSecondary" style={styles.progressText}>
+              {teacher.progress}%
+            </Text>
+          </View>
+        </View>
+      </Card>
+    </TouchableOpacity>
+  )
+}
 
 function EmptyState({ t }: { t: any }) {
   return (
@@ -32,152 +59,132 @@ function EmptyState({ t }: { t: any }) {
         style={styles.emptyPenguin}
         resizeMode="contain"
       />
-      <Text style={styles.emptyTitle}>{t("teachers.emptyTitle")}</Text>
-      <Text style={styles.emptySubtitle}>{t("teachers.emptySubtitle")}</Text>
+      <Text variant="heading" style={styles.emptyTitle}>{t('teachers.emptyTitle')}</Text>
+      <Text variant="caption" color="textSecondary" style={styles.emptySubtitle}>
+        {t('teachers.emptySubtitle')}
+      </Text>
       <View style={styles.ghostCard} />
       <View style={styles.ghostCard} />
-      <TouchableOpacity
-        style={styles.ctaButton}
-        onPress={() => router.push("/(school)/add-teacher")}
-      >
-        <Text style={styles.ctaButtonText}>{t("teachers.addFirst")}</Text>
-      </TouchableOpacity>
+      <Button
+        label={t('teachers.addFirst')}
+        onPress={() => router.push('/(school)/add-teacher')}
+        style={styles.ctaBtn}
+      />
     </View>
-  );
+  )
 }
-
-
-function TeacherCard({ teacher, t }: { teacher: typeof MOCK_TEACHERS[0]; t: any }) {
-  return (
-    <TouchableOpacity
-      style={styles.teacherCard}
-      onPress={() => router.push(`/(school)/teacher/${teacher.id}`)}
-      accessibilityRole="button"
-      accessibilityLabel={teacher.name}
-    >
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{teacher.name.charAt(0)}</Text>
-      </View>
-
-      <View style={styles.teacherInfo}>
-        <View style={styles.teacherTopRow}>
-          <Text style={styles.teacherName}>{teacher.name}</Text>
-          <View style={styles.statusBadge}>
-            <Text style={styles.statusText}>{t("teachers.active")}</Text>
-          </View>
-        </View>
-        <Text style={styles.teacherMeta}>
-          {teacher.childCount} {t("teachers.children")}
-        </Text>
-        <View style={styles.progressBarBg}>
-          <View style={[styles.progressBarFill, { width: `${teacher.progress}%` }]} />
-        </View>
-        <Text style={styles.progressText}>{teacher.progress}%</Text>
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-
-function PopulatedList({ teachers, t }: { teachers: typeof MOCK_TEACHERS; t: any }) {
-  return (
-    <View style={styles.listContainer}>
-      {teachers.map((teacher) => (
-        <TeacherCard key={teacher.id} teacher={teacher} t={t} />
-      ))}
-      <TouchableOpacity
-        style={styles.ghostCardAdd}
-        onPress={() => router.push("/(school)/add-teacher")}
-      >
-        <Text style={styles.ghostCardPlus}>+</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
 
 export default function TeachersScreen() {
-  const { t } = useTranslation();
-  const [teachers] = useState(MOCK_TEACHERS); // swap with [] to test empty state
+  const { t } = useTranslation()
+  const [teachers] = useState(MOCK_TEACHERS)
+  const isEmpty = teachers.length === 0
 
-  const isEmpty = teachers.length === 0;
+  const AddButton = (
+    <TouchableOpacity
+      style={styles.addBtn}
+      onPress={() => router.push('/(school)/add-teacher')}
+    >
+      <Text style={styles.addBtnText}>+</Text>
+    </TouchableOpacity>
+  )
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
+    <ScreenWrapper scroll={false} padded={false}>
+      <StatusBar style="dark" />
+      <Header title={t('teachers.title')} rightElement={AddButton} />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t("teachers.title")}</Text>
-        <TouchableOpacity
-          style={styles.addBtn}
-          onPress={() => router.push("/(school)/add-teacher")}
-          accessibilityRole="button"
-          accessibilityLabel={t("teachers.addTeacher")}
-        >
-          <Text style={styles.addBtnText}>+</Text>
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
         {isEmpty ? (
           <EmptyState t={t} />
         ) : (
-          <PopulatedList teachers={teachers} t={t} />
+          <View style={styles.list}>
+            {teachers.map(tc => <TeacherCard key={tc.id} teacher={tc} t={t} />)}
+            <TouchableOpacity
+              style={styles.ghostCardAdd}
+              onPress={() => router.push('/(school)/add-teacher')}
+            >
+              <Text style={styles.ghostPlus}>+</Text>
+            </TouchableOpacity>
+          </View>
         )}
       </ScrollView>
-    </SafeAreaView>
-  );
+    </ScreenWrapper>
+  )
 }
 
-
 const styles = StyleSheet.create({
-  safe: {
+  scroll: {
+    flexGrow: 1,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
+  },
+  list: {
+    gap: spacing.md,
+  },
+
+  /* Card */
+  card: {
+    gap: spacing.sm,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  cardInfo: {
     flex: 1,
-    backgroundColor: Colors.white,
+    gap: spacing.xs,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+  cardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  headerTitle: {
-    fontSize: 20,
-    fontFamily: "Lexend-Bold",
-    fontWeight: "700",
-    color: Colors.textDark,
+  teacherName: {
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
   },
+  activeBadge: {
+    backgroundColor: colors.successLight,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  activeText: {
+    fontSize: typography.fontSize.xs,
+    fontFamily: typography.fontFamily.semiBold,
+    color: colors.success,
+  },
+  progressText: {
+    textAlign: 'right',
+    marginTop: 2,
+  },
+
+  /* Add button in header */
   addBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
+    width: 36,
+    height: 36,
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   addBtnText: {
-    fontSize: 24,
-    color: Colors.white,
-    fontWeight: "300",
-    lineHeight: 28,
-  },
-  container: {
-    flexGrow: 1,
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xl,
+    fontSize: 22,
+    color: colors.white,
+    fontFamily: typography.fontFamily.regular,
+    lineHeight: 26,
   },
 
-  // Empty state
+  /* Empty state */
   emptyContainer: {
-    flex: 1,
-    alignItems: "center",
-    paddingTop: Spacing.xl,
-    gap: Spacing.md,
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingTop: spacing.lg,
   },
   emptyIllustration: {
     width: 120,
@@ -189,148 +196,40 @@ const styles = StyleSheet.create({
     marginTop: -20,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontFamily: "Lexend-Bold",
-    fontWeight: "700",
-    color: Colors.textDark,
-    textAlign: "center",
-    marginTop: Spacing.md,
+    textAlign: 'center',
+    color: colors.textPrimary,
   },
   emptySubtitle: {
-    fontSize: 13,
-    fontFamily: "Lexend-Regular",
-    color: Colors.textMedium,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 20,
-    paddingHorizontal: Spacing.xl,
+    paddingHorizontal: spacing.lg,
   },
   ghostCard: {
-    width: "100%",
+    width: '100%',
     height: 72,
-    borderRadius: Radius.lg,
+    borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: Colors.border,
-    borderStyle: "dashed",
-    backgroundColor: Colors.background,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+    backgroundColor: colors.surfaceElevated,
   },
-  ctaButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: Radius.md,
-    height: 52,
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: Spacing.md,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  ctaButtonText: {
-    fontFamily: "Lexend-Bold",
-    fontSize: 16,
-    fontWeight: "700",
-    color: Colors.white,
-  },
-
-  // Populated list
-  listContainer: {
-    gap: Spacing.md,
-  },
-  teacherCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.white,
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
-    gap: Spacing.md,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: Colors.primaryLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: {
-    fontSize: 22,
-    fontFamily: "Lexend-Bold",
-    fontWeight: "700",
-    color: Colors.primary,
-  },
-  teacherInfo: {
-    flex: 1,
-  },
-  teacherTopRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 4,
-  },
-  teacherName: {
-    fontSize: 15,
-    fontFamily: "Lexend-Bold",
-    fontWeight: "700",
-    color: Colors.textDark,
-  },
-  statusBadge: {
-    backgroundColor: "#E6F9F0",
-    borderRadius: 99,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-  },
-  statusText: {
-    fontSize: 11,
-    fontFamily: "Lexend-SemiBold",
-    color: "#22C55E",
-    fontWeight: "600",
-  },
-  teacherMeta: {
-    fontSize: 12,
-    fontFamily: "Lexend-Regular",
-    color: Colors.textMedium,
-    marginBottom: 8,
-  },
-  progressBarBg: {
-    height: 6,
-    backgroundColor: Colors.border,
-    borderRadius: 99,
-    overflow: "hidden",
-  },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: Colors.primary,
-    borderRadius: 99,
-  },
-  progressText: {
-    fontSize: 11,
-    fontFamily: "Lexend-SemiBold",
-    color: Colors.textMedium,
-    textAlign: "right",
-    marginTop: 4,
+  ctaBtn: {
+    width: '100%',
+    marginTop: spacing.sm,
   },
   ghostCardAdd: {
     height: 72,
-    borderRadius: Radius.lg,
+    borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: Colors.border,
-    borderStyle: "dashed",
-    backgroundColor: Colors.background,
-    alignItems: "center",
-    justifyContent: "center",
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+    backgroundColor: colors.surfaceElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  ghostCardPlus: {
+  ghostPlus: {
     fontSize: 28,
-    color: Colors.textLight,
-    fontWeight: "300",
+    color: colors.textSecondary,
+    fontFamily: typography.fontFamily.regular,
   },
-});
+})

@@ -1,36 +1,43 @@
 import React, { ReactNode } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, I18nManager, ViewStyle } from 'react-native';
-import { colors } from '@/constants';
+import { View, ScrollView, StyleSheet, ViewStyle } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { theme } from '@/theme';
 
-type Props = {
-    children: ReactNode;
-    style?: ViewStyle;
-};
+interface Props {
+  children: ReactNode;
+  scroll?: boolean;
+  padded?: boolean;
+  style?: ViewStyle;
+}
 
-export default function ScreenWrapper({ children, style }: Props) {
-    return (
-        <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-            contentContainerStyle={[
-            styles.scrollContainer,
-            style,
-            I18nManager.isRTL && { paddingRight: 20, paddingLeft: 10 },
-            ]}
-            showsVerticalScrollIndicator={false}
-        >
-            {children}
+export default function ScreenWrapper({
+  children,
+  scroll = false,
+  padded = true,
+  style,
+}: Props) {
+  const content = (
+    <View style={[styles.inner, padded && styles.padded, style]}>
+      {children}
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      {scroll ? (
+        <ScrollView contentContainerStyle={styles.scroll}>
+          {content}
         </ScrollView>
-        </SafeAreaView>
-    );
+      ) : (
+        content
+      )}
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        backgroundColor: colors.background,
-    },
-    scrollContainer: {
-        padding: 20,
-        flexGrow: 1,
-    },
+  safe: { flex: 1, backgroundColor: theme.colors.background },
+  inner: { flex: 1 },
+  padded: { paddingHorizontal: theme.spacing.lg },
+  scroll: { flexGrow: 1 },
 });

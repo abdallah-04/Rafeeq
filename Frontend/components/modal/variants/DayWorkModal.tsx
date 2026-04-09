@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { DayWorkVariant } from '../ModalProvider';
+import { theme } from '@/theme';
 
 interface Props {
   variant?: DayWorkVariant;
@@ -11,9 +12,8 @@ interface Props {
 interface DayWorkContent {
   title: string;
   subtitle?: string;
-  items?: string[];   // e.g. ['Task 7', 'H.W 5']
+  items?: string[];
   btnPrimary: string;
-  btnSecondary?: string; // only on whatTodayLetsGo
   penguinPose: 'waving' | 'celebrating' | 'reading' | 'thinking';
 }
 
@@ -69,10 +69,10 @@ const VARIANT_MAP: Record<DayWorkVariant, DayWorkContent> = {
 };
 
 const PENGUIN_IMAGES: Record<DayWorkContent['penguinPose'], any> = {
-  waving:     require('@/assets/images/mascot/rafeeq_waving.png'),
-  celebrating:require('@/assets/images/mascot/rafeeq_clabbing.png'),
-  reading:    require('@/assets/images/mascot/rafeeq_reading.png'),
-  thinking:   require('@/assets/images/mascot/rafeeq_reading.png'),
+  waving:      require('@/assets/images/mascot/rafeeq_waving.png'),
+  celebrating: require('@/assets/images/mascot/rafeeq_clabbing.png'),
+  reading:     require('@/assets/images/mascot/rafeeq_reading.png'),
+  thinking:    require('@/assets/images/mascot/rafeeq_reading.png'),
 };
 
 export default function DayWorkModal({ variant = 'whatTodayOkay', onHide }: Props) {
@@ -113,13 +113,13 @@ export default function DayWorkModal({ variant = 'whatTodayOkay', onHide }: Prop
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius['2xl'],
     paddingHorizontal: 28,
     paddingTop: 28,
     paddingBottom: 28,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: theme.colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
@@ -128,29 +128,29 @@ const styles = StyleSheet.create({
   penguin: {
     width: 120,
     height: 120,
-    marginBottom: 16,
+    marginBottom: theme.spacing.md,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#334155',
+    fontSize: theme.typography.fontSize.xl,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.textPrimary,
     textAlign: 'center',
-    marginBottom: 8,
-    fontFamily: 'Lexend',
+    marginBottom: theme.spacing.sm,
+    fontFamily: theme.typography.fontFamily.bold,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#64748B',
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 16,
-    fontFamily: 'Lexend',
+    marginBottom: theme.spacing.md,
+    fontFamily: theme.typography.fontFamily.regular,
   },
   itemList: {
     width: '100%',
-    gap: 8,
-    marginBottom: 20,
-    paddingHorizontal: 8,
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.sm,
   },
   itemRow: {
     flexDirection: 'row',
@@ -161,30 +161,30 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#508DF7',
+    backgroundColor: theme.colors.primary,
   },
   itemText: {
-    fontSize: 15,
-    color: '#334155',
-    fontFamily: 'Lexend',
-    fontWeight: '600',
+    fontSize: theme.typography.fontSize.base,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.typography.fontFamily.semiBold,
+    fontWeight: theme.typography.fontWeight.semiBold,
   },
   btnPrimary: {
-    backgroundColor: '#508DF7',
-    borderRadius: 16,
-    paddingVertical: 14,
+    backgroundColor: theme.colors.buttonPrimary,
+    borderRadius: theme.radius.lg,
+    paddingVertical: theme.spacing.sm,
     width: '100%',
     alignItems: 'center',
-    shadowColor: '#508DF7',
+    shadowColor: theme.colors.buttonPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
     elevation: 6,
   },
   btnPrimaryText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-    fontFamily: 'Lexend',
+    color: theme.colors.textWhite,
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: theme.typography.fontWeight.bold,
+    fontFamily: theme.typography.fontFamily.bold,
   },
 });

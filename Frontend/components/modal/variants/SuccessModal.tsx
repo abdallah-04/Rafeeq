@@ -1,12 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { SuccessVariant } from '../ModalProvider';
+import { theme } from '@/theme';
 
 interface Props {
   variant?: SuccessVariant;
-  taskName?: string;  // used by 'greatJob'
-  date?: string;      // used by 'greatJob'
+  taskName?: string;
+  date?: string;
   onHide: () => void;
 }
 
@@ -14,43 +15,49 @@ const VARIANT_KEYS: Record<
   SuccessVariant,
   { title: string; message: string; btnLabel: string; autoClose?: boolean }
 > = {
-  greatJob:       { title: 'modal.success.greatJob.title',       message: 'modal.success.greatJob.message',       btnLabel: 'modal.success.btn.okay'      },
-  reportAdded:    { title: 'modal.success.reportAdded.title',    message: 'modal.success.reportAdded.message',    btnLabel: 'modal.success.btn.okay'      },
-  hwAdded:        { title: 'modal.success.hwAdded.title',        message: 'modal.success.hwAdded.message',        btnLabel: 'modal.success.btn.okay'      },
-  noteAdded:      { title: 'modal.success.noteAdded.title',      message: 'modal.success.noteAdded.message',      btnLabel: 'modal.success.btn.okay'      },
-  saved:          { title: 'modal.success.saved.title',          message: 'modal.success.saved.message',          btnLabel: 'modal.success.btn.okay'      },
-  downloadDone:   { title: 'modal.success.downloadDone.title',   message: 'modal.success.downloadDone.message',   btnLabel: 'modal.success.btn.okay'      },
-  passwordUpdate: { title: 'modal.success.passwordUpdate.title', message: 'modal.success.passwordUpdate.message', btnLabel: 'modal.success.btn.okay'      },
-  submitSuccess:  { title: 'modal.success.submitSuccess.title',  message: 'modal.success.submitSuccess.message',  btnLabel: 'modal.success.btn.okay'      },
+  greatJob:       { title: 'modal.success.greatJob.title',       message: 'modal.success.greatJob.message',       btnLabel: 'modal.success.btn.okay' },
+  reportAdded:    { title: 'modal.success.reportAdded.title',    message: 'modal.success.reportAdded.message',    btnLabel: 'modal.success.btn.okay' },
+  hwAdded:        { title: 'modal.success.hwAdded.title',        message: 'modal.success.hwAdded.message',        btnLabel: 'modal.success.btn.okay' },
+  noteAdded:      { title: 'modal.success.noteAdded.title',      message: 'modal.success.noteAdded.message',      btnLabel: 'modal.success.btn.okay' },
+  saved:          { title: 'modal.success.saved.title',          message: 'modal.success.saved.message',          btnLabel: 'modal.success.btn.okay' },
+  downloadDone:   { title: 'modal.success.downloadDone.title',   message: 'modal.success.downloadDone.message',   btnLabel: 'modal.success.btn.okay' },
+  passwordUpdate: { title: 'modal.success.passwordUpdate.title', message: 'modal.success.passwordUpdate.message', btnLabel: 'modal.success.btn.okay' },
+  submitSuccess:  { title: 'modal.success.submitSuccess.title',  message: 'modal.success.submitSuccess.message',  btnLabel: 'modal.success.btn.okay' },
   childAdded:     { title: 'modal.success.childAdded.title',     message: 'modal.success.childAdded.message',     btnLabel: 'modal.success.btn.okay', autoClose: true },
 };
 
-export default function SuccessModal({ variant = 'saved', taskName, date, onHide }: Props) {
+export default function SuccessModal({
+  variant = 'saved',
+  taskName,
+  date,
+  onHide,
+}: Props) {
   const { t } = useTranslation();
   const keys = VARIANT_KEYS[variant];
 
-  const [countdown, setCountdown] = React.useState(3);
+  const [countdown, setCountdown] = useState(3);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (!keys.autoClose) return;
+
     setCountdown(3);
 
     timerRef.current = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          onHide();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCountdown((prev) => prev - 1);
     }, 1000);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [variant]); 
+  }, [variant, keys.autoClose]);
+
+  useEffect(() => {
+    if (!keys.autoClose) return;
+    if (countdown <= 0) {
+      onHide();
+    }
+  }, [countdown, keys.autoClose]);
 
   return (
     <View style={styles.card}>
@@ -90,13 +97,13 @@ export default function SuccessModal({ variant = 'saved', taskName, date, onHide
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius['2xl'],
     paddingHorizontal: 28,
     paddingTop: 32,
     paddingBottom: 28,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: theme.colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
@@ -106,31 +113,31 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#22C55E',
+    backgroundColor: theme.colors.success,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
   },
   iconText: {
-    color: '#FFFFFF',
+    color: theme.colors.textWhite,
     fontSize: 30,
-    fontWeight: '800',
+    fontWeight: theme.typography.fontWeight.bold,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#334155',
+    fontSize: theme.typography.fontSize.xl,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.textPrimary,
     textAlign: 'center',
     marginBottom: 10,
-    fontFamily: 'Lexend',
+    fontFamily: theme.typography.fontFamily.bold,
   },
   message: {
-    fontSize: 14,
-    color: '#64748B',
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 24,
-    fontFamily: 'Lexend',
+    fontFamily: theme.typography.fontFamily.regular,
   },
   greatJobInfo: {
     gap: 6,
@@ -138,42 +145,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   greatJobLine: {
-    fontSize: 14,
-    color: '#475569',
-    fontFamily: 'Lexend',
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.typography.fontFamily.regular,
   },
   btn: {
-    backgroundColor: '#508DF7',
-    borderRadius: 16,
-    paddingVertical: 14,
+    backgroundColor: theme.colors.buttonPrimary,
+    borderRadius: theme.radius.lg,
+    paddingVertical: theme.spacing.sm,
     width: '100%',
     alignItems: 'center',
-    shadowColor: '#508DF7',
+    shadowColor: theme.colors.buttonPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
     elevation: 6,
   },
   btnText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-    fontFamily: 'Lexend',
+    color: theme.colors.textWhite,
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: theme.typography.fontWeight.bold,
+    fontFamily: theme.typography.fontFamily.bold,
   },
   countdownWrapper: {
-    marginTop: 16,
+    marginTop: theme.spacing.md,
     width: 44,
     height: 44,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: '#22C55E',
+    borderColor: theme.colors.success,
     justifyContent: 'center',
     alignItems: 'center',
   },
   countdownText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#22C55E',
-    fontFamily: 'Lexend',
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.success,
+    fontFamily: theme.typography.fontFamily.bold,
   },
 });

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useModal } from '../ModalProvider';
+import { theme } from '@/theme';
 
 interface Props {
   onHide: () => void;
@@ -22,7 +23,7 @@ export default function AddChildModal({ onHide }: Props) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
- function validate(id: string): boolean {
+  function validate(id: string): boolean {
     if (!id.trim()) {
       setError(t('modal.addChild.error.empty'));
       return false;
@@ -35,16 +36,12 @@ export default function AddChildModal({ onHide }: Props) {
     return true;
   }
 
-  // ── Submit ─────────────────────────────────────────────────────────────────
   async function handleOkay() {
     if (!validate(nationalId)) return;
 
     setLoading(true);
     try {
-      // TODO: replace with real API call when backend is ready
-      // await addChildByNationalId(nationalId);
-      await new Promise(res => setTimeout(res, 600)); 
-
+      await new Promise(res => setTimeout(res, 600));
       show('success', { variant: 'childAdded' });
     } catch {
       show('error', { variant: 'invalidId' });
@@ -68,7 +65,7 @@ export default function AddChildModal({ onHide }: Props) {
         <TextInput
           style={styles.input}
           placeholder={t('modal.addChild.placeholder')}
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor={theme.colors.textMuted}
           value={nationalId}
           onChangeText={text => {
             setNationalId(text);
@@ -90,7 +87,7 @@ export default function AddChildModal({ onHide }: Props) {
         disabled={loading}
       >
         {loading ? (
-          <ActivityIndicator color="#FFFFFF" />
+          <ActivityIndicator color={theme.colors.textWhite} />
         ) : (
           <Text style={styles.btnText}>{t('modal.addChild.btn.okay')}</Text>
         )}
@@ -101,12 +98,12 @@ export default function AddChildModal({ onHide }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    paddingHorizontal: 24,
-    paddingTop: 24,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius['2xl'],
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
     paddingBottom: 28,
-    shadowColor: '#000',
+    shadowColor: theme.colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
@@ -116,73 +113,72 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: theme.spacing.sm,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#334155',
-    fontFamily: 'Lexend',
+    fontSize: theme.typography.fontSize.xl,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.typography.fontFamily.bold,
   },
   closeBtn: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: theme.colors.surfaceElevated,
     justifyContent: 'center',
     alignItems: 'center',
   },
   closeIcon: {
     fontSize: 14,
-    color: '#64748B',
-    fontWeight: '600',
+    color: theme.colors.textSecondary,
+    fontWeight: theme.typography.fontWeight.semiBold,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#64748B',
-    marginBottom: 20,
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.lg,
     lineHeight: 20,
-    fontFamily: 'Lexend',
+    fontFamily: theme.typography.fontFamily.regular,
   },
   inputWrapper: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 15,
+    backgroundColor: theme.colors.inputBackground,
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderColor: theme.colors.inputBorder,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
     marginBottom: 6,
-    // subtle shadow
-    shadowColor: '#000',
+    shadowColor: theme.colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
     elevation: 2,
   },
   inputError: {
-    borderColor: '#EF4444',
+    borderColor: theme.colors.error,
   },
   input: {
-    fontSize: 15,
-    color: '#334155',
-    fontFamily: 'Lexend',
+    fontSize: theme.typography.fontSize.base,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.typography.fontFamily.regular,
     padding: 0,
   },
   errorText: {
-    fontSize: 12,
-    color: '#EF4444',
-    marginBottom: 12,
+    fontSize: theme.typography.fontSize.xs,
+    color: theme.colors.error,
+    marginBottom: theme.spacing.sm,
     marginLeft: 4,
-    fontFamily: 'Lexend',
+    fontFamily: theme.typography.fontFamily.regular,
   },
   btn: {
-    backgroundColor: '#508DF7',
-    borderRadius: 16,
-    paddingVertical: 14,
+    backgroundColor: theme.colors.buttonPrimary,
+    borderRadius: theme.radius.lg,
+    paddingVertical: theme.spacing.sm,
     width: '100%',
     alignItems: 'center',
-    marginTop: 8,
-    shadowColor: '#508DF7',
+    marginTop: theme.spacing.sm,
+    shadowColor: theme.colors.buttonPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
@@ -192,9 +188,9 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   btnText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-    fontFamily: 'Lexend',
+    color: theme.colors.textWhite,
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: theme.typography.fontWeight.bold,
+    fontFamily: theme.typography.fontFamily.bold,
   },
 });
