@@ -18,12 +18,14 @@ type Difficulty = "ADD" | "ADHD" | "IFD";
 type Status = "Active" | "Inactive";
 
 interface Student {
-  id: string
-  name: string
-  level: number
-  difficulty: Difficulty
-  progress: number
+  id: string;
+  name: string;
+  level: number;
+  difficulty: Difficulty;
+  status: Status;
+  progress: number;
 }
+
 
 const MOCK_STUDENTS: Student[] = [
   { id: "1", name: "Ayoub Maher", level: 3, difficulty: "ADD",  status: "Active", progress: 62 },
@@ -61,215 +63,322 @@ function EmptyState({ t }: { t: any }) {
   );
 }
 
-function StudentCard({ student }: { student: Student }) {
+
+function StudentCard({ student, t }: { student: Student; t: any }) {
+  const diffColor = DIFFICULTY_COLORS[student.difficulty];
+
   return (
     <TouchableOpacity
-      onPress={() => router.push(`/(school)/student/${student.id}` as any)}
-      activeOpacity={0.7}
+      style={styles.studentCard}
+      onPress={() => router.push(`/(school)/student/${student.id}`)}
+      accessibilityRole="button"
+      accessibilityLabel={student.name}
     >
-      <Card variant="elevated" padded style={styles.card}>
-        <View style={styles.cardRow}>
-          <Avatar name={student.name} size="md" />
-          <View style={styles.cardInfo}>
-            <View style={styles.cardTopRow}>
-              <Text variant="body" style={styles.studentName}>{student.name}</Text>
-              <View style={styles.activeBadge}>
-                <Text style={styles.activeText}>Active</Text>
-              </View>
-            </View>
-            <View style={styles.tagsRow}>
-              <Badge label={`Level ${student.level}`} variant="blue" />
-              <Badge label={student.difficulty} variant={DIFFICULTY_BADGE[student.difficulty]} />
-            </View>
-            <ProgressBar value={student.progress} height={6} showLabel={false} />
-            <Text variant="caption" color="textSecondary" style={styles.progressText}>
-              {student.progress}%
+      <View style={styles.avatar}>
+        <Text style={styles.avatarText}>{student.name.charAt(0)}</Text>
+      </View>
+
+      <View style={styles.studentInfo}>
+
+        <View style={styles.topRow}>
+          <Text style={styles.studentName}>{student.name}</Text>
+          <View style={styles.statusBadge}>
+            <Text style={styles.statusText}>{t("students.active")}</Text>
+          </View>
+        </View>
+
+        <View style={styles.tagsRow}>
+          <View style={styles.levelBadge}>
+            <Text style={styles.levelText}>
+              {t("students.level")} {student.level}
+            </Text>
+          </View>
+          <View style={[styles.diffBadge, { backgroundColor: diffColor.bg }]}>
+            <Text style={[styles.diffText, { color: diffColor.text }]}>
+              {student.difficulty}
             </Text>
           </View>
         </View>
-      </Card>
+
+        <View style={styles.progressBarBg}>
+          <View style={[styles.progressBarFill, { width: `${student.progress}%` }]} />
+        </View>
+        <Text style={styles.progressText}>{student.progress}%</Text>
+
+      </View>
     </TouchableOpacity>
-  )
+  );
 }
 
-function EmptyState({ t }: { t: any }) {
+
+function PopulatedList({ students, t }: { students: Student[]; t: any }) {
   return (
-    <View style={styles.emptyContainer}>
-      <Image
-        source={require('@/assets/images/mascot/rafeeq_waving.png')}
-        style={styles.emptyImage}
-        resizeMode="contain"
-      />
-      <Text variant="heading" style={styles.emptyTitle}>{t('students.emptyTitle')}</Text>
-      <Text variant="caption" color="textSecondary" style={styles.emptySubtitle}>
-        {t('students.emptySubtitle')}
-      </Text>
-      <View style={styles.ghostCard} />
-      <View style={styles.ghostCard} />
-      <Button
-        label={t('students.addFirst')}
-        onPress={() => router.push('/(school)/add-student')}
-        style={styles.ctaBtn}
-      />
+    <View style={styles.listContainer}>
+      {students.map((student) => (
+        <StudentCard key={student.id} student={student} t={t} />
+      ))}
+      <TouchableOpacity
+        style={styles.ghostCardAdd}
+        onPress={() => router.push("/(school)/add-student")}
+      >
+        <Text style={styles.ghostCardPlus}>+</Text>
+      </TouchableOpacity>
     </View>
-  )
+  );
 }
+
 
 export default function StudentsScreen() {
-  const { t } = useTranslation()
-  const [students] = useState(MOCK_STUDENTS)
-  const isEmpty = students.length === 0
+  const { t } = useTranslation();
+  const [students] = useState(MOCK_STUDENTS); 
 
-  const AddButton = (
-    <TouchableOpacity
-      style={styles.addBtn}
-      onPress={() => router.push('/(school)/add-student')}
-    >
-      <Text style={styles.addBtnText}>+</Text>
-    </TouchableOpacity>
-  )
+  const isEmpty = students.length === 0;
 
   return (
-    <ScreenWrapper scroll={false} padded={false}>
-      <StatusBar style="dark" />
-      <Header title={t('students.title')} rightElement={AddButton} />
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
 
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{t("students.title")}</Text>
+        <TouchableOpacity
+          style={styles.addBtn}
+          onPress={() => router.push("/(school)/add-student")}
+          accessibilityRole="button"
+          accessibilityLabel={t("students.addStudent")}
+        >
+          <Text style={styles.addBtnText}>+</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.container}>
         {isEmpty ? (
           <EmptyState t={t} />
         ) : (
-          <View style={styles.list}>
-            {students.map(s => <StudentCard key={s.id} student={s} />)}
-            <TouchableOpacity
-              style={styles.ghostCardAdd}
-              onPress={() => router.push('/(school)/add-student')}
-            >
-              <Text style={styles.ghostPlus}>+</Text>
-            </TouchableOpacity>
-          </View>
+          <PopulatedList students={students} t={t} />
         )}
       </ScrollView>
-    </ScreenWrapper>
-  )
+    </SafeAreaView>
+  );
 }
 
+
 const styles = StyleSheet.create({
-  scroll: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.lg,
-  },
-  list: {
-    gap: spacing.md,
-  },
-
-  /* Card */
-  card: {
-    gap: spacing.sm,
-  },
-  cardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  cardInfo: {
+  safe: {
     flex: 1,
-    gap: spacing.xs,
+    backgroundColor: Colors.white,
   },
-  cardTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
-  studentName: {
-    fontFamily: typography.fontFamily.bold,
-    color: colors.textPrimary,
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: "Lexend-Bold",
+    fontWeight: "700",
+    color: Colors.textDark,
   },
-  activeBadge: {
-    backgroundColor: colors.successLight,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-  },
-  activeText: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.success,
-  },
-  tagsRow: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-  },
-  progressText: {
-    textAlign: 'right',
-    marginTop: 2,
-  },
-
-  /* Add button in header */
   addBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.full,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
   },
   addBtnText: {
-    fontSize: 22,
-    color: colors.white,
-    fontFamily: typography.fontFamily.regular,
-    lineHeight: 26,
+    fontSize: 24,
+    color: Colors.white,
+    fontWeight: "300",
+    lineHeight: 28,
+  },
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.xl,
   },
 
-  /* Empty state */
+  // Empty state
   emptyContainer: {
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingTop: spacing.lg,
+    flex: 1,
+    alignItems: "center",
+    paddingTop: Spacing.xl,
+    gap: Spacing.md,
   },
-  emptyImage: {
+  emptyPenguin: {
     width: 120,
     height: 120,
   },
   emptyTitle: {
-    textAlign: 'center',
-    color: colors.textPrimary,
+    fontSize: 18,
+    fontFamily: "Lexend-Bold",
+    fontWeight: "700",
+    color: Colors.textDark,
+    textAlign: "center",
+    marginTop: Spacing.md,
   },
   emptySubtitle: {
-    textAlign: 'center',
+    fontSize: 13,
+    fontFamily: "Lexend-Regular",
+    color: Colors.textMedium,
+    textAlign: "center",
     lineHeight: 20,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: Spacing.xl,
   },
   ghostCard: {
-    width: '100%',
+    width: "100%",
     height: 88,
-    borderRadius: radius.lg,
+    borderRadius: Radius.lg,
     borderWidth: 1.5,
-    borderColor: colors.border,
-    borderStyle: 'dashed',
-    backgroundColor: colors.surfaceElevated,
+    borderColor: Colors.border,
+    borderStyle: "dashed",
+    backgroundColor: Colors.background,
   },
-  ctaBtn: {
-    width: '100%',
-    marginTop: spacing.sm,
+  ctaButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: Radius.md,
+    height: 52,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: Spacing.md,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  ctaButtonText: {
+    fontFamily: "Lexend-Bold",
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.white,
+  },
+
+  // Populated list
+  listContainer: {
+    gap: Spacing.md,
+  },
+  studentCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.white,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+    gap: Spacing.md,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  avatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: Colors.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    fontSize: 22,
+    fontFamily: "Lexend-Bold",
+    fontWeight: "700",
+    color: Colors.primary,
+  },
+  studentInfo: {
+    flex: 1,
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  studentName: {
+    fontSize: 15,
+    fontFamily: "Lexend-Bold",
+    fontWeight: "700",
+    color: Colors.textDark,
+  },
+  statusBadge: {
+    backgroundColor: "#E6F9F0",
+    borderRadius: 99,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  statusText: {
+    fontSize: 11,
+    fontFamily: "Lexend-SemiBold",
+    color: "#22C55E",
+    fontWeight: "600",
+  },
+  tagsRow: {
+    flexDirection: "row",
+    gap: Spacing.sm,
+    marginBottom: 8,
+  },
+  levelBadge: {
+    backgroundColor: "#EFF6FF",
+    borderRadius: 99,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  levelText: {
+    fontSize: 11,
+    fontFamily: "Lexend-SemiBold",
+    color: "#3B82F6",
+    fontWeight: "600",
+  },
+  diffBadge: {
+    borderRadius: 99,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  diffText: {
+    fontSize: 11,
+    fontFamily: "Lexend-SemiBold",
+    fontWeight: "600",
+  },
+  progressBarBg: {
+    height: 6,
+    backgroundColor: Colors.border,
+    borderRadius: 99,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: Colors.primary,
+    borderRadius: 99,
+  },
+  progressText: {
+    fontSize: 11,
+    fontFamily: "Lexend-SemiBold",
+    color: Colors.textMedium,
+    textAlign: "right",
+    marginTop: 4,
   },
   ghostCardAdd: {
     height: 88,
-    borderRadius: radius.lg,
+    borderRadius: Radius.lg,
     borderWidth: 1.5,
-    borderColor: colors.border,
-    borderStyle: 'dashed',
-    backgroundColor: colors.surfaceElevated,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: Colors.border,
+    borderStyle: "dashed",
+    backgroundColor: Colors.background,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  ghostPlus: {
+  ghostCardPlus: {
     fontSize: 28,
-    color: colors.textSecondary,
-    fontFamily: typography.fontFamily.regular,
+    color: Colors.textLight,
+    fontWeight: "300",
   },
-})
+});
