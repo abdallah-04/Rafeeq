@@ -8,7 +8,7 @@
     "scheme": "borrowbooks",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/mascot/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,10 +17,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#E6F4FE"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.abdallah.ammanlibrary"
@@ -42,7 +40,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "f56caf0e-fc37-4182-805c-23dd41318fc3"
+        "projectId": "bcc9754a-427f-4689-959b-b68e8f8d4ff1"
       }
     }
   }

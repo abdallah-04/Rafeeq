@@ -15,7 +15,7 @@ const SLIDES = [
     titleKey:   'onboarding.slide1.title',
     descKey:    'onboarding.slide1.subtitle',
     image:      require('@/assets/images/mascot/rafeeq_reading.png'),
-    background: require('@/assets/images/background/onboarding1.png'),
+    background: require('@/assets/images/background/onboarding3.png'),
   },
   {
     titleKey:   'onboarding.slide2.title',
