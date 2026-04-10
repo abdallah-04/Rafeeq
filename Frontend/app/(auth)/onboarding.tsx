@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image, ImageBackground, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,19 +12,22 @@ const { colors, spacing, typography, radius } = theme;
 
 const SLIDES = [
   {
-    titleKey: 'onboarding.slide1.title',
-    descKey:  'onboarding.slide1.subtitle',
-    image:    require('@/assets/images/mascot/rafeeq_reading.png'),
+    titleKey:   'onboarding.slide1.title',
+    descKey:    'onboarding.slide1.subtitle',
+    image:      require('@/assets/images/mascot/rafeeq_reading.png'),
+    background: require('@/assets/images/background/onboarding1.png'),
   },
   {
-    titleKey: 'onboarding.slide2.title',
-    descKey:  'onboarding.slide2.subtitle',
-    image:    require('@/assets/images/mascot/rafeeq_reading.png'),
+    titleKey:   'onboarding.slide2.title',
+    descKey:    'onboarding.slide2.subtitle',
+    image:      require('@/assets/images/mascot/rafeeq_clabbing.png'),
+    background: require('@/assets/images/background/onboarding2.png'),
   },
   {
-    titleKey: 'onboarding.slide3.title',
-    descKey:  'onboarding.slide3.subtitle',
-    image:    require('@/assets/images/mascot/rafeeq_reading.png'),
+    titleKey:   'onboarding.slide3.title',
+    descKey:    'onboarding.slide3.subtitle',
+    image:      require('@/assets/images/mascot/rafeeq_like.png'),
+    background: require('@/assets/images/background/onboarding1.png'),
   },
 ];
 
@@ -50,9 +53,14 @@ export default function OnboardingScreen() {
       </View>
 
       {/* Image */}
-      <View style={styles.imageBox}>
+      <ImageBackground
+        source={slide.background}
+        style={styles.imageBox}
+        imageStyle={styles.imageBg}
+        resizeMode="cover"
+      >
         <Image source={slide.image} style={styles.image} resizeMode="contain" />
-      </View>
+      </ImageBackground>
 
       {/* Dots */}
       <View style={styles.dots}>
@@ -113,11 +121,24 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    marginVertical: spacing.sm,
+    width: '100%',
+    height: '100%',
+  },
+
+  imageBg: {
+    width: 340,
+    height: 316,  
+    flex: 1,
+    alignSelf: 'stretch',
+    //borderRadius: radius.sm,
   },
 
   image: {
-    width: 240,
-    height: 240,
+    width: 140,
+    height: 140,
   },
 
   dots: {

@@ -77,7 +77,7 @@ export default function SignUpParentScreen() {
             showsVerticalScrollIndicator={false}
             >
             {/* Header */}
-            <BackButton />
+            <BackButton onPress={router.back} />
 
             <Text style={styles.title}>Welcome to RAFEEQ</Text>
             <Text style={styles.subtitle}>

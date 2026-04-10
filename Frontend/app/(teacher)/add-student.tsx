@@ -1,16 +1,16 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   ScrollView, TextInput, Image,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
-
-const MALE_PING   = require('@/assets/images/mascot/male_ping.png');
-const FEMALE_PING = require('@/assets/images/mascot/female_ping.png');
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import BackButton from '@/components/BackButton';
+
+const MALE_PING   = require('@/assets/images/mascot/rafeeq_like.png');
+const FEMALE_PING = require('@/assets/images/mascot/rafeeqa.png');
 
 const CONDITIONS = ['ADD', 'ADHD', 'IFD', 'Autism', 'Down Syndrome', 'Other'];
 

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, StatusBar, Image, ImageSourcePropType } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,11 +13,11 @@ import { theme } from '@/theme';
 
 const { colors, spacing, typography, radius } = theme;
 
-type Role = 'parent' | 'school';
+type Role = 'parent' | 'school' | 'teacher';
 
 interface RoleOption {
   key: Role;
-  icon: string;
+  icon: ImageSourcePropType;
   titleKey: string;
   descKey: string;
   route: string;
@@ -26,26 +26,25 @@ interface RoleOption {
 const ROLES: RoleOption[] = [
   {
     key: 'parent',
-    icon: '👨‍👩‍👧',
+    icon: require('@/assets/images/icons/family.png'),
     titleKey: 'roleSelect.parentTitle',
     descKey: 'roleSelect.parentDesc',
     route: '/(auth)/signUp-parent',
   },
   {
     key: 'school',
-    icon: '🏫',
+    icon: require('@/assets/images/icons/school-icon.png'),
     titleKey: 'roleSelect.schoolTitle',
     descKey: 'roleSelect.schoolDesc',
     route: '/(auth)/signup-school',
   },
-    {
-    key: "teacher",
-    icon: "👩‍🏫",
-    titleKey: "roleSelect.teacherTitle",
-    descKey: "roleSelect.teacherDesc",
-    route: "/(teacher)/students",
+  {
+    key: 'teacher',
+    icon: require('@/assets/images/icons/influencer.png'),
+    titleKey: 'roleSelect.teacherTitle',
+    descKey: 'roleSelect.teacherDesc',
+    route: '/(teacher)/students',
   },
-
 ];
 
 function RoleCard({ option, onPress }: { option: RoleOption; onPress: (r: string) => void }) {
@@ -63,7 +62,7 @@ function RoleCard({ option, onPress }: { option: RoleOption; onPress: (r: string
         style={styles.card}
       >
         <View style={styles.iconCircle}>
-          <Text style={styles.icon}>{option.icon}</Text>
+          <Image source={option.icon} style={styles.icon} resizeMode="contain" />
         </View>
         <View style={styles.cardText}>
           <Text style={styles.cardTitle}>{t(option.titleKey)}</Text>
@@ -98,7 +97,7 @@ export default function RoleSelectionScreen() {
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
       <View style={styles.topBar}>
-        <BackButton />
+        <BackButton onPress={router.back} />
       </View>
 
       <View style={styles.body}>
@@ -200,7 +199,9 @@ const styles = StyleSheet.create({
   },
 
   icon: {
-    fontSize: 26,
+    width: 30,
+    height: 30,
+    tintColor: colors.primary,
   },
 
   cardText: {

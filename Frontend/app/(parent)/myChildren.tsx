@@ -95,7 +95,7 @@ export default function MyChildrenListScreen() {
 
         {/* Header */}
         <View style={styles.header}>
-            <BackButton />
+            <BackButton onPress={router.back} />
             <Text style={styles.headerTitle}>My children</Text>
             <View style={{ width: 36 }} />
         </View>

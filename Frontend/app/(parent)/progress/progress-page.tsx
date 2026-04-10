@@ -49,15 +49,15 @@ export default function ProgressScreen() {
 
     const handleTabChange = (tab: string) => {
         if (tab === 'Quizes') {
-        router.replace('/(parent)/quiz')
+        router.replace('/(parent)/progress/quiz')
         return
         }
         if (tab === 'Activities') {
-        router.replace('/(parent)/activities')
+        router.replace('/(parent)/progress/activities')
         return
         }
         if (tab === 'Homeworks') {
-            router.replace('/(parent)/homeworks')
+            router.replace('/(parent)/progress/homeworks')
             return
         }
         setActiveTab(tab)

@@ -53,11 +53,10 @@ export default function LoginScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
 
-          <BackButton />
+          <BackButton onPress={() => router.back()} />
 
           {/* Mascot */}
           <View style={styles.mascotWrap}>
-            {/*<Text style={styles.mascotEmoji}>🐧</Text>*/}
             <Image source={require('@/assets/images/mascot/rafeeq_like.png')} style={{ width: 120, height: 120 }} />
           </View>
 

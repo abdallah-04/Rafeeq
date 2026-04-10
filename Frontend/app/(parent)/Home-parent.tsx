@@ -38,10 +38,10 @@ const PARENT_NAME = "Ayoub";
 
 /* ── Quick access items ── */
 const QUICK_ACCESS = [
-    { label: 'School page',      icon: require('@/assets/images/icons/school-icon.png'), iconColor: colors.primary,   containerColor: colors.primaryLighter, route: '/(parent)/school-parent'       },
-    { label: 'Progress Reports', icon: require('@/assets/images/icons/growth.png'),      iconColor: '#059669',        containerColor: '#D1FAE5',             route: '/(parent)/progress-page' },
-    { label: 'Roadmap',             icon: require('@/assets/images/icons/roadmap.png'),     iconColor: '#A459D1',        containerColor: '#F3E8FF',             route: '/(parent)/tree'          },
-    { label: 'Expert advices',icon: require('@/assets/images/icons/influencer.png'),  iconColor: '#D97706',        containerColor: '#FEF3C7',             route: '/(parent)/se'            },
+    { label: 'School page',      icon: require('@/assets/images/icons/school-icon.png'), iconColor: colors.primary,   containerColor: colors.primaryLighter, route: '/(parent)/school/school-parent'       },
+    { label: 'Progress Reports', icon: require('@/assets/images/icons/growth.png'),      iconColor: '#059669',        containerColor: '#D1FAE5',             route: '/(parent)/progress/progress-page' },
+    { label: 'Roadmap',             icon: require('@/assets/images/icons/roadmap.png'),     iconColor: '#A459D1',        containerColor: '#F3E8FF',             route: '/(parent)/roadmap/roadmap'          },
+    { label: 'Expert advices',icon: require('@/assets/images/icons/influencer.png'),  iconColor: '#D97706',        containerColor: '#FEF3C7',             route: '/(parent)/expert-advice'            },
 ];
 
 function ChildCard() {

@@ -22,9 +22,9 @@ export default function ProgressReport() {
   const [activeTab, setActiveTab] = useState('Progress')
 
   const handleTabChange = (tab: string) => {
-    if (tab === 'Grades') router.replace('(parent)/school-parent')
-    else if (tab === 'HW & Tasks') router.replace('(parent)/school-parent')
-    else if (tab === 'Reports') router.replace('(parent)/school-reports')
+    if (tab === 'Grades') router.replace('(parent)/school/school-parent')
+    else if (tab === 'HW & Tasks') router.replace('(parent)/school/school-parent')
+    else if (tab === 'Reports') router.replace('(parent)/school/school-reports')
     else setActiveTab(tab)
   }
 

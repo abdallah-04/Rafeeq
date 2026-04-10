@@ -17,9 +17,9 @@ export default function TeacherReports() {
   const [selectedReport, setSelectedReport] = useState<number | null>(null)
 
   const handleTabChange = (tab: string) => {
-    if (tab === 'Grades') router.replace('(parent)/school-parent')
-    else if (tab === 'HW & Tasks') router.replace('(parent)/school-parent')
-    else if (tab === 'Progress') router.replace('(parent)/school-progress')
+    if (tab === 'Grades') router.replace('(parent)/school/school-parent')
+    else if (tab === 'HW & Tasks') router.replace('(parent)/school/school-parent')
+    else if (tab === 'Progress') router.replace('(parent)/school/school-progress')
     else setActiveTab(tab)
   }
 
