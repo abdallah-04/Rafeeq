@@ -66,7 +66,7 @@ export default function HomeworksMain() {
             icon={require('@/assets/images/icons/math.png')}
             iconBgColor="#D1FAE5"
             iconTintColor="#059669"
-            onPress={() => router.push('/(parent)/HomeworkDetail')}
+            onPress={() => router.push('/(parent)/progress/HomeworkDetail')}
           />
 
           {filter === 'todo' && (

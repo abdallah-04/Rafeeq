@@ -95,11 +95,11 @@
 
 //     const handleTabChange = (tab: string) => {
 //         if (tab === 'Progress') {
-//             router.replace('/(parent)/progress-page')
+//             router.replace('/(parent)/progress/progress-page')
 //             return
 //         }
 //         if (tab === 'Activities') {
-//             router.replace('/(parent)/activities')
+//             router.replace('/(parent)/progress/activities')
 //             return
 //         }
 //         setActiveTab(tab)
@@ -178,7 +178,7 @@
 //                         questionsCount={quiz.questionsCount}
 //                         durationMinutes={quiz.durationMinutes}
 //                         status={quiz.status}
-//                         onPress={() => router.push(`/(parent)/quiz/${quiz.id}` as any)}
+//                         onPress={() => router.push(`/(parent)/progress/quiz/${quiz.id}` as any)}
 //                     />
 //                 ))}
 //             </ScrollView>
@@ -346,15 +346,15 @@ export default function QuizzesScreen() {
 
     const handleTabChange = (tab: string) => {
         if (tab === 'Progress') {
-        router.replace('/(parent)/progress-page')
+        router.replace('/(parent)/progress/progress-page')
         return
         }
         if (tab === 'Activities') {
-        router.replace('/(parent)/activities')
+        router.replace('/(parent)/progress/activities')
         return
         }
         if (tab === 'Homeworks') {
-        router.replace('/(parent)/homeworks')
+        router.replace('/(parent)/progress/homeworks')
         return
     }
         setActiveTab(tab)
@@ -392,7 +392,7 @@ export default function QuizzesScreen() {
             <QuizCard
                 key={quiz.id}
                 {...quiz}
-                onPress={() => router.push(`/(parent)/quiz/${quiz.id}`)}
+                onPress={() => router.push(`/(parent)/progress/quiz/${quiz.id}`)}
             />
             ))}
         </ScrollView>

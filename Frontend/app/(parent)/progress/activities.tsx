@@ -87,15 +87,15 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
 
     const handleTabChange = (tab: string) => {
         if (tab === 'Progress') {
-        router.replace('/(parent)/progress-page')
+        router.replace('/(parent)/progress/progress-page')
         return
         }
         if (tab === 'Quizes') {
-        router.replace('/(parent)/quiz')
+        router.replace('/(parent)/progress/quiz')
         return
         }
         if (tab === 'Homeworks') {
-            router.replace('/(parent)/homeworks')
+            router.replace('/(parent)/progress/homeworks')
             return
         }
         setActiveTab(tab)

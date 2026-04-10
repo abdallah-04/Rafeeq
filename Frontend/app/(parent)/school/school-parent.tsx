@@ -16,8 +16,8 @@ export default function SchoolScreen() {
     const [activeTab, setActiveTab] = useState('Grades')
 
     const handleTabChange = (tab: string) => {
-        if (tab === 'Progress') router.replace('(parent)/school-progress')
-        else if (tab === 'Reports') router.replace('(parent)/school-reports')
+        if (tab === 'Progress') router.replace('(parent)/school/school-progress')
+        else if (tab === 'Reports') router.replace('(parent)/school/school-reports')
         else setActiveTab(tab)
     }
 

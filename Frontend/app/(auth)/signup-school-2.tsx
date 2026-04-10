@@ -29,13 +29,13 @@ export default function SchoolSignupStep2() {
 
   const onContinue = (data: SchoolStep2Form) => {
     setStep2(data)
-    router.push('/(auth)/school-welcome')
+    router.push('/(auth)/verify-school-phone')
   }
 
   return (
     <ScreenWrapper scroll={false} padded={false}>
       <StatusBar style="dark" />
-      <Header title={t('schoolSignup.title')} />
+      <Header title={t('Welcome to Rafeeq')} />
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
@@ -44,13 +44,13 @@ export default function SchoolSignupStep2() {
           showsVerticalScrollIndicator={false}
         >
           <Text variant="caption" color="textSecondary" style={styles.subtitle}>
-            {t('schoolSignup.subtitle')}
+            {t('continue setting up your school account')}
           </Text>
 
           <Card variant="elevated" padded style={styles.card}>
 
             {/* Phone */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.advisorPhone')}</Text>
+            <Text variant="label" style={styles.label}>{t('Advisor Phone')}</Text>
             <Controller
               control={control}
               name="advisorPhone"
@@ -73,7 +73,7 @@ export default function SchoolSignupStep2() {
             {errors.advisorPhone && <Text style={styles.error}>{errors.advisorPhone.message}</Text>}
 
             {/* Password */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.createPassword')}</Text>
+            <Text variant="label" style={styles.label}>{t('Create Password')}</Text>
             <Controller
               control={control}
               name="password"
@@ -96,7 +96,7 @@ export default function SchoolSignupStep2() {
             {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
             {/* Confirm Password */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.confirmPassword')}</Text>
+            <Text variant="label" style={styles.label}>{t('Confirm Password')}</Text>
             <Controller
               control={control}
               name="confirmPassword"
@@ -128,9 +128,9 @@ export default function SchoolSignupStep2() {
             </View>
 
             <Text variant="caption" style={styles.loginText}>
-              {t('schoolSignup.alreadyHaveAccount')}{' '}
+              {t('Already Have an account?')}{' '}
               <Text variant="caption" style={styles.loginLink} onPress={() => router.push('/(auth)/login')}>
-                {t('common.logIn')}
+                {t('log In')}
               </Text>
             </Text>
 
@@ -163,6 +163,8 @@ const styles = StyleSheet.create({
   },
   card: {
     gap: spacing.xs,
+    borderColor: colors.border,
+    borderWidth: 1,
   },
   label: {
     color: colors.textPrimary,
