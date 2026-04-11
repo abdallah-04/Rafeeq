@@ -154,9 +154,10 @@
     },
     "step2": {
       "title": "تحقق من هويتك",
-      "subtitle": "أكّد الرقم المنتهي بـ",
+      "subtitle": "سنرسل رمزاً إلى رقمك المنتهي بـ ******785",
       "label": "نهاية رقم الهاتف",
-      "placeholder": "آخر ٣ أرقام"
+      "placeholder": "آخر ٣ أرقام",
+      "sendCode": "أرسل الرمز"
     },
     "step3": {
       "title": "إنشاء كلمة مرور جديدة",
@@ -618,6 +619,14 @@
     "readTime": "دقيقة قراءة",
     "views": "مشاهدة",
     "likes": "إعجاب",
+    "featured": "مميّز",
+    "read": "اقرأ",
+    "follow": "+تابع",
+    "following": "متابَع",
+    "search_placeholder": "ابحث في المقالات...",
+    "saved_title": "المقالات المحفوظة",
+    "empty": "لا توجد مقالات محفوظة بعد",
+    "explore_btn": "استكشف المقالات",
     "categories": {
       "all": "الكل",
       "parenting": "التربية",
@@ -636,7 +645,9 @@
     "attachPhoto": "صورة من المعرض",
     "attachCamera": "الكاميرا",
     "attachFile": "رفع ملف",
-    "attachVoice": "رسالة صوتية"
+    "attachVoice": "رسالة صوتية",
+    "label_rafeeq": "رفيق",
+    "label_you": "أنت"
   },
 
   "profile": {
@@ -662,6 +673,10 @@
       "announcement": "إعلان",
       "achievement": "إنجاز"
     }
+  },
+
+  "banner": {
+    "keepGoing": "استمر! {{completed}} من {{total}} {{unit}} مكتمل {{period}}"
   },
 
   "modal": {

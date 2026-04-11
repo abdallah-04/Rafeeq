@@ -131,6 +131,10 @@
     }
   },
 
+  "banner": {
+    "keepGoing": "Keep Going! {{completed}} of {{total}} {{unit}} completed {{period}}"
+  },
+
   "forgotPassword": {
     "screenTitle": "Reset Password",
     "step1": {
@@ -141,9 +145,10 @@
     },
     "step2": {
       "title": "Verify your identity",
-      "subtitle": "Confirm the phone number ending with",
+      "subtitle": "We will send a code to your number ending with ******785",
       "label": "Phone number ending",
-      "placeholder": "Last 3 digits"
+      "placeholder": "Last 3 digits",
+      "sendCode": "Send Code"
     },
     "step3": {
       "title": "Create new password",
@@ -381,13 +386,21 @@
     "readTime": "min read",
     "views": "views",
     "likes": "likes",
+    "featured": "FEATURED",
+    "read": "Read",
+    "follow": "+follow",
+    "following": "Following",
+    "search_placeholder": "Search articles...",
+    "saved_title": "Saved Articles",
+    "empty": "No saved articles yet",
+    "explore_btn": "Explore articles",
     "categories": {
       "all": "All",
       "parenting": "Parenting",
       "special_needs": "Special Needs",
       "speech": "Speech",
       "learning": "Learning",
-      "behavioral": "Behavioral",
+      "behavioral": "Behavior",
       "motor": "Motor Skills"
     }
   },
@@ -396,10 +409,12 @@
     "title": "Rafeeq Assistant",
     "emptyGreeting": "How can I guide you today?",
     "inputPlaceholder": "Ask Rafeeq...",
-    "attachPhoto": "Photo from gallery",
+    "attachPhoto": "Photo from Gallery",
     "attachCamera": "Camera",
-    "attachFile": "Upload file",
-    "attachVoice": "Voice message"
+    "attachFile": "File Upload",
+    "attachVoice": "Voice Message",
+    "label_rafeeq": "RAFEEQ",
+    "label_you": "YOU"
   },
 
   "profile": {

@@ -5,13 +5,21 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  Modal,
-  Animated,
-  useWindowDimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
+
+import BackButton from '@/components/modal/shared/BackButton';
+import { useAuthStore } from '@/store/authStore';
+import { useModal } from '@/components/modal/ModalProvider';
+import { theme } from '@/theme';
+
+const { colors, spacing, typography, radius } = theme;
+
+// ─── Article data ─────────────────────────────────────────────────────────────
 
 const ARTICLE_DATA: Record<string, {
   id: string;
@@ -53,30 +61,70 @@ const ARTICLE_DATA: Record<string, {
     body: [
       'Reading is one of the most foundational skills a child can develop. Home support plays a critical role alongside formal schooling.',
       'Simple daily habits — reading aloud for 20 minutes, pointing to words as you read, and asking open questions about the story — can build strong literacy foundations.',
-      'Children with learning differences benefit greatly from multi-sensory approaches: seeing, hearing, and tracing letters simultaneously.',
+      '"Children with learning differences benefit greatly from multi-sensory approaches: seeing, hearing, and tracing letters simultaneously."',
+    ],
+  },
+  '3': {
+    id: '3',
+    category: 'Behavior',
+    readTime: '6 min read',
+    title: "Managing ADHD Symptoms: A Parent's Guide",
+    author: 'Dr. Omar Nassar',
+    views: '11k',
+    likes: 198,
+    saved: 22,
+    body: [
+      'ADHD is one of the most commonly diagnosed neurodevelopmental disorders in children. Understanding it is the first step toward effective management.',
+      '"Structure and routine are not restrictions — they are the scaffolding that allows children with ADHD to thrive within predictable boundaries."',
+      'Break tasks into small, achievable steps. Children with ADHD often feel overwhelmed by large tasks; chunking creates momentum.',
+      'Positive reinforcement works far better than punishment. Reward the effort, not just the result.',
+    ],
+  },
+  '4': {
+    id: '4',
+    category: 'Speech',
+    readTime: '4 min read',
+    title: 'Early Intervention: Why It Matters for Speech Delays',
+    author: 'Dr. Sarah Ahmed',
+    views: '9k',
+    likes: 176,
+    saved: 14,
+    body: [
+      'The first three years of life are a critical window for language development. During this time, the brain creates neural pathways at an extraordinary rate.',
+      '"Every interaction — reading, singing, talking — is building the architecture for language. This is why early speech therapy is so powerful."',
+      'Many parents wait too long before seeking help. But assessment is just assessment — it opens options, not closes them.',
+    ],
+  },
+  '5': {
+    id: '5',
+    category: 'Learning',
+    readTime: '7 min read',
+    title: 'Building Focus: Activities for Children with ADD',
+    author: 'Ms. Rania Khalil',
+    views: '6k',
+    likes: 112,
+    saved: 8,
+    body: [
+      'Attention Deficit Disorder (ADD) without hyperactivity is often overlooked because the child may seem quiet or daydreamy rather than disruptive.',
+      '"The challenge is not attention itself — children with ADD can hyperfocus on things they love. The challenge is directing attention on demand."',
+      'Structured play, puzzles, and short timed tasks help train the attention muscle. Start with 5-minute focus sessions and build gradually.',
     ],
   },
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Speech: '#4A90E2',
+  Speech:   '#4A90E2',
   Learning: '#7B61FF',
   Behavior: '#FF6B6B',
 };
 
-function SavedModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  return (
-    <Modal transparent animationType="fade" visible={visible} onRequestClose={onClose}>
-      <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
-        <View style={styles.savedModal}>
-          <Text style={styles.savedModalIcon}>🔖</Text>
-          <Text style={styles.savedModalTitle}>SAVED!</Text>
-          <Text style={styles.savedModalSub}>Article added to your saved list</Text>
-        </View>
-      </TouchableOpacity>
-    </Modal>
-  );
-}
+const CATEGORY_EMOJIS: Record<string, string> = {
+  Speech:   '🗣️',
+  Learning: '📚',
+  Behavior: '🧠',
+};
+
+// ─── Stat chip ────────────────────────────────────────────────────────────────
 
 function StatChip({ value, label }: { value: string | number; label: string }) {
   return (
@@ -88,41 +136,51 @@ function StatChip({ value, label }: { value: string | number; label: string }) {
 }
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
+
 export default function ArticleDetailScreen() {
-  const router = useRouter();
+  const router  = useRouter();
+  const { t }   = useTranslation();
+  const isRTL   = useAuthStore((s) => s.isRTL);
+  const { show } = useModal();
+
   const { id } = useLocalSearchParams<{ id: string }>();
   const article = ARTICLE_DATA[id ?? '1'] ?? ARTICLE_DATA['1'];
 
   const [bookmarked, setBookmarked] = useState(false);
-  const [showSaved, setShowSaved] = useState(false);
-  const [following, setFollowing] = useState(false);
+  const [following,  setFollowing]  = useState(false);
 
   const handleBookmark = () => {
     if (!bookmarked) {
       setBookmarked(true);
-      setShowSaved(true);
-      setTimeout(() => setShowSaved(false), 2000);
+      show('success', { variant: 'saved' });
     } else {
       setBookmarked(false);
     }
   };
 
   const color = CATEGORY_COLORS[article.category] ?? '#4A90E2';
+  const emoji = CATEGORY_EMOJIS[article.category] ?? '📄';
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFF" />
+      <StatusBar style="dark" />
 
-      {/* Top nav */}
-      <View style={styles.topNav}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.navTitle}>Article</Text>
-        <TouchableOpacity style={styles.bookmarkNavBtn} onPress={handleBookmark}>
-          <Text style={[styles.bookmarkNavIcon, bookmarked && styles.bookmarkNavIconActive]}>
-            {bookmarked ? '🔖' : '🔖'}
-          </Text>
+      {/* Top nav: back | title | bookmark */}
+      <View style={[styles.topNav, isRTL && styles.rowReverse]}>
+        <BackButton onPress={() => router.back()} />
+
+        <Text style={styles.navTitle}>{t('explore.title')}</Text>
+
+        <TouchableOpacity
+          style={[styles.bookmarkBtn, bookmarked && styles.bookmarkBtnActive]}
+          onPress={handleBookmark}
+          accessibilityLabel={t('explore.saved')}
+        >
+          <Ionicons
+            name={bookmarked ? 'bookmark' : 'bookmark-outline'}
+            size={22}
+            color={bookmarked ? colors.textWhite : colors.primary}
+          />
         </TouchableOpacity>
       </View>
 
@@ -131,171 +189,180 @@ export default function ArticleDetailScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header image */}
-        <View style={styles.headerImage}>
-          <Text style={styles.headerImagePlaceholder}>👨‍👩‍👧</Text>
+        {/* Hero image */}
+        <View style={styles.heroImage}>
+          <Text style={styles.heroEmoji}>{emoji}</Text>
         </View>
 
         <View style={styles.body}>
           {/* Category + read time */}
-          <View style={styles.metaRow}>
+          <View style={[styles.metaRow, isRTL && styles.rowReverse]}>
             <View style={[styles.categoryTag, { backgroundColor: color + '22' }]}>
               <Text style={[styles.categoryTagText, { color }]}>
                 {article.category.toUpperCase()}
               </Text>
             </View>
-            <Text style={styles.readTime}>{article.readTime}</Text>
+            <Text style={styles.readTime}>
+              {article.readTime}
+            </Text>
           </View>
 
           {/* Title */}
-          <Text style={styles.title}>{article.title}</Text>
+          <Text style={[styles.title, isRTL && styles.textRight]}>
+            {article.title}
+          </Text>
 
           {/* Author row */}
-          <View style={styles.authorRow}>
+          <View style={[styles.authorRow, isRTL && styles.rowReverse]}>
             <View style={styles.authorAvatar}>
               <Text style={styles.authorAvatarText}>{article.author.charAt(0)}</Text>
             </View>
-            <Text style={styles.authorName}>{article.author}</Text>
+            <Text style={[styles.authorName, { flex: 1 }]}>{article.author}</Text>
             <TouchableOpacity
               style={[styles.followBtn, following && styles.followBtnActive]}
               onPress={() => setFollowing(!following)}
+              accessibilityLabel={following ? t('explore.following') : t('explore.follow')}
             >
               <Text style={[styles.followBtnText, following && styles.followBtnTextActive]}>
-                {following ? '✓ following' : '+follow'}
+                {following ? `✓ ${t('explore.following')}` : t('explore.follow')}
               </Text>
             </TouchableOpacity>
           </View>
 
           {/* Stats */}
-          <View style={styles.statsRow}>
-            <StatChip value={article.views} label="views" />
-            <StatChip value={article.likes} label="likes" />
-            <StatChip value={article.saved} label="saved" />
+          <View style={[styles.statsRow, isRTL && styles.rowReverse]}>
+            <StatChip value={article.views} label={t('explore.views')} />
+            <StatChip value={article.likes} label={t('explore.likes')} />
+            <StatChip value={article.saved} label={t('explore.savedBadge')} />
           </View>
 
           {/* Divider */}
           <View style={styles.divider} />
 
-          {/* Body title */}
-          <Text style={styles.bodyTitle}>{article.title}</Text>
-
           {/* Body paragraphs */}
-          {article.body.map((para, i) => (
+          {article.body.map((para, i) =>
             para.startsWith('"') ? (
-              <View key={i} style={styles.quoteBlock}>
+              <View key={i} style={[styles.quoteBlock, isRTL && styles.rowReverse]}>
                 <View style={styles.quoteLine} />
-                <Text style={styles.quoteText}>{para}</Text>
+                <Text style={[styles.quoteText, isRTL && styles.textRight]}>{para}</Text>
               </View>
             ) : (
-              <Text key={i} style={styles.bodyText}>{para}</Text>
+              <Text key={i} style={[styles.bodyText, isRTL && styles.textRight]}>
+                {para}
+              </Text>
             )
-          ))}
+          )}
         </View>
       </ScrollView>
-
-      {/* Saved modal */}
-      <SavedModal visible={showSaved} onClose={() => setShowSaved(false)} />
     </SafeAreaView>
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F8FAFF',
+    backgroundColor: colors.background,
   },
 
-  // Top nav
+  rowReverse: { flexDirection: 'row-reverse' },
+  textRight:  { textAlign: 'right' },
+
+  // ── Top nav ─────────────────────────────────────
   topNav: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: '#F8FAFF',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  backBtn: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 22,
-    color: '#1A2B4A',
-  },
+
   navTitle: {
     flex: 1,
     textAlign: 'center',
-    fontFamily: 'Lexend_600SemiBold',
-    fontSize: 17,
-    color: '#1A2B4A',
+    fontFamily: typography.fontFamily.semiBold,
+    fontSize: typography.fontSize.lg,
+    color: colors.textPrimary,
   },
-  bookmarkNavBtn: {
+
+  bookmarkBtn: {
     width: 40,
     height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primaryLighter,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bookmarkNavIcon: {
-    fontSize: 20,
-    opacity: 0.4,
-  },
-  bookmarkNavIconActive: {
-    opacity: 1,
+
+  bookmarkBtnActive: {
+    backgroundColor: colors.primary,
   },
 
+  // ── Scroll ──────────────────────────────────────
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 40 },
+  scrollContent: { paddingBottom: 48 },
 
-  // Header image
-  headerImage: {
-    marginHorizontal: 20,
+  // ── Hero image ──────────────────────────────────
+  heroImage: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    marginBottom: spacing.lg,
     height: 200,
     backgroundColor: '#EEF3FF',
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
   },
-  headerImagePlaceholder: { fontSize: 72 },
 
-  body: { paddingHorizontal: 20 },
+  heroEmoji: { fontSize: 72 },
+
+  // ── Body ────────────────────────────────────────
+  body: { paddingHorizontal: spacing.lg },
 
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
+
   categoryTag: {
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
+
   categoryTagText: {
-    fontFamily: 'Lexend_700Bold',
+    fontFamily: typography.fontFamily.bold,
     fontSize: 11,
     letterSpacing: 0.4,
   },
+
   readTime: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 12,
-    color: '#A0AEC0',
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.xs,
+    color: colors.textMuted,
     marginLeft: 'auto',
   },
 
   title: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 20,
-    color: '#1A2B4A',
+    fontFamily: typography.fontFamily.bold,
+    fontSize: typography.fontSize.xl,
+    color: colors.textPrimary,
     lineHeight: 28,
-    marginBottom: 14,
+    marginBottom: spacing.md,
   },
 
+  // ── Author ──────────────────────────────────────
   authorRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
   },
+
   authorAvatar: {
     width: 34,
     height: 34,
@@ -303,142 +370,109 @@ const styles = StyleSheet.create({
     backgroundColor: '#BDD7FF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
-  },
-  authorAvatarText: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 13,
-    color: '#4A90E2',
-  },
-  authorName: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 13,
-    color: '#6B7A99',
-    flex: 1,
-  },
-  followBtn: {
-    borderWidth: 1.5,
-    borderColor: '#4A90E2',
-    borderRadius: 9999,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-  },
-  followBtnActive: {
-    backgroundColor: '#4A90E2',
-  },
-  followBtnText: {
-    fontFamily: 'Lexend_600SemiBold',
-    fontSize: 12,
-    color: '#4A90E2',
-  },
-  followBtnTextActive: {
-    color: '#fff',
   },
 
+  authorAvatarText: {
+    fontFamily: typography.fontFamily.bold,
+    fontSize: 13,
+    color: colors.primary,
+  },
+
+  authorName: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
+  },
+
+  followBtn: {
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    borderRadius: radius.full,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    minHeight: 32,
+    justifyContent: 'center',
+  },
+
+  followBtnActive: { backgroundColor: colors.primary },
+
+  followBtnText: {
+    fontFamily: typography.fontFamily.semiBold,
+    fontSize: 12,
+    color: colors.primary,
+  },
+
+  followBtnTextActive: { color: colors.textWhite },
+
+  // ── Stats ────────────────────────────────────────
   statsRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 20,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
+
   statChip: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 16,
-    paddingVertical: 10,
+    paddingVertical: spacing.sm,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
   },
+
   statValue: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 16,
-    color: '#1A2B4A',
+    fontFamily: typography.fontFamily.bold,
+    fontSize: typography.fontSize.base,
+    color: colors.textPrimary,
   },
+
   statLabel: {
-    fontFamily: 'Lexend_400Regular',
+    fontFamily: typography.fontFamily.regular,
     fontSize: 11,
-    color: '#A0AEC0',
+    color: colors.textMuted,
     marginTop: 2,
   },
 
+  // ── Content ──────────────────────────────────────
   divider: {
     height: 1,
-    backgroundColor: '#E8EEF8',
-    marginBottom: 20,
+    backgroundColor: colors.border,
+    marginBottom: spacing.lg,
   },
 
-  bodyTitle: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 18,
-    color: '#1A2B4A',
-    lineHeight: 26,
-    marginBottom: 14,
-  },
   bodyText: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.sm,
     color: '#4A5568',
     lineHeight: 22,
-    marginBottom: 14,
+    marginBottom: spacing.md,
   },
+
   quoteBlock: {
     flexDirection: 'row',
     backgroundColor: '#EEF3FF',
     borderRadius: 12,
-    padding: 14,
-    marginBottom: 14,
-    gap: 10,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
   },
+
   quoteLine: {
     width: 4,
-    backgroundColor: '#4A90E2',
+    backgroundColor: colors.primary,
     borderRadius: 2,
   },
+
   quoteText: {
     flex: 1,
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 13,
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.sm,
     color: '#4A5568',
     fontStyle: 'italic',
     lineHeight: 20,
-  },
-
-  // Saved modal
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  savedModal: {
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    padding: 32,
-    alignItems: 'center',
-    width: 240,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 10,
-  },
-  savedModalIcon: {
-    fontSize: 40,
-    marginBottom: 10,
-  },
-  savedModalTitle: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 22,
-    color: '#1A2B4A',
-    marginBottom: 6,
-  },
-  savedModalSub: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 13,
-    color: '#6B7A99',
-    textAlign: 'center',
   },
 });

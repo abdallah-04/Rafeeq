@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Text } from './Text';
 import { theme } from '@/theme';
+import { useAuthStore } from '@/store/authStore';
 
 type Props = {
     completed: number;
@@ -11,19 +13,26 @@ type Props = {
 };
 
 export default function KeepGoingBanner({ completed, total, unit, period }: Props) {
+  const { t } = useTranslation();
+  const isRTL = useAuthStore((s) => s.isRTL);
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-    return (
-        <View style={styles.container}>
-        <Text style={styles.text}>
-            Keep going! {completed}/{total} {unit} done {period} ({percentage}%)
-        </Text>
-
-        <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${percentage}%` }]} />
-        </View>
-        </View>
-    );
+  return (
+    <View style={styles.container}>
+      <Text style={[styles.text, isRTL && styles.textRight]}>
+        {t('banner.keepGoing', { completed, total, unit, period })}
+      </Text>
+      <View style={styles.progressBar}>
+        <View
+          style={[
+            styles.progressFill,
+            { width: `${percentage}%` },
+            isRTL && { transform: [{ scaleX: -1 }] },
+          ]}
+        />
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -36,12 +45,18 @@ const styles = StyleSheet.create({
     text: {
         color: theme.colors.textPrimary,
         marginBottom: theme.spacing.xs,
+        fontFamily: theme.typography.fontFamily.medium,
+        fontSize: theme.typography.fontSize.sm,
+    },
+    textRight: {
+        textAlign: 'right',
     },
     progressBar: {
         width: '100%',
         height: 10,
         backgroundColor: theme.colors.progressNotStarted,
         borderRadius: theme.radius.full,
+        overflow: 'hidden',
     },
     progressFill: {
         height: '100%',

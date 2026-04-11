@@ -18,17 +18,26 @@ import { Text } from '@/components/modal/shared/Text';
 import { Button } from '@/components/modal/shared/Button';
 import Input from '@/components/modal/shared/TextInput';
 import BackButton from '@/components/modal/shared/BackButton';
+import { useAuthStore } from '@/store/authStore';
+
+const { colors, spacing, typography, radius } = theme;
 
 type Step = 1 | 2 | 3 | 4;
 
-const step1Schema = z.object({ nationalId: z.string().min(1).length(10) });
-const step2Schema = z.object({ phone: z.string().min(1) });
+const step1Schema = z.object({
+  nationalId: z.string().length(10, 'forgotPassword.errors.nationalIdLength'),
+});
 const step3Schema = z
-  .object({ newPassword: z.string().min(8), confirmPassword: z.string() })
+  .object({
+    newPassword:     z.string().min(8, 'forgotPassword.errors.passwordTooShort'),
+    confirmPassword: z.string().min(1, 'forgotPassword.errors.confirmRequired'),
+  })
   .refine((d) => d.newPassword === d.confirmPassword, {
-    message: 'Passwords do not match',
+    message: 'forgotPassword.errors.passwordMismatch',
     path: ['confirmPassword'],
   });
+
+// ─── Step dots ────────────────────────────────────────────────────────────────
 
 function StepDots({ current }: { current: Step }) {
   return (
@@ -40,100 +49,173 @@ function StepDots({ current }: { current: Step }) {
   );
 }
 
+// ─── Step 1: National ID ──────────────────────────────────────────────────────
+
 function Step1({ onNext }: { onNext: () => void }) {
-  const { control, handleSubmit } = useForm({ resolver: zodResolver(step1Schema) });
+  const { t } = useTranslation();
+  const isRTL = useAuthStore((s) => s.isRTL);
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(step1Schema),
+    defaultValues: { nationalId: '' },
+  });
+
   return (
     <View style={styles.stepContainer}>
       <Text style={styles.stepIcon}>🔍</Text>
-      <Text style={styles.stepTitle}>Enter your National ID</Text>
-      <Text style={styles.stepDesc}>We'll use it to find your account</Text>
+      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
+        {t('forgotPassword.step1.title')}
+      </Text>
+      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>
+        {t('forgotPassword.step1.subtitle')}
+      </Text>
       <Controller
         control={control}
         name="nationalId"
         render={({ field: { onChange, value } }) => (
-          <Input value={value} onChangeText={onChange} placeholder="National ID" keyboardType="numeric" />
+          <Input
+            value={value}
+            onChangeText={onChange}
+            label={t('forgotPassword.step1.label')}
+            placeholder={t('forgotPassword.step1.placeholder')}
+            keyboardType="numeric"
+            errorMsg={errors.nationalId ? t(errors.nationalId.message ?? '') : undefined}
+          />
         )}
       />
-      <Button label="Continue" onPress={handleSubmit(() => onNext())} style={styles.btn} />
+      <Button label={t('common.continue')} onPress={handleSubmit(() => onNext())} style={styles.btn} />
     </View>
   );
 }
 
+// ─── Step 2: Masked phone ─────────────────────────────────────────────────────
+
 function Step2({ onNext }: { onNext: () => void }) {
-  const { control, handleSubmit } = useForm({ resolver: zodResolver(step2Schema) });
+  const { t } = useTranslation();
+  const isRTL = useAuthStore((s) => s.isRTL);
+
   return (
     <View style={styles.stepContainer}>
       <Text style={styles.stepIcon}>📱</Text>
-      <Text style={styles.stepTitle}>Verify your phone</Text>
-      <Text style={styles.stepDesc}>Enter the phone number on your account</Text>
-      <Controller
-        control={control}
-        name="phone"
-        render={({ field: { onChange, value } }) => (
-          <Input value={value} onChangeText={onChange} placeholder="+962 7X XXX XXXX" keyboardType="phone-pad" />
-        )}
-      />
-      <Button label="Send Code" onPress={handleSubmit(() => onNext())} style={styles.btn} />
+      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
+        {t('forgotPassword.step2.title')}
+      </Text>
+      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>
+        {t('forgotPassword.step2.subtitle')}
+      </Text>
+      {/* Masked phone display */}
+      <View style={styles.maskedPhoneCard}>
+        <Text style={styles.maskedPhone}>****** 785</Text>
+      </View>
+      <Button label={t('forgotPassword.step2.sendCode', 'Send Code')} onPress={onNext} style={styles.btn} />
     </View>
   );
 }
 
+// ─── Step 3: New password ─────────────────────────────────────────────────────
+
 function Step3({ onNext }: { onNext: () => void }) {
-  const { control, handleSubmit } = useForm({ resolver: zodResolver(step3Schema) });
+  const { t } = useTranslation();
+  const isRTL = useAuthStore((s) => s.isRTL);
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(step3Schema),
+    defaultValues: { newPassword: '', confirmPassword: '' },
+  });
+
   return (
     <View style={styles.stepContainer}>
       <Text style={styles.stepIcon}>🔒</Text>
-      <Text style={styles.stepTitle}>New Password</Text>
-      <Text style={styles.stepDesc}>Must be at least 8 characters</Text>
+      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
+        {t('forgotPassword.step3.title')}
+      </Text>
+      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>
+        {t('forgotPassword.step3.subtitle')}
+      </Text>
       <Controller
         control={control}
         name="newPassword"
         render={({ field: { onChange, value } }) => (
-          <Input value={value} onChangeText={onChange} placeholder="New password" secureEntry />
+          <Input
+            value={value}
+            onChangeText={onChange}
+            label={t('forgotPassword.step3.newPasswordLabel')}
+            placeholder={t('forgotPassword.step3.newPasswordPlaceholder')}
+            secureEntry
+            errorMsg={errors.newPassword ? t(errors.newPassword.message ?? '') : undefined}
+          />
         )}
       />
       <Controller
         control={control}
         name="confirmPassword"
         render={({ field: { onChange, value } }) => (
-          <Input value={value} onChangeText={onChange} placeholder="Confirm password" secureEntry />
+          <Input
+            value={value}
+            onChangeText={onChange}
+            label={t('forgotPassword.step3.confirmPasswordLabel')}
+            placeholder={t('forgotPassword.step3.confirmPasswordPlaceholder')}
+            secureEntry
+            errorMsg={errors.confirmPassword ? t(errors.confirmPassword.message ?? '') : undefined}
+          />
         )}
       />
-      <Button label="Save Password" onPress={handleSubmit(() => onNext())} style={styles.btn} />
+      <Button label={t('forgotPassword.step3.saveBtn')} onPress={handleSubmit(() => onNext())} style={styles.btn} />
     </View>
   );
 }
 
+// ─── Step 4: Success + countdown ─────────────────────────────────────────────
+
 function Step4() {
+  const { t } = useTranslation();
+  const isRTL = useAuthStore((s) => s.isRTL);
   const [countdown, setCountdown] = useState(3);
+
   useEffect(() => {
-    const t = setInterval(() => {
+    const timer = setInterval(() => {
       setCountdown((c) => {
-        if (c <= 1) { router.replace('/(auth)/login'); return 0; }
+        if (c <= 1) {
+          router.replace('/(auth)/login');
+          return 0;
+        }
         return c - 1;
       });
     }, 1000);
-    return () => clearInterval(t);
+    return () => clearInterval(timer);
   }, []);
 
   return (
-    <View style={styles.stepContainer}>
+    <View style={[styles.stepContainer, styles.successCenter]}>
       <Text style={styles.stepIcon}>✅</Text>
-      <Text style={styles.stepTitle}>Password Changed!</Text>
-      <Text style={styles.stepDesc}>Redirecting to login in {countdown}s</Text>
-      <Button label="Go to Login" onPress={() => router.replace('/(auth)/login')} style={styles.btn} />
+      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
+        {t('forgotPassword.step4.title')}
+      </Text>
+      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>
+        {t('forgotPassword.step4.subtitle')}
+      </Text>
+      <Text style={styles.countdownText}>
+        {t('forgotPassword.step4.returning')} {countdown}s
+      </Text>
+      <Button
+        label={t('forgotPassword.step4.loginBtn')}
+        onPress={() => router.replace('/(auth)/login')}
+        style={styles.btn}
+      />
     </View>
   );
 }
 
+// ─── Main Screen ──────────────────────────────────────────────────────────────
+
 export default function ForgotPasswordScreen() {
+  const { t } = useTranslation();
+  const isRTL = useAuthStore((s) => s.isRTL);
   const [step, setStep] = useState<Step>(1);
   const slideAnim = useRef(new RNAnimated.Value(0)).current;
 
   const animateStep = (next: Step) => {
     RNAnimated.sequence([
       RNAnimated.timing(slideAnim, { toValue: -20, duration: 120, useNativeDriver: true }),
-      RNAnimated.timing(slideAnim, { toValue: 0,   duration: 180, useNativeDriver: true }),
+      RNAnimated.timing(slideAnim, { toValue: 0, duration: 180, useNativeDriver: true }),
     ]).start();
     setStep(next);
   };
@@ -142,14 +224,14 @@ export default function ForgotPasswordScreen() {
     <SafeAreaView style={styles.safe}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, isRTL && styles.rowReverse]}>
           <BackButton
             onPress={() => {
               if (step === 1) router.back();
               else animateStep((step - 1) as Step);
             }}
           />
-          <Text style={styles.headerTitle}>Forgot Password</Text>
+          <Text style={styles.headerTitle}>{t('forgotPassword.screenTitle')}</Text>
           <View style={{ width: 36 }} />
         </View>
 
@@ -166,13 +248,14 @@ export default function ForgotPasswordScreen() {
   );
 }
 
-const { colors, spacing, typography, radius } = theme;
-
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,
   },
+
+  rowReverse: { flexDirection: 'row-reverse' },
+  textRight:  { textAlign: 'right' },
 
   header: {
     flexDirection: 'row',
@@ -217,6 +300,11 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
 
+  successCenter: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   stepIcon: {
     fontSize: 48,
     textAlign: 'center',
@@ -237,6 +325,29 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: spacing.sm,
+  },
+
+  maskedPhoneCard: {
+    backgroundColor: colors.backgroundLight,
+    borderRadius: radius.xl,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+
+  maskedPhone: {
+    fontSize: typography.fontSize.xl,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+    letterSpacing: 4,
+  },
+
+  countdownText: {
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.medium,
+    color: colors.primary,
+    textAlign: 'center',
   },
 
   btn: {

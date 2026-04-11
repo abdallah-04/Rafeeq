@@ -4,95 +4,96 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  FlatList,
   TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
+
+import BackButton from '@/components/modal/shared/BackButton';
+import { useAuthStore } from '@/store/authStore';
+import { theme } from '@/theme';
+
+const { colors, spacing, typography, radius } = theme;
+
+// ─── Types & data ─────────────────────────────────────────────────────────────
 
 type Category = 'All' | 'Speech' | 'Learning' | 'Behavior';
 
 interface SavedArticle {
   id: string;
-  category: Category;
+  category: Exclude<Category, 'All'>;
   readTime: string;
   title: string;
   author: string;
 }
 
-const SAVED: SavedArticle[] = [
-  {
-    id: '4',
-    category: 'Speech',
-    readTime: '4 min read',
-    title: 'Early Intervention: Why It Matters for Speech Delays',
-    author: 'Dr. Sarah Ahmed',
-  },
-  {
-    id: '1',
-    category: 'Speech',
-    readTime: '8 min read',
-    title: 'Understanding Delayed Speech in Toddlers',
-    author: 'Dr. Sarah Ahmed',
-  },
-  {
-    id: '2',
-    category: 'Learning',
-    readTime: '5 min read',
-    title: 'How to Support Your Child\'s Reading Skills at Home',
-    author: 'Ms. Lina Haddad',
-  },
-  {
-    id: '3',
-    category: 'Behavior',
-    readTime: '6 min read',
-    title: 'Managing ADHD Symptoms: A Parent\'s Guide',
-    author: 'Dr. Omar Nassar',
-  },
-  {
-    id: '5',
-    category: 'Learning',
-    readTime: '7 min read',
-    title: 'Building Focus: Activities for Children with ADD',
-    author: 'Ms. Rania Khalil',
-  },
+const INITIAL_SAVED: SavedArticle[] = [
+  { id: '4', category: 'Speech',   readTime: '4 min read', title: 'Early Intervention: Why It Matters for Speech Delays',       author: 'Dr. Sarah Ahmed' },
+  { id: '1', category: 'Speech',   readTime: '8 min read', title: 'Understanding Delayed Speech in Toddlers',                   author: 'Dr. Sarah Ahmed' },
+  { id: '2', category: 'Learning', readTime: '5 min read', title: "How to Support Your Child's Reading Skills at Home",         author: 'Ms. Lina Haddad' },
+  { id: '3', category: 'Behavior', readTime: '6 min read', title: "Managing ADHD Symptoms: A Parent's Guide",                  author: 'Dr. Omar Nassar' },
+  { id: '5', category: 'Learning', readTime: '7 min read', title: 'Building Focus: Activities for Children with ADD',           author: 'Ms. Rania Khalil' },
 ];
 
 const CATEGORIES: Category[] = ['All', 'Speech', 'Learning', 'Behavior'];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Speech: '#4A90E2',
+  Speech:   '#4A90E2',
   Learning: '#7B61FF',
   Behavior: '#FF6B6B',
 };
 
+const CATEGORY_EMOJIS: Record<string, string> = {
+  Speech:   '🗣️',
+  Learning: '📚',
+  Behavior: '🧠',
+};
+
+const CATEGORY_I18N: Record<Category, string> = {
+  All:      'explore.categories.all',
+  Speech:   'explore.categories.speech',
+  Learning: 'explore.categories.learning',
+  Behavior: 'explore.categories.behavioral',
+};
+
+// ─── Main Screen ──────────────────────────────────────────────────────────────
+
 export default function SavedArticlesScreen() {
   const router = useRouter();
+  const { t }  = useTranslation();
+  const isRTL  = useAuthStore((s) => s.isRTL);
+
   const [selected, setSelected] = useState<Category>('All');
-  const [saved, setSaved] = useState<SavedArticle[]>(SAVED);
+  const [saved, setSaved]       = useState<SavedArticle[]>(INITIAL_SAVED);
 
-  const filtered =
-    selected === 'All' ? saved : saved.filter((a) => a.category === selected);
+  const filtered = selected === 'All'
+    ? saved
+    : saved.filter((a) => a.category === selected);
 
-  const handleRemove = (id: string) => {
+  const handleRemove = (id: string) =>
     setSaved((prev) => prev.filter((a) => a.id !== id));
-  };
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFF" />
+      <StatusBar style="dark" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerIcon}>🔖</Text>
-          <Text style={styles.headerTitle}>Saved artifact</Text>
+      {/* Header: back | icon + title | count badge */}
+      <View style={[styles.header, isRTL && styles.rowReverse]}>
+        <BackButton onPress={() => router.back()} />
+
+        <View style={[styles.headerCenter, isRTL && styles.rowReverse]}>
+          <Ionicons name="bookmark" size={20} color={colors.primary} />
+          <Text style={styles.headerTitle}>{t('explore.saved_title')}</Text>
         </View>
-        <View style={styles.savedBadge}>
-          <Text style={styles.savedBadgeText}>{saved.length} saved</Text>
+
+        <View style={styles.countBadge}>
+          <Text style={styles.countBadgeText}>
+            {saved.length} {t('explore.savedBadge')}
+          </Text>
         </View>
       </View>
 
@@ -100,7 +101,7 @@ export default function SavedArticlesScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chips}
+        contentContainerStyle={[styles.chips, isRTL && { flexDirection: 'row-reverse' }]}
         style={{ flexGrow: 0 }}
       >
         {CATEGORIES.map((cat) => (
@@ -108,183 +109,204 @@ export default function SavedArticlesScreen() {
             key={cat}
             style={[styles.chip, selected === cat && styles.chipActive]}
             onPress={() => setSelected(cat)}
+            accessibilityLabel={t(CATEGORY_I18N[cat])}
           >
             <Text style={[styles.chipText, selected === cat && styles.chipTextActive]}>
-              {cat}
+              {t(CATEGORY_I18N[cat])}
             </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
       {/* Article list */}
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {filtered.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>📭</Text>
-            <Text style={styles.emptyTitle}>Nothing saved yet</Text>
-            <Text style={styles.emptyText}>
-              Tap the bookmark icon on any article to save it here.
-            </Text>
-          </View>
-        ) : (
-          filtered.map((article) => {
-            const color = CATEGORY_COLORS[article.category] ?? '#4A90E2';
+      {filtered.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyEmoji}>📭</Text>
+          <Text style={[styles.emptyTitle, isRTL && styles.textRight]}>
+            {t('explore.empty')}
+          </Text>
+          <TouchableOpacity
+            style={styles.exploreBtn}
+            onPress={() => router.back()}
+            accessibilityLabel={t('explore.explore_btn')}
+          >
+            <Text style={styles.exploreBtnText}>{t('explore.explore_btn')}</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => {
+            const color = CATEGORY_COLORS[item.category] ?? '#4A90E2';
+            const emoji = CATEGORY_EMOJIS[item.category] ?? '📄';
             return (
               <TouchableOpacity
-                key={article.id}
                 style={styles.card}
                 activeOpacity={0.85}
                 onPress={() =>
                   router.push({
                     pathname: '/explore/ArticleDetailScreen',
-                    params: { id: article.id },
+                    params: { id: item.id },
                   })
                 }
+                accessibilityLabel={item.title}
               >
                 {/* Thumbnail */}
                 <View style={styles.thumb}>
-                  <Text style={styles.thumbIcon}>📄</Text>
+                  <Text style={styles.thumbEmoji}>{emoji}</Text>
                 </View>
 
                 <View style={styles.cardContent}>
-                  {/* Meta */}
-                  <View style={styles.metaRow}>
-                    <View
-                      style={[
-                        styles.categoryTag,
-                        { backgroundColor: color + '22' },
-                      ]}
-                    >
-                      <Text
-                        style={[styles.categoryTagText, { color }]}
-                      >
-                        {article.category.toUpperCase()}
+                  {/* Meta row */}
+                  <View style={[styles.metaRow, isRTL && styles.rowReverse]}>
+                    <View style={[styles.categoryTag, { backgroundColor: color + '22' }]}>
+                      <Text style={[styles.categoryTagText, { color }]}>
+                        {item.category.toUpperCase()}
                       </Text>
                     </View>
-                    <Text style={styles.readTime}>{article.readTime}</Text>
+                    <Text style={styles.readTime}>{item.readTime}</Text>
                   </View>
 
-                  <Text style={styles.cardTitle} numberOfLines={2}>
-                    {article.title}
+                  {/* Title */}
+                  <Text
+                    style={[styles.cardTitle, isRTL && styles.textRight]}
+                    numberOfLines={2}
+                  >
+                    {item.title}
                   </Text>
 
-                  <View style={styles.cardFooter}>
+                  {/* Author + remove */}
+                  <View style={[styles.cardFooter, isRTL && styles.rowReverse]}>
                     <View style={styles.authorAvatar}>
-                      <Text style={styles.authorAvatarText}>
-                        {article.author.charAt(0)}
-                      </Text>
+                      <Text style={styles.authorAvatarText}>{item.author.charAt(0)}</Text>
                     </View>
-                    <Text style={styles.authorName} numberOfLines={1}>
-                      {article.author}
-                    </Text>
+                    <Text style={styles.authorName} numberOfLines={1}>{item.author}</Text>
                     <TouchableOpacity
                       style={styles.removeBtn}
-                      onPress={() => handleRemove(article.id)}
+                      onPress={() => handleRemove(item.id)}
+                      accessibilityLabel="Remove"
                     >
-                      <Text style={styles.removeBtnText}>Remove</Text>
+                      <Ionicons name="bookmark" size={14} color="#FF6B6B" />
                     </TouchableOpacity>
                   </View>
                 </View>
               </TouchableOpacity>
             );
-          })
-        )}
-      </ScrollView>
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#F8FAFF',
+    backgroundColor: colors.background,
   },
 
-  // Header
+  rowReverse: { flexDirection: 'row-reverse' },
+  textRight:  { textAlign: 'right' },
+
+  // ── Header ──────────────────────────────────────
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  backBtn: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backIcon: { fontSize: 22, color: '#1A2B4A' },
+
   headerCenter: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginLeft: 4,
+    justifyContent: 'center',
+    gap: spacing.xs,
   },
-  headerIcon: { fontSize: 20 },
+
   headerTitle: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 18,
-    color: '#1A2B4A',
+    fontFamily: typography.fontFamily.bold,
+    fontSize: typography.fontSize.lg,
+    color: colors.textPrimary,
   },
-  savedBadge: {
-    backgroundColor: '#4A90E2',
-    borderRadius: 9999,
+
+  countBadge: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.full,
     paddingHorizontal: 12,
     paddingVertical: 5,
+    minHeight: 30,
+    justifyContent: 'center',
   },
-  savedBadgeText: {
-    fontFamily: 'Lexend_600SemiBold',
+
+  countBadgeText: {
+    fontFamily: typography.fontFamily.semiBold,
     fontSize: 12,
-    color: '#fff',
+    color: colors.textWhite,
   },
 
-  // Chips
+  // ── Filter chips ────────────────────────────────
   chips: {
-    paddingHorizontal: 20,
-    gap: 10,
-    paddingBottom: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
+    flexDirection: 'row',
   },
-  chip: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 9999,
-    borderWidth: 1.5,
-    borderColor: '#D0D9E8',
-    backgroundColor: '#fff',
-  },
-  chipActive: {
-    backgroundColor: '#4A90E2',
-    borderColor: '#4A90E2',
-  },
-  chipText: {
-    fontFamily: 'Lexend_500Medium',
-    fontSize: 13,
-    color: '#6B7A99',
-  },
-  chipTextActive: { color: '#fff' },
 
-  // List
-  scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 4, paddingBottom: 32 },
+  chip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 8,
+    borderRadius: radius.full,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    minHeight: 36,
+    justifyContent: 'center',
+  },
+
+  chipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+
+  chipText: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
+  },
+
+  chipTextActive: { color: colors.textWhite },
+
+  // ── List ────────────────────────────────────────
+  listContent: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xl,
+    gap: spacing.sm,
+  },
 
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 20,
     flexDirection: 'row',
-    padding: 14,
-    marginBottom: 12,
-    shadowColor: '#000',
+    padding: spacing.md,
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 10,
     elevation: 2,
     alignItems: 'flex-start',
+    gap: spacing.sm,
   },
+
   thumb: {
     width: 64,
     height: 64,
@@ -292,44 +314,52 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEF3FF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
     flexShrink: 0,
   },
-  thumbIcon: { fontSize: 28 },
+
+  thumbEmoji: { fontSize: 28 },
+
   cardContent: { flex: 1 },
+
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 4,
   },
+
   categoryTag: {
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
+
   categoryTagText: {
-    fontFamily: 'Lexend_700Bold',
+    fontFamily: typography.fontFamily.bold,
     fontSize: 10,
     letterSpacing: 0.4,
   },
+
   readTime: {
-    fontFamily: 'Lexend_400Regular',
+    fontFamily: typography.fontFamily.regular,
     fontSize: 11,
-    color: '#A0AEC0',
+    color: colors.textMuted,
     marginLeft: 'auto',
   },
+
   cardTitle: {
-    fontFamily: 'Lexend_600SemiBold',
-    fontSize: 13,
-    color: '#1A2B4A',
+    fontFamily: typography.fontFamily.semiBold,
+    fontSize: typography.fontSize.sm,
+    color: colors.textPrimary,
     lineHeight: 19,
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
+
   cardFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: spacing.xs,
   },
+
   authorAvatar: {
     width: 24,
     height: 24,
@@ -338,48 +368,59 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   authorAvatarText: {
-    fontFamily: 'Lexend_700Bold',
+    fontFamily: typography.fontFamily.bold,
     fontSize: 10,
-    color: '#4A90E2',
-  },
-  authorName: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 12,
-    color: '#6B7A99',
-    flex: 1,
-  },
-  removeBtn: {
-    borderWidth: 1.5,
-    borderColor: '#FF6B6B',
-    borderRadius: 9999,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-  },
-  removeBtnText: {
-    fontFamily: 'Lexend_600SemiBold',
-    fontSize: 11,
-    color: '#FF6B6B',
+    color: colors.primary,
   },
 
-  // Empty
-  emptyState: {
+  authorName: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: 12,
+    color: colors.textSecondary,
+    flex: 1,
+  },
+
+  removeBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FFF0F0',
     alignItems: 'center',
-    paddingTop: 80,
-    paddingHorizontal: 40,
+    justifyContent: 'center',
   },
-  emptyIcon: { fontSize: 52, marginBottom: 16 },
+
+  // ── Empty state ──────────────────────────────────
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
+    gap: spacing.md,
+  },
+
+  emptyEmoji: { fontSize: 52 },
+
   emptyTitle: {
-    fontFamily: 'Lexend_700Bold',
-    fontSize: 18,
-    color: '#1A2B4A',
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontFamily: 'Lexend_400Regular',
-    fontSize: 14,
-    color: '#A0AEC0',
+    fontFamily: typography.fontFamily.bold,
+    fontSize: typography.fontSize.lg,
+    color: colors.textPrimary,
     textAlign: 'center',
-    lineHeight: 20,
+  },
+
+  exploreBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.sm,
+    minHeight: 48,
+    justifyContent: 'center',
+  },
+
+  exploreBtnText: {
+    fontFamily: typography.fontFamily.semiBold,
+    fontSize: typography.fontSize.base,
+    color: colors.textWhite,
   },
 });

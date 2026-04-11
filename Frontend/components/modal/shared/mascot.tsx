@@ -11,9 +11,9 @@ type Props = {
 };
 
 const poseImages: Record<Pose, ImageSourcePropType> = {
-    waving: require('@/assets/images/mascot/rafeeq_waving.png'),
-    reading: require('@/assets/images/mascot/rafeeq_reading.png'),
-    rafeeq: require('@/assets/images/mascot/rafeeq.png'),
+    waving: require('@/assets/images/mascot/rafeeq_clabbing.png'),
+    reading: require('@/assets/images/mascot/rafeeq_clabbing.png'),
+    rafeeq: require('@/assets/images/mascot/rafeeq_clabbing.png'),
     celebrating: require('@/assets/images/mascot/rafeeq_clabbing.png'),
     rafeeqa: require('@/assets/images/mascot/rafeeqa.png'),
     splash: require('@/assets/images/mascot/splash-icon.png'),
