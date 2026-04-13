@@ -7,9 +7,12 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useModal } from '../ModalProvider';
 import { theme } from '@/theme';
+import { useAppStore } from '@/store/Appstore';
+import { addChild as apiAddChild } from '@/services/children';
 
 interface Props {
   onHide: () => void;
@@ -18,6 +21,7 @@ interface Props {
 export default function AddChildModal({ onHide }: Props) {
   const { t } = useTranslation();
   const { show } = useModal();
+  const addChildToStore = useAppStore((s) => s.addChild);
 
   const [nationalId, setNationalId] = useState('');
   const [error, setError] = useState('');
@@ -41,7 +45,31 @@ export default function AddChildModal({ onHide }: Props) {
 
     setLoading(true);
     try {
-      await new Promise(res => setTimeout(res, 600));
+      // Call the typed service (swap in real endpoint later)
+      const serviceChild = await apiAddChild({
+        fullName: `Child (${nationalId})`,
+        age: 8,
+        progress: 0,
+        gender: 'male',
+        dateOfBirth: new Date().toISOString(),
+        caseType: 'OTHER',
+      });
+
+      // Persist to the app-wide store using its simpler Child shape
+      addChildToStore({
+        id: serviceChild.id,
+        name: serviceChild.fullName,
+        age: serviceChild.age,
+        difficulty: serviceChild.caseType ?? 'OTHER',
+        level: 1,
+        progress: serviceChild.progress,
+        schoolName: serviceChild.schoolName ?? '',
+        gender: serviceChild.gender,
+        avatarUrl: serviceChild.avatarUrl,
+      });
+
+      // Navigate to the list first, then show success on top
+      router.replace('/(parent)/myChildren');
       show('success', { variant: 'childAdded' });
     } catch {
       show('error', { variant: 'invalidId' });
@@ -67,7 +95,7 @@ export default function AddChildModal({ onHide }: Props) {
           placeholder={t('modal.addChild.placeholder')}
           placeholderTextColor={theme.colors.textMuted}
           value={nationalId}
-          onChangeText={text => {
+          onChangeText={(text) => {
             setNationalId(text);
             if (error) setError('');
           }}

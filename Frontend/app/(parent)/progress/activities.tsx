@@ -7,7 +7,6 @@ import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
 import ChildSelector from '@/components/modal/parent/ChildSelector'
 import TabBar from '@/components/modal/shared/TabBar'
-import BottomNav from '@/components/modal/shared/BottomNav'
 import { Text } from '@/components/modal/shared/Text'
 import Card from '@/components/modal/shared/Card'
 import StatusBadge from '@/components/modal/parent/StatusBadge'
@@ -143,7 +142,6 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
             ))}
         </ScrollView>
 
-        <BottomNav />
         </ScreenWrapper>
     )
     }
@@ -188,7 +186,6 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
     const styles = StyleSheet.create({
     scroll: { flex: 1 },
     scrollContent: {
-        paddingHorizontal: theme.spacing.xl,
         paddingTop: theme.spacing.lg,
         paddingBottom: theme.spacing.xl,
         gap: theme.spacing.lg,

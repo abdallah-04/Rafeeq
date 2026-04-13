@@ -9,11 +9,11 @@ export default function AddTeacherEmptyScreen() {
             emptyTitle="You haven't added any teachers yet!"
             emptyDesc="Add teachers to manage their classes and students."
             addLabel="Add your first teacher"
-            continueRoute="/(school)/myTeachers"
+            continueRoute="/(school)/teachers"
             background={require('@/assets/images/background/school.png')}
             onBack={() => router.push('/(auth)/verify-school-phone')}
             onAdd={() => router.push('/(school)/add-teacher')}
-            onContinue={() => router.push('/(school)/myTeachers')}
+            onContinue={() => router.push('/(school)/teachers')}
         />
     );
 }

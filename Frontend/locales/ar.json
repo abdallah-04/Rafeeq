@@ -650,6 +650,16 @@
     "label_you": "أنت"
   },
 
+  "myChildren": {
+    "title": "أطفالي",
+    "emptyHeading": "يبدو الأمر هادئاً هنا!",
+    "emptyBody": "لم تضف أي أطفال بعد — أضف طفلك الأول لبدء رحلة التعلم مع رفيق",
+    "addFirst": "أضف طفلك الأول",
+    "manageHeading": "إدارة أطفالك",
+    "addMore": "إضافة المزيد من الأطفال",
+    "progressSuffix": "% تقدم"
+  },
+
   "profile": {
     "title": "الملف الشخصي",
     "editProfile": "تعديل الملف",
@@ -658,7 +668,8 @@
     "privacy": "الخصوصية",
     "help": "المساعدة والدعم",
     "logout": "تسجيل الخروج",
-    "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟"
+    "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    "myChildrenRow": "أطفالي"
   },
 
   "notifications": {

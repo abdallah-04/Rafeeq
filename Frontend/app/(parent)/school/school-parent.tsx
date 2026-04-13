@@ -6,7 +6,6 @@ import { router } from 'expo-router'
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
 import TabBar from '@/components/modal/shared/TabBar'
-import BottomNav from '@/components/modal/shared/BottomNav'
 import Card from '@/components/modal/shared/Card'
 import { Text } from '@/components/modal/shared/Text'
 
@@ -16,8 +15,8 @@ export default function SchoolScreen() {
     const [activeTab, setActiveTab] = useState('Grades')
 
     const handleTabChange = (tab: string) => {
-        if (tab === 'Progress') router.replace('(parent)/school/school-progress')
-        else if (tab === 'Reports') router.replace('(parent)/school/school-reports')
+        if (tab === 'Progress') router.replace('/(parent)/school/school-progress')
+        else if (tab === 'Reports') router.replace('/(parent)/school/school-reports')
         else setActiveTab(tab)
     }
 
@@ -73,13 +72,12 @@ export default function SchoolScreen() {
             </Card>
         </ScrollView>
 
-        <BottomNav />
         </ScreenWrapper>
     )
 }
 
 const styles = StyleSheet.create({
-    scroll: { flex: 1, paddingHorizontal: theme.spacing.xl },
+    scroll: { flex: 1 },
 
     schoolCard: {
         flexDirection: 'row',

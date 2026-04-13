@@ -89,7 +89,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
         setTimeout(() => {
         setLoading(false);
         login({ role: 'parent', language: 'en' } as any, 'mock-token');
-        router.replace('/(parent)/addchild-parent');
+        router.replace('/(parent)/' as any);
         }, 1200);
     };
 

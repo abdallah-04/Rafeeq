@@ -9,6 +9,7 @@ export default function SchoolLayout() {
         <Stack.Screen name="teachers" />
         <Stack.Screen name="students" />
         <Stack.Screen name="add-teacher" />
+        <Stack.Screen name="add-teacher-empty" />
         <Stack.Screen name="add-student" />
         <Stack.Screen name="teacher/[id]" />
         <Stack.Screen name="student/[id]" />

@@ -14,7 +14,6 @@ import ChildSelector from '@/components/modal/parent/ChildSelector'
 import TabBar from '@/components/modal/shared/TabBar'
 import ProgressCard from '@/components/modal/parent/ProgressCard'
 import ProgressSummary, { SkillItem } from '@/components/modal/parent/ProgressSummary'
-import BottomNav from '@/components/modal/shared/BottomNav'
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 const MOCK_CHILD = {
@@ -94,7 +93,6 @@ export default function ProgressScreen() {
             />
         </View>
 
-        <BottomNav />
         </ScreenWrapper>
     )
     }
@@ -112,7 +110,6 @@ const styles = StyleSheet.create({
     content: {
         marginTop: 0.09,
         flex: 1,
-        paddingHorizontal: theme.spacing.sm,
         paddingTop: theme.spacing.sm,
         paddingBottom: theme.spacing.sm,
         gap: theme.spacing.sm,

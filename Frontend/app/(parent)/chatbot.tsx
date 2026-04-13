@@ -217,21 +217,18 @@ export default function ChatbotScreen() {
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
 
-      {/* Top bar: back | title | avatar */}
-      <View style={[styles.topBar, isRTL && styles.rowReverse]}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={styles.topTitle}>{t('chatbot.title').replace(' Assistant', '')}</Text>
-        <View style={styles.avatarCircle}>
-          <Mascot pose="rafeeq" size="sm" />
-        </View>
-      </View>
-
+      <View style={styles.topBar}>
+      <BackButton onPress={() => router.back()} />
+      <Text style={styles.topTitle}>
+        {t('chatbot.title').replace(' Assistant', '')}
+      </Text>
+      <View style={styles.side} />
+    </View>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}
       >
-        {/* Empty state */}
         {isEmpty ? (
           <View style={styles.emptyState}>
             <Mascot pose="waving" size="lg" />
@@ -240,7 +237,6 @@ export default function ChatbotScreen() {
             </Text>
           </View>
         ) : (
-          /* Message list */
           <FlatList
             ref={listRef}
             data={displayData}
@@ -336,30 +332,37 @@ export default function ChatbotScreen() {
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
+  safe: { flex:   1, backgroundColor: colors.background },
 
   rowReverse: { flexDirection: 'row-reverse' },
   textLeft:  { textAlign: 'left' },
   textRight: { textAlign: 'right' },
 
   // ── Top bar ─────────────────────────────────────
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    gap: spacing.sm,
-  },
+topBar: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: spacing.lg,
+  paddingVertical: spacing.sm,
+  borderBottomWidth: 1,
+  borderBottomColor: colors.border,
+},
 
-  topTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.textPrimary,
-  },
+topTitle: {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  textAlign: 'center',
+  fontSize: typography.fontSize.lg,
+  fontFamily: typography.fontFamily.bold,
+  color: colors.textPrimary,
+},
+
+side: {
+  width: 44,
+  height: 44,
+},
 
   avatarCircle: {
     width: 40,

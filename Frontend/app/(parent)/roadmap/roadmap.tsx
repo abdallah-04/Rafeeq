@@ -13,7 +13,7 @@ import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { theme } from '@/theme'
-import BottomNav from '@/components/modal/shared/BottomNav'
+import BackButton from '@/components/modal/shared/BackButton'
 import { useModal } from '@/components/modal/ModalProvider'
 
 const { colors, spacing, typography, radius } = theme
@@ -191,9 +191,7 @@ export default function TreeScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => router.back()} />
         <Text style={styles.headerTitle}>Ayoub's tree</Text>
         <TouchableOpacity style={styles.settingsBtn}>
           <Text style={styles.settingsIcon}>⚙️</Text>
@@ -264,7 +262,6 @@ export default function TreeScreen() {
         })}
       </ScrollView>
 
-      <BottomNav />
     </SafeAreaView>
   )
 }
@@ -283,20 +280,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     backgroundColor: '#D6E8F8',
-  },
-
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.full,
-    backgroundColor: 'rgba(255,255,255,0.6)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  backIcon: {
-    fontSize: typography.fontSize.lg,
-    color: colors.textPrimary,
   },
 
   headerTitle: {

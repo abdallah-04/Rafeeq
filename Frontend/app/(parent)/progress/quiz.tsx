@@ -280,7 +280,6 @@ import Header from '@/components/modal/shared/Header'
 import ChildSelector from '@/components/modal/parent/ChildSelector'
 import TabBar from '@/components/modal/shared/TabBar'
 import QuizCard from '@/components/modal/parent/quizcard'
-import BottomNav from '@/components/modal/shared/BottomNav'
 import { Text } from '@/components/modal/shared/Text'
 
 // ─── Types & Mock Data ────────────────────────────────────────────────────────
@@ -397,7 +396,6 @@ export default function QuizzesScreen() {
             ))}
         </ScrollView>
 
-        <BottomNav />
         </ScreenWrapper>
     )
 }
@@ -413,7 +411,6 @@ function HeaderRightButton({ onPress }: { onPress: () => void }) {
 const styles = StyleSheet.create({
     scroll: { flex: 1 },
     scrollContent: {
-        paddingHorizontal: theme.spacing.xl,
         paddingTop: theme.spacing.lg,
         paddingBottom: theme.spacing.xl,
     },

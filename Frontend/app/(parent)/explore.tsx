@@ -196,17 +196,23 @@ export default function ExploreScreen() {
       <StatusBar style="dark" />
 
       {/* Header row: back | title | bookmark */}
-      <View style={[styles.header, isRTL && styles.rowReverse]}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={styles.headerTitle}>{t('explore.title')}</Text>
-        <TouchableOpacity
-          style={styles.bookmarkBtn}
-          onPress={() => router.push('/explore/SavedArticlesScreen')}
-          accessibilityLabel={t('explore.saved')}
-        >
-          <Ionicons name="bookmark-outline" size={22} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
+    <View style={styles.header}>
+      <BackButton onPress={() => router.back()} />
+
+  {/* Center title */}
+      <Text style={styles.headerTitle}>
+        {t('explore.title')}
+        </Text>
+
+        {/* Right icon */}
+      <TouchableOpacity
+    style={styles.bookmarkBtn}
+    onPress={() => router.push('/explore/SavedArticlesScreen')}
+    accessibilityLabel={t('explore.saved')}
+  >
+    <Ionicons name="bookmark-outline" size={20} color={colors.primary} />
+  </TouchableOpacity>
+</View>
 
       {/* Search bar */}
       <View style={[styles.searchRow, isRTL && styles.rowReverse]}>
@@ -271,21 +277,28 @@ const styles = StyleSheet.create({
   },
 
   // ── Header ────────────────────────────────────────
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
-  },
+header: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: spacing.lg,
+  paddingVertical: spacing.sm,
+},
 
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.textPrimary,
-  },
+
+headerTitle: {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  textAlign: 'center',
+  fontSize: typography.fontSize.lg,
+  fontFamily: typography.fontFamily.bold,
+  color: colors.textPrimary,
+},
+
+side: {
+  width: 44, 
+},
 
   // ── Search row ────────────────────────────────────
   searchRow: {
@@ -353,6 +366,7 @@ const styles = StyleSheet.create({
   // ── Feed ──────────────────────────────────────────
   feedContent: {
     paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
     paddingBottom: spacing.xl,
     gap: 12,
   },

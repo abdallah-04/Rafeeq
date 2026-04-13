@@ -44,6 +44,7 @@ export default function LoginScreen() {
     setTimeout(() => {
       login({ role: 'parent', language: 'en' } as any, 'token');
       setIsLoading(false);
+      router.replace('/(parent)/' as any);
     }, 1000);
   };
 

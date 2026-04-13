@@ -10,7 +10,6 @@ import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
 import ProgressCard from '@/components/modal/parent/ProgressCard'
 import TabBar from '@/components/modal/shared/TabBar'
-import BottomNav from '@/components/modal/shared/BottomNav'
 import { Text } from '@/components/modal/shared/Text'
 import QuizCard from '@/components/modal/parent/quizcard'
 
@@ -86,7 +85,6 @@ export default function HomeworksMain() {
         </View>
       </ScrollView>
 
-      <BottomNav />
     </ScreenWrapper>
   )
 }
@@ -96,7 +94,6 @@ const styles = StyleSheet.create({
   toggleContainer: {
     flexDirection: 'row',
     backgroundColor: '#F3F4F6',
-    marginHorizontal: theme.spacing.xl,
     borderRadius: theme.radius.lg,
     padding: 4,
     marginTop: theme.spacing.lg,
@@ -118,7 +115,6 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
   },
   listSection: {
-    paddingHorizontal: theme.spacing.xl,
     paddingBottom: 100,
   },
   sectionTitle: {

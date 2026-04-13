@@ -417,6 +417,16 @@
     "label_you": "YOU"
   },
 
+  "myChildren": {
+    "title": "My children",
+    "emptyHeading": "It's a little quiet here!",
+    "emptyBody": "You haven't added any children yet — add your first child to start the learning journey with Rafeeq",
+    "addFirst": "Add your first child",
+    "manageHeading": "Manage your children",
+    "addMore": "Add more children",
+    "progressSuffix": "% progress"
+  },
+
   "profile": {
     "title": "Profile",
     "editProfile": "Edit Profile",
@@ -425,7 +435,8 @@
     "privacy": "Privacy",
     "help": "Help & Support",
     "logout": "Log out",
-    "logoutConfirm": "Are you sure you want to log out?"
+    "logoutConfirm": "Are you sure you want to log out?",
+    "myChildrenRow": "My children"
   },
 
   "notifications": {

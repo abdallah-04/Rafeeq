@@ -1,18 +1,13 @@
 /**
- * app/(parent)/myChildren.tsx
+ * app/(parent)/MyChildrenEmpty.tsx
  *
- * "My Children — Populated List" screen.
+ * "My Children — Empty State" screen.
+ * Shown when a parent has logged in but has not yet added any children.
  *
- * Entry points:
- *   1. Post-login router (index.tsx) when parent has ≥ 1 child.
- *   2. Profile tab → "My children" row.
- *
- * RTL notes:
- *   • All flex rows mirror automatically under I18nManager.isRTL.
- *   • ProgressBar already handles RTL via alignSelf.
- *   • BackButton is RTL-aware.
- *   • The progress percent label is placed with `marginStart` so it stays on
- *     the logical "end" side in both LTR and RTL.
+ * RTL: every flex layout uses `row` direction which automatically mirrors in
+ * RTL.  The BackButton component is already RTL-aware.  The progress bar is
+ * not rendered here.  Text is center-aligned so no special mirroring is
+ * needed.
  */
 
 import React from 'react';
@@ -32,88 +27,35 @@ import { theme } from '@/theme';
 import { Text } from '@/components/modal/shared/Text';
 import { Button } from '@/components/modal/shared/Button';
 import BackButton from '@/components/modal/shared/BackButton';
-import Avatar from '@/components/modal/shared/Avatar';
-import ProgressBar from '@/components/modal/shared/progressBar';
 import Footer from '@/components/modal/shared/Footer';
 import { useModal } from '@/components/modal/ModalProvider';
-import { useAppStore } from '@/store/Appstore';
-import { useActiveChildStore } from '@/store/activeChildStore';
-import type { Child } from '@/store/Appstore';
 
 const { colors, spacing, typography, radius } = theme;
 
-/* ─── Child card ─────────────────────────────────────────────────────────── */
+/* ─── Ghost slot (dashed placeholder card) ──────────────────────────────── */
 
-function ChildCard({ child }: { child: Child }) {
-  const setActiveChild = useActiveChildStore((s) => s.setActiveChild);
-
-  const handlePress = () => {
-    setActiveChild(child);
-    router.push('/(parent)/Home-parent');
-  };
-
+function GhostSlot({ faded }: { faded?: boolean }) {
   return (
-    <TouchableOpacity
-      style={styles.card}
-      activeOpacity={0.8}
-      onPress={handlePress}
-      accessibilityRole="button"
-    >
-      {/* Avatar */}
-      <Avatar
-        imageUri={child.avatarUrl}
-        name={child.name}
-        size="md"
-      />
-
-      {/* Info */}
-      <View style={styles.cardInfo}>
-        {/* Name + age */}
-        <Text style={styles.cardName}>
-          {child.name}
-          {child.age ? `, ${child.age} years` : ''}
-        </Text>
-
-        {/* Progress row: label above bar */}
-        <View style={styles.progressRow}>
-          <Text style={styles.progressLabel}>
-            {child.progress}%
-          </Text>
-        </View>
-        <ProgressBar value={child.progress} height={6} showLabel={false} />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-/* ─── Ghost "add" slot ───────────────────────────────────────────────────── */
-
-function AddSlot({ onPress }: { onPress: () => void }) {
-  return (
-    <TouchableOpacity
-      style={styles.slot}
-      onPress={onPress}
-      activeOpacity={0.7}
-      accessibilityRole="button"
-    >
+    <View style={[styles.slot, faded && styles.slotFaded]}>
+      {/* Plus circle */}
       <View style={styles.slotCircle}>
         <Text style={styles.slotPlus}>+</Text>
       </View>
 
+      {/* Placeholder bars */}
       <View style={styles.slotLines}>
         <View style={styles.slotLineWide} />
         <View style={styles.slotLineNarrow} />
       </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 
 /* ─── Screen ─────────────────────────────────────────────────────────────── */
 
-export default function MyChildrenListScreen() {
+export default function MyChildrenEmptyScreen() {
   const { t } = useTranslation();
   const { show } = useModal();
-  const children = useAppStore((s) => s.children);
 
   const handleAdd = () => show('addChild');
 
@@ -135,27 +77,26 @@ export default function MyChildrenListScreen() {
       >
         {/* Mascot */}
         <Image
-          source={require('@/assets/images/mascot/rafeeq_like.png')}
+          source={require('@/assets/images/mascot/rafeeq_waving.png')}
           style={styles.mascot}
           resizeMode="contain"
         />
 
         {/* Heading */}
-        <Text style={styles.listTitle}>{t('myChildren.manageHeading')}</Text>
+        <Text style={styles.emptyHeading}>{t('myChildren.emptyHeading')}</Text>
 
-        {/* Children list + ghost slot */}
-        <View style={styles.list}>
-          {children.map((child) => (
-            <ChildCard key={child.id} child={child} />
-          ))}
+        {/* Body */}
+        <Text style={styles.emptyBody}>{t('myChildren.emptyBody')}</Text>
 
-          {/* Ghost "add more" slot */}
-          <AddSlot onPress={handleAdd} />
+        {/* Ghost slots */}
+        <View style={styles.slots}>
+          <GhostSlot />
+          <GhostSlot faded />
         </View>
 
-        {/* Add more button */}
+        {/* CTA */}
         <Button
-          label={t('myChildren.addMore')}
+          label={t('myChildren.addFirst')}
           onPress={handleAdd}
           style={styles.btn}
         />
@@ -199,10 +140,10 @@ const styles = StyleSheet.create({
     width: 36,
   },
 
-  /* Scroll */
+  /* Scroll content */
   scroll: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.xl,
     paddingBottom: spacing.xl,
     alignItems: 'center',
     gap: spacing.md,
@@ -210,55 +151,36 @@ const styles = StyleSheet.create({
 
   /* Mascot */
   mascot: {
-    width: 100,
-    height: 100,
+    width: 110,
+    height: 110,
   },
 
   /* Heading */
-  listTitle: {
+  emptyHeading: {
     fontSize: typography.fontSize['2xl'],
     fontFamily: typography.fontFamily.bold,
     color: colors.primary,
     textAlign: 'center',
   },
 
-  /* Card list */
-  list: {
+  /* Body */
+  emptyBody: {
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.regular,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: spacing.md,
+  },
+
+  /* Ghost slots container */
+  slots: {
     width: '100%',
     gap: spacing.md,
     marginTop: spacing.sm,
   },
 
-  /* Child card */
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.backgroundLight,
-    borderRadius: radius.xl,
-    padding: spacing.md,
-    gap: spacing.md,
-  },
-  cardInfo: {
-    flex: 1,
-    gap: 4,
-  },
-  cardName: {
-    fontSize: typography.fontSize.base,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.textPrimary,
-  },
-  progressRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  progressLabel: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.primary,
-    marginBottom: 2,
-  },
-
-  /* Ghost add slot */
+  /* Ghost slot — dashed blue border, light-blue fill */
   slot: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -270,6 +192,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundLight,
     padding: spacing.md,
   },
+  slotFaded: {
+    opacity: 0.45,
+  },
+
+  /* Plus circle inside slot */
   slotCircle: {
     width: 48,
     height: 48,
@@ -277,6 +204,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.primary,
     borderStyle: 'dashed',
+    backgroundColor: colors.backgroundLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -285,6 +213,8 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontFamily: typography.fontFamily.bold,
   },
+
+  /* Placeholder bars */
   slotLines: {
     flex: 1,
     gap: spacing.xs,

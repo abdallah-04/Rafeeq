@@ -5,7 +5,6 @@ import { theme } from '@/theme'
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
 import TabBar from '@/components/modal/shared/TabBar'
-import BottomNav from '@/components/modal/shared/BottomNav'
 import Card from '@/components/modal/shared/Card'
 import { Text } from '@/components/modal/shared/Text'
 
@@ -17,9 +16,9 @@ export default function TeacherReports() {
   const [selectedReport, setSelectedReport] = useState<number | null>(null)
 
   const handleTabChange = (tab: string) => {
-    if (tab === 'Grades') router.replace('(parent)/school/school-parent')
-    else if (tab === 'HW & Tasks') router.replace('(parent)/school/school-parent')
-    else if (tab === 'Progress') router.replace('(parent)/school/school-progress')
+    if (tab === 'Grades') router.replace('/(parent)/school/school-parent')
+    else if (tab === 'HW & Tasks') router.replace('/(parent)/school/school-parent')
+    else if (tab === 'Progress') router.replace('/(parent)/school/school-progress')
     else setActiveTab(tab)
   }
 
@@ -28,7 +27,7 @@ export default function TeacherReports() {
       <Header
         title="Teacher Reports"
         subtitle="3 unread reports"
-        onBack={() => router.back()}
+        onBack={() => router.replace('/(parent)/school/school-parent')}
       />
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -79,13 +78,12 @@ export default function TeacherReports() {
         ))}
       </ScrollView>
 
-      <BottomNav />
     </ScreenWrapper>
   )
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, paddingHorizontal: theme.spacing.lg },
+  scroll: { flex: 1 },
 
   toggleContainer: {
     flexDirection: 'row',

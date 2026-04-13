@@ -5,7 +5,6 @@ import { theme } from '@/theme'
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
 import TabBar from '@/components/modal/shared/TabBar'
-import BottomNav from '@/components/modal/shared/BottomNav'
 import ProgressSummary from '@/components/modal/parent/ProgressSummary'
 import Card from '@/components/modal/shared/Card'
 import { Text } from '@/components/modal/shared/Text'
@@ -22,9 +21,9 @@ export default function ProgressReport() {
   const [activeTab, setActiveTab] = useState('Progress')
 
   const handleTabChange = (tab: string) => {
-    if (tab === 'Grades') router.replace('(parent)/school/school-parent')
-    else if (tab === 'HW & Tasks') router.replace('(parent)/school/school-parent')
-    else if (tab === 'Reports') router.replace('(parent)/school/school-reports')
+    if (tab === 'Grades') router.replace('/(parent)/school/school-parent')
+    else if (tab === 'HW & Tasks') router.replace('/(parent)/school/school-parent')
+    else if (tab === 'Reports') router.replace('/(parent)/school/school-reports')
     else setActiveTab(tab)
   }
 
@@ -33,7 +32,7 @@ export default function ProgressReport() {
       <Header
         title="Progress"
         subtitle="Tracking Zaid's performance"
-        onBack={() => router.back()}
+        onBack={() => router.replace('/(parent)/school/school-parent')}
       />
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -62,13 +61,12 @@ export default function ProgressReport() {
         </Card>
       </ScrollView>
 
-      <BottomNav />
     </ScreenWrapper>
   )
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.sm },
+  scroll: { flex: 1, paddingTop: theme.spacing.sm },
 
   banner: {
     backgroundColor: theme.colors.primary,
