@@ -48,7 +48,7 @@ export default function SchoolWelcomeScreen() {
 
         <Button
           label={t('common.getStarted')}
-          onPress={() => router.replace('/(school)/teachers')}
+          onPress={() => router.replace('/(school)/add-teacher-empty')}
         />
 
       </View>

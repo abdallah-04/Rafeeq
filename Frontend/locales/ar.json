@@ -660,6 +660,12 @@
     "progressSuffix": "% تقدم"
   },
 
+  "tabs": {
+    "teachers": "المعلمون",
+    "students": "الطلاب",
+    "profile": "الملف الشخصي"
+  },
+
   "profile": {
     "title": "الملف الشخصي",
     "editProfile": "تعديل الملف",
@@ -669,7 +675,24 @@
     "help": "المساعدة والدعم",
     "logout": "تسجيل الخروج",
     "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
-    "myChildrenRow": "أطفالي"
+    "myChildrenRow": "أطفالي",
+    "verified": "مدرسة موثّقة",
+    "stats": {
+      "teachers": "المعلمون",
+      "students": "الطلاب",
+      "avgProgress": "متوسط التقدم"
+    },
+    "info": "معلومات المدرسة",
+    "schoolId": "رقم المدرسة",
+    "advisor": "المرشد",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "settings": "الإعدادات",
+    "editInfo": "تعديل معلومات المدرسة",
+    "account": "إعدادات الحساب",
+    "logoutConfirmTitle": "تسجيل الخروج؟",
+    "logoutConfirmMsg": "ستحتاج إلى تسجيل الدخول مجدداً للوصول إلى حساب مدرستك.",
+    "cancel": "إلغاء"
   },
 
   "notifications": {

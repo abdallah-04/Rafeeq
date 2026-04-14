@@ -427,6 +427,12 @@
     "progressSuffix": "% progress"
   },
 
+  "tabs": {
+    "teachers": "Teachers",
+    "students": "Students",
+    "profile": "Profile"
+  },
+
   "profile": {
     "title": "Profile",
     "editProfile": "Edit Profile",
@@ -436,7 +442,24 @@
     "help": "Help & Support",
     "logout": "Log out",
     "logoutConfirm": "Are you sure you want to log out?",
-    "myChildrenRow": "My children"
+    "myChildrenRow": "My children",
+    "verified": "Verified school",
+    "stats": {
+      "teachers": "Teachers",
+      "students": "Students",
+      "avgProgress": "Avg progress"
+    },
+    "info": "School information",
+    "schoolId": "School ID",
+    "advisor": "Advisor",
+    "phone": "Phone",
+    "email": "Email",
+    "settings": "Settings",
+    "editInfo": "Edit school information",
+    "account": "Account settings",
+    "logoutConfirmTitle": "Log out?",
+    "logoutConfirmMsg": "You'll need to sign in again to access your school.",
+    "cancel": "Cancel"
   },
 
   "notifications": {

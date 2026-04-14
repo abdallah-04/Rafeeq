@@ -13,7 +13,7 @@ export default function AddTeacherEmptyScreen() {
             background={require('@/assets/images/background/school.png')}
             onBack={() => router.push('/(auth)/verify-school-phone')}
             onAdd={() => router.push('/(school)/add-teacher')}
-            onContinue={() => router.push('/(school)/teachers')}
+            onContinue={() => router.replace('/(school)/teachers')}
         />
     );
 }

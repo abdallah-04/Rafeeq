@@ -156,7 +156,7 @@ export default function AddTeacherScreen() {
             />
 
             <Button
-              label={t('Submit')}
+              label={t('Continue')}
               onPress={handleSubmit(onSubmit)}
               loading={loading}
               style={styles.btn}
