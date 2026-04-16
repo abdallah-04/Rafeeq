@@ -54,7 +54,7 @@ export default function AddTeacherScreen() {
       <StatusBar style="dark" />
 
       <Header
-        title={t('Add teacher')}
+        title={t('addTeacher.title')}
         onBack={() => router.back()}
       />
 
@@ -72,7 +72,7 @@ export default function AddTeacherScreen() {
               <View style={styles.photoPlaceholder}>
                 <Ionicons name="camera-outline" size={28} color={colors.textMuted} />
                 <Text variant="caption" color="textMuted" style={styles.photoLabel}>
-                  {t('Add Photo')}
+                  {t('addTeacher.addPhoto')}
                 </Text>
               </View>
             )}
@@ -86,8 +86,8 @@ export default function AddTeacherScreen() {
               name="fullName"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  label={t('Full Name')}
-                  placeholder={t('Enter full name')}
+                  label={t('addTeacher.fullName')}
+                  placeholder={t('addTeacher.fullNamePlaceholder')}
                   value={value}
                   onChangeText={onChange}
                   errorMsg={errors.fullName?.message}
@@ -100,7 +100,7 @@ export default function AddTeacherScreen() {
               name="nationalId"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  label={t('National Id')}
+                  label={t('addTeacher.nationalId')}
                   placeholder="0000000000"
                   value={value}
                   onChangeText={onChange}
@@ -115,7 +115,7 @@ export default function AddTeacherScreen() {
               name="phone"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  label={t('phone')}
+                  label={t('addTeacher.phone')}
                   placeholder="7X XXX XXXX"
                   value={value}
                   onChangeText={onChange}
@@ -130,7 +130,7 @@ export default function AddTeacherScreen() {
               name="password"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  label={t('Create Password')}
+                  label={t('addTeacher.createPassword')}
                   placeholder="••••••••"
                   value={value}
                   onChangeText={onChange}
@@ -145,7 +145,7 @@ export default function AddTeacherScreen() {
               name="confirmPassword"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  label={t('Confirm Password')}
+                  label={t('addTeacher.confirmPassword')}
                   placeholder="••••••••"
                   value={value}
                   onChangeText={onChange}
@@ -156,7 +156,7 @@ export default function AddTeacherScreen() {
             />
 
             <Button
-              label={t('Continue')}
+              label={t('common.continue')}
               onPress={handleSubmit(onSubmit)}
               loading={loading}
               style={styles.btn}

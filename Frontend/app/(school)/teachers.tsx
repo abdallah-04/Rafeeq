@@ -90,7 +90,7 @@ export default function TeachersScreen() {
       <StatusBar style="dark" />
 
       <Header
-        title={t('Your Teachers')}
+        title={t('teachers.title')}
         onBack={() => router.back()}
         rightElement={
           <TouchableOpacity

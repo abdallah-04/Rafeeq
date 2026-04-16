@@ -16,6 +16,7 @@ import BackButton from '@/components/modal/shared/BackButton';
 import OTPInput from '@/components/modal/shared/OTPInput';
 import Footer from '@/components/modal/shared/Footer';
 import { useAuthStore } from '@/store/authStore';
+import i18n from '@/i18n';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -88,7 +89,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
         setLoading(true);
         setTimeout(() => {
         setLoading(false);
-        login({ role: 'parent', language: 'en' } as any, 'mock-token');
+        login({ role: 'school', language: i18n.language as 'en' | 'ar' } as any, 'mock-token');
         router.replace('/(school)/add-teacher-empty');
         }, 1200);
     };

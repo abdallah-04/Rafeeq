@@ -6,6 +6,13 @@ export const typography = {
     bold:    'Lexend_700Bold',
   },
 
+  fontFamilyAr: {
+    regular: 'Tajawal-Regular',
+    medium:  'Tajawal-Medium',
+    semiBold:'Tajawal-SemiBold',
+    bold:    'Tajawal-Bold',
+  },
+
   fontSize: {
     xs:   12,
     sm:   14,

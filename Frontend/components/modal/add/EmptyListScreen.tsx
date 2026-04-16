@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Image, ImageSourcePropType } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { theme } from '@/theme';
@@ -38,6 +39,7 @@ export function EmptyListScreen({
     onContinue,
     onBack,
 }: EmptyListScreenProps) {
+    const { t } = useTranslation();
     return (
         <SafeAreaView style={styles.safe}>
             <StatusBar style="dark" />
@@ -74,7 +76,7 @@ export function EmptyListScreen({
                 </View>
 
                 <Button label={addLabel} onPress={onAdd} style={styles.btn} />
-                <Button label="Continue" onPress={onContinue} variant="outline" style={styles.btn} />
+                <Button label={t('common.continue')} onPress={onContinue} variant="outline" style={styles.btn} />
 
                 <Footer
                     onLanguagePress={() => {}}

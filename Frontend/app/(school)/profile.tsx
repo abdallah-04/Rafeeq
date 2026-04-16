@@ -6,6 +6,7 @@ import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { Ionicons } from '@expo/vector-icons'
 import { theme } from '@/theme'
+import { useAuthStore } from '@/store/authStore'
 import { Text } from '@/components/modal/shared/Text'
 import Header from '@/components/modal/shared/Header'
 import Card from '@/components/modal/shared/Card'
@@ -92,6 +93,7 @@ function SettingsRow({
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation()
+  const setLanguage  = useAuthStore((s) => s.setLanguage)
 
   function handleLogout() {
     Alert.alert(
@@ -109,7 +111,9 @@ export default function ProfileScreen() {
   }
 
   function handleToggleLanguage() {
-    i18n.changeLanguage(i18n.language === 'ar' ? 'en' : 'ar')
+    const newLang = i18n.language === 'ar' ? 'en' : 'ar'
+    i18n.changeLanguage(newLang)
+    setLanguage(newLang as 'en' | 'ar')   // persists to store + calls I18nManager.forceRTL
   }
 
   return (

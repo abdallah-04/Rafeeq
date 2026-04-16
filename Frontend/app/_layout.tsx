@@ -8,17 +8,24 @@ import {
   Lexend_600SemiBold,
   Lexend_700Bold,
 } from '@expo-google-fonts/lexend'
+import {
+  Tajawal_400Regular,
+  Tajawal_500Medium,
+  Tajawal_700Bold,
+} from '@expo-google-fonts/tajawal'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { I18nManager } from 'react-native'
 
 import '@/i18n'
+import { changeLanguage } from '@/i18n'
 
 import {
   useAuthStore,
   selectIsAuthenticated,
   selectRole,
   selectIsRTL,
+  selectLanguage,
 } from '@/store/authStore'
 import { ModalProvider } from '@/components/modal/ModalProvider'
 import React from 'react'
@@ -41,12 +48,17 @@ export default function RootLayout() {
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
   const role            = useAuthStore(selectRole)
   const isRTL           = useAuthStore(selectIsRTL)
+  const language        = useAuthStore(selectLanguage)
 
   const [fontsLoaded, fontError] = useFonts({
     Lexend_400Regular,
     Lexend_500Medium,
     Lexend_600SemiBold,
     Lexend_700Bold,
+    'Tajawal-Regular':  Tajawal_400Regular,
+    'Tajawal-Medium':   Tajawal_500Medium,
+    'Tajawal-SemiBold': Tajawal_500Medium,
+    'Tajawal-Bold':     Tajawal_700Bold,
   })
 
   useEffect(() => {
@@ -55,12 +67,15 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError])
 
-  // Keep React Native layout direction in sync with store
+  // Keep i18next language and React Native layout direction in sync with the persisted store value.
+  // This is essential on restart: the store rehydrates from AsyncStorage but i18next
+  // re-initialises from the device locale, so we must reconcile them.
   useEffect(() => {
+    changeLanguage(language)
     if (I18nManager.isRTL !== isRTL) {
       I18nManager.forceRTL(isRTL)
     }
-  }, [isRTL])
+  }, [language, isRTL])
 
   useEffect(() => {
     if (!fontsLoaded && !fontError) return

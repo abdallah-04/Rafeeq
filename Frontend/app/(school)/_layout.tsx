@@ -56,7 +56,6 @@ export default function SchoolLayout() {
           }}
         />
 
-        {/* Non-tab screens — routable but no tab button and no tab bar */}
         <Tabs.Screen name="students" options={{ href: null, tabBarStyle: { display: 'none' } }} />
         <Tabs.Screen name="add-teacher" options={{ href: null, tabBarStyle: { display: 'none' } }} />
         <Tabs.Screen name="add-teacher-empty" options={{ href: null, tabBarStyle: { display: 'none' } }} />

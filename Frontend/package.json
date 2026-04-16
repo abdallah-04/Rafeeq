@@ -12,6 +12,7 @@
     "@expo-google-fonts/indie-flower": "^0.4.1",
     "@expo-google-fonts/inria-sans": "^0.4.1",
     "@expo-google-fonts/lexend": "^0.4.1",
+    "@expo-google-fonts/tajawal": "^0.4.1",
     "@expo/vector-icons": "^15.0.3",
     "@hookform/resolvers": "^5.2.2",
     "@react-native-async-storage/async-storage": "2.2.0",
