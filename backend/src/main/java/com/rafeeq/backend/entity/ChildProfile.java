@@ -28,6 +28,16 @@ public class ChildProfile {
     @OneToMany(mappedBy = "child", fetch = FetchType.LAZY)
     private List<ChildAssessment> assessments = new ArrayList<>();
 
+    
+    @OneToMany(mappedBy = "child", fetch = FetchType.LAZY)
+    private List<LearningTree> learningTrees = new ArrayList<>();
+
+    @OneToMany(mappedBy = "child", fetch = FetchType.LAZY)
+    private List<ChildScore> childScores = new ArrayList<>();
+
+    @OneToMany(mappedBy = "child", fetch = FetchType.LAZY)
+    private List<ChildScoreLog> childScoreLogs = new ArrayList<>();
+
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
