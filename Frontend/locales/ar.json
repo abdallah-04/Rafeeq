@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "رفيق",
+    "login": "تسجيل الدخول",
     "continue": "متابعة",
     "confirm": "تأكيد",
     "cancel": "إلغاء",
@@ -268,6 +269,7 @@
       "emptyTitle": "يبدو الأمر هادئاً هنا!",
       "emptySubtitle": "لم يُضف أي طالب بعد",
       "addFirst": "أضف طلابك الأوائل",
+      "add": "إضافة",
       "level": "المستوى",
       "progress": "التقدم"
     },
@@ -307,6 +309,90 @@
       "noteDetails": "التفاصيل...",
       "addButton": "إضافة ملاحظة"
     },
+    "dashboard": {
+      "notes": "الملاحظات",
+      "addHW": "إضافة واجب",
+      "reports": "إضافة تقارير",
+      "progressOf": "التقدم",
+      "tasks": "مهمة",
+      "daysRow": "يوم متتالي",
+      "achievements": "إنجاز",
+      "recentNotes": "الملاحظات الأخيرة"
+    },
+    "quickAccess": {
+      "title": "ملف الطالب",
+      "quickAccess": "الوصول السريع",
+      "years": "سنوات",
+      "progress": "التقدم"
+    },
+    "quiz": {
+      "todayQuiz": "اختبار قصير اليوم",
+      "questions": "أسئلة",
+      "mins": "دقيقة",
+      "start": "ابدأ"
+    },
+    "modal": {
+      "greatJob": "عمل رائع!",
+      "wellDone": "لقد أديت عملاً رائعاً، أحسنت!",
+      "okay": "حسناً"
+    },
+    "roadmap": {
+      "title": "شجرة التعلم"
+    },
+    "exam": {
+      "monthlyExam": "الاختبار الشهري",
+      "levelGrade": "درجة المستوى",
+      "topic": "الموضوع",
+      "date": "التاريخ",
+      "next": "التالي",
+      "startExam": "ابدأ الاختبار",
+      "download": "تحميل",
+      "recentActivity": "النشاط الأخير",
+      "examQuestions": "أسئلة الاختبار",
+      "question": "السؤال",
+      "finish": "إنهاء",
+      "nextQuestion": "السؤال التالي",
+      "greatJob": "عمل رائع!",
+      "wellDone": "لقد أديت عملاً رائعاً، أحسنت!",
+      "okay": "حسناً"
+    },
+    "hw": {
+      "title": "الواجبات",
+      "add": "إضافة",
+      "notesLabel": "تفاصيل الواجب",
+      "notesPlaceholder": "تفاصيل الواجب...",
+      "dueDate": "تاريخ التسليم",
+      "upload": "اضغط للرفع",
+      "submit": "إضافة",
+      "history": "سجل الواجبات",
+      "details": "التفاصيل"
+    },
+    "addNote": {
+      "title": "إضافة ملاحظة",
+      "noteTitle": "عنوان الملاحظة",
+      "noteTitlePlaceholder": "أدخل عنوان الملاحظة...",
+      "noteSubject": "موضوع الملاحظة",
+      "details": "التفاصيل...",
+      "tapToUpload": "اضغط للرفع",
+      "add": "إضافة"
+    },
+    "nav": {
+      "home": "الرئيسية",
+      "profile": "الملف الشخصي",
+      "students": "الطلاب"
+    },
+    "profile": {
+      "name": "الأستاذ أحمد",
+      "role": "معلم التربية الخاصة",
+      "students": "الطلاب",
+      "avgProgress": "متوسط التقدم",
+      "grade": "الصف",
+      "title": "الملف الشخصي",
+      "editProfile": "تعديل الملف",
+      "nationalId": "الرقم الوطني",
+      "phone": "الهاتف",
+      "logout": "تسجيل الخروج"
+    },
     "homework": {
       "title": "الواجبات",
       "add": "إضافة واجب",
@@ -335,8 +421,12 @@
       "reportSubject": "موضوع التقرير",
       "details": "التفاصيل...",
       "addButton": "إضافة",
+      "submit": "إضافة",
       "unread": "غير مقروء",
       "read": "مقروء",
+      "titlePlaceholder": "أدخل عنوان التقرير...",
+      "upload": "اضغط للرفع",
+      "uploaded": "التقارير المرفوعة",
       "uploadedReports": "التقارير المرفوعة",
       "examSchedule": "جدول الاختبارات",
       "mathTestAnswer": "إجابات اختبار الرياضيات",
@@ -373,12 +463,16 @@
     },
     "addStudent": {
       "title": "إضافة طالب",
+      "name": "الاسم الكامل للطفل",
       "fullName": "الاسم الكامل للطفل",
       "fullNamePlaceholder": "أدخل الاسم الكامل",
       "nationalId": "الرقم الوطني",
       "dateOfBirth": "تاريخ الميلاد",
+      "dob": "تاريخ الميلاد",
       "dateOfBirthPlaceholder": "يوم / شهر / سنة",
       "difficulty": "صعوبة التعلم",
+      "condition": "صعوبة التعلم",
+      "conditionPlaceholder": "اختر الصعوبة",
       "difficultyPlaceholder": "اختر الصعوبة",
       "gender": "الجنس",
       "male": "ذكر",
@@ -445,14 +539,6 @@
       "emptySubtitle": "أضف أول معلميك",
       "active": "نشط",
       "children": "{{count}} طفل"
-    },
-    "profile": {
-      "title": "الملف الشخصي",
-      "editProfile": "تعديل الملف",
-      "name": "الاسم",
-      "nationalId": "الرقم الوطني",
-      "phone": "الهاتف",
-      "logout": "تسجيل الخروج"
     }
   },
 
@@ -548,7 +634,8 @@
     "difficultyPlaceholder": "اختر الصعوبة",
     "gender": "الجنس",
     "female": "أنثى",
-    "male": "ذكر"
+    "male": "ذكر",
+    "continue": "متابعة"
   },
 
   "schoolPage": {
@@ -763,5 +850,12 @@
     "IFD": "الإعاقة الذهنية والوظيفية",
     "Autism": "التوحد",
     "OTHER": "أخرى"
+  },
+
+  "teacherDetail": {
+    "students": "الطلاب",
+    "dangerZone": "إجراءات الحساب",
+    "deactivate": "تعطيل المعلم",
+    "remove": "إزالة المعلم"
   }
 }

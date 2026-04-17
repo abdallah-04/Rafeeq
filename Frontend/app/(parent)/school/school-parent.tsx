@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { View, StyleSheet, ScrollView } from 'react-native'
 import { theme } from '@/theme'
 import { router } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
@@ -12,6 +13,7 @@ import { Text } from '@/components/modal/shared/Text'
 const TABS = ['Grades', 'HW & Tasks', 'Progress', 'Reports']
 
 export default function SchoolScreen() {
+    const { t } = useTranslation()
     const [activeTab, setActiveTab] = useState('Grades')
 
     const handleTabChange = (tab: string) => {
@@ -23,7 +25,7 @@ export default function SchoolScreen() {
     return (
         <ScreenWrapper scroll={false}>
         <Header
-            title="School"
+            title={t('schoolPage.title')}
             subtitle="Ayoub, grade 4"
             onBack={() => router.back()}
         />
@@ -33,7 +35,7 @@ export default function SchoolScreen() {
             <Card variant="elevated" style={styles.schoolCard}>
             <View style={styles.schoolIconPlaceholder} />
             <View style={styles.schoolTextBlock}>
-                <Text variant="heading" style={styles.schoolName}>School name</Text>
+                <Text variant="heading" style={styles.schoolName}>{t('school.home.title')}</Text>
                 <Text style={styles.schoolInfo}>Grade 4 - A</Text>
                 <Text style={styles.schoolLocation}>📍 Amman</Text>
             </View>
@@ -43,8 +45,8 @@ export default function SchoolScreen() {
 
             {/* Grades Section */}
             <View style={styles.sectionHeader}>
-            <Text variant="heading">Current Term Grades</Text>
-            <Text style={styles.seeAll}>See all</Text>
+            <Text variant="heading">{t('schoolPage.grades.comingUp')}</Text>
+            <Text style={styles.seeAll}>{t('common.seeAll')}</Text>
             </View>
 
             <View style={styles.gradesGrid}>
@@ -59,7 +61,7 @@ export default function SchoolScreen() {
             </View>
 
             {/* Upcoming Section */}
-            <Text variant="heading" style={styles.upcomingTitle}>Coming Up This Week</Text>
+            <Text variant="heading" style={styles.upcomingTitle}>{t('schoolPage.grades.comingUp')}</Text>
             <Card variant="default" style={styles.upcomingCard}>
             <View style={styles.upcomingIconBox} />
             <View style={{ flex: 1 }}>

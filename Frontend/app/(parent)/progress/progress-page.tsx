@@ -6,6 +6,7 @@
 import React, { useState } from 'react'
 import { View, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
 import { router } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { theme } from '@/theme'
 import { Text } from '@/components/modal/shared/Text'
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
@@ -44,6 +45,7 @@ const MOCK_SKILLS: SkillItem[] = [
 const TABS = ['Progress', 'Quizes', 'Activities', 'Homeworks']
 
 export default function ProgressScreen() {
+    const { t } = useTranslation()
     const [activeTab, setActiveTab] = useState('Progress')
 
     const handleTabChange = (tab: string) => {
@@ -67,7 +69,7 @@ export default function ProgressScreen() {
         <StatusBar barStyle="dark-content" backgroundColor={theme.colors.white} />
 
         <Header
-            title="Progress"
+            title={t('progress.title')}
             onBack={() => router.back()}
             rightElement={
             <HeaderRightButton onPress={() => router.push('/(parent)/settings')} />
@@ -87,7 +89,7 @@ export default function ProgressScreen() {
         <View style={styles.content}>
             <ProgressCard {...MOCK_PROGRESS_CARD} />
             <ProgressSummary
-            title="Progress Summary"
+            title={t('progress.summary')}
             items={MOCK_SKILLS}
             onViewDetails={() => router.push('/(parent)/progress-details')}
             />
