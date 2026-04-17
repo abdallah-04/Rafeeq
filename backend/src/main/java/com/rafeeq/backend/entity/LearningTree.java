@@ -52,6 +52,15 @@ public class LearningTree {
     private String promptVersion;
 
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
+    private List<Quiz> quizzes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
+    private List<Homework> homeworks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
+    private List<Activity> activities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<TreeItem> treeItems = new ArrayList<>();
 
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)

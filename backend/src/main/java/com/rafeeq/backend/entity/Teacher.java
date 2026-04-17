@@ -28,7 +28,7 @@ public class Teacher {
 
     @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY)
     private List<ChildAssessment> childAssessments = new ArrayList<>();
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
@@ -41,6 +41,10 @@ public class Teacher {
 
     @Column(name = "specialization", length = 255)
     private String specialization;
+
+
+    @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY)
+    private List<Homework> homeworks = new ArrayList<>();
 
     @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY)
     private List<ChildProfile> childProfiles = new ArrayList<>();

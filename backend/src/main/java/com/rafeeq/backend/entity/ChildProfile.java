@@ -36,6 +36,15 @@ public class ChildProfile {
     private List<ChildScore> childScores = new ArrayList<>();
 
     @OneToMany(mappedBy = "child", fetch = FetchType.LAZY)
+    private List<Quiz> quizzes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "child", fetch = FetchType.LAZY)
+    private List<Homework> homeworks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "child", fetch = FetchType.LAZY)
+    private List<Activity> activities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "child", fetch = FetchType.LAZY)
     private List<ChildScoreLog> childScoreLogs = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
