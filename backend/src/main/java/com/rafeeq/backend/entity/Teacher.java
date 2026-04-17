@@ -26,6 +26,9 @@ public class Teacher {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY)
+    private List<ChildAssessment> childAssessments = new ArrayList<>();
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;

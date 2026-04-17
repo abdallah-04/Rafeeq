@@ -7,8 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Entity
@@ -22,6 +24,9 @@ public class ChildProfile {
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
+
+    @OneToMany(mappedBy = "child", fetch = FetchType.LAZY)
+    private List<ChildAssessment> assessments = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
