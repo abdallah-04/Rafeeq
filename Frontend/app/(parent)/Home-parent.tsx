@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar';
+import { useTranslation } from 'react-i18next';
 
 import Badge from '@/components/modal/shared/Badge';
 import ProgressBar from '@/components/modal/shared/progressBar';
@@ -36,26 +37,26 @@ const CHILD = {
 
 const PARENT_NAME = "Ayoub";
 
-/* ── Quick access items ── */
+/* ── Quick access key map ── */
 const QUICK_ACCESS = [
-    { label: 'School page',      icon: require('@/assets/images/icons/school-icon.png'), iconColor: colors.primary,   containerColor: colors.primaryLighter, route: '/(parent)/school/school-parent'       },
-    { label: 'Progress Reports', icon: require('@/assets/images/icons/growth.png'),      iconColor: '#059669',        containerColor: '#D1FAE5',             route: '/(parent)/progress/progress-page' },
-    { label: 'Roadmap',             icon: require('@/assets/images/icons/roadmap.png'),     iconColor: '#A459D1',        containerColor: '#F3E8FF',             route: '/(parent)/roadmap/roadmap'          },
-    { label: 'Expert advices',icon: require('@/assets/images/icons/influencer.png'),  iconColor: '#D97706',        containerColor: '#FEF3C7',             route: '/(parent)/expert-advice'            },
+    { labelKey: 'parent.home.quickAccess.schoolPage',       icon: require('@/assets/images/icons/school-icon.png'), iconColor: colors.primary,   containerColor: colors.primaryLighter, route: '/(parent)/school/school-parent'   },
+    { labelKey: 'parent.home.quickAccess.progressReports',  icon: require('@/assets/images/icons/growth.png'),      iconColor: '#059669',        containerColor: '#D1FAE5',             route: '/(parent)/progress/progress-page' },
+    { labelKey: 'parent.home.quickAccess.tree',             icon: require('@/assets/images/icons/roadmap.png'),     iconColor: '#A459D1',        containerColor: '#F3E8FF',             route: '/(parent)/roadmap/roadmap'        },
+    { labelKey: 'parent.home.quickAccess.specialEd',        icon: require('@/assets/images/icons/influencer.png'),  iconColor: '#D97706',        containerColor: '#FEF3C7',             route: '/(parent)/expert-advice'          },
 ];
 
-function ChildCard() {
+function ChildCard({ t }: { t: (key: string, opts?: any) => string }) {
     return (
         <Card variant="elevated" padded style={cardStyles.container}>
             {/* Top row */}
             <View style={cardStyles.topRow}>
                 <Avatar name={CHILD.name} imageUri={CHILD.imageUri} size="md" />
                 <View style={cardStyles.info}>
-                    <Text variant="body" style={cardStyles.name}>{CHILD.name}, {CHILD.age} years</Text>
+                    <Text variant="body" style={cardStyles.name}>{CHILD.name}</Text>
                     <View style={cardStyles.badges}>
-                        <Badge label={`Level ${CHILD.level}`} variant="blue" />
-                        <Badge label={`Age ${CHILD.age}`}     variant="green" />
-                        <Badge label={CHILD.disability}        variant="orange" />
+                        <Badge label={`${t('parent.home.childCard.level')} ${CHILD.level}`} variant="blue" />
+                        <Badge label={`${t('parent.home.childCard.age')} ${CHILD.age}`}     variant="green" />
+                        <Badge label={CHILD.disability} variant="orange" />
                     </View>
                 </View>
                 <Text variant="body" style={cardStyles.percent}>{CHILD.progress}%</Text>
@@ -68,17 +69,17 @@ function ChildCard() {
             <View style={cardStyles.statsRow}>
                 <View style={cardStyles.stat}>
                     <Text style={cardStyles.statIcon}>✓</Text>
-                    <Text variant="caption" style={cardStyles.statText}>{CHILD.tasks} Task</Text>
+                    <Text variant="caption" style={cardStyles.statText}>{CHILD.tasks} {t('parent.home.childCard.tasks')}</Text>
                 </View>
                 <View style={cardStyles.divider} />
                 <View style={cardStyles.stat}>
                     <Text style={cardStyles.statIcon}>📅</Text>
-                    <Text variant="caption" style={cardStyles.statText}>{CHILD.daysInRow} Days in Row</Text>
+                    <Text variant="caption" style={cardStyles.statText}>{CHILD.daysInRow} {t('parent.home.childCard.streak')}</Text>
                 </View>
                 <View style={cardStyles.divider} />
                 <View style={cardStyles.stat}>
                     <Text style={cardStyles.statIcon}>☆</Text>
-                    <Text variant="caption" style={cardStyles.statText}>{CHILD.achievements} Achievement</Text>
+                    <Text variant="caption" style={cardStyles.statText}>{CHILD.achievements} {t('parent.home.childCard.achievements')}</Text>
                 </View>
             </View>
         </Card>
@@ -152,10 +153,10 @@ const cardStyles = StyleSheet.create({
     },
 });
 
-function QuickAccess() {
+function QuickAccess({ t }: { t: (key: string) => string }) {
     return (
         <View style={qaStyles.container}>
-            <Text variant="heading" style={qaStyles.title}>Quick Access</Text>
+            <Text variant="heading" style={qaStyles.title}>{t('parent.home.quickAccess.title')}</Text>
             <View style={qaStyles.grid}>
                 {QUICK_ACCESS.map((item) => (
                     <TouchableOpacity
@@ -167,7 +168,7 @@ function QuickAccess() {
                         <View style={[qaStyles.iconBox, { backgroundColor: item.containerColor }]}>
                             <Image source={item.icon} style={[qaStyles.iconi, { tintColor: item.iconColor }]} />
                         </View>
-                        <Text variant="label" style={qaStyles.label}>{item.label}</Text>
+                        <Text variant="label" style={qaStyles.label}>{t(item.labelKey)}</Text>
                     </TouchableOpacity>
                 ))}
             </View>
@@ -231,6 +232,7 @@ const qaStyles = StyleSheet.create({
 });
 
 export default function HomeScreen() {
+    const { t } = useTranslation();
     return (
         <ScreenWrapper padded={false}>
             <StatusBar style="dark" />
@@ -240,7 +242,7 @@ export default function HomeScreen() {
                 <View style={styles.userRow}>
                     <Avatar name={PARENT_NAME} size="sm" />
                     <View>
-                        <Text variant="caption" style={styles.welcomeText}>Welcome back,</Text>
+                        <Text variant="caption" style={styles.welcomeText}>{t('parent.home.greeting')}</Text>
                         <Text variant="body" style={styles.parentName}>{PARENT_NAME}</Text>
                     </View>
                 </View>
@@ -253,13 +255,13 @@ export default function HomeScreen() {
                 showsVerticalScrollIndicator={true}>
 
                 {/*card on head*/}
-                <ChildCard />
+                <ChildCard t={t} />
 
                 {/*calender*/}
                 <CalendarStrip />
 
                 {/*icons*/}
-                <QuickAccess />
+                <QuickAccess t={t} />
             </ScrollView>
 
             {/*footer*/}

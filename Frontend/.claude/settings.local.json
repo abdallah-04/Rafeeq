@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(npm install:*)",
+      "Bash(grep -v \"^$\")",
+      "Bash(node -e \"require\\('./locales/en.json'\\); console.log\\('en.json valid'\\)\")",
+      "Bash(node -e \"require\\('./locales/ar.json'\\); console.log\\('ar.json valid'\\)\")"
     ]
   }
 }

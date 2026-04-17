@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'  // ← ADDED
 import AsyncStorage from '@react-native-async-storage/async-storage' // ← ADDED
 import { I18nManager } from 'react-native'
 import type { AuthState, User, Child, Language, UserRole } from '../types'
+import i18n from '@/i18n'
 
 // ─────────────────────────────────────────────
 //  STORE SHAPE
@@ -103,6 +104,7 @@ export const useAuthStore = create<AuthStore>()(
       // Also updates isRTL and forces layout flip.
       setLanguage: (lang) => {
         const isRTL = lang === 'ar'
+        i18n.changeLanguage(lang)
         I18nManager.forceRTL(isRTL)
         set({ language: lang, isRTL })
       },

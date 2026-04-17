@@ -249,19 +249,26 @@
       "emptyTitle": "It's a little quiet here!",
       "emptySubtitle": "No students added yet",
       "addFirst": "Add your first Students",
+      "add": "Add",
       "level": "Level",
       "progress": "Progress"
     },
     "addStudent": {
       "title": "Add Student",
       "name": "Child's full name",
+      "fullName": "Child's full name",
+      "fullNamePlaceholder": "Enter full name",
       "nationalId": "National ID",
       "dateOfBirth": "Date of birth",
+      "dob": "Date of birth",
       "difficulty": "Child's difficulty",
+      "condition": "Child's difficulty",
+      "conditionPlaceholder": "Select difficulty",
       "gender": "Gender",
       "male": "Male",
       "female": "Female",
-      "addButton": "Continue"
+      "addButton": "Continue",
+      "continue": "Continue"
     },
     "homework": {
       "title": "Homework",
@@ -281,12 +288,98 @@
       "add": "Add Report",
       "unread": "Unread",
       "read": "Read",
-      "addButton": "Add Report"
+      "addButton": "Add Report",
+      "reportTitle": "Report Title",
+      "reportSubject": "Report Subject",
+      "titlePlaceholder": "Enter report title...",
+      "details": "Details...",
+      "submit": "Add",
+      "upload": "Tap to upload",
+      "uploaded": "Uploaded Reports"
     },
     "notes": {
       "title": "Notes",
       "add": "Add Note",
       "addButton": "Add Note"
+    },
+    "dashboard": {
+      "notes": "Notes",
+      "addHW": "Add H.W",
+      "reports": "Add Reports",
+      "progressOf": "Progress",
+      "tasks": "Task",
+      "daysRow": "Days in Row",
+      "achievements": "Achievement",
+      "recentNotes": "Recent Notes"
+    },
+    "quickAccess": {
+      "title": "Student Profile",
+      "quickAccess": "Quick Access",
+      "years": "Years",
+      "progress": "Progress"
+    },
+    "quiz": {
+      "todayQuiz": "Today Quiz",
+      "questions": "Questions",
+      "mins": "mins",
+      "start": "Start"
+    },
+    "modal": {
+      "greatJob": "Great Job!",
+      "wellDone": "You did a great job, well done!",
+      "okay": "Okay"
+    },
+    "roadmap": {
+      "title": "Learning Tree"
+    },
+    "exam": {
+      "monthlyExam": "Monthly Exam",
+      "levelGrade": "Level Grade",
+      "topic": "Topic",
+      "date": "Date",
+      "next": "Next",
+      "startExam": "Start Exam",
+      "download": "Download",
+      "recentActivity": "Recent Activity",
+      "examQuestions": "Exam Questions",
+      "question": "Question",
+      "finish": "Finish",
+      "nextQuestion": "Next Question",
+      "greatJob": "Great Job!",
+      "wellDone": "You did a great job, well done!",
+      "okay": "Okay"
+    },
+    "hw": {
+      "title": "H.W",
+      "add": "Add",
+      "notesLabel": "H.W Details",
+      "notesPlaceholder": "H.W Details...",
+      "dueDate": "Due Date",
+      "upload": "Tap to upload",
+      "submit": "Add",
+      "history": "H.W History",
+      "details": "Details"
+    },
+    "addNote": {
+      "title": "Add Note",
+      "noteTitle": "Note Title",
+      "noteTitlePlaceholder": "Enter note title...",
+      "noteSubject": "Note Subject",
+      "details": "Details...",
+      "tapToUpload": "Tap to upload",
+      "add": "Add"
+    },
+    "nav": {
+      "home": "Home",
+      "profile": "Profile",
+      "students": "Students"
+    },
+    "profile": {
+      "name": "Mr. Ahmad",
+      "role": "Special Education Teacher",
+      "students": "Students",
+      "avgProgress": "Avg Progress",
+      "grade": "Grade"
     }
   },
 
@@ -576,7 +669,15 @@
   "difficultyPlaceholder": "Select difficulty",
   "gender": "Gender",
   "female": "Female",
-  "male": "Male"
+  "male": "Male",
+  "continue": "Continue"
+},
+
+"teacherDetail": {
+  "students": "Students",
+  "dangerZone": "Account Actions",
+  "deactivate": "Deactivate Teacher",
+  "remove": "Remove Teacher"
 }
 
 }

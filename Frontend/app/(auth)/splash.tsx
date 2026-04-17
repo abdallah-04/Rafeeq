@@ -1,16 +1,13 @@
-import { View, Image, StyleSheet, Animated } from 'react-native';
+import { View, StyleSheet, Animated } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { router } from 'expo-router';
 import React from 'react';
-import { useAuthStore, selectLanguageSelected } from '@/store/authStore';
 import { Text } from '@/components/modal/shared/Text';
 import { theme } from '@/theme';
 
 export default function SplashScreen() {
   const opacity = useRef(new Animated.Value(0)).current;
   const scale   = useRef(new Animated.Value(0.8)).current;
-
-  const languageSelected = useAuthStore(selectLanguageSelected);
 
   useEffect(() => {
     Animated.parallel([
@@ -19,7 +16,7 @@ export default function SplashScreen() {
     ]).start();
 
     const timer = setTimeout(() => {
-      router.replace(languageSelected ? '/(auth)/onboarding' : '/(auth)/language');
+      router.replace('/(auth)/language');
     }, 2200);
 
     return () => clearTimeout(timer);
