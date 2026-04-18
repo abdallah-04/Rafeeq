@@ -72,6 +72,21 @@ public class AuthService {
         return new AuthResponse(accessToken, refreshToken, user.getRole().name(), "Parent registered successfully");
     }
 
+        public MessageResponse resendOtp(ResendOtpRequest request) {
+            User user = userRepository.findByNationalId(request.getNationalId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            String otp = String.valueOf((int) (1000 + Math.random() * 9000));
+            user.setOtpCode(otp);
+            user.setOtpExpiresAt(LocalDateTime.now().plusMinutes(5));
+
+            userRepository.save(user);
+
+            System.out.println("DEBUG RESEND OTP for " + user.getNationalId() + ": " + otp);
+
+            return new MessageResponse("OTP resent successfully");
+        }
+
     public AuthResponse registerSchool(RegisterSchoolRequest request) {
         if (request.getPhone() != null && userRepository.existsByPhone(request.getPhone())) {
             throw new RuntimeException("Phone already exists");

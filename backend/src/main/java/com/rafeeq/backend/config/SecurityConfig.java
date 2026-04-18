@@ -42,7 +42,8 @@ public class SecurityConfig {
                             "/v3/api-docs/**",
                             "/test/**",
                             "/auth/logout",
-                            "/ping"
+                            "/ping",
+                            "/auth/resend-otp"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

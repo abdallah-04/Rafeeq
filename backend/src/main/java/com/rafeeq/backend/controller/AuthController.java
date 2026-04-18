@@ -11,6 +11,7 @@ import com.rafeeq.backend.dto.auth.RefreshTokenRequest;
 import com.rafeeq.backend.dto.auth.RefreshTokenResponse;
 import com.rafeeq.backend.dto.auth.RegisterParentRequest;
 import com.rafeeq.backend.dto.auth.RegisterSchoolRequest;
+import com.rafeeq.backend.dto.auth.ResendOtpRequest;
 import com.rafeeq.backend.dto.auth.ResetPasswordRequest;
 import com.rafeeq.backend.dto.auth.VerifyOtpRequest;
 
@@ -49,6 +50,11 @@ public class AuthController {
     @PostMapping("/verify-otp")
     public ResponseEntity<MessageResponse> verifyOtp(@RequestBody VerifyOtpRequest request) {
         return ResponseEntity.ok(authService.verifyOtp(request));
+    }
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<MessageResponse> resendOtp(@RequestBody ResendOtpRequest request) {
+        return ResponseEntity.ok(authService.resendOtp(request));
     }
 
     @PostMapping("/reset-password")
