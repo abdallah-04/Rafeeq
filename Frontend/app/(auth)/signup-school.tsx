@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, TextInput, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { schoolStep1Schema, SchoolStep1Form } from '@/lib/schemas/schoolSignup'
+import { createSchoolStep1Schema, SchoolStep1Form } from '@/lib/schemas/schoolSignup'
 import { useSchoolSignupStore } from '@/store/schoolSignupStore'
 import Footer from '@/components/modal/shared/Footer'
 import { Text } from '@/components/modal/shared/Text'
@@ -18,11 +18,12 @@ import { StatusBar } from 'expo-status-bar'
 const { colors, spacing, typography, radius } = theme
 
 export default function SchoolSignupStep1() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const setStep1 = useSchoolSignupStore((s) => s.setStep1)
 
+  const schema = useMemo(() => createSchoolStep1Schema(t), [t])
   const { control, handleSubmit, formState: { errors } } = useForm<SchoolStep1Form>({
-    resolver: zodResolver(schoolStep1Schema),
+    resolver: zodResolver(schema),
   })
 
   const onContinue = (data: SchoolStep1Form) => {
@@ -34,8 +35,7 @@ export default function SchoolSignupStep1() {
     <ScreenWrapper scroll={false} padded={false}>
       <StatusBar style="dark" />
       <Header
-        title={t('Welcome to Rafeeq')}
-        //subtitle={t('schoolSignup.subtitle')}
+        title={t('schoolSignup.title')}
         onBack={() => router.back()}
       />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -48,7 +48,7 @@ export default function SchoolSignupStep1() {
           <Card variant="elevated" padded style={styles.card}>
 
             {/* School Name */}
-            <Text variant="label" style={styles.label}>{t('School Name')}</Text>
+            <Text variant="label" style={styles.label}>{t('schoolSignup.schoolName')}</Text>
             <Controller
               control={control}
               name="schoolName"
@@ -57,7 +57,7 @@ export default function SchoolSignupStep1() {
                   style={[styles.input, errors.schoolName && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
-                  placeholder={t('Enter your school name')}
+                  placeholder={t('schoolSignup.schoolNamePlaceholder')}
                   placeholderTextColor={colors.textMuted}
                 />
               )}
@@ -65,7 +65,7 @@ export default function SchoolSignupStep1() {
             {errors.schoolName && <Text style={styles.error}>{errors.schoolName.message}</Text>}
 
             {/* School ID */}
-            <Text variant="label" style={styles.label}>{t('school Id')}</Text>
+            <Text variant="label" style={styles.label}>{t('schoolSignup.schoolId')}</Text>
             <Controller
               control={control}
               name="schoolId"
@@ -74,7 +74,7 @@ export default function SchoolSignupStep1() {
                   style={[styles.input, errors.schoolId && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
-                  placeholder={t('Enter your school ID')}
+                  placeholder={t('schoolSignup.schoolIdPlaceholder')}
                   placeholderTextColor={colors.textMuted}
                 />
               )}
@@ -82,7 +82,7 @@ export default function SchoolSignupStep1() {
             {errors.schoolId && <Text style={styles.error}>{errors.schoolId.message}</Text>}
 
             {/* Advisor Name */}
-            <Text variant="label" style={styles.label}>{t('Advisor Name')}</Text>
+            <Text variant="label" style={styles.label}>{t('schoolSignup.advisorName')}</Text>
             <Controller
               control={control}
               name="advisorName"
@@ -91,7 +91,7 @@ export default function SchoolSignupStep1() {
                   style={[styles.input, errors.advisorName && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
-                  placeholder={t('Enter advisor name')}
+                  placeholder={t('schoolSignup.advisorNamePlaceholder')}
                   placeholderTextColor={colors.textMuted}
                 />
               )}
@@ -99,7 +99,7 @@ export default function SchoolSignupStep1() {
             {errors.advisorName && <Text style={styles.error}>{errors.advisorName.message}</Text>}
 
             {/* Advisor National ID */}
-            <Text variant="label" style={styles.label}>{t('`Advisor National Id')}</Text>
+            <Text variant="label" style={styles.label}>{t('schoolSignup.advisorNationalId')}</Text>
             <Controller
               control={control}
               name="advisorNationalId"
@@ -108,7 +108,7 @@ export default function SchoolSignupStep1() {
                   style={[styles.input, errors.advisorNationalId && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
-                  placeholder="0000000000"
+                  placeholder={t('schoolSignup.advisorNationalIdPlaceholder')}
                   placeholderTextColor={colors.textMuted}
                   keyboardType="numeric"
                   maxLength={10}
@@ -127,13 +127,13 @@ export default function SchoolSignupStep1() {
             </View>
 
             <Text variant="caption" style={styles.loginText}>
-              {t('Already Have an account?')}{' '}
+              {t('auth.signup.haveAccount')}{' '}
               <Text
                 variant="caption"
                 style={styles.loginLink}
                 onPress={() => router.push('/(auth)/login')}
               >
-                {t('log In')}
+                {t('common.login')}
               </Text>
             </Text>
 
@@ -143,7 +143,7 @@ export default function SchoolSignupStep1() {
             onLanguagePress={() => {}}
             onPrivacyPress={() => {}}
             onTermsPress={() => {}}
-            currentLanguage="English (US)"
+            currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
           />
         </ScrollView>
       </KeyboardAvoidingView>

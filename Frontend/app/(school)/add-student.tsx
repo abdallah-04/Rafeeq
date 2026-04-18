@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   View,
   Text,
@@ -18,25 +18,7 @@ import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { colors, spacing, borderRadius } from '@/constants'
-
-// ─── Schema ───────────────────────────────────────────────────
-const addStudentSchema = z.object({
-  fullName: z
-    .string()
-    .min(3, 'Full name must be at least 3 characters')
-    .max(60, 'Full name is too long'),
-  nationalId: z
-    .string()
-    .length(10, 'National ID must be exactly 10 digits')
-    .regex(/^\d+$/, 'National ID must contain only numbers'),
-  dateOfBirth: z
-    .string()
-    .min(1, 'Date of birth is required')
-    .regex(/^\d{2}\/\d{2}\/\d{4}$/, 'Format must be MM/DD/YYYY'),
-  difficulty: z.string().min(1, 'Please select a difficulty'),
-})
-
-type AddStudentForm = z.infer<typeof addStudentSchema>
+import { createAddStudentSchema, AddStudentForm } from '@/lib/schemas/studentSchema'
 type Gender = 'female' | 'male'
 
 const DIFFICULTIES = ['ADD', 'ADHD', 'IFD', 'Autism', 'Down Syndrome', 'Other']
@@ -160,8 +142,9 @@ export default function AddStudentScreen() {
   const [gender, setGender] = useState<Gender | null>(null)
   const [genderError, setGenderError] = useState(false)
 
+  const schema = useMemo(() => createAddStudentSchema(t), [t])
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<AddStudentForm>({
-    resolver: zodResolver(addStudentSchema),
+    resolver: zodResolver(schema),
   })
 
   const dateOfBirth = watch('dateOfBirth')

@@ -27,6 +27,8 @@
     "remove": "Remove",
     "download": "Download",
     "share": "Share",
+    "upload": "Upload",
+    "tapToUpload": "Tap to upload",
     "or": "or",
     "orContinueWith": "OR CONTINUE WITH",
     "privacyPolicy": "Privacy Policy",
@@ -34,7 +36,19 @@
     "language": "Language",
     "getStarted": "Get Started",
     "letsGo": "Let's go!",
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "appName": "Rafeeq",
+    "active": "Active",
+    "level": "Level",
+    "details": "Details",
+    "date": "Date",
+    "score": "Score",
+    "start": "Start",
+    "finish": "Finish",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "new": "New",
+    "underReview": "Under Review"
   },
 
   "language": {
@@ -61,6 +75,7 @@
 
   "landing": {
     "tagline": "Educational platform for children with special needs",
+    "subtitle": "Your child's development journey starts here",
     "login": "Login",
     "getStarted": "Get Started"
   },
@@ -90,19 +105,22 @@
       "sanad": "Sign up with Sanad"
     },
     "signup": {
-      "title": "Create your account",
-      "subtitle": "Enter your details to get started",
+      "title": "Welcome to RAFEEQ",
+      "subtitle": "Your child's developmental journey starts here. Log in or sign up to manage their progress.",
       "nationalId": "National ID",
-      "nationalIdPlaceholder": "Enter your 10-digit national ID",
+      "nationalIdPlaceholder": "Enter your national ID",
       "phone": "Phone number",
-      "phonePlaceholder": "+962 7X XXX XXXX",
+      "phonePlaceholder": "+962  7X  XXX  XXXX",
       "createPassword": "Create password",
+      "passwordPlaceholder": "Min. 8 characters",
       "createPasswordPlaceholder": "At least 8 characters",
       "confirmPassword": "Confirm password",
-      "confirmPasswordPlaceholder": "Re-enter your password",
+      "confirmPasswordPlaceholder": "Re-enter password",
       "continueButton": "Continue",
+      "orContinueWith": "OR CONTINUE WITH",
       "sanad": "Sign up with Sanad",
       "alreadyHave": "Already have an account?",
+      "haveAccount": "Already have an account?",
       "login": "Log in"
     },
     "schoolSignup": {
@@ -238,11 +256,21 @@
   "teacher": {
     "home": {
       "greeting": "Hello,",
+      "welcome": "Hello, Prof. {{name}}",
       "class": "My Class",
       "totalStudents": "Total Students",
       "avgProgress": "Avg. Progress",
+      "myStudents": "My Students",
       "roster": "My Students",
+      "addStudent": "Add Student",
+      "emptyState": "No students yet!",
+      "emptyStateSubtitle": "Add your first students",
       "notifications": "Notifications"
+    },
+    "bottomNav": {
+      "home": "Home",
+      "profile": "Profile",
+      "students": "Students"
     },
     "students": {
       "title": "My Students",
@@ -253,6 +281,30 @@
       "level": "Level",
       "progress": "Progress"
     },
+    "studentCard": {
+      "level": "Level {{level}}",
+      "active": "Active",
+      "progress": "{{percent}}%"
+    },
+    "studentQuickAccess": {
+      "title": "Quick Access",
+      "roadMap": "Road Map",
+      "monthlyExam": "Monthly Exam",
+      "reports": "Reports",
+      "age": "{{age}} Years",
+      "level": "Level {{level}}"
+    },
+    "studentDashboard": {
+      "title": "Student Dashboard",
+      "notes": "Notes",
+      "addHomework": "Add Homework",
+      "addReports": "Add Reports",
+      "progressCircle": "{{percent}}%",
+      "tasks": "{{count}} Task",
+      "daysInRow": "{{count}} Days in Row",
+      "achievements": "{{count}} Achievement",
+      "recentNotes": "Recent Notes"
+    },
     "addStudent": {
       "title": "Add Student",
       "name": "Child's full name",
@@ -261,22 +313,39 @@
       "nationalId": "National ID",
       "dateOfBirth": "Date of birth",
       "dob": "Date of birth",
+      "dateOfBirthPlaceholder": "DD / MM / YYYY",
       "difficulty": "Child's difficulty",
       "condition": "Child's difficulty",
       "conditionPlaceholder": "Select difficulty",
+      "difficultyPlaceholder": "Select difficulty",
       "gender": "Gender",
       "male": "Male",
       "female": "Female",
       "addButton": "Continue",
-      "continue": "Continue"
+      "continue": "Continue",
+      "successModal": "Student added successfully",
+      "countdown": "Redirecting in {{seconds}} seconds"
+    },
+    "myStudents": {
+      "title": "My Students",
+      "empty": "No students yet!",
+      "emptySubtitle": "Add your first students",
+      "addCard": "+"
     },
     "homework": {
       "title": "Homework",
       "add": "Add H.W",
+      "addTitle": "Add Homework",
+      "hwTitle": "Title",
       "subject": "Subject",
       "description": "Description",
+      "instructions": "Instructions",
+      "hwDetails": "Homework Details",
       "dueDate": "Due date",
       "addButton": "Add Homework",
+      "history": "Homework History",
+      "today": "Today",
+      "detailsButton": "Details",
       "status": {
         "not_submitted": "Not submitted",
         "submitted": "Submitted",
@@ -286,6 +355,7 @@
     "reports": {
       "title": "Reports",
       "add": "Add Report",
+      "addTitle": "Add Report",
       "unread": "Unread",
       "read": "Read",
       "addButton": "Add Report",
@@ -295,11 +365,22 @@
       "details": "Details...",
       "submit": "Add",
       "upload": "Tap to upload",
-      "uploaded": "Uploaded Reports"
+      "uploaded": "Uploaded Reports",
+      "uploadedReports": "Uploaded Reports",
+      "examSchedule": "Exam Schedule",
+      "mathTestAnswer": "Math Test Answers",
+      "newTasks": "New Tasks"
     },
     "notes": {
       "title": "Notes",
       "add": "Add Note",
+      "addNote": "+ Add",
+      "parentNotes": "Parent Notes",
+      "yourNotes": "Your Notes",
+      "teacherFeed": "Teacher Feed",
+      "noteTitle": "Note Title",
+      "noteSubject": "Subject",
+      "noteDetails": "Details...",
       "addButton": "Add Note"
     },
     "dashboard": {
@@ -332,6 +413,14 @@
     "roadmap": {
       "title": "Learning Tree"
     },
+    "roadMap": {
+      "title": "Road Map",
+      "day": "Day {{number}}",
+      "completed": "Completed",
+      "current": "Current",
+      "upcoming": "Upcoming",
+      "crown": "Final Goal"
+    },
     "exam": {
       "monthlyExam": "Monthly Exam",
       "levelGrade": "Level Grade",
@@ -348,6 +437,60 @@
       "greatJob": "Great Job!",
       "wellDone": "You did a great job, well done!",
       "okay": "Okay"
+    },
+    "monthlyExam": {
+      "title": "Monthly Exam",
+      "examInfo": "Exam Info",
+      "levelGrade": "Grade {{grade}}",
+      "topic": "Topic: {{topic}}",
+      "date": "Date: {{date}}",
+      "nextExam": "Next: {{date}}",
+      "levelBadge": "Level {{level}}",
+      "progressCircle": "{{percent}}%",
+      "startExam": "Start Exam",
+      "download": "Download",
+      "recentActivity": "Recent Activity",
+      "score": "Score {{score}}"
+    },
+    "examQuestion": {
+      "header": "Exam Questions",
+      "question": "Question {{current}}",
+      "nextQuestion": "Next Question",
+      "finish": "Finish",
+      "selectedAnswer": "Selected Answer"
+    },
+    "todayExam": {
+      "title": "Today's Exam",
+      "questions": "{{count}} Questions",
+      "examNumber": "Exam {{number}}",
+      "duration": "{{minutes}} min",
+      "start": "Start"
+    },
+    "todayQuiz": {
+      "title": "Today's Quiz",
+      "questions": "{{count}} Questions",
+      "quizNumber": "Quiz {{number}}",
+      "duration": "{{minutes}} min",
+      "start": "Start"
+    },
+    "dayWorkModals": {
+      "whatToDoToday": "What to do today",
+      "okay": "Okay",
+      "letsGo": "Let's Go",
+      "day5Work": "Day 5 Work",
+      "task7hw5": "Task 7 & H.W 5",
+      "day6Work": "Day 6 Work",
+      "quiz3hw5": "Quiz 3 & H.W 5",
+      "day7Work": "Day 7 Work",
+      "exam1": "Exam 1",
+      "greatJob": "Great Job!",
+      "youDidGreat": "You did a great job!",
+      "weAreSoProudOfYou": "We are so proud of you",
+      "weAreWaitingForYou": "We are waiting for you"
+    },
+    "wellDoneCard": {
+      "title": "Well Done!",
+      "score": "Your score {{score}}"
     },
     "hw": {
       "title": "H.W",
@@ -369,6 +512,25 @@
       "tapToUpload": "Tap to upload",
       "add": "Add"
     },
+    "addTeacher": {
+      "title": "Add Teacher",
+      "addPhoto": "Add Photo",
+      "fullName": "Teacher's Full Name",
+      "fullNamePlaceholder": "Enter full name",
+      "nationalId": "National ID",
+      "phone": "Phone",
+      "createPassword": "Create Password",
+      "confirmPassword": "Confirm Password",
+      "addButton": "Add Teacher",
+      "submit": "Add Teacher"
+    },
+    "teacherList": {
+      "title": "Teachers",
+      "empty": "No teachers yet!",
+      "emptySubtitle": "Add your first teachers",
+      "active": "Active",
+      "children": "{{count}} Child"
+    },
     "nav": {
       "home": "Home",
       "profile": "Profile",
@@ -379,7 +541,12 @@
       "role": "Special Education Teacher",
       "students": "Students",
       "avgProgress": "Avg Progress",
-      "grade": "Grade"
+      "grade": "Grade",
+      "title": "Profile",
+      "editProfile": "Edit Profile",
+      "nationalId": "National ID",
+      "phone": "Phone",
+      "logout": "Log Out"
     }
   },
 
@@ -613,6 +780,7 @@
 "schoolSignup": {
   "title": "Welcome to RAFEEQ",
   "subtitle": "Set up your school profile to manage student support, monitor progress, and communicate effectively with parents.",
+  "step2Subtitle": "Continue setting up your school account",
   "schoolName": "School Name",
   "schoolNamePlaceholder": "Enter school name",
   "schoolId": "School ID",
@@ -620,7 +788,8 @@
   "advisorName": "Advisor Name",
   "advisorNamePlaceholder": "Enter advisor name",
   "advisorNationalId": "Advisor National ID",
-  "advisorPhone": "Advisor Number",
+  "advisorNationalIdPlaceholder": "Enter advisor national ID",
+  "advisorPhone": "Advisor Phone",
   "createPassword": "Create password",
   "confirmPassword": "Confirm password",
   "alreadyHaveAccount": "Already have an account?"
@@ -678,6 +847,32 @@
   "dangerZone": "Account Actions",
   "deactivate": "Deactivate Teacher",
   "remove": "Remove Teacher"
+},
+
+"difficulties": {
+  "ADD": "ADD",
+  "ADHD": "ADHD",
+  "ASD": "ASD",
+  "Autism": "Autism",
+  "DYS": "Dyslexia",
+  "IFD": "IFD",
+  "OTHER": "Other"
+},
+
+"validation": {
+  "schoolNameRequired": "School name is required",
+  "schoolIdRequired": "School ID is required",
+  "advisorNameRequired": "Advisor name is required",
+  "nationalId10Digits": "National ID must be 10 digits",
+  "numbersOnly": "Numbers only",
+  "phoneRequired": "Phone number is required",
+  "validJordanianNumber": "Enter a valid Jordanian number",
+  "passwordMin8": "Password must be at least 8 characters",
+  "passwordsNoMatch": "Passwords do not match",
+  "fullNameRequired": "Full name is required",
+  "dobRequired": "Date of birth is required",
+  "selectDifficulty": "Please select a difficulty",
+  "selectGender": "Please select a gender"
 }
 
 }

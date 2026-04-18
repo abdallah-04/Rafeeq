@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { View, TextInput, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { schoolStep2Schema, SchoolStep2Form } from '@/lib/schemas/schoolSignup'
+import { createSchoolStep2Schema, SchoolStep2Form } from '@/lib/schemas/schoolSignup'
 import { useSchoolSignupStore } from '@/store/schoolSignupStore'
 import Footer from '@/components/modal/shared/Footer'
 import { Text } from '@/components/modal/shared/Text'
@@ -18,13 +18,14 @@ import { StatusBar } from 'expo-status-bar'
 const { colors, spacing, typography, radius } = theme
 
 export default function SchoolSignupStep2() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const setStep2 = useSchoolSignupStore((s) => s.setStep2)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm]   = useState(false)
 
+  const schema = useMemo(() => createSchoolStep2Schema(t), [t])
   const { control, handleSubmit, formState: { errors } } = useForm<SchoolStep2Form>({
-    resolver: zodResolver(schoolStep2Schema),
+    resolver: zodResolver(schema),
   })
 
   const onContinue = (data: SchoolStep2Form) => {
@@ -35,7 +36,7 @@ export default function SchoolSignupStep2() {
   return (
     <ScreenWrapper scroll={false} padded={false}>
       <StatusBar style="dark" />
-      <Header title={t('Welcome to Rafeeq')} />
+      <Header title={t('schoolSignup.title')} />
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
@@ -44,13 +45,13 @@ export default function SchoolSignupStep2() {
           showsVerticalScrollIndicator={false}
         >
           <Text variant="caption" color="textSecondary" style={styles.subtitle}>
-            {t('continue setting up your school account')}
+            {t('schoolSignup.step2Subtitle')}
           </Text>
 
           <Card variant="elevated" padded style={styles.card}>
 
             {/* Phone */}
-            <Text variant="label" style={styles.label}>{t('Advisor Phone')}</Text>
+            <Text variant="label" style={styles.label}>{t('schoolSignup.advisorPhone')}</Text>
             <Controller
               control={control}
               name="advisorPhone"
@@ -73,7 +74,7 @@ export default function SchoolSignupStep2() {
             {errors.advisorPhone && <Text style={styles.error}>{errors.advisorPhone.message}</Text>}
 
             {/* Password */}
-            <Text variant="label" style={styles.label}>{t('Create Password')}</Text>
+            <Text variant="label" style={styles.label}>{t('schoolSignup.createPassword')}</Text>
             <Controller
               control={control}
               name="password"
@@ -96,7 +97,7 @@ export default function SchoolSignupStep2() {
             {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
             {/* Confirm Password */}
-            <Text variant="label" style={styles.label}>{t('Confirm Password')}</Text>
+            <Text variant="label" style={styles.label}>{t('schoolSignup.confirmPassword')}</Text>
             <Controller
               control={control}
               name="confirmPassword"
@@ -128,9 +129,9 @@ export default function SchoolSignupStep2() {
             </View>
 
             <Text variant="caption" style={styles.loginText}>
-              {t('Already Have an account?')}{' '}
+              {t('auth.signup.haveAccount')}{' '}
               <Text variant="caption" style={styles.loginLink} onPress={() => router.push('/(auth)/login')}>
-                {t('log In')}
+                {t('common.login')}
               </Text>
             </Text>
 
@@ -140,7 +141,7 @@ export default function SchoolSignupStep2() {
             onLanguagePress={() => {}}
             onPrivacyPress={() => {}}
             onTermsPress={() => {}}
-            currentLanguage="English (US)"
+            currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
           />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
   },
   eyeIcon: {
     fontSize: 18,
-    paddingLeft: spacing.sm,
+    paddingStart: spacing.sm,
   },
   inputError: {
     borderColor: colors.error,

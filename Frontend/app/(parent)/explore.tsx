@@ -57,7 +57,7 @@ function FeaturedCard({ article, isRTL }: { article: Article; isRTL: boolean }) 
       <View style={styles.featuredOverlay} />
 
       {/* FEATURED badge */}
-      <View style={[styles.featuredBadge, isRTL ? { right: 14 } : { left: 14 }]}>
+      <View style={[styles.featuredBadge, { start: 14 }]}>
         <Text style={styles.featuredBadgeText}>{t('explore.featured')}</Text>
       </View>
 

@@ -75,6 +75,7 @@
 
   "landing": {
     "tagline": "منصة تعليمية للأطفال ذوي الاحتياجات الخاصة",
+    "subtitle": "رحلة تطور طفلك تبدأ هنا",
     "login": "تسجيل الدخول",
     "getStarted": "ابدأ الآن"
   },
@@ -104,19 +105,22 @@
       "sanad": "التسجيل عبر سند"
     },
     "signup": {
-      "title": "إنشاء حسابك",
-      "subtitle": "أدخل بياناتك للبدء",
+      "title": "مرحباً بك في رفيق",
+      "subtitle": "رحلة طفلك التطورية تبدأ هنا. سجّل دخولك أو أنشئ حساباً لمتابعة تقدمه.",
       "nationalId": "رقم الهوية الوطنية",
-      "nationalIdPlaceholder": "أدخل رقم هويتك المكوّن من ١٠ أرقام",
+      "nationalIdPlaceholder": "أدخل رقم هويتك الوطنية",
       "phone": "رقم الهاتف",
-      "phonePlaceholder": "+962 7X XXX XXXX",
+      "phonePlaceholder": "+962  7X  XXX  XXXX",
       "createPassword": "إنشاء كلمة مرور",
+      "passwordPlaceholder": "٨ أحرف على الأقل",
       "createPasswordPlaceholder": "٨ أحرف على الأقل",
       "confirmPassword": "تأكيد كلمة المرور",
       "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور",
       "continueButton": "متابعة",
+      "orContinueWith": "أو تابع بواسطة",
       "sanad": "التسجيل عبر سند",
       "alreadyHave": "لديك حساب بالفعل؟",
+      "haveAccount": "لديك حساب بالفعل؟",
       "login": "تسجيل الدخول"
     },
     "schoolSignup": {
@@ -573,6 +577,7 @@
   "schoolSignup": {
     "title": "مرحباً بك في رفيق",
     "subtitle": "أنشئ ملف مدرستك لإدارة دعم الطلاب ومتابعة التقدم والتواصل مع أولياء الأمور.",
+    "step2Subtitle": "تابع إعداد حساب مدرستك",
     "schoolName": "اسم المدرسة",
     "schoolNamePlaceholder": "أدخل اسم المدرسة",
     "schoolId": "رقم المدرسة",
@@ -580,7 +585,8 @@
     "advisorName": "اسم المشرف",
     "advisorNamePlaceholder": "أدخل اسم المشرف",
     "advisorNationalId": "الرقم الوطني للمشرف",
-    "advisorPhone": "رقم المشرف",
+    "advisorNationalIdPlaceholder": "أدخل الرقم الوطني للمشرف",
+    "advisorPhone": "رقم هاتف المشرف",
     "createPassword": "إنشاء كلمة المرور",
     "confirmPassword": "تأكيد كلمة المرور",
     "alreadyHaveAccount": "هل لديك حساب بالفعل؟"
@@ -857,5 +863,21 @@
     "dangerZone": "إجراءات الحساب",
     "deactivate": "تعطيل المعلم",
     "remove": "إزالة المعلم"
+  },
+
+  "validation": {
+    "schoolNameRequired": "اسم المدرسة مطلوب",
+    "schoolIdRequired": "رقم المدرسة مطلوب",
+    "advisorNameRequired": "اسم المستشار مطلوب",
+    "nationalId10Digits": "الرقم الوطني يجب أن يكون 10 أرقام",
+    "numbersOnly": "أرقام فقط",
+    "phoneRequired": "رقم الهاتف مطلوب",
+    "validJordanianNumber": "أدخل رقم أردني صحيح",
+    "passwordMin8": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+    "passwordsNoMatch": "كلمتا المرور غير متطابقتين",
+    "fullNameRequired": "الاسم الكامل مطلوب",
+    "dobRequired": "تاريخ الميلاد مطلوب",
+    "selectDifficulty": "الرجاء اختيار صعوبة",
+    "selectGender": "الرجاء اختيار الجنس"
   }
 }

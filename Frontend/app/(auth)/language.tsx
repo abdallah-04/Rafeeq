@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
 import { router } from 'expo-router';
-import { I18nManager } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Updates from 'expo-updates';
 
 import { theme } from '@/theme';
 import { Text } from '@/components/modal/shared/Text';
@@ -15,13 +15,26 @@ export default function LanguageSelectionScreen() {
   const setLanguage         = useAuthStore((s) => s.setLanguage);
   const setLanguageSelected = useAuthStore((s) => s.setLanguageSelected);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!selected) return;
     setLanguage(selected);
     changeLanguage(selected);
-    I18nManager.forceRTL(selected === 'ar');
     setLanguageSelected(true);
-    router.replace('/(auth)/onboarding');
+
+    const needsRTLFlip = I18nManager.isRTL !== (selected === 'ar');
+    I18nManager.forceRTL(selected === 'ar');
+
+    if (needsRTLFlip && Updates.isEnabled) {
+      // Restart required for RTL layout to take effect — only works in production/standalone builds
+      try {
+        await Updates.reloadAsync();
+      } catch {
+        // Expo Go / dev builds don't support reloadAsync; proceed normally
+        router.replace('/(auth)/onboarding');
+      }
+    } else {
+      router.replace('/(auth)/onboarding');
+    }
   };
 
   return (

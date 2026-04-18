@@ -169,7 +169,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
                 onLanguagePress={() => {}}
                 onPrivacyPress={() => {}}
                 onTermsPress={() => {}}
-                currentLanguage="English (US)"
+                currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
                 />
         </View>
         </SafeAreaView>

@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
         height: 40,
         backgroundColor: theme.colors.primaryLighter,
         borderRadius: theme.radius.md,
-        marginRight: theme.spacing.sm,
+        marginEnd: theme.spacing.sm,
     },
     upcomingTitleText: {
         fontFamily: theme.typography.fontFamily.semiBold,

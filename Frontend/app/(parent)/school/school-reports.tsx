@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     height: 40,
     backgroundColor: theme.colors.primaryLight,
     borderRadius: theme.radius.full,
-    marginRight: theme.spacing.sm,
+    marginEnd: theme.spacing.sm,
   },
   teacherName: {
     fontFamily: theme.typography.fontFamily.bold,

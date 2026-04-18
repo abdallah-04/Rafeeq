@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   },
   searchIcon: {
     fontSize: 16,
-    marginRight: 8,
+    marginEnd: 8,
   },
   searchInput: {
     flex: 1,

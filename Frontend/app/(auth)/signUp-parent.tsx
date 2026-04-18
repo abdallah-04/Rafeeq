@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     View,
     TouchableOpacity,
@@ -14,6 +14,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import { StatusBar } from 'expo-status-bar';
 import Footer from '@/components/modal/shared/Footer';
 import { theme } from '@/theme';
@@ -21,29 +22,30 @@ import { Text } from '@/components/modal/shared/Text';
 import { Button } from '@/components/modal/shared/Button';
 import Input from '@/components/modal/shared/TextInput';
 import BackButton from '@/components/modal/shared/BackButton';
-//import Sanad from '@/assets/images/Sanad.png';
 
 const { colors, spacing, typography, radius } = theme;
 
-/* ── Validation ── */
-const signupSchema = z
-    .object({
-        nationalId:      z.string().length(10, 'National ID must be 10 digits'),
-        phone:           z.string().min(9, 'Enter a valid phone number'),
-        password:        z.string().min(8, 'Password must be at least 8 characters'),
-        confirmPassword: z.string(),
-    })
-    .refine((d) => d.password === d.confirmPassword, {
-        message: 'Passwords do not match',
-        path: ['confirmPassword'],
-    });
-
-    type FormData = z.infer<typeof signupSchema>;
+/* ── Bilingual Validation schema ── */
+const createSignupSchema = (t: TFunction) =>
+    z
+        .object({
+            nationalId:      z.string().length(10, t('validation.nationalId10Digits')),
+            phone:           z.string().min(9,  t('validation.validJordanianNumber')),
+            password:        z.string().min(8,  t('validation.passwordMin8')),
+            confirmPassword: z.string(),
+        })
+        .refine((d) => d.password === d.confirmPassword, {
+            message: t('validation.passwordsNoMatch'),
+            path: ['confirmPassword'],
+        });
 
 /* ── Main Screen ── */
 export default function SignUpParentScreen() {
-    const { t }       = useTranslation();
+    const { t, i18n } = useTranslation();
     const [loading, setLoading] = useState(false);
+
+    const signupSchema = useMemo(() => createSignupSchema(t), [t]);
+    type FormData = z.infer<typeof signupSchema>;
 
     const {
         control,
@@ -79,10 +81,8 @@ export default function SignUpParentScreen() {
             {/* Header */}
             <BackButton onPress={router.back} />
 
-            <Text style={styles.title}>Welcome to RAFEEQ</Text>
-            <Text style={styles.subtitle}>
-                Your child's developmental journey starts here. Log in or sign up to manage their progress.
-            </Text>
+            <Text style={styles.title}>{t('auth.signup.title')}</Text>
+            <Text style={styles.subtitle}>{t('auth.signup.subtitle')}</Text>
 
             {/* Form */}
             <View style={styles.form}>
@@ -92,10 +92,10 @@ export default function SignUpParentScreen() {
                 name="nationalId"
                 render={({ field: { onChange, value } }) => (
                     <Input
-                    label="National ID"
+                    label={t('auth.signup.nationalId')}
                     value={value}
                     onChangeText={onChange}
-                    placeholder="Enter your national ID"
+                    placeholder={t('auth.signup.nationalIdPlaceholder')}
                     keyboardType="numeric"
                     errorMsg={errors.nationalId?.message}
                     />
@@ -108,13 +108,13 @@ export default function SignUpParentScreen() {
                 name="phone"
                 render={({ field: { onChange, value } }) => (
                     <Input
-                    label="Phone number"
+                    label={t('auth.signup.phone')}
                     value={value}
                     onChangeText={(text) => {
                         // strip +962 if user typed it
                         onChange(text.replace(/^\+962\s?/, ''));
                     }}
-                    placeholder="+962  7X  XXX  XXXX"
+                    placeholder={t('auth.signup.phonePlaceholder')}
                     keyboardType="phone-pad"
                     errorMsg={errors.phone?.message}
                     />
@@ -127,10 +127,10 @@ export default function SignUpParentScreen() {
                 name="password"
                 render={({ field: { onChange, value } }) => (
                     <Input
-                    label="Create password"
+                    label={t('auth.signup.createPassword')}
                     value={value}
                     onChangeText={onChange}
-                    placeholder="Min. 8 characters"
+                    placeholder={t('auth.signup.passwordPlaceholder')}
                     secureEntry
                     errorMsg={errors.password?.message}
                     />
@@ -143,10 +143,10 @@ export default function SignUpParentScreen() {
                 name="confirmPassword"
                 render={({ field: { onChange, value } }) => (
                     <Input
-                    label="Confirm password"
+                    label={t('auth.signup.confirmPassword')}
                     value={value}
                     onChangeText={onChange}
-                    placeholder="Re-enter password"
+                    placeholder={t('auth.signup.confirmPasswordPlaceholder')}
                     secureEntry
                     errorMsg={errors.confirmPassword?.message}
                     />
@@ -155,7 +155,7 @@ export default function SignUpParentScreen() {
 
                 {/* Continue button */}
                 <Button
-                label="Continue"
+                label={t('common.continue')}
                 onPress={handleSubmit(onSubmit)}
                 loading={loading}
                 style={styles.btn}
@@ -164,22 +164,22 @@ export default function SignUpParentScreen() {
                 {/* Divider */}
                 <View style={styles.divider}>
                 <View style={styles.line} />
-                <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
+                <Text style={styles.dividerText}>{t('auth.signup.orContinueWith')}</Text>
                 <View style={styles.line} />
                 </View>
 
                 {/* Sanad */}
                 <TouchableOpacity style={styles.sanad} activeOpacity={0.8}>
                 <Image source={require('@/assets/images/Sanad.png')} style={styles.sanadLogo} resizeMode="contain" />
-                <Text style={styles.sanadText}>Sign up with Sanad</Text>
+                <Text style={styles.sanadText}>{t('auth.signup.sanad')}</Text>
                 </TouchableOpacity>
             </View>
 
             {/* Login link */}
             <View style={styles.loginRow}>
-                <Text style={styles.loginText}>Already have an account? </Text>
+                <Text style={styles.loginText}>{t('auth.signup.haveAccount')}</Text>
                 <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-                <Text style={styles.loginLink}>Log in</Text>
+                <Text style={styles.loginLink}>{t('common.login')}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -187,9 +187,9 @@ export default function SignUpParentScreen() {
                 onLanguagePress={() => {}}
                 onPrivacyPress={() => {}}
                 onTermsPress={() => {}}
-                currentLanguage="English (US)"
+                currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
             />
-                
+
             </ScrollView>
         </KeyboardAvoidingView>
         </SafeAreaView>
