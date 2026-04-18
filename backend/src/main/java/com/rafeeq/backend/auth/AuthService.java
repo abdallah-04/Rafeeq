@@ -1,5 +1,7 @@
 package com.rafeeq.backend.auth;
 
+import com.rafeeq.backend.common.ConflictException;
+import com.rafeeq.backend.common.NotFoundException;
 import com.rafeeq.backend.dto.auth.*;
 import com.rafeeq.backend.entity.Parent;
 import com.rafeeq.backend.entity.School;
@@ -33,15 +35,15 @@ public class AuthService {
 
     public AuthResponse registerParent(RegisterParentRequest request) {
         if (request.getPhone() != null && userRepository.existsByPhone(request.getPhone())) {
-            throw new RuntimeException("Phone already exists");
+            throw new ConflictException("Phone already exists");
         }
 
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new ConflictException("Email already exists");
         }
 
         if (request.getNationalId() != null && userRepository.existsByNationalId(request.getNationalId())) {
-            throw new RuntimeException("National ID already exists");
+            throw new ConflictException("National ID already exists");
         }
 
         User user = new User();
@@ -74,7 +76,7 @@ public class AuthService {
 
         public MessageResponse resendOtp(ResendOtpRequest request) {
             User user = userRepository.findByNationalId(request.getNationalId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new NotFoundException("User not found"));
 
             String otp = String.valueOf((int) (1000 + Math.random() * 9000));
             user.setOtpCode(otp);
@@ -84,20 +86,20 @@ public class AuthService {
 
             System.out.println("DEBUG RESEND OTP for " + user.getNationalId() + ": " + otp);
 
-            return new MessageResponse("OTP resent successfully");
+            return new MessageResponse(true,"OTP resent successfully");
         }
 
     public AuthResponse registerSchool(RegisterSchoolRequest request) {
         if (request.getPhone() != null && userRepository.existsByPhone(request.getPhone())) {
-            throw new RuntimeException("Phone already exists");
+           throw new ConflictException("Phone already exists");
         }
 
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new ConflictException("Email already exists");
         }
 
         if (request.getNationalId() != null && userRepository.existsByNationalId(request.getNationalId())) {
-            throw new RuntimeException("National ID already exists");
+            throw new ConflictException("National ID already exists");
         }
 
         User user = new User();
@@ -132,7 +134,7 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByNationalId(request.getNationalId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -150,7 +152,7 @@ public class AuthService {
 
     public MessageResponse forgotPassword(ForgotPasswordRequest request) {
         User user = userRepository.findByNationalId(request.getNationalId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         String otp = String.valueOf((int) (1000 + Math.random() * 9000));
         user.setOtpCode(otp);
@@ -158,12 +160,12 @@ public class AuthService {
 
         userRepository.save(user);
         System.out.println("DEBUG OTP for " + user.getNationalId() + ": " + otp);
-        return new MessageResponse("OTP sent successfully");
+        return new MessageResponse(true, "OTP sent successfully");
     }
 
     public MessageResponse verifyOtp(VerifyOtpRequest request) {
         User user = userRepository.findByNationalId(request.getNationalId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (user.getOtpCode() == null || user.getOtpExpiresAt() == null) {
             throw new RuntimeException("OTP not requested");
@@ -177,12 +179,12 @@ public class AuthService {
             throw new RuntimeException("OTP expired");
         }
 
-        return new MessageResponse("OTP verified successfully");
+        return new MessageResponse(true,"OTP verified successfully");
     }
 
     public MessageResponse resetPassword(ResetPasswordRequest request) {
         User user = userRepository.findByNationalId(request.getNationalId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new RuntimeException("Passwords do not match");
@@ -206,7 +208,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return new MessageResponse("Password reset successfully");
+        return new MessageResponse(true,"Password reset successfully");
     }
 
     public RefreshTokenResponse refresh(RefreshTokenRequest request) {
@@ -219,7 +221,7 @@ public class AuthService {
 
         String nationalId = jwtService.extractUsername(refreshToken);
         User user = userRepository.findByNationalId(nationalId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getNationalId());
 
@@ -234,12 +236,12 @@ public class AuthService {
     }
 
     public MessageResponse logout(LogoutRequest request) {
-        return new MessageResponse("Logged out successfully");
+        return new MessageResponse(true,"Logged out successfully");
     }
 
     public MeResponse me(String nationalId) {
         User user = userRepository.findByNationalId(nationalId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         return new MeResponse(
                 user.getId(),
