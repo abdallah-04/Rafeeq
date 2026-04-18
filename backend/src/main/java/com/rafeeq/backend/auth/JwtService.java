@@ -23,20 +23,40 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
+    @Value("${jwt.refresh-expiration}")
+    private long jwtRefreshExpiration;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
     public String generateToken(UserDetails userDetails, String role, String userId) {
+        return generateAccessToken(userDetails, role, userId);
+    }
+
+    public String generateAccessToken(UserDetails userDetails, String role, String userId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
         claims.put("userId", userId);
+        claims.put("tokenType", "access");
+
         return buildToken(claims, userDetails, jwtExpiration);
+    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("tokenType", "refresh");
+
+        return buildToken(claims, userDetails, jwtRefreshExpiration);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    public String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get("tokenType", String.class));
     }
 
     private String buildToken(

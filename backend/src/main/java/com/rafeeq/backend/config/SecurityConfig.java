@@ -31,13 +31,18 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/auth/register/**",
-                                "/auth/login",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/test/**",
-                                "/ping"
+                            "/auth/register/**",
+                            "/auth/login",
+                            "/auth/forgot-password",
+                            "/auth/verify-otp",
+                            "/auth/reset-password",
+                            "/auth/refresh",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
+                            "/v3/api-docs/**",
+                            "/test/**",
+                            "/auth/logout",
+                            "/ping"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

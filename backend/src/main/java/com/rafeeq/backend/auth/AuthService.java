@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -65,9 +66,10 @@ public class AuthService {
         parentRepository.save(parent);
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getNationalId());
-        String token = jwtService.generateToken(userDetails, user.getRole().name(), user.getId().toString());
+        String accessToken = jwtService.generateAccessToken(userDetails, user.getRole().name(), user.getId().toString());
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-        return new AuthResponse(token, user.getRole().name(), "Parent registered successfully");
+        return new AuthResponse(accessToken, refreshToken, user.getRole().name(), "Parent registered successfully");
     }
 
     public AuthResponse registerSchool(RegisterSchoolRequest request) {
@@ -107,9 +109,10 @@ public class AuthService {
         schoolRepository.save(school);
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getNationalId());
-        String token = jwtService.generateToken(userDetails, user.getRole().name(), user.getId().toString());
+        String accessToken = jwtService.generateAccessToken(userDetails, user.getRole().name(), user.getId().toString());
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-        return new AuthResponse(token, user.getRole().name(), "School registered successfully");
+        return new AuthResponse(accessToken, refreshToken, user.getRole().name(), "School registered successfully");
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -124,9 +127,99 @@ public class AuthService {
         );
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getNationalId());
-        String token = jwtService.generateToken(userDetails, user.getRole().name(), user.getId().toString());
+        String accessToken = jwtService.generateAccessToken(userDetails, user.getRole().name(), user.getId().toString());
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-        return new AuthResponse(token, user.getRole().name(), "Login successful");
+        return new AuthResponse(accessToken, refreshToken, user.getRole().name(), "Login successful");
+    }
+
+    public MessageResponse forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByNationalId(request.getNationalId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String otp = String.valueOf((int) (1000 + Math.random() * 9000));
+        user.setOtpCode(otp);
+        user.setOtpExpiresAt(LocalDateTime.now().plusMinutes(5));
+
+        userRepository.save(user);
+        System.out.println("DEBUG OTP for " + user.getNationalId() + ": " + otp);
+        return new MessageResponse("OTP sent successfully");
+    }
+
+    public MessageResponse verifyOtp(VerifyOtpRequest request) {
+        User user = userRepository.findByNationalId(request.getNationalId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getOtpCode() == null || user.getOtpExpiresAt() == null) {
+            throw new RuntimeException("OTP not requested");
+        }
+
+        if (!user.getOtpCode().equals(request.getOtpCode())) {
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        if (user.getOtpExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("OTP expired");
+        }
+
+        return new MessageResponse("OTP verified successfully");
+    }
+
+    public MessageResponse resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByNationalId(request.getNationalId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new RuntimeException("Passwords do not match");
+        }
+
+        if (user.getOtpCode() == null || user.getOtpExpiresAt() == null) {
+            throw new RuntimeException("OTP not requested");
+        }
+
+        if (!user.getOtpCode().equals(request.getOtpCode())) {
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        if (user.getOtpExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("OTP expired");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        user.setOtpCode(null);
+        user.setOtpExpiresAt(null);
+
+        userRepository.save(user);
+
+        return new MessageResponse("Password reset successfully");
+    }
+
+    public RefreshTokenResponse refresh(RefreshTokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        String tokenType = jwtService.extractTokenType(refreshToken);
+        if (!"refresh".equals(tokenType)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        String nationalId = jwtService.extractUsername(refreshToken);
+        User user = userRepository.findByNationalId(nationalId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getNationalId());
+
+        if (!jwtService.isTokenValid(refreshToken, userDetails)) {
+            throw new RuntimeException("Refresh token expired or invalid");
+        }
+
+        String newAccessToken = jwtService.generateAccessToken(userDetails, user.getRole().name(), user.getId().toString());
+        String newRefreshToken = jwtService.generateRefreshToken(userDetails);
+
+        return new RefreshTokenResponse(newAccessToken, newRefreshToken, user.getRole().name());
+    }
+
+    public MessageResponse logout(LogoutRequest request) {
+        return new MessageResponse("Logged out successfully");
     }
 
     public MeResponse me(String nationalId) {
