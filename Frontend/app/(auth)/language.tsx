@@ -112,15 +112,15 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.fontFamily.bold,
     color: theme.colors.textPrimary,
     textAlign: 'center',
+    marginBottom: theme.spacing.lg,
   },
 
   titleAr: {
-    fontSize: theme.typography.fontSize.lg,
-    fontFamily: theme.typography.fontFamily.regular,
-    color: theme.colors.textSecondary,
+    fontSize: theme.typography.fontSize['2xl'],
+    fontFamily: theme.typography.fontFamily.bold,
+    color: theme.colors.textPrimary,
     textAlign: 'center',
-    marginTop: 4,
-    marginBottom: theme.spacing.lg,
+      marginBottom: theme.spacing.lg,
   },
 
   cards: {

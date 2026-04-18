@@ -90,7 +90,7 @@ function ExamInfoScreen({ onStart, isRTL, t }: { onStart: () => void; isRTL: boo
         {t('teacher.exam.recentActivity', 'Recent Activity')}
       </Text>
       {[
-        { label: 'Completed', value: 'Exam 1', score: 'Score 2/3', color: '#22C55E' },
+        { label: t('common.completed', 'Completed'), value: t('teacher.dayWorkModals.exam1', 'Exam 1'), score: t('teacher.monthlyExam.score', { score: '2/3' }), color: '#22C55E' },
       ].map((item, i) => (
         <View key={i} style={styles.activityCard}>
           <View style={[styles.activityRow, isRTL && styles.rowReverse]}>
@@ -214,7 +214,7 @@ function ScoreModal({ visible, score, total, onClose, t }: { visible: boolean; s
           <Text style={styles.modalIcon}>✅</Text>
           <Text style={styles.modalTitle}>{t('teacher.exam.greatJob', 'Great Job!')}</Text>
           <Text style={styles.modalSubtitle}>{t('teacher.exam.wellDone', 'You did a great job, well done!')}</Text>
-          <Text style={styles.modalScore}>Score: {score}/{total}</Text>
+          <Text style={styles.modalScore}>{t('teacher.monthlyExam.score', { score: `${score}/${total}` })}</Text>
           <TouchableOpacity style={styles.modalBtn} onPress={onClose}>
             <Text style={styles.modalBtnText}>{t('teacher.exam.okay', 'Okay')}</Text>
           </TouchableOpacity>

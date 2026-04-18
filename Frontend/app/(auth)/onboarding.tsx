@@ -12,21 +12,21 @@ const { colors, spacing, typography, radius } = theme;
 
 const SLIDES = [
   {
-    titleKey:   'onboarding.slide1.title',
-    descKey:    'onboarding.slide1.subtitle',
-    image:      require('@/assets/images/mascot/rafeeq_reading.png'),
+    titleKey: 'onboarding.slide1.title',
+    descKey: 'onboarding.slide1.subtitle',
+    image: require('@/assets/images/mascot/rafeeq_reading.png'),
     background: require('@/assets/images/background/onboarding3.png'),
   },
   {
-    titleKey:   'onboarding.slide2.title',
-    descKey:    'onboarding.slide2.subtitle',
-    image:      require('@/assets/images/mascot/rafeeq_clabbing.png'),
+    titleKey: 'onboarding.slide2.title',
+    descKey: 'onboarding.slide2.subtitle',
+    image: require('@/assets/images/mascot/rafeeq_clabbing.png'),
     background: require('@/assets/images/background/onboarding2.png'),
   },
   {
-    titleKey:   'onboarding.slide3.title',
-    descKey:    'onboarding.slide3.subtitle',
-    image:      require('@/assets/images/mascot/rafeeq_like.png'),
+    titleKey: 'onboarding.slide3.title',
+    descKey: 'onboarding.slide3.subtitle',
+    image: require('@/assets/images/mascot/rafeeq_like.png'),
     background: require('@/assets/images/background/onboarding1.png'),
   },
 ];
@@ -36,12 +36,13 @@ export default function OnboardingScreen() {
   const [index, setIndex] = useState(0);
 
   const isLast = index === SLIDES.length - 1;
-  const slide  = SLIDES[index];
+  const slide = SLIDES[index];
 
   const next = () => {
     if (isLast) router.replace('/(auth)/welcome');
     else setIndex(index + 1);
   };
+
   const skip = () => router.replace('/(auth)/welcome');
 
   return (
@@ -52,15 +53,18 @@ export default function OnboardingScreen() {
         <Text style={styles.brandAr}> · رفيق</Text>
       </View>
 
-      {/* Image */}
-      <ImageBackground
-        source={slide.background}
-        style={styles.imageBox}
-        imageStyle={styles.imageBg}
-        resizeMode="cover"
-      >
-        <Image source={slide.image} style={styles.image} resizeMode="contain" />
-      </ImageBackground>
+      {/* Image Section */}
+      <View style={styles.imageContainer}>
+        <ImageBackground
+          source={slide.background}
+          style={styles.imageBox}
+          imageStyle={styles.imageBg}
+          resizeMode="contain"
+        >
+          <View style={styles.overlay} />
+          <Image source={slide.image} style={styles.image} resizeMode="contain" />
+        </ImageBackground>
+      </View>
 
       {/* Dots */}
       <View style={styles.dots}>
@@ -117,28 +121,31 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
 
-  imageBox: {
-    flex: 1,
+  imageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-    marginVertical: spacing.sm,
+    marginVertical: spacing.md,
+  },
+
+  imageBox: {
     width: '100%',
-    height: '100%',
+    height: 260,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   imageBg: {
-    width: 340,
-    height: 316,  
-    flex: 1,
-    alignSelf: 'stretch',
-    //borderRadius: radius.sm,
+    resizeMode: 'contain',
+  },
+
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.03)', // خفيف جدًا
   },
 
   image: {
-    width: 140,
-    height: 140,
+    width: 150,
+    height: 150,
   },
 
   dots: {
@@ -146,6 +153,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.xs,
     marginVertical: spacing.md,
+    marginBottom: spacing['3xl'],
   },
 
   dot: {
@@ -162,16 +170,16 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: typography.fontSize['2xl'],
+    fontSize: typography.fontSize['4xl'],
     fontFamily: typography.fontFamily.bold,
     color: colors.textPrimary,
     textAlign: 'center',
     lineHeight: 36,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
 
   desc: {
-    fontSize: typography.fontSize.sm,
+    fontSize: typography.fontSize.lg,
     fontFamily: typography.fontFamily.regular,
     color: colors.textSecondary,
     textAlign: 'center',

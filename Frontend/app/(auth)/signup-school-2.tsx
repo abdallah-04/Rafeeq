@@ -138,10 +138,8 @@ export default function SchoolSignupStep2() {
           </Card>
 
           <Footer
-            onLanguagePress={() => {}}
             onPrivacyPress={() => {}}
             onTermsPress={() => {}}
-            currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
           />
         </ScrollView>
       </KeyboardAvoidingView>

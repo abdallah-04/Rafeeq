@@ -45,6 +45,7 @@ const { colors, spacing, typography, radius } = theme;
 /* ─── Child card ─────────────────────────────────────────────────────────── */
 
 function ChildCard({ child }: { child: Child }) {
+  const { t } = useTranslation();
   const setActiveChild = useActiveChildStore((s) => s.setActiveChild);
 
   const handlePress = () => {
@@ -71,7 +72,7 @@ function ChildCard({ child }: { child: Child }) {
         {/* Name + age */}
         <Text style={styles.cardName}>
           {child.name}
-          {child.age ? `, ${child.age} years` : ''}
+          {child.age ? `, ${t('myChildren.years', { age: child.age })}` : ''}
         </Text>
 
         {/* Progress row: label above bar */}

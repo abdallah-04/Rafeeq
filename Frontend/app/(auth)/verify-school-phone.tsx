@@ -10,6 +10,7 @@ import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { theme } from '@/theme';
+import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/modal/shared/Text';
 import { Button } from '@/components/modal/shared/Button';
 import BackButton from '@/components/modal/shared/BackButton';
@@ -25,12 +26,13 @@ const RESEND_SECONDS = 60;
 
 /* ── Resend Timer ── */
 function ResendTimer({ onResend }: { onResend: () => void }) {
+    const { t } = useTranslation();
     const [seconds, setSeconds] = useState(RESEND_SECONDS);
 
     React.useEffect(() => {
         if (seconds <= 0) return;
-        const t = setTimeout(() => setSeconds((s) => s - 1), 1000);
-        return () => clearTimeout(t);
+        const timer = setTimeout(() => setSeconds((s) => s - 1), 1000);
+        return () => clearTimeout(timer);
     }, [seconds]);
 
     const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
@@ -38,12 +40,12 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
 
     return (
         <View style={resendStyles.row}>
-        <Text style={resendStyles.text}>Didn't receive ? </Text>
+        <Text style={resendStyles.text}>{t('auth.otp.didntReceive')} </Text>
         {seconds > 0 ? (
-            <Text style={resendStyles.timer}>Resend in {mm}:{ss}</Text>
+            <Text style={resendStyles.timer}>{t('auth.otp.resendIn')} {mm}:{ss}</Text>
         ) : (
             <TouchableOpacity onPress={() => { setSeconds(RESEND_SECONDS); onResend(); }}>
-            <Text style={resendStyles.link}>Resend code</Text>
+            <Text style={resendStyles.link}>{t('auth.otp.resend')}</Text>
             </TouchableOpacity>
         )}
         </View>
@@ -79,6 +81,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
     const [error, setError] = useState('');
     const [trustDevice, setTrustDevice] = useState(false);
 
+    const { t } = useTranslation();
     const login = useAuthStore((s) => s.login);
 
     const isComplete = otp.every((d) => d !== '');
@@ -113,7 +116,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
         {/* Header */}
         <View style={styles.header}>
             <BackButton />
-            <Text style={styles.headerTitle}>Welcome to RAFEEQ</Text>
+            <Text style={styles.headerTitle}>{t('roleSelect.title')}</Text>
             <View style={{ width: 36 }} />
         </View>
 
@@ -129,7 +132,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
 
             {/* Card */}
             <View style={styles.card}>
-            <Text style={styles.cardTitle}>We sent you a code to{'\n'}verify your number</Text>
+            <Text style={styles.cardTitle}>{t('auth.otp.subtitle')}</Text>
             <OTPInput
                 length={OTP_LENGTH}
                 value={otp}
@@ -150,7 +153,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
                 <View style={[styles.checkbox, trustDevice && styles.checkboxChecked]}>
                 {trustDevice && <Text style={styles.checkmark}>✓</Text>}
                 </View>
-                <Text style={styles.checkLabel}>Trust this device for a month</Text>
+                <Text style={styles.checkLabel}>{t('auth.otp.trustDevice')}</Text>
             </TouchableOpacity>
 
             {/* Resend */}
@@ -158,7 +161,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
 
             {/* Confirm button */}
             <Button
-                label="Confirm"
+                label={t('auth.otp.confirmButton')}
                 onPress={handleConfirm}
                 loading={loading}
                 disabled={!isComplete}
@@ -166,10 +169,8 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
             />
             </View>
             <Footer
-                onLanguagePress={() => {}}
                 onPrivacyPress={() => {}}
                 onTermsPress={() => {}}
-                currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
                 />
         </View>
         </SafeAreaView>

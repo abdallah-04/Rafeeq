@@ -13,10 +13,11 @@ import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { theme } from '@/theme'
+import { useTranslation } from 'react-i18next'
 import BackButton from '@/components/modal/shared/BackButton'
 import { useModal } from '@/components/modal/ModalProvider'
 
-const { colors, spacing, typography, radius } = theme
+const { colors, spacing, typography } = theme
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -97,6 +98,7 @@ const DAYS: DayNode[] = [
     onPress: () => void
     animValue: Animated.Value
     }) {
+    const { t } = useTranslation()
     const isCompleted = node.status === 'completed'
     const isCurrent   = node.status === 'current'
     const isLocked    = node.status === 'locked'
@@ -143,7 +145,7 @@ const DAYS: DayNode[] = [
         {/* Day label */}
         <View style={[styles.dayLabel, { left: isCurrent ? -10 : (x < SCREEN_WIDTH / 2 ? NODE_SIZE + 6 : -(56 + 6)) }]}>
             <Text style={[styles.dayText, isCurrent && styles.dayTextCurrent]}>
-            DAY {node.day}
+            {t('tree.day')} {node.day}
             </Text>
         </View>
         </Animated.View>
@@ -153,6 +155,7 @@ const DAYS: DayNode[] = [
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function TreeScreen() {
   const { show } = useModal()
+  const { t } = useTranslation()
 
   // Staggered entrance animations
   const anims = useRef(DAYS.map(() => new Animated.Value(0))).current
@@ -192,7 +195,7 @@ export default function TreeScreen() {
       {/* Header */}
       <View style={styles.header}>
         <BackButton onPress={() => router.back()} />
-        <Text style={styles.headerTitle}>Ayoub's tree</Text>
+        <Text style={styles.headerTitle}>{t('tree.title')}</Text>
         <TouchableOpacity style={styles.settingsBtn}>
           <Text style={styles.settingsIcon}>⚙️</Text>
         </TouchableOpacity>
