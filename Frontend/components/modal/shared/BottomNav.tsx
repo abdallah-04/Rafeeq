@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { usePathname, router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/modal/shared/Text';
 import { theme } from '@/theme';
 
@@ -8,19 +9,20 @@ const { colors, spacing, typography } = theme;
 
 const INACTIVE_COLOR = '#94A3B8';
 
-const TABS = [
-    { label: 'Home',    icon: require('@/assets/images/icons/home-page.png'), route: '/(parent)/Home-parent'    },
-    { label: 'Explore', icon: require('@/assets/images/icons/compass.png'),   route: '/(parent)/explore'        },
-    { label: 'Chatbot', icon: require('@/assets/images/icons/chat-ai.png'),   route: '/(parent)/chatbot'        },
-    { label: 'Profile', icon: require('@/assets/images/icons/account.png'),   route: '/(parent)/profile'        },
-];
+const TAB_CONFIG = [
+    { key: 'home',    icon: require('@/assets/images/icons/home-page.png'), route: '/(parent)/Home-parent' },
+    { key: 'explore', icon: require('@/assets/images/icons/compass.png'),   route: '/(parent)/explore'     },
+    { key: 'chatbot', icon: require('@/assets/images/icons/chat-ai.png'),   route: '/(parent)/chatbot'     },
+    { key: 'profile', icon: require('@/assets/images/icons/account.png'),   route: '/(parent)/profile'     },
+] as const;
 
 export default function BottomNav() {
     const pathname = usePathname();
+    const { t } = useTranslation();
 
     return (
         <View style={styles.container}>
-            {TABS.map((tab) => {
+            {TAB_CONFIG.map((tab) => {
                 const routePath = tab.route.replace(/\/\([^)]+\)/g, '');
                 const isActive = pathname === routePath || pathname.startsWith(routePath + '/');
                 return (
@@ -37,7 +39,7 @@ export default function BottomNav() {
                             />
                         </View>
                         <Text style={[styles.label, isActive && styles.labelActive]}>
-                            {tab.label}
+                            {t(`tabs.${tab.key}`)}
                         </Text>
                     </TouchableOpacity>
                 );

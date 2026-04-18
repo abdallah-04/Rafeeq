@@ -140,7 +140,8 @@
       "resend": "Resend code",
       "resendIn": "Resend in",
       "trustDevice": "Trust this device for a month",
-      "confirmButton": "Confirm"
+      "confirmButton": "Confirm",
+      "didntReceive": "Didn't receive?"
     },
     "welcome": {
       "title": "Welcome,",
@@ -690,7 +691,10 @@
   "tabs": {
     "teachers": "Teachers",
     "students": "Students",
-    "profile": "Profile"
+    "profile": "Profile",
+    "home": "Home",
+    "explore": "Explore",
+    "chatbot": "Chatbot"
   },
 
   "profile": {

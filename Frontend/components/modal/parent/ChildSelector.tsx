@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     ImageSourcePropType,
+    I18nManager,
 } from 'react-native'
 import { theme } from '@/theme'
 
@@ -60,7 +61,7 @@ export default function ChildSelector({
         </View>
 
         {onPress && (
-            <Text style={styles.arrow}>›</Text>
+            <Text style={styles.arrow}>{I18nManager.isRTL ? '‹' : '›'}</Text>
         )}
         </TouchableOpacity>
     )

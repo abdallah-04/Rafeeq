@@ -243,7 +243,7 @@ export default function ChatbotScreen() {
             onPress={sendMessage}
             disabled={!input.trim()}
           >
-            <Text style={styles.sendBtnText}>▶</Text>
+            <Text style={styles.sendBtnText}>{isRTL ? '◀' : '▶'}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
