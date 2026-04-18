@@ -293,7 +293,8 @@
       "monthlyExam": "Monthly Exam",
       "reports": "Reports",
       "age": "{{age}} Years",
-      "level": "Level {{level}}"
+      "level": "Level {{level}}",
+      "dashboard": "Dashboard"
     },
     "studentDashboard": {
       "title": "Student Dashboard",
@@ -547,7 +548,12 @@
       "editProfile": "Edit Profile",
       "nationalId": "National ID",
       "phone": "Phone",
-      "logout": "Log Out"
+      "logout": "Log Out",
+      "account": "Account Info",
+      "class": "Class Settings",
+      "notifs": "Notifications",
+      "language": "Language",
+      "privacy": "Privacy Policy"
     }
   },
 
@@ -581,6 +587,9 @@
 
   "schoolPage": {
     "title": "School Page",
+    "gradeLabel": "Grade {{grade}}",
+    "tomorrow": "Tomorrow",
+    "upcoming": "Upcoming",
     "tabs": {
       "grades": "Grades",
       "homework": "HW & Tasks",
@@ -590,10 +599,30 @@
     "grades": { "comingUp": "Coming Up This Week" },
     "progress": {
       "overall": "Overall Progress",
+      "semester": "Second Semester",
+      "homeworkCompletion": "Homework Completion",
       "teacherNote": "Teacher's Note",
-      "lastWeek": "Last week"
+      "lastWeek": "Last week",
+      "trackingSubtitle": "Tracking your child's performance",
+      "noteBody": "Needs extra support in Math, especially fractions. A short daily review is highly recommended."
     },
-    "reports": { "unread": "Unread", "read": "Read", "from": "From" }
+    "reports": {
+      "title": "Teacher Reports",
+      "unread": "Unread",
+      "unreadCount": "{{count}} unread reports",
+      "read": "Read",
+      "from": "From",
+      "previewText": "Did well on the term test overall, but we notice difficulty with fractions...",
+      "todayTime": "Today, {{time}}"
+    },
+    "hwTasks": {
+      "homework": "Homework",
+      "tasks": "Tasks",
+      "pending": "Pending",
+      "submitted": "Submitted",
+      "readingHw": "Reading Homework",
+      "lesson": "Lesson {{number}}"
+    }
   },
 
   "progress": {
@@ -624,11 +653,24 @@
   "homework": {
     "title": "Homework",
     "thisWeek": "This week",
+    "today": "Today",
     "dueDate": "Due",
     "keepGoing": "of",
     "keepGoingUnit": "H.W completed",
     "keepGoingPeriod": "This week",
+    "todo": "To do",
+    "done": "Done",
+    "forToday": "For today",
+    "notFinishedSince": "Not finished since last week",
+    "openHw": "Open H.W",
     "status": { "not_submitted": "Pending", "submitted": "Submitted", "graded": "Graded" }
+  },
+
+  "activities": {
+    "title": "Activities",
+    "recommendedFor": "Recommended for {{name}}",
+    "daily": "Daily activities",
+    "mins": "{{count}} mins"
   },
 
   "tree": {
@@ -685,7 +727,8 @@
     "addFirst": "Add your first child",
     "manageHeading": "Manage your children",
     "addMore": "Add more children",
-    "progressSuffix": "% progress"
+    "progressSuffix": "% progress",
+    "years": "{{age}} years"
   },
 
   "tabs": {
@@ -858,9 +901,19 @@
   "ADHD": "ADHD",
   "ASD": "ASD",
   "Autism": "Autism",
+  "DownSyndrome": "Down Syndrome",
   "DYS": "Dyslexia",
   "IFD": "IFD",
   "OTHER": "Other"
+},
+
+"calendar": {
+  "title": "Calendar",
+  "streak": "🔥 {{count}} Days",
+  "showMore": "Show more ▼",
+  "showLess": "Show less ▲",
+  "months": ["January","February","March","April","May","June","July","August","September","October","November","December"],
+  "weekDays": ["Su","Mo","Tu","We","Th","Fr","Sa"]
 },
 
 "validation": {
@@ -877,6 +930,31 @@
   "dobRequired": "Date of birth is required",
   "selectDifficulty": "Please select a difficulty",
   "selectGender": "Please select a gender"
+},
+
+"placementExam": {
+  "modalTitle": "Placement Required",
+  "modalBody": "{{name}} hasn't taken the placement exam yet. This exam identifies their learning difficulty type and appropriate level.",
+  "levelNotSet": "Level Not Set",
+  "bannerTitle": "Placement Exam Required",
+  "bannerSub": "Tap here to start the exam",
+  "startBtn": "🚀 Start Exam",
+  "notNow": "Not Now",
+  "examTitle": "Placement Exam",
+  "examSubtitle": "Answer these questions carefully to identify the student's learning difficulty type and appropriate level.",
+  "question": "Question {{current}} of {{total}}",
+  "next": "Next",
+  "finish": "Finish Exam",
+  "printBtn": "Print Exam",
+  "printNote": "The exam will be printed so the student can complete it on paper.",
+  "result": {
+    "title": "Exam Result",
+    "detected": "Detected Difficulty",
+    "level": "Suggested Level",
+    "confidence": "Diagnosis Accuracy",
+    "saveBtn": "Save Result & Update Profile",
+    "retakeBtn": "Retake Exam"
+  }
 }
 
 }

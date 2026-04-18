@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { View, StyleSheet, Image, ScrollView } from 'react-native'
 import { theme } from '@/theme'
+import { useTranslation } from 'react-i18next'
 import { Text } from '@/components/modal/shared/Text'
 import Header from '@/components/modal/shared/Header'
 import Card from '@/components/modal/shared/Card'
@@ -13,6 +14,7 @@ import SubmitSuccessModal from '@/components/variants/SubmitSuccessModal'
 import DownloadDoneModal from '@/components/variants/DownloadDoneModal'
 
 export default function HomeworkDetail() {
+  const { t } = useTranslation()
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showDownloadModal, setShowDownloadModal] = useState(false)
@@ -26,27 +28,25 @@ export default function HomeworkDetail() {
 
   return (
     <View style={styles.container}>
-      <Header title="Homeworks" rightElement={settingsIcon} />
+      <Header title={t('homework.title')} rightElement={settingsIcon} />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Main Card */}
         <Card variant="outlined" style={styles.mainCard}>
           <View style={styles.iconContainer}>
             <Image source={require('@/assets/images/icons/math.png')} style={styles.icon} />
           </View>
           <Text style={styles.title}>Counting 1 to 10</Text>
-          <Text style={styles.meta}>Mathematics . 5 Questions . 10 mins</Text>
+          <Text style={styles.meta}>Mathematics · 5 {t('teacher.todayQuiz.questions')} · 10 {t('teacher.quiz.mins')}</Text>
 
           <View style={styles.badgeRow}>
             <Badge label="H.W 3" variant="blue" />
             <Badge label="Level 3" variant="purple" />
-            <Badge label="not take it" variant="orange" />
+            <Badge label={t('homework.status.not_submitted')} variant="orange" />
           </View>
         </Card>
 
-        {/* Action Buttons */}
         <Button
-          label="Open H.W  ▶"
+          label={`${t('homework.openHw')}  ▶`}
           onPress={() => setShowSubmitModal(true)}
           variant="primary"
           style={styles.actionBtn}
@@ -54,16 +54,20 @@ export default function HomeworkDetail() {
         />
 
         <Button
-          label="Download  ⬇"
+          label={`${t('common.download')}  ⬇`}
           onPress={() => setShowDownloadModal(true)}
           variant="secondary"
           style={styles.actionBtn}
           textStyle={styles.actionBtnText}
         />
 
-        {/* Keep Going Banner */}
         <View style={styles.bannerWrapper}>
-          <KeepGoingBanner completed={2} total={5} unit="H.W" period="This week" />
+          <KeepGoingBanner
+            completed={2}
+            total={5}
+            unit={t('homework.keepGoingUnit')}
+            period={t('homework.keepGoingPeriod')}
+          />
         </View>
       </ScrollView>
 

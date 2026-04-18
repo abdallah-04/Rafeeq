@@ -18,13 +18,17 @@ function TeacherStudentCard({
   student: TeacherStudent;
   onPress: (s: TeacherStudent) => void;
 }) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+  const levelNum = student.level.replace('Level ', '');
+
   return (
     <TouchableOpacity
       style={styles.studentCard}
       onPress={() => onPress(student)}
       activeOpacity={0.75}
     >
-      <View style={styles.cardTop}>
+      <View style={[styles.cardTop, isRTL && styles.rowReverse]}>
         {/* Avatar */}
         <View style={[styles.avatar, { backgroundColor: student.avatarBg }]}>
           <Text style={styles.avatarText}>{student.initials}</Text>
@@ -32,13 +36,13 @@ function TeacherStudentCard({
 
         {/* Info */}
         <View style={styles.cardInfo}>
-          <View style={styles.cardNameRow}>
-            <Text style={styles.studentName}>{student.name}</Text>
+          <View style={[styles.cardNameRow, isRTL && styles.rowReverse]}>
+            <Text style={styles.studentName}>{isRTL ? student.nameAr : student.name}</Text>
             <View style={styles.activeBadge}>
-              <Text style={styles.activeBadgeText}>{student.status}</Text>
+              <Text style={styles.activeBadgeText}>{t('teacher.studentCard.active', 'Active')}</Text>
             </View>
           </View>
-          <View style={styles.tagsRow}>
+          <View style={[styles.tagsRow, isRTL && styles.rowReverse]}>
             <View
               style={[
                 styles.tag,
@@ -46,7 +50,7 @@ function TeacherStudentCard({
               ]}
             >
               <Text style={[styles.tagText, { color: student.levelColor }]}>
-                {student.level}
+                {t('teacher.studentCard.level', { level: levelNum })}
               </Text>
             </View>
             <View
@@ -117,9 +121,9 @@ export default function TeacherHomeScreen() {
 
         <View style={styles.welcomeBlock}>
           <Text style={[styles.welcomeText, isRTL && styles.textRight]}>
-            {t('teacher.home.welcome', 'Welcome,')}{'\n'}
+            {t('teacher.home.greeting', 'Hello,')}{'\n'}
             <Text style={styles.welcomeName}>
-              {t('teacher.home.teacherName', 'Mr. Ahmad')}
+              {t('teacher.profile.name', 'Mr. Ahmad')}
             </Text>
           </Text>
         </View>

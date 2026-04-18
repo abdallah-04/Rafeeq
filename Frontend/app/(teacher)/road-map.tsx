@@ -10,24 +10,30 @@ import BackButton from '@/components/BackButton';
 
 // ─── Road map days ─────────────────────────────────────────────
 const DAYS = [
-  { day: 1, status: 'done',    label: 'Day 1', labelAr: 'اليوم 1' },
-  { day: 2, status: 'done',    label: 'Day 2', labelAr: 'اليوم 2' },
-  { day: 3, status: 'done',    label: 'Day 3', labelAr: 'اليوم 3' },
-  { day: 4, status: 'current', label: 'Day 4', labelAr: 'اليوم 4' },
-  { day: 5, status: 'pending', label: 'Day 5', labelAr: 'اليوم 5' },
-  { day: 6, status: 'pending', label: 'Day 6', labelAr: 'اليوم 6' },
-  { day: 7, status: 'crown',   label: 'Day 7', labelAr: 'اليوم 7' },
+  { day: 1, status: 'done' },
+  { day: 2, status: 'done' },
+  { day: 3, status: 'done' },
+  { day: 4, status: 'current' },
+  { day: 5, status: 'pending' },
+  { day: 6, status: 'pending' },
+  { day: 7, status: 'crown' },
 ];
 
 // ─── Day Work Modals config ────────────────────────────────────
-const DAY_MODALS: Record<number, { title: string; content: string; cta: string; type: string }> = {
-  4: { title: "What to do today",  content: "Complete Task 6 and review H.W 4",       cta: "Let's go!", type: 'info' },
-  5: { title: "Day 5 Work",        content: "Task 7 & H.W 5 are ready for today",     cta: "Okay",      type: 'info' },
-  6: { title: "Day 6 Work",        content: "Quiz 3 & H.W 5 — finish before end of day", cta: "Okay",   type: 'quiz' },
-  7: { title: "Day 7 Work",        content: "Final Exam 1 is scheduled for today 🎓", cta: "Okay",      type: 'exam' },
+const DAY_MODAL_CONFIGS: Record<number, {
+  titleKey: string; titleDefault: string;
+  contentKey: string; contentDefault: string;
+  ctaKey: string; ctaDefault: string;
+  type: string;
+}> = {
+  4: { titleKey: 'teacher.dayWorkModals.whatToDoToday', titleDefault: 'What to do today',  contentKey: 'teacher.dayWorkModals.task7hw5', contentDefault: 'Task 7 & H.W 5', ctaKey: 'teacher.dayWorkModals.letsGo', ctaDefault: "Let's Go", type: 'info' },
+  5: { titleKey: 'teacher.dayWorkModals.day5Work',      titleDefault: 'Day 5 Work',         contentKey: 'teacher.dayWorkModals.task7hw5', contentDefault: 'Task 7 & H.W 5', ctaKey: 'teacher.dayWorkModals.okay',  ctaDefault: 'Okay',     type: 'info' },
+  6: { titleKey: 'teacher.dayWorkModals.day6Work',      titleDefault: 'Day 6 Work',         contentKey: 'teacher.dayWorkModals.quiz3hw5', contentDefault: 'Quiz 3 & H.W 5', ctaKey: 'teacher.dayWorkModals.okay',  ctaDefault: 'Okay',     type: 'quiz' },
+  7: { titleKey: 'teacher.dayWorkModals.day7Work',      titleDefault: 'Day 7 Work',         contentKey: 'teacher.dayWorkModals.exam1',    contentDefault: 'Exam 1',          ctaKey: 'teacher.dayWorkModals.okay',  ctaDefault: 'Okay',     type: 'exam' },
 };
 
 function DayNode({ day, onPress }: { day: typeof DAYS[0]; onPress: () => void }) {
+  const { t } = useTranslation();
   const isDone    = day.status === 'done';
   const isCurrent = day.status === 'current';
   const isCrown   = day.status === 'crown';
@@ -48,13 +54,13 @@ function DayNode({ day, onPress }: { day: typeof DAYS[0]; onPress: () => void })
         {isCrown   && <Text style={styles.dayNodeIcon}>👑</Text>}
         {day.status === 'pending' && <Text style={styles.dayNodeNumber}>{day.day}</Text>}
       </View>
-      <Text style={styles.dayLabel}>{day.label}</Text>
+      <Text style={styles.dayLabel}>{t('teacher.roadMap.day', { number: day.day })}</Text>
     </TouchableOpacity>
   );
 }
 
 function DayModal({ visible, day, onClose, t }: { visible: boolean; day: number | null; onClose: () => void; t: any }) {
-  const config = day ? DAY_MODALS[day] : null;
+  const config = day !== null ? DAY_MODAL_CONFIGS[day] : null;
   if (!config) return null;
 
   const iconMap: Record<string, string> = { info: '📋', quiz: '📝', exam: '🎓' };
@@ -64,10 +70,10 @@ function DayModal({ visible, day, onClose, t }: { visible: boolean; day: number 
       <View style={styles.modalOverlay}>
         <View style={styles.modalCard}>
           <Text style={styles.modalIcon}>{iconMap[config.type]}</Text>
-          <Text style={styles.modalTitle}>{config.title}</Text>
-          <Text style={styles.modalContent}>{config.content}</Text>
+          <Text style={styles.modalTitle}>{t(config.titleKey, config.titleDefault)}</Text>
+          <Text style={styles.modalContent}>{t(config.contentKey, config.contentDefault)}</Text>
           <TouchableOpacity style={styles.modalBtn} onPress={onClose}>
-            <Text style={styles.modalBtnText}>{config.cta}</Text>
+            <Text style={styles.modalBtnText}>{t(config.ctaKey, config.ctaDefault)}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -144,7 +150,7 @@ export default function TeacherRoadMapScreen() {
       {/* Nav */}
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
         <BackButton onPress={() => router.back()} />
-        <Text style={styles.navTitle}>{t('teacher.roadmap.title', "Ayoub's Tree")}</Text>
+        <Text style={styles.navTitle}>{t('teacher.roadMap.title', 'Road Map')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -162,7 +168,7 @@ export default function TeacherRoadMapScreen() {
               <DayNode
                 day={day}
                 onPress={() => {
-                  if (DAY_MODALS[day.day]) setDayModal(day.day);
+                  if (DAY_MODAL_CONFIGS[day.day]) setDayModal(day.day);
                 }}
               />
             </View>

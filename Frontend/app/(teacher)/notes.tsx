@@ -21,7 +21,8 @@ const TEACHER_NOTES = [
   { id: '4', author: 'Mr. Ahmad', authorAr: 'الأستاذ أحمد', date: '17/10', text: 'Student showed improvement in reading tasks this week.', avatarBg: '#BBDEFB', initials: 'MA' },
 ];
 
-function NoteItem({ note, isRTL }: { note: typeof PARENT_NOTES[0]; isRTL: boolean }) {
+function NoteItem({ note, isRTL, t }: { note: typeof PARENT_NOTES[0]; isRTL: boolean; t: any }) {
+  const displayDate = note.date === 'Today' ? t('homework.today', 'Today') : note.date;
   return (
     <View style={styles.noteCard}>
       <View style={[styles.noteHeader, isRTL && styles.rowReverse]}>
@@ -29,8 +30,8 @@ function NoteItem({ note, isRTL }: { note: typeof PARENT_NOTES[0]; isRTL: boolea
           <Text style={styles.avatarText}>{note.initials}</Text>
         </View>
         <View style={styles.noteAuthorBlock}>
-          <Text style={[styles.noteAuthor, isRTL && styles.textRight]}>{note.author}</Text>
-          <Text style={[styles.noteDate, isRTL && styles.textRight]}>{note.date}</Text>
+          <Text style={[styles.noteAuthor, isRTL && styles.textRight]}>{isRTL ? note.authorAr : note.author}</Text>
+          <Text style={[styles.noteDate, isRTL && styles.textRight]}>{displayDate}</Text>
         </View>
       </View>
       <Text style={[styles.noteText, isRTL && styles.textRight]}>{note.text}</Text>
@@ -92,8 +93,8 @@ export default function NotesScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {activeTab === 'teacher'
-          ? TEACHER_NOTES.map((n) => <NoteItem key={n.id} note={n} isRTL={isRTL} />)
-          : PARENT_NOTES.map((n)  => <NoteItem key={n.id} note={n} isRTL={isRTL} />)
+          ? TEACHER_NOTES.map((n) => <NoteItem key={n.id} note={n} isRTL={isRTL} t={t} />)
+          : PARENT_NOTES.map((n)  => <NoteItem key={n.id} note={n} isRTL={isRTL} t={t} />)
         }
       </ScrollView>
     </SafeAreaView>

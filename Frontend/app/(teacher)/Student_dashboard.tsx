@@ -37,7 +37,7 @@ export default function TeacherStudentDashboard() {
       {/* Nav bar */}
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
         <BackButton onPress={() => router.back()} />
-        <Text style={styles.navTitle}>{student.name}</Text>
+        <Text style={styles.navTitle}>{isRTL ? student.nameAr : student.name}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -66,7 +66,7 @@ export default function TeacherStudentDashboard() {
               </View>
               <View style={styles.progressInfo}>
                 <Text style={styles.progressName}>
-                  {t('teacher.dashboard.progressOf', 'Ayoub progress')}
+                  {isRTL ? student.nameAr : student.name} — {t('teacher.dashboard.progressOf', 'Progress')}
                 </Text>
                 <View style={styles.tagsRow}>
                   <View style={styles.tagBlue}><Text style={styles.tagBlueText}>Age {student.age}</Text></View>
@@ -103,8 +103,8 @@ export default function TeacherStudentDashboard() {
                 <Text style={styles.noteAvatarText}>{note.initials}</Text>
               </View>
               <View style={styles.noteAuthorBlock}>
-                <Text style={[styles.noteAuthor, isRTL && styles.textRight]}>{note.author}</Text>
-                <Text style={[styles.noteTime, isRTL && styles.textRight]}>{note.time}</Text>
+                <Text style={[styles.noteAuthor, isRTL && styles.textRight]}>{isRTL ? note.authorAr : note.author}</Text>
+                <Text style={[styles.noteTime, isRTL && styles.textRight]}>{isRTL ? note.timeAr : note.time}</Text>
               </View>
             </View>
             <Text style={[styles.noteText, isRTL && styles.textRight]}>{note.text}</Text>

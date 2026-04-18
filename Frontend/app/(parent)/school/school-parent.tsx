@@ -9,6 +9,7 @@ import Header from '@/components/modal/shared/Header'
 import TabBar from '@/components/modal/shared/TabBar'
 import Card from '@/components/modal/shared/Card'
 import { Text } from '@/components/modal/shared/Text'
+import SchoolCard from '@/components/modal/parent/schoolCard'
 
 const TABS = ['Grades', 'HW & Tasks', 'Progress', 'Reports']
 
@@ -19,85 +20,63 @@ export default function SchoolScreen() {
     const handleTabChange = (tab: string) => {
         if (tab === 'Progress') router.replace('/(parent)/school/school-progress')
         else if (tab === 'Reports') router.replace('/(parent)/school/school-reports')
+        else if (tab === 'HW & Tasks') router.replace('/(parent)/school/school-hw-tasks')
         else setActiveTab(tab)
     }
 
     return (
         <ScreenWrapper scroll={false}>
-        <Header
-            title={t('schoolPage.title')}
-            subtitle="Ayoub, grade 4"
-            onBack={() => router.back()}
-        />
+            <Header
+                title={t('schoolPage.title')}
+                subtitle="Ayoub, grade 4"
+                onBack={() => router.back()}
+            />
 
-        <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-            {/* School Info Card */}
-            <Card variant="elevated" style={styles.schoolCard}>
-            <View style={styles.schoolIconPlaceholder} />
-            <View style={styles.schoolTextBlock}>
-                <Text variant="heading" style={styles.schoolName}>{t('school.home.title')}</Text>
-                <Text style={styles.schoolInfo}>Grade 4 - A</Text>
-                <Text style={styles.schoolLocation}>📍 Amman</Text>
-            </View>
-            </Card>
+            <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+                <SchoolCard
+                    schoolName={t('school.home.title')}
+                    grade={t('schoolPage.gradeLabel', { grade: '4 - A' })}
+                    location="Amman"
+                />
 
-            <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
+                <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
-            {/* Grades Section */}
-            <View style={styles.sectionHeader}>
-            <Text variant="heading">{t('schoolPage.grades.comingUp')}</Text>
-            <Text style={styles.seeAll}>{t('common.seeAll')}</Text>
-            </View>
+                {/* Grades Section */}
+                <View style={styles.sectionHeader}>
+                    <Text variant="heading">{t('schoolPage.grades.comingUp')}</Text>
+                    <Text style={styles.seeAll}>{t('common.seeAll')}</Text>
+                </View>
 
-            <View style={styles.gradesGrid}>
-            {['Arabic', 'Arabic', 'Arabic'].map((subject, i) => (
-                <Card key={i} variant="outlined" padded={false} style={styles.gradeCard}>
-                <Text variant="caption" style={styles.gradeSubject}>{subject}</Text>
-                <Text variant="heading" style={styles.gradeScore}>
-                    92<Text style={styles.gradeTotal}>/100</Text>
-                </Text>
+                <View style={styles.gradesGrid}>
+                    {['Arabic', 'Math', 'Science'].map((subject, i) => (
+                        <Card key={i} variant="outlined" padded={false} style={styles.gradeCard}>
+                            <Text variant="caption" style={styles.gradeSubject}>{subject}</Text>
+                            <Text variant="heading" style={styles.gradeScore}>
+                                92<Text style={styles.gradeTotal}>/100</Text>
+                            </Text>
+                        </Card>
+                    ))}
+                </View>
+
+                {/* Upcoming Section */}
+                <Text variant="heading" style={styles.upcomingTitle}>{t('schoolPage.upcoming')}</Text>
+                <Card variant="default" style={styles.upcomingCard}>
+                    <View style={styles.upcomingIconBox} />
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.upcomingTitleText}>{t('schoolPage.hwTasks.readingHw')}</Text>
+                        <Text variant="caption" style={styles.upcomingSubtitle}>{t('schoolPage.hwTasks.lesson', { number: 7 })}</Text>
+                    </View>
+                    <View style={styles.tomorrowBadge}>
+                        <Text style={styles.tomorrowText}>{t('schoolPage.tomorrow')}</Text>
+                    </View>
                 </Card>
-            ))}
-            </View>
-
-            {/* Upcoming Section */}
-            <Text variant="heading" style={styles.upcomingTitle}>{t('schoolPage.grades.comingUp')}</Text>
-            <Card variant="default" style={styles.upcomingCard}>
-            <View style={styles.upcomingIconBox} />
-            <View style={{ flex: 1 }}>
-                <Text style={styles.upcomingTitleText}>Reading Homework -</Text>
-                <Text variant="caption" style={styles.upcomingSubtitle}>Lesson 7</Text>
-            </View>
-            <View style={styles.tomorrowBadge}>
-                <Text style={styles.tomorrowText}>Tomorrow</Text>
-            </View>
-            </Card>
-        </ScrollView>
-
+            </ScrollView>
         </ScreenWrapper>
     )
 }
 
 const styles = StyleSheet.create({
     scroll: { flex: 1 },
-
-    schoolCard: {
-        flexDirection: 'row',
-        gap: theme.spacing.md,
-        marginVertical: theme.spacing.lg,
-        backgroundColor: theme.colors.primary,
-        borderWidth: 0,
-    },
-    schoolIconPlaceholder: {
-        width: 60,
-        height: 60,
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        borderRadius: theme.radius.lg,
-    },
-    schoolTextBlock: { flex: 1 },
-    schoolName: { color: theme.colors.textWhite },
-    schoolInfo: { color: theme.colors.textWhite, opacity: 0.9 },
-    schoolLocation: { color: theme.colors.textWhite, fontSize: 12, marginTop: 4 },
 
     sectionHeader: {
         flexDirection: 'row',
