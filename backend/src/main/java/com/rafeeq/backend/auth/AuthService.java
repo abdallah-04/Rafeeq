@@ -1,7 +1,9 @@
 package com.rafeeq.backend.auth;
 
+import com.rafeeq.backend.common.BadRequestException;
 import com.rafeeq.backend.common.ConflictException;
 import com.rafeeq.backend.common.NotFoundException;
+import com.rafeeq.backend.common.UnauthorizedException;
 import com.rafeeq.backend.dto.auth.*;
 import com.rafeeq.backend.entity.Parent;
 import com.rafeeq.backend.entity.School;
@@ -74,24 +76,9 @@ public class AuthService {
         return new AuthResponse(accessToken, refreshToken, user.getRole().name(), "Parent registered successfully");
     }
 
-        public MessageResponse resendOtp(ResendOtpRequest request) {
-            User user = userRepository.findByNationalId(request.getNationalId())
-                    .orElseThrow(() -> new NotFoundException("User not found"));
-
-            String otp = String.valueOf((int) (1000 + Math.random() * 9000));
-            user.setOtpCode(otp);
-            user.setOtpExpiresAt(LocalDateTime.now().plusMinutes(5));
-
-            userRepository.save(user);
-
-            System.out.println("DEBUG RESEND OTP for " + user.getNationalId() + ": " + otp);
-
-            return new MessageResponse(true,"OTP resent successfully");
-        }
-
     public AuthResponse registerSchool(RegisterSchoolRequest request) {
         if (request.getPhone() != null && userRepository.existsByPhone(request.getPhone())) {
-           throw new ConflictException("Phone already exists");
+            throw new ConflictException("Phone already exists");
         }
 
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
@@ -159,8 +146,25 @@ public class AuthService {
         user.setOtpExpiresAt(LocalDateTime.now().plusMinutes(5));
 
         userRepository.save(user);
+
         System.out.println("DEBUG OTP for " + user.getNationalId() + ": " + otp);
+
         return new MessageResponse(true, "OTP sent successfully");
+    }
+
+    public MessageResponse resendOtp(ResendOtpRequest request) {
+        User user = userRepository.findByNationalId(request.getNationalId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        String otp = String.valueOf((int) (1000 + Math.random() * 9000));
+        user.setOtpCode(otp);
+        user.setOtpExpiresAt(LocalDateTime.now().plusMinutes(5));
+
+        userRepository.save(user);
+
+        System.out.println("DEBUG RESEND OTP for " + user.getNationalId() + ": " + otp);
+
+        return new MessageResponse(true, "OTP resent successfully");
     }
 
     public MessageResponse verifyOtp(VerifyOtpRequest request) {
@@ -168,18 +172,18 @@ public class AuthService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (user.getOtpCode() == null || user.getOtpExpiresAt() == null) {
-            throw new RuntimeException("OTP not requested");
+            throw new BadRequestException("OTP not requested");
         }
 
         if (!user.getOtpCode().equals(request.getOtpCode())) {
-            throw new RuntimeException("Invalid OTP");
+            throw new BadRequestException("Invalid OTP");
         }
 
         if (user.getOtpExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP expired");
+            throw new BadRequestException("OTP expired");
         }
 
-        return new MessageResponse(true,"OTP verified successfully");
+        return new MessageResponse(true, "OTP verified successfully");
     }
 
     public MessageResponse resetPassword(ResetPasswordRequest request) {
@@ -187,19 +191,19 @@ public class AuthService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new RuntimeException("Passwords do not match");
+            throw new BadRequestException("Passwords do not match");
         }
 
         if (user.getOtpCode() == null || user.getOtpExpiresAt() == null) {
-            throw new RuntimeException("OTP not requested");
+            throw new BadRequestException("OTP not requested");
         }
 
         if (!user.getOtpCode().equals(request.getOtpCode())) {
-            throw new RuntimeException("Invalid OTP");
+            throw new BadRequestException("Invalid OTP");
         }
 
         if (user.getOtpExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP expired");
+            throw new BadRequestException("OTP expired");
         }
 
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
@@ -208,7 +212,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return new MessageResponse(true,"Password reset successfully");
+        return new MessageResponse(true, "Password reset successfully");
     }
 
     public RefreshTokenResponse refresh(RefreshTokenRequest request) {
@@ -216,7 +220,7 @@ public class AuthService {
 
         String tokenType = jwtService.extractTokenType(refreshToken);
         if (!"refresh".equals(tokenType)) {
-            throw new RuntimeException("Invalid refresh token");
+            throw new BadRequestException("Invalid refresh token");
         }
 
         String nationalId = jwtService.extractUsername(refreshToken);
@@ -226,7 +230,7 @@ public class AuthService {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getNationalId());
 
         if (!jwtService.isTokenValid(refreshToken, userDetails)) {
-            throw new RuntimeException("Refresh token expired or invalid");
+            throw new UnauthorizedException("Refresh token expired or invalid");
         }
 
         String newAccessToken = jwtService.generateAccessToken(userDetails, user.getRole().name(), user.getId().toString());
@@ -236,7 +240,7 @@ public class AuthService {
     }
 
     public MessageResponse logout(LogoutRequest request) {
-        return new MessageResponse(true,"Logged out successfully");
+        return new MessageResponse(true, "Logged out successfully");
     }
 
     public MeResponse me(String nationalId) {
