@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, I18nManager } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +35,7 @@ function SettingsRow({ icon, label, onPress, danger }: RowProps) {
     >
       <View style={[styles.rowIcon, danger && styles.rowIconDanger]}>{icon}</View>
       <Text style={[styles.rowLabel, danger && styles.rowLabelDanger]}>{label}</Text>
-      <Text style={styles.rowChevron}>›</Text>
+      <Text style={styles.rowChevron}>{I18nManager.isRTL ? '‹' : '›'}</Text>
     </TouchableOpacity>
   );
 }

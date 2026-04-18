@@ -72,7 +72,7 @@ export default function ProgressScreen() {
             title={t('progress.title')}
             onBack={() => router.back()}
             rightElement={
-            <HeaderRightButton onPress={() => router.push('/(parent)/settings')} />
+            <HeaderRightButton onPress={() => router.push('/(parent)/settings' as any)} />
             }
         />
 
@@ -91,7 +91,7 @@ export default function ProgressScreen() {
             <ProgressSummary
             title={t('progress.summary')}
             items={MOCK_SKILLS}
-            onViewDetails={() => router.push('/(parent)/progress-details')}
+            onViewDetails={() => router.push('/(parent)/progress-details' as any)}
             />
         </View>
 

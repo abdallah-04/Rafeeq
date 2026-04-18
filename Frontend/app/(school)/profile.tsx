@@ -85,7 +85,7 @@ function SettingsRow({
       {valueLabel ? (
         <Text style={styles.settingsValue}>{valueLabel}</Text>
       ) : null}
-      <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+      <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={14} color={colors.textMuted} />
     </TouchableOpacity>
   )
 }

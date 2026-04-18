@@ -25,12 +25,13 @@ const RESEND_SECONDS = 60;
 
 /* ── Resend Timer ── */
 function ResendTimer({ onResend }: { onResend: () => void }) {
+    const { t } = useTranslation();
     const [seconds, setSeconds] = useState(RESEND_SECONDS);
 
     React.useEffect(() => {
         if (seconds <= 0) return;
-        const t = setTimeout(() => setSeconds((s) => s - 1), 1000);
-        return () => clearTimeout(t);
+        const timer = setTimeout(() => setSeconds((s) => s - 1), 1000);
+        return () => clearTimeout(timer);
     }, [seconds]);
 
     const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
@@ -38,12 +39,12 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
 
     return (
         <View style={resendStyles.row}>
-        <Text style={resendStyles.text}>Didn't receive ? </Text>
+        <Text style={resendStyles.text}>{t('auth.otp.didntReceive')} </Text>
         {seconds > 0 ? (
-            <Text style={resendStyles.timer}>Resend in {mm}:{ss}</Text>
+            <Text style={resendStyles.timer}>{t('auth.otp.resendIn')} {mm}:{ss}</Text>
         ) : (
             <TouchableOpacity onPress={() => { setSeconds(RESEND_SECONDS); onResend(); }}>
-            <Text style={resendStyles.link}>Resend code</Text>
+            <Text style={resendStyles.link}>{t('auth.otp.resend')}</Text>
             </TouchableOpacity>
         )}
         </View>
@@ -74,7 +75,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
 
     /* ── Main Screen ── */
     export default function VerifyPhoneScreen() {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -90,7 +91,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
         setLoading(true);
         setTimeout(() => {
         setLoading(false);
-        login({ role: 'parent', language: 'en' } as any, 'mock-token');
+        login({ role: 'parent', language: i18n.language as 'en' | 'ar' } as any, 'mock-token');
         router.replace('/(parent)/' as any);
         }, 1200);
     };
@@ -114,7 +115,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
         {/* Header */}
         <View style={styles.header}>
             <BackButton />
-            <Text style={styles.headerTitle}>Welcome to RAFEEQ</Text>
+            <Text style={styles.headerTitle}>{t('auth.otp.title')}</Text>
             <View style={{ width: 36 }} />
         </View>
 
@@ -130,7 +131,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
 
             {/* Card */}
             <View style={styles.card}>
-            <Text style={styles.cardTitle}>We sent you a code to{'\n'}verify your number</Text>
+            <Text style={styles.cardTitle}>{t('auth.otp.subtitle')}</Text>
             <OTPInput
                 length={OTP_LENGTH}
                 value={otp}
@@ -151,7 +152,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
                 <View style={[styles.checkbox, trustDevice && styles.checkboxChecked]}>
                 {trustDevice && <Text style={styles.checkmark}>✓</Text>}
                 </View>
-                <Text style={styles.checkLabel}>Trust this device for a month</Text>
+                <Text style={styles.checkLabel}>{t('auth.otp.trustDevice')}</Text>
             </TouchableOpacity>
 
             {/* Resend */}
@@ -159,7 +160,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
 
             {/* Confirm button */}
             <Button
-                label="Confirm"
+                label={t('auth.otp.confirmButton')}
                 onPress={handleConfirm}
                 loading={loading}
                 disabled={!isComplete}

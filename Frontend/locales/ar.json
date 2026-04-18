@@ -140,7 +140,8 @@
       "resend": "إعادة الإرسال",
       "resendIn": "إعادة الإرسال خلال",
       "trustDevice": "الوثوق بهذا الجهاز لمدة شهر",
-      "confirmButton": "تأكيد"
+      "confirmButton": "تأكيد",
+      "didntReceive": "لم يصلك الرمز؟"
     },
     "welcome": {
       "title": "أهلاً،",
@@ -756,7 +757,10 @@
   "tabs": {
     "teachers": "المعلمون",
     "students": "الطلاب",
-    "profile": "الملف الشخصي"
+    "profile": "الملف الشخصي",
+    "home": "الرئيسية",
+    "explore": "اكتشف",
+    "chatbot": "المساعد"
   },
 
   "profile": {

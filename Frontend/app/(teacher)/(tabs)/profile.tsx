@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '@/store/authStore';
 
 const MENU_ITEMS = [
   { id: 'account',   icon: '👤', labelKey: 'teacher.profile.account',    label: 'Account Info' },
@@ -20,6 +21,20 @@ export default function TeacherProfileScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
+  const logout = useAuthStore((s) => s.logout);
+  const setLanguage = useAuthStore((s) => s.setLanguage);
+
+  const handleMenuPress = (id: string) => {
+    if (id === 'logout') {
+      logout();
+      router.replace('/(auth)/login' as any);
+    }
+  };
+
+  const handleLanguageChange = (lang: 'en' | 'ar') => {
+    i18n.changeLanguage(lang);
+    setLanguage(lang);
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -61,6 +76,7 @@ export default function TeacherProfileScreen() {
                 i < MENU_ITEMS.length - 1 && styles.menuItemBorder,
               ]}
               activeOpacity={0.7}
+              onPress={() => handleMenuPress(item.id)}
             >
               <Text style={styles.menuIcon}>{item.icon}</Text>
               <Text style={[styles.menuLabel, item.danger && styles.menuLabelDanger]}>
@@ -79,7 +95,7 @@ export default function TeacherProfileScreen() {
             <TouchableOpacity
               key={lang}
               style={[styles.langBtn, i18n.language === lang && styles.langBtnActive]}
-              onPress={() => i18n.changeLanguage(lang)}
+              onPress={() => handleLanguageChange(lang)}
             >
               <Text style={[styles.langBtnText, i18n.language === lang && styles.langBtnTextActive]}>
                 {lang === 'en' ? 'English' : 'العربية'}

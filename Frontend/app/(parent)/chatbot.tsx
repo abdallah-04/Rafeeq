@@ -312,7 +312,9 @@ export default function ChatbotScreen() {
             disabled={!inputText.trim() && !pendingAttachment}
             accessibilityLabel="Send"
           >
-            <Ionicons name="send" size={18} color={colors.textWhite} />
+            <View style={isRTL ? { transform: [{ scaleX: -1 }] } : undefined}>
+              <Ionicons name="send" size={18} color={colors.textWhite} />
+            </View>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
