@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, StatusBar, Image, ImageSourcePropType } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, StatusBar, Image, ImageSourcePropType, I18nManager } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -68,7 +68,7 @@ function RoleCard({ option, onPress }: { option: RoleOption; onPress: (r: string
           <Text style={styles.cardTitle}>{t(option.titleKey)}</Text>
           <Text style={styles.cardDesc}>{t(option.descKey)}</Text>
         </View>
-        <Text style={styles.arrow}>›</Text>
+        <Text style={styles.arrow}>{I18nManager.isRTL ? '‹' : '›'}</Text>
       </TouchableOpacity>
     </Animated.View>
   );
