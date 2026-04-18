@@ -75,7 +75,7 @@ function RoleCard({ option, onPress }: { option: RoleOption; onPress: (r: string
 }
 
 export default function RoleSelectionScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // const handleLanguagePress = () => {
   //   // TODO: open language selector modal
@@ -126,7 +126,7 @@ export default function RoleSelectionScreen() {
         onLanguagePress={() => {}}
         onPrivacyPress={() => {}}
         onTermsPress={() => {}}
-        currentLanguage="English (US)"
+        currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
       />
     </SafeAreaView>
   );

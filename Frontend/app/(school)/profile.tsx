@@ -1,5 +1,6 @@
 import React from 'react'
-import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Alert, I18nManager, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import * as Updates from 'expo-updates'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { router } from 'expo-router'
@@ -110,10 +111,18 @@ export default function ProfileScreen() {
     )
   }
 
-  function handleToggleLanguage() {
+  async function handleToggleLanguage() {
     const newLang = i18n.language === 'ar' ? 'en' : 'ar'
-    i18n.changeLanguage(newLang)
+    const needsRTLFlip = I18nManager.isRTL !== (newLang === 'ar')
     setLanguage(newLang as 'en' | 'ar')   // persists to store + calls I18nManager.forceRTL
+    if (needsRTLFlip && Updates.isEnabled) {
+      // Restart required for RTL layout to take effect — only works in production/standalone builds
+      try {
+        await Updates.reloadAsync()
+      } catch {
+        // Expo Go / dev builds don't support reloadAsync; language is saved and takes effect on next cold start
+      }
+    }
   }
 
   return (

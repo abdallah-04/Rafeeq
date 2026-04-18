@@ -16,6 +16,7 @@ import BackButton from '@/components/modal/shared/BackButton';
 import OTPInput from '@/components/modal/shared/OTPInput';
 import Footer from '@/components/modal/shared/Footer';
 import { useAuthStore } from '@/store/authStore';
+import { useTranslation } from 'react-i18next';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -73,6 +74,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
 
     /* ── Main Screen ── */
     export default function VerifyPhoneScreen() {
+    const { i18n } = useTranslation();
     const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -168,7 +170,7 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
                 onLanguagePress={() => {}}
                 onPrivacyPress={() => {}}
                 onTermsPress={() => {}}
-                currentLanguage="English (US)"
+                currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
                 />
         </View>
         </SafeAreaView>

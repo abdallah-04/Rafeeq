@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Image, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -8,7 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { addTeacherSchema, AddTeacherForm } from '@/lib/schemas/teacherSchema';
+import { createAddTeacherSchema, AddTeacherForm } from '@/lib/schemas/teacherSchema';
 import Header from '@/components/modal/shared/Header';
 import { Button } from '@/components/modal/shared/Button';
 import { Text } from '@/components/modal/shared/Text';
@@ -22,8 +22,9 @@ export default function AddTeacherScreen() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const schema = useMemo(() => createAddTeacherSchema(t), [t]);
   const { control, handleSubmit, formState: { errors } } = useForm<AddTeacherForm>({
-    resolver: zodResolver(addTeacherSchema),
+    resolver: zodResolver(schema),
   });
 
   const pickPhoto = async () => {

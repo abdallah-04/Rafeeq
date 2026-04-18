@@ -39,7 +39,7 @@ export function EmptyListScreen({
     onContinue,
     onBack,
 }: EmptyListScreenProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     return (
         <SafeAreaView style={styles.safe}>
             <StatusBar style="dark" />
@@ -82,7 +82,7 @@ export function EmptyListScreen({
                     onLanguagePress={() => {}}
                     onPrivacyPress={() => {}}
                     onTermsPress={() => {}}
-                    currentLanguage="English (US)"
+                    currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
                 />
             </View>
         </SafeAreaView>

@@ -30,7 +30,7 @@ const loginSchema = z.object({
 });
 
 export default function LoginScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
 
@@ -148,7 +148,7 @@ export default function LoginScreen() {
             onLanguagePress={() => {}}
             onPrivacyPress={() => {}}
             onTermsPress={() => {}}
-            currentLanguage="English (US)"
+            currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
             />
         </ScrollView>
       </KeyboardAvoidingView>

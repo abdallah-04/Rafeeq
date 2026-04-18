@@ -13,6 +13,7 @@ import {
   Tajawal_500Medium,
   Tajawal_700Bold,
 } from '@expo-google-fonts/tajawal'
+// Note: @expo-google-fonts/tajawal has no 600 weight; 700 Bold is the closest to SemiBold
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { I18nManager } from 'react-native'
@@ -57,7 +58,7 @@ export default function RootLayout() {
     Lexend_700Bold,
     'Tajawal-Regular':  Tajawal_400Regular,
     'Tajawal-Medium':   Tajawal_500Medium,
-    'Tajawal-SemiBold': Tajawal_500Medium,
+    'Tajawal-SemiBold': Tajawal_700Bold,
     'Tajawal-Bold':     Tajawal_700Bold,
   })
 

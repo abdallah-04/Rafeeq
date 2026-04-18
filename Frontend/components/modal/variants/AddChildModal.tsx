@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.xs,
     color: theme.colors.error,
     marginBottom: theme.spacing.sm,
-    marginLeft: 4,
+    marginStart: 4,
     fontFamily: theme.typography.fontFamily.regular,
   },
   btn: {
