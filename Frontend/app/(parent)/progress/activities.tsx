@@ -107,7 +107,7 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
         <Header
             title="Activities"
             onBack={() => router.back()}
-            rightElement={<HeaderRightButton onPress={() => router.push('/(parent)/settings')} />}
+            rightElement={<HeaderRightButton onPress={() => router.push('/(parent)/settings' as any)} />}
         />
 
         <ChildSelector
@@ -125,20 +125,20 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
             <Text variant="heading" style={styles.sectionTitle}>☆ Recommended for {MOCK_CHILD.name}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendedList}>
             {RECOMMENDED.map((item) => (
-                <RecommendedCard key={item.id} item={item} onPress={() => router.push(`/(parent)/activity/${item.id}`)} />
+                <RecommendedCard key={item.id} item={item} onPress={() => router.push(`/(parent)/activity/${item.id}` as any)} />
             ))}
             </ScrollView>
 
             {/* Daily activities */}
             <View style={styles.sectionHeader}>
             <Text variant="heading" style={styles.sectionTitle}>🏃 Daily activities</Text>
-            <TouchableOpacity onPress={() => router.push('/(parent)/activities-all')}>
+            <TouchableOpacity onPress={() => router.push('/(parent)/activities-all' as any)}>
                 <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
             </View>
 
             {DAILY_ACTIVITIES.map((item) => (
-            <DailyCard key={item.id} item={item} onPress={() => router.push(`/(parent)/activity/${item.id}`)} />
+            <DailyCard key={item.id} item={item} onPress={() => router.push(`/(parent)/activity/${item.id}` as any)} />
             ))}
         </ScrollView>
 

@@ -366,7 +366,7 @@ export default function QuizzesScreen() {
         <Header
             title="Quizes"
             onBack={() => router.back()}
-            rightElement={<HeaderRightButton onPress={() => router.push('/(parent)/settings')} />}
+            rightElement={<HeaderRightButton onPress={() => router.push('/(parent)/settings' as any)} />}
         />
 
         <ChildSelector
@@ -382,7 +382,7 @@ export default function QuizzesScreen() {
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
             <View style={styles.sectionHeader}>
             <Text variant="heading" style={styles.sectionTitle}>✏️ This week's quizzes</Text>
-            <TouchableOpacity onPress={() => router.push('/(parent)/quizes-all')}>
+            <TouchableOpacity onPress={() => router.push('/(parent)/quizes-all' as any)}>
                 <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
             </View>
@@ -391,7 +391,7 @@ export default function QuizzesScreen() {
             <QuizCard
                 key={quiz.id}
                 {...quiz}
-                onPress={() => router.push(`/(parent)/progress/quiz/${quiz.id}`)}
+                onPress={() => router.push(`/(parent)/progress/quiz/${quiz.id}` as any)}
             />
             ))}
         </ScrollView>

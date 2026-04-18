@@ -4,6 +4,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     ScrollView,
+    I18nManager,
 } from 'react-native';
 
 import { Text } from '@/components/modal/shared/Text';
@@ -87,9 +88,9 @@ const MONTH_NAMES = [
     return (
         <View>
         <View style={styles.monthNav}>
-            <TouchableOpacity onPress={prev} style={styles.arrow}><Text>‹</Text></TouchableOpacity>
+            <TouchableOpacity onPress={prev} style={styles.arrow}><Text>{I18nManager.isRTL ? '›' : '‹'}</Text></TouchableOpacity>
             <Text style={styles.monthTitle}>{MONTH_NAMES[month]} {year}</Text>
-            <TouchableOpacity onPress={next} style={styles.arrow}><Text>›</Text></TouchableOpacity>
+            <TouchableOpacity onPress={next} style={styles.arrow}><Text>{I18nManager.isRTL ? '‹' : '›'}</Text></TouchableOpacity>
         </View>
 
         <View style={styles.weekRow}>

@@ -5,7 +5,14 @@
       "Bash(npm install:*)",
       "Bash(grep -v \"^$\")",
       "Bash(node -e \"require\\('./locales/en.json'\\); console.log\\('en.json valid'\\)\")",
-      "Bash(node -e \"require\\('./locales/ar.json'\\); console.log\\('ar.json valid'\\)\")"
+      "Bash(node -e \"require\\('./locales/ar.json'\\); console.log\\('ar.json valid'\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"const en=require\\('./locales/en.json'\\); console.log\\(JSON.stringify\\(en.auth?.signup,null,2\\)\\); console.log\\('common.login:', en.common?.login\\); console.log\\('common.orContinueWith:', en.common?.orContinueWith\\);\")",
+      "Bash(node -e \"const ar=require\\('./locales/ar.json'\\); console.log\\(JSON.stringify\\(ar.auth?.signup,null,2\\)\\);\")",
+      "Bash(node -e \"const en=require\\('./locales/en.json'\\); const ar=require\\('./locales/ar.json'\\); console.log\\('en validation:', en.validation\\); console.log\\('ar validation:', ar.validation\\); console.log\\('en auth.signup.orContinueWith:', en.auth?.signup?.orContinueWith\\);\")",
+      "Bash(node -e \"const en = require\\('c:/Rafeeq/Frontend/locales/en.json'\\); const ar = require\\('c:/Rafeeq/Frontend/locales/ar.json'\\); console.log\\('EN tabs:', JSON.stringify\\(en.tabs, null, 2\\)\\); console.log\\('AR tabs:', JSON.stringify\\(ar.tabs, null, 2\\)\\);\")",
+      "Bash(node -e \"const en = require\\('c:/Rafeeq/Frontend/locales/en.json'\\); console.log\\(JSON.stringify\\(Object.keys\\(en.tabs\\), null, 2\\)\\);\")",
+      "Bash(grep -v \"//\")"
     ]
   }
 }
