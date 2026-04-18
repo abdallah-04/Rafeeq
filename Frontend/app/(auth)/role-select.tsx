@@ -123,10 +123,8 @@ export default function RoleSelectionScreen() {
       </View>
 
       <Footer
-        onLanguagePress={() => {}}
         onPrivacyPress={() => {}}
         onTermsPress={() => {}}
-        currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
       />
     </SafeAreaView>
   );

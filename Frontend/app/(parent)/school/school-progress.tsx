@@ -2,12 +2,14 @@ import React, { useState } from 'react'
 import { View, StyleSheet, ScrollView } from 'react-native'
 import { router } from 'expo-router'
 import { theme } from '@/theme'
+import { useTranslation } from 'react-i18next'
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
 import TabBar from '@/components/modal/shared/TabBar'
 import ProgressSummary from '@/components/modal/parent/ProgressSummary'
 import Card from '@/components/modal/shared/Card'
 import { Text } from '@/components/modal/shared/Text'
+import SchoolCard from '@/components/modal/parent/schoolCard'
 
 const TABS = ['Grades', 'HW & Tasks', 'Progress', 'Reports']
 
@@ -18,11 +20,12 @@ const SKILLS = [
 ]
 
 export default function ProgressReport() {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('Progress')
 
   const handleTabChange = (tab: string) => {
     if (tab === 'Grades') router.replace('/(parent)/school/school-parent')
-    else if (tab === 'HW & Tasks') router.replace('/(parent)/school/school-parent')
+    else if (tab === 'HW & Tasks') router.replace('/(parent)/school/school-hw-tasks')
     else if (tab === 'Reports') router.replace('/(parent)/school/school-reports')
     else setActiveTab(tab)
   }
@@ -30,37 +33,41 @@ export default function ProgressReport() {
   return (
     <ScreenWrapper scroll={false}>
       <Header
-        title="Progress"
-        subtitle="Tracking Zaid's performance"
+        title={t('schoolPage.tabs.progress')}
+        subtitle={t('schoolPage.progress.trackingSubtitle')}
         onBack={() => router.replace('/(parent)/school/school-parent')}
       />
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        <SchoolCard
+          schoolName={t('school.home.title')}
+          grade={t('schoolPage.gradeLabel', { grade: '4 - A' })}
+          location="Amman"
+        />
+
         <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
         {/* Overall Banner */}
         <Card variant="elevated" style={styles.banner}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.bannerTitle}>Overall progress</Text>
-            <Text style={styles.bannerSub}>Second semester</Text>
+            <Text style={styles.bannerTitle}>{t('schoolPage.progress.overall')}</Text>
+            <Text style={styles.bannerSub}>{t('schoolPage.progress.semester')}</Text>
           </View>
           <Text style={styles.percentageText}>81%</Text>
         </Card>
 
-        <ProgressSummary title="Homework Completion" items={SKILLS} />
+        <ProgressSummary title={t('schoolPage.progress.homeworkCompletion')} items={SKILLS} />
 
         {/* Teacher Notes Section */}
-        <Text variant="heading" style={styles.notesTitle}>Teacher Notes</Text>
+        <Text variant="heading" style={styles.notesTitle}>{t('schoolPage.progress.teacherNote')}</Text>
         <Card variant="outlined" style={styles.noteCard}>
-          <Text style={styles.noteTitle}>💬 Note - Last Week</Text>
+          <Text style={styles.noteTitle}>💬 {t('schoolPage.progress.teacherNote')} - {t('schoolPage.progress.lastWeek')}</Text>
           <Text style={styles.noteBody}>
-            Zaid needs extra support in Math, especially fractions. A short daily review is highly
-            recommended.
+            {t('schoolPage.progress.noteBody')}
           </Text>
           <Text style={styles.noteAuthor}>Ms. Sara Mahmoud - Mar 28</Text>
         </Card>
       </ScrollView>
-
     </ScreenWrapper>
   )
 }

@@ -4,8 +4,8 @@ import {
     StyleSheet,
     TouchableOpacity,
     ScrollView,
-    I18nManager,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/modal/shared/Text';
 import { theme } from '@/theme';
@@ -13,13 +13,6 @@ import { theme } from '@/theme';
 const { colors, spacing, typography, radius } = theme;
 
 const ACTIVE_DAYS = new Set([1,2,3,5,6,8,9,10,14,15,16,17,20,21,23]);
-
-const MONTH_NAMES = [
-    'January','February','March','April','May','June',
-    'July','August','September','October','November','December',
-    ];
-
-    const WEEK_DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
     const getDaysInMonth = (y:number,m:number) =>
     new Date(y, m + 1, 0).getDate();
@@ -29,6 +22,8 @@ const MONTH_NAMES = [
 
     /* ── Strip ── */
     function StripRow({ year, month, selected, setSelected }: any) {
+    const { t } = useTranslation();
+    const weekDays = t('calendar.weekDays', { returnObjects: true }) as string[];
     const today = new Date();
     const daysInMonth = getDaysInMonth(year, month);
 
@@ -60,7 +55,7 @@ const MONTH_NAMES = [
                 onPress={() => setSelected(i)}
                 >
                 <Text style={[styles.dayLetter, (active || isSelected) && styles.white]}>
-                    {WEEK_DAYS[new Date(year, month, day).getDay()]}
+                    {weekDays[new Date(year, month, day).getDay()]}
                 </Text>
 
                 <Text style={[styles.dayNum, (active || isSelected) && styles.white]}>
@@ -76,6 +71,9 @@ const MONTH_NAMES = [
 
 /* ── Full Month ── */
     function FullMonth({ year, month, prev, next }: any) {
+    const { t } = useTranslation();
+    const monthNames = t('calendar.months', { returnObjects: true }) as string[];
+    const weekDays = t('calendar.weekDays', { returnObjects: true }) as string[];
     const today = new Date();
     const daysInMonth = getDaysInMonth(year, month);
     const firstDay = getFirstDay(year, month);
@@ -88,13 +86,13 @@ const MONTH_NAMES = [
     return (
         <View>
         <View style={styles.monthNav}>
-            <TouchableOpacity onPress={prev} style={styles.arrow}><Text>{I18nManager.isRTL ? '›' : '‹'}</Text></TouchableOpacity>
-            <Text style={styles.monthTitle}>{MONTH_NAMES[month]} {year}</Text>
-            <TouchableOpacity onPress={next} style={styles.arrow}><Text>{I18nManager.isRTL ? '‹' : '›'}</Text></TouchableOpacity>
+            <TouchableOpacity onPress={prev} style={styles.arrow}><Text>‹</Text></TouchableOpacity>
+            <Text style={styles.monthTitle}>{monthNames[month]} {year}</Text>
+            <TouchableOpacity onPress={next} style={styles.arrow}><Text>›</Text></TouchableOpacity>
         </View>
 
         <View style={styles.weekRow}>
-            {WEEK_DAYS.map(d => (
+            {weekDays.map((d: string) => (
             <Text key={d} style={styles.weekLabel}>{d}</Text>
             ))}
         </View>
@@ -135,6 +133,7 @@ const MONTH_NAMES = [
 
 /* ── Main ── */
 export default function CalendarStrip() {
+    const { t } = useTranslation();
     const today = new Date();
 
     const [expanded, setExpanded] = useState(false);
@@ -155,8 +154,8 @@ export default function CalendarStrip() {
     return (
         <View style={styles.container}>
         <View style={styles.header}>
-            <Text style={styles.title}>Calendar</Text>
-            <Text style={styles.streak}>🔥 14 Days</Text>
+            <Text style={styles.title}>{t('calendar.title')}</Text>
+            <Text style={styles.streak}>{t('calendar.streak', { count: 14 })}</Text>
         </View>
 
         {!expanded ? (
@@ -167,7 +166,7 @@ export default function CalendarStrip() {
 
         <TouchableOpacity onPress={() => setExpanded(e => !e)}>
             <Text style={styles.toggle}>
-            {expanded ? 'Show less ▲' : 'Show more ▼'}
+            {expanded ? t('calendar.showLess') : t('calendar.showMore')}
             </Text>
         </TouchableOpacity>
         </View>

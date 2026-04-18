@@ -12,7 +12,14 @@ import BackButton from '@/components/BackButton';
 const MALE_PING   = require('@/assets/images/mascot/rafeeq_like.png');
 const FEMALE_PING = require('@/assets/images/mascot/rafeeqa.png');
 
-const CONDITIONS = ['ADD', 'ADHD', 'IFD', 'Autism', 'Down Syndrome', 'Other'];
+const CONDITIONS: { key: string; default: string }[] = [
+  { key: 'ADD',         default: 'ADD' },
+  { key: 'ADHD',        default: 'ADHD' },
+  { key: 'IFD',         default: 'IFD' },
+  { key: 'Autism',      default: 'Autism' },
+  { key: 'DownSyndrome',default: 'Down Syndrome' },
+  { key: 'OTHER',       default: 'Other' },
+];
 
 export default function AddStudentScreen() {
   const router = useRouter();
@@ -95,7 +102,9 @@ export default function AddStudentScreen() {
             onPress={() => setDropdownOpen(!dropdownOpen)}
           >
             <Text style={[styles.dropdownText, !condition && styles.dropdownPlaceholder]}>
-              {condition || t('teacher.addStudent.conditionPlaceholder', 'Select difficulty...')}
+              {condition
+                ? t(`difficulties.${condition}`, condition)
+                : t('teacher.addStudent.conditionPlaceholder', 'Select difficulty...')}
             </Text>
             <Text style={styles.dropdownArrow}>{dropdownOpen ? '▲' : '▼'}</Text>
           </TouchableOpacity>
@@ -103,12 +112,12 @@ export default function AddStudentScreen() {
             <View style={styles.dropdownList}>
               {CONDITIONS.map((c) => (
                 <TouchableOpacity
-                  key={c}
+                  key={c.key}
                   style={styles.dropdownItem}
-                  onPress={() => { setCondition(c); setDropdownOpen(false); }}
+                  onPress={() => { setCondition(c.key); setDropdownOpen(false); }}
                 >
-                  <Text style={[styles.dropdownItemText, condition === c && styles.dropdownItemActive]}>
-                    {c}
+                  <Text style={[styles.dropdownItemText, condition === c.key && styles.dropdownItemActive]}>
+                    {t(`difficulties.${c.key}`, c.default)}
                   </Text>
                 </TouchableOpacity>
               ))}

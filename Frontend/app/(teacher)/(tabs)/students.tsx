@@ -63,14 +63,16 @@ export default function StudentsScreen() {
               </View>
               <View style={styles.cardInfo}>
                 <View style={[styles.nameRow, isRTL && styles.rowReverse]}>
-                  <Text style={styles.studentName}>{item.name}</Text>
+                  <Text style={styles.studentName}>{isRTL ? item.nameAr : item.name}</Text>
                   <View style={styles.activeBadge}>
-                    <Text style={styles.activeBadgeText}>{item.status}</Text>
+                    <Text style={styles.activeBadgeText}>{t('teacher.studentCard.active', 'Active')}</Text>
                   </View>
                 </View>
-                <View style={styles.tagsRow}>
+                <View style={[styles.tagsRow, isRTL && styles.rowReverse]}>
                   <View style={[styles.tag, { backgroundColor: item.levelColor + '22' }]}>
-                    <Text style={[styles.tagText, { color: item.levelColor }]}>{item.level}</Text>
+                    <Text style={[styles.tagText, { color: item.levelColor }]}>
+                      {t('teacher.studentCard.level', { level: item.level.replace('Level ', '') })}
+                    </Text>
                   </View>
                   <View style={[styles.tag, { backgroundColor: item.conditionColor + '22' }]}>
                     <Text style={[styles.tagText, { color: item.conditionColor }]}>{item.condition}</Text>

@@ -1,17 +1,16 @@
 import React, { useState } from 'react'
-import { View, StyleSheet, StatusBar, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Image, StyleSheet, StatusBar, ScrollView, TouchableOpacity } from 'react-native'
 import { router } from 'expo-router'
 import { theme } from '@/theme'
+import { useTranslation } from 'react-i18next'
 
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
 import ChildSelector from '@/components/modal/parent/ChildSelector'
 import TabBar from '@/components/modal/shared/TabBar'
 import { Text } from '@/components/modal/shared/Text'
-import Card from '@/components/modal/shared/Card'
 import StatusBadge from '@/components/modal/parent/StatusBadge'
 
-// ─── Types & Mock Data ────────────────────────────────────────────────────────
 interface RecommendedActivity {
     id: string
     title: string
@@ -28,7 +27,7 @@ interface DailyActivity {
     iconBgColor: string
     iconTintColor: string
     status: 'completed' | 'later' | 'new' | 'in_progress'
-    }
+}
 
 const MOCK_CHILD = {
     name: 'Zaid',
@@ -37,7 +36,6 @@ const MOCK_CHILD = {
     badges: [
         { label: 'Level 2', color: '#A78BFA' },
         { label: 'Age 8',   color: '#60A5FA' },
-        { label: 'level2',  color: '#A78BFA' },
     ],
 }
 
@@ -56,7 +54,7 @@ const RECOMMENDED: RecommendedActivity[] = [
         iconTintColor: '#7C3AED',
         durationMinutes: 23,
     },
-    ]
+]
 
 const DAILY_ACTIVITIES: DailyActivity[] = [
     {
@@ -77,21 +75,22 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
         iconTintColor: '#D97706',
         status: 'later',
     },
-    ]
+]
 
-    const TABS = ['Progress', 'Quizes', 'Activities', 'Homeworks']
+const TABS = ['Progress', 'Quizes', 'Activities', 'Homeworks']
 
-    export default function ActivitiesScreen() {
+export default function ActivitiesScreen() {
+    const { t } = useTranslation()
     const [activeTab, setActiveTab] = useState('Activities')
 
     const handleTabChange = (tab: string) => {
         if (tab === 'Progress') {
-        router.replace('/(parent)/progress/progress-page')
-        return
+            router.replace('/(parent)/progress/progress-page')
+            return
         }
         if (tab === 'Quizes') {
-        router.replace('/(parent)/progress/quiz')
-        return
+            router.replace('/(parent)/progress/quiz')
+            return
         }
         if (tab === 'Homeworks') {
             router.replace('/(parent)/progress/homeworks')
@@ -102,88 +101,88 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
 
     return (
         <ScreenWrapper scroll={false}>
-        <StatusBar barStyle="dark-content" backgroundColor={theme.colors.white} />
+            <StatusBar barStyle="dark-content" backgroundColor={theme.colors.white} />
 
-        <Header
-            title="Activities"
-            onBack={() => router.back()}
-            rightElement={<HeaderRightButton onPress={() => router.push('/(parent)/settings' as any)} />}
-        />
+            <Header
+                title={t('activities.title')}
+                onBack={() => router.back()}
+                rightElement={<HeaderRightButton onPress={() => router.push('/(parent)/settings' as any)} />}
+            />
 
-        <ChildSelector
-            name={MOCK_CHILD.name}
-            age={MOCK_CHILD.age}
-            avatar={MOCK_CHILD.avatar}
-            badges={MOCK_CHILD.badges}
-            onPress={() => {}}
-        />
+            <ChildSelector
+                name={MOCK_CHILD.name}
+                age={MOCK_CHILD.age}
+                avatar={MOCK_CHILD.avatar}
+                badges={MOCK_CHILD.badges}
+                onPress={() => {}}
+            />
 
-        <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
+            <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-            {/* Recommended section */}
-            <Text variant="heading" style={styles.sectionTitle}>☆ Recommended for {MOCK_CHILD.name}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendedList}>
-            {RECOMMENDED.map((item) => (
-                <RecommendedCard key={item.id} item={item} onPress={() => router.push(`/(parent)/activity/${item.id}` as any)} />
-            ))}
+            <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+                <Text variant="heading" style={styles.sectionTitle}>
+                    ☆ {t('activities.recommendedFor', { name: MOCK_CHILD.name })}
+                </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendedList}>
+                    {RECOMMENDED.map((item) => (
+                        <RecommendedCard
+                            key={item.id}
+                            item={item}
+                            minsLabel={t('activities.mins', { count: item.durationMinutes })}
+                            onPress={() => router.push(`/(parent)/activity/${item.id}` as any)}
+                        />
+                    ))}
+                </ScrollView>
+
+                <View style={styles.sectionHeader}>
+                    <Text variant="heading" style={styles.sectionTitle}>🏃 {t('activities.daily')}</Text>
+                    <TouchableOpacity onPress={() => router.push('/(parent)/activities-all' as any)}>
+                        <Text style={styles.seeAll}>{t('common.seeAll')}</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {DAILY_ACTIVITIES.map((item) => (
+                    <DailyCard key={item.id} item={item} onPress={() => router.push(`/(parent)/activity/${item.id}` as any)} />
+                ))}
             </ScrollView>
-
-            {/* Daily activities */}
-            <View style={styles.sectionHeader}>
-            <Text variant="heading" style={styles.sectionTitle}>🏃 Daily activities</Text>
-            <TouchableOpacity onPress={() => router.push('/(parent)/activities-all' as any)}>
-                <Text style={styles.seeAll}>See all</Text>
-            </TouchableOpacity>
-            </View>
-
-            {DAILY_ACTIVITIES.map((item) => (
-            <DailyCard key={item.id} item={item} onPress={() => router.push(`/(parent)/activity/${item.id}` as any)} />
-            ))}
-        </ScrollView>
-
         </ScreenWrapper>
     )
-    }
+}
 
-    // ─── Sub-components ──────────────────────────────────────────────────────────
-    function RecommendedCard({ item, onPress }: { item: RecommendedActivity; onPress: () => void }) {
+function RecommendedCard({ item, minsLabel, onPress }: { item: RecommendedActivity; minsLabel: string; onPress: () => void }) {
     return (
         <TouchableOpacity style={styles.recommendedCard} onPress={onPress} activeOpacity={0.7}>
-        <Image source={item.icon} style={[styles.recommendedIcon, { tintColor: item.iconTintColor }]} resizeMode="contain" />
-        <Text style={styles.recommendedTitle}>{item.title}</Text>
-        <Text style={styles.recommendedMeta}>· {item.durationMinutes} mins</Text>
+            <Image source={item.icon} style={[styles.recommendedIcon, { tintColor: item.iconTintColor }]} resizeMode="contain" />
+            <Text style={styles.recommendedTitle}>{item.title}</Text>
+            <Text style={styles.recommendedMeta}>· {minsLabel}</Text>
         </TouchableOpacity>
     )
-    }
+}
 
-    function DailyCard({ item, onPress }: { item: DailyActivity; onPress: () => void }) {
+function DailyCard({ item, onPress }: { item: DailyActivity; onPress: () => void }) {
     return (
         <TouchableOpacity style={styles.dailyCard} onPress={onPress} activeOpacity={0.7}>
-        <View style={[styles.dailyIconBox, { backgroundColor: item.iconBgColor }]}>
-            <Image source={item.icon} style={[styles.dailyIcon, { tintColor: item.iconTintColor }]} resizeMode="contain" />
-        </View>
-        <View style={styles.dailyInfo}>
-            <Text style={styles.dailyTitle}>{item.title}</Text>
-            <Text style={styles.dailySubtitle}>{item.subtitle}</Text>
-        </View>
-        <StatusBadge variant={item.status} />
+            <View style={[styles.dailyIconBox, { backgroundColor: item.iconBgColor }]}>
+                <Image source={item.icon} style={[styles.dailyIcon, { tintColor: item.iconTintColor }]} resizeMode="contain" />
+            </View>
+            <View style={styles.dailyInfo}>
+                <Text style={styles.dailyTitle}>{item.title}</Text>
+                <Text style={styles.dailySubtitle}>{item.subtitle}</Text>
+            </View>
+            <StatusBadge variant={item.status} />
         </TouchableOpacity>
     )
-    }
+}
 
-    function HeaderRightButton({ onPress }: { onPress: () => void }) {
+function HeaderRightButton({ onPress }: { onPress: () => void }) {
     return (
         <TouchableOpacity onPress={onPress} style={styles.settingsBtn}>
-        <Text style={styles.settingsIcon}>⚙️</Text>
+            <Text style={styles.settingsIcon}>⚙️</Text>
         </TouchableOpacity>
     )
-    }
+}
 
-    // Add missing Image import
-    import { Image } from 'react-native'
-
-    const styles = StyleSheet.create({
+const styles = StyleSheet.create({
     scroll: { flex: 1 },
     scrollContent: {
         paddingTop: theme.spacing.lg,
@@ -280,4 +279,4 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
         alignItems: 'flex-end',
     },
     settingsIcon: { fontSize: 20 },
-    })
+})

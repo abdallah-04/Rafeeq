@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity, I18nManager } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Image, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,7 @@ import Avatar from '@/components/modal/shared/Avatar';
 import { theme } from '@/theme';
 import { useAuthStore } from '@/store/authStore';
 import { useAppStore } from '@/store/Appstore';
+import type { Language } from '@/store/Appstore';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -35,7 +36,7 @@ function SettingsRow({ icon, label, onPress, danger }: RowProps) {
     >
       <View style={[styles.rowIcon, danger && styles.rowIconDanger]}>{icon}</View>
       <Text style={[styles.rowLabel, danger && styles.rowLabelDanger]}>{label}</Text>
-      <Text style={styles.rowChevron}>{I18nManager.isRTL ? '‹' : '›'}</Text>
+      <Text style={styles.rowChevron}>›</Text>
     </TouchableOpacity>
   );
 }
@@ -46,6 +47,9 @@ export default function ProfileScreen() {
   const { t } = useTranslation();
   const authLogout = useAuthStore((s) => s.logout);
   const appLogout = useAppStore((s) => s.logout);
+  const language = useAppStore((s) => s.language);
+  const setLanguage = useAppStore((s) => s.setLanguage);
+  const [langModalVisible, setLangModalVisible] = useState(false);
 
   const handleLogout = () => {
     authLogout();
@@ -53,24 +57,32 @@ export default function ProfileScreen() {
     router.replace('/(auth)/login');
   };
 
+  const handleSelectLanguage = (lang: Language) => {
+    setLanguage(lang);
+    setLangModalVisible(false);
+  };
+
+  const LANGUAGES: { code: Language; label: string; native: string }[] = [
+    { code: 'en', label: t('language.english'), native: 'English' },
+    { code: 'ar', label: t('language.arabic'),  native: 'العربية' },
+  ];
+
   return (
     <ScreenWrapper padded={false}>
       <StatusBar style="dark" />
 
       {/* Header */}
-    <View style={styles.topBar}>
-      <View style={styles.side} />
-    <Text style={styles.topTitle}>
-    {t('profile.title').replace(' Assistant', '')}
-     </Text>
-   <View style={styles.side} />
-  </View>
+      <View style={styles.topBar}>
+        <View style={styles.side} />
+        <Text style={styles.topTitle}>{t('profile.title')}</Text>
+        <View style={styles.side} />
+      </View>
 
       {/* Avatar + name */}
       <View style={styles.hero}>
         <Avatar name={PARENT_NAME} size="lg" />
         <Text variant="body" style={styles.name}>{PARENT_NAME}</Text>
-        <Text variant="caption" style={styles.role}>Parent</Text>
+        <Text variant="caption" style={styles.role}>{t('roleSelect.parentTitle')}</Text>
       </View>
 
       <View style={styles.divider} />
@@ -87,6 +99,16 @@ export default function ProfileScreen() {
           label={t('profile.myChildrenRow')}
           onPress={() => router.push('/(parent)/myChildren')}
         />
+        <SettingsRow
+          icon={
+            <Image
+              source={require('@/assets/images/icons/settings.png')}
+              style={styles.rowIconImg}
+            />
+          }
+          label={t('profile.language')}
+          onPress={() => setLangModalVisible(true)}
+        />
 
         <SettingsRow
           icon={<Text style={styles.logoutIcon}>⎋</Text>}
@@ -97,6 +119,36 @@ export default function ProfileScreen() {
       </View>
 
       <BottomNav />
+
+      {/* Language picker modal */}
+      <Modal
+        visible={langModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLangModalVisible(false)}
+      >
+        <Pressable style={styles.overlay} onPress={() => setLangModalVisible(false)}>
+          <Pressable style={styles.sheet} onPress={() => {}}>
+            <Text style={styles.sheetTitle}>{t('language.select')}</Text>
+            {LANGUAGES.map((lang) => {
+              const selected = language === lang.code;
+              return (
+                <TouchableOpacity
+                  key={lang.code}
+                  style={[styles.langRow, selected && styles.langRowSelected]}
+                  onPress={() => handleSelectLanguage(lang.code)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.langLabel, selected && styles.langLabelSelected]}>
+                    {lang.native}
+                  </Text>
+                  {selected && <Text style={styles.checkmark}>✓</Text>}
+                </TouchableOpacity>
+              );
+            })}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </ScreenWrapper>
   );
 }
@@ -208,5 +260,55 @@ topTitle: {
 side: {
   width: 44,
   height: 44,
+},
+
+overlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.4)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: spacing.lg,
+},
+sheet: {
+  width: '100%',
+  backgroundColor: colors.surface,
+  borderRadius: radius.xl,
+  padding: spacing.lg,
+  gap: spacing.sm,
+},
+sheetTitle: {
+  fontSize: typography.fontSize.lg,
+  fontFamily: typography.fontFamily.bold,
+  color: colors.textPrimary,
+  textAlign: 'center',
+  marginBottom: spacing.xs,
+},
+langRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingVertical: spacing.md,
+  paddingHorizontal: spacing.md,
+  borderRadius: radius.lg,
+  borderWidth: 1.5,
+  borderColor: colors.border,
+},
+langRowSelected: {
+  borderColor: colors.primary,
+  backgroundColor: colors.backgroundLight,
+},
+langLabel: {
+  fontSize: typography.fontSize.base,
+  fontFamily: typography.fontFamily.medium,
+  color: colors.textPrimary,
+},
+langLabelSelected: {
+  color: colors.primary,
+  fontFamily: typography.fontFamily.semiBold,
+},
+checkmark: {
+  fontSize: 16,
+  color: colors.primary,
+  fontFamily: typography.fontFamily.bold,
 },
 });

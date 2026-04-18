@@ -2,22 +2,25 @@ import React, { useState } from 'react'
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { router } from 'expo-router'
 import { theme } from '@/theme'
+import { useTranslation } from 'react-i18next'
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
 import TabBar from '@/components/modal/shared/TabBar'
 import Card from '@/components/modal/shared/Card'
 import { Text } from '@/components/modal/shared/Text'
+import SchoolCard from '@/components/modal/parent/schoolCard'
 
 const TABS = ['Grades', 'HW & Tasks', 'Progress', 'Reports']
 
 export default function TeacherReports() {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('Reports')
   const [filter, setFilter] = useState<'unread' | 'read'>('unread')
   const [selectedReport, setSelectedReport] = useState<number | null>(null)
 
   const handleTabChange = (tab: string) => {
     if (tab === 'Grades') router.replace('/(parent)/school/school-parent')
-    else if (tab === 'HW & Tasks') router.replace('/(parent)/school/school-parent')
+    else if (tab === 'HW & Tasks') router.replace('/(parent)/school/school-hw-tasks')
     else if (tab === 'Progress') router.replace('/(parent)/school/school-progress')
     else setActiveTab(tab)
   }
@@ -25,12 +28,18 @@ export default function TeacherReports() {
   return (
     <ScreenWrapper scroll={false}>
       <Header
-        title="Teacher Reports"
-        subtitle="3 unread reports"
+        title={t('schoolPage.reports.title')}
+        subtitle={t('schoolPage.reports.unreadCount', { count: 3 })}
         onBack={() => router.replace('/(parent)/school/school-parent')}
       />
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        <SchoolCard
+          schoolName={t('school.home.title')}
+          grade={t('schoolPage.gradeLabel', { grade: '4 - A' })}
+          location="Amman"
+        />
+
         <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
         {/* Toggle Filter */}
@@ -40,7 +49,7 @@ export default function TeacherReports() {
             onPress={() => setFilter('unread')}
           >
             <Text style={[styles.toggleText, filter === 'unread' && styles.activeText]}>
-              Unread (3)
+              {t('schoolPage.reports.unread')} (3)
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -48,12 +57,12 @@ export default function TeacherReports() {
             onPress={() => setFilter('read')}
           >
             <Text style={[styles.toggleText, filter === 'read' && styles.activeText]}>
-              Read
+              {t('schoolPage.reports.read')}
             </Text>
           </TouchableOpacity>
         </View>
 
-        <Text variant="heading" style={styles.sectionTitle}>New</Text>
+        <Text variant="heading" style={styles.sectionTitle}>{t('common.new')}</Text>
 
         {[1, 2, 3].map((_, i) => (
           <TouchableOpacity key={i} onPress={() => setSelectedReport(i)} activeOpacity={0.8}>
@@ -69,15 +78,16 @@ export default function TeacherReports() {
                   Ms. Sara Mahmoud - Math
                 </Text>
                 <Text style={[styles.reportPreview, selectedReport === i && { color: 'rgba(255,255,255,0.85)' }]}>
-                  Zaid did well on the term test overall, but we notice difficulty with fractions...
+                  {t('schoolPage.reports.previewText')}
                 </Text>
-                <Text style={[styles.timestamp, selectedReport === i && { color: 'rgba(255,255,255,0.7)' }]}>Today, 8:30 AM</Text>
+                <Text style={[styles.timestamp, selectedReport === i && { color: 'rgba(255,255,255,0.7)' }]}>
+                  {t('schoolPage.reports.todayTime', { time: '8:30 AM' })}
+                </Text>
               </View>
             </Card>
           </TouchableOpacity>
         ))}
       </ScrollView>
-
     </ScreenWrapper>
   )
 }

@@ -145,10 +145,8 @@ export default function LoginScreen() {
           </View>
 
           <Footer
-            onLanguagePress={() => {}}
             onPrivacyPress={() => {}}
             onTermsPress={() => {}}
-            currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
             />
         </ScrollView>
       </KeyboardAvoidingView>
