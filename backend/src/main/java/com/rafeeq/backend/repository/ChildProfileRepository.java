@@ -11,4 +11,7 @@ public interface ChildProfileRepository extends JpaRepository<ChildProfile, UUID
     Optional<ChildProfile> findByUserId(UUID userId);
     List<ChildProfile> findByParentId(UUID parentId);
     List<ChildProfile> findByTeacherId(UUID teacherId);
+    long countByTeacherId(UUID teacherId);
+long countByParentId(UUID parentId);
+long countByTeacherSchoolId(UUID schoolId);
 }

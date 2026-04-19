@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface TeacherRepository extends JpaRepository<Teacher, UUID> {
     Optional<Teacher> findByUserId(UUID userId);
     List<Teacher> findBySchoolId(UUID schoolId);
+    long countBySchoolId(UUID schoolId);
 }

@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
     List<Notification> findByUserId(UUID userId);
     List<Notification> findByUserIdAndIsRead(UUID userId, Boolean isRead);
+    List<Notification> findByUserIdOrderByCreatedAtDesc(UUID userId);
 }
