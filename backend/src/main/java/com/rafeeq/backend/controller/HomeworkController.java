@@ -1,0 +1,44 @@
+package com.rafeeq.backend.controller;
+
+import com.rafeeq.backend.dto.homework.CreateHomeworkRequest;
+import com.rafeeq.backend.dto.homework.HomeworkResponse;
+import com.rafeeq.backend.service.HomeworkService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/homework")
+@RequiredArgsConstructor
+public class HomeworkController {
+
+    private final HomeworkService homeworkService;
+
+    @PostMapping
+    public ResponseEntity<HomeworkResponse> addTeacherHomework(
+            @RequestBody CreateHomeworkRequest request,
+            Authentication auth
+    ) {
+        return ResponseEntity.ok(homeworkService.addTeacherHomework(request, auth.getName()));
+    }
+
+    @GetMapping("/teacher/{childId}")
+    public ResponseEntity<List<HomeworkResponse>> getTeacherHomework(
+            @PathVariable UUID childId,
+            Authentication auth
+    ) {
+        return ResponseEntity.ok(homeworkService.getTeacherHomework(childId, auth.getName()));
+    }
+
+    @GetMapping("/parent/{childId}")
+    public ResponseEntity<List<HomeworkResponse>> getParentHomework(
+            @PathVariable UUID childId,
+            Authentication auth
+    ) {
+        return ResponseEntity.ok(homeworkService.getParentHomework(childId, auth.getName()));
+    }
+}
