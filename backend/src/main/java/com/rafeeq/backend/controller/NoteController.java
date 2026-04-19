@@ -3,6 +3,7 @@ package com.rafeeq.backend.controller;
 import com.rafeeq.backend.dto.note.CreateNoteRequest;
 import com.rafeeq.backend.dto.note.NoteResponse;
 import com.rafeeq.backend.service.NoteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,7 +21,7 @@ public class NoteController {
 
     @PostMapping
     public ResponseEntity<NoteResponse> addTeacherNote(
-            @RequestBody CreateNoteRequest request,
+            @Valid @RequestBody CreateNoteRequest request,
             Authentication auth
     ) {
         return ResponseEntity.ok(noteService.addTeacherNote(request, auth.getName()));

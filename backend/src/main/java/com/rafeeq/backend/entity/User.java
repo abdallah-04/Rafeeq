@@ -40,6 +40,9 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<SavedArticle> savedArticles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<UserSession> sessions = new ArrayList<>();
+
     @Column(name = "phone", unique = true, length = 50)
     private String phone;
 

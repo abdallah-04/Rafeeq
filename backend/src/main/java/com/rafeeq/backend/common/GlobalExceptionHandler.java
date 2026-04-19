@@ -2,8 +2,12 @@ package com.rafeeq.backend.common;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 
@@ -35,6 +39,35 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleConflict(ConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new ApiErrorResponse(false, ex.getMessage(), "CONFLICT", LocalDateTime.now())
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(FieldError::getDefaultMessage)
+                .filter(value -> value != null && !value.isBlank())
+                .findFirst()
+                .orElse("Validation failed");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiErrorResponse(false, message, "VALIDATION_ERROR", LocalDateTime.now())
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiErrorResponse(false, "Invalid request parameter", "BAD_REQUEST", LocalDateTime.now())
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnreadable(HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiErrorResponse(false, "Malformed request body", "BAD_REQUEST", LocalDateTime.now())
         );
     }
 

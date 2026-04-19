@@ -1,41 +1,38 @@
 package com.rafeeq.backend.controller;
 
+import com.rafeeq.backend.dto.auth.MessageResponse;
+import com.rafeeq.backend.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/articles")
 @RequiredArgsConstructor
 public class ArticleController {
 
+    private final ArticleService articleService;
+
     @GetMapping
-    public ResponseEntity<?> list() {
-        return ResponseEntity.ok(java.util.List.of());
+    public ResponseEntity<?> list(Authentication authentication) {
+        return ResponseEntity.ok(articleService.list(authentication.getName()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> one(@PathVariable Long id) {
-        return ResponseEntity.ok(java.util.Map.of("id", id));
+    public ResponseEntity<?> one(@PathVariable UUID id, Authentication authentication) {
+        return ResponseEntity.ok(articleService.one(id, authentication.getName()));
     }
 
     @PostMapping("/{id}/save")
-    public ResponseEntity<?> save(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                java.util.Map.of(
-                        "success", true,
-                        "message", "Article saved"
-                )
-        );
+    public ResponseEntity<MessageResponse> save(@PathVariable UUID id, Authentication authentication) {
+        return ResponseEntity.ok(articleService.save(id, authentication.getName()));
     }
 
     @DeleteMapping("/{id}/save")
-    public ResponseEntity<?> unsave(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                java.util.Map.of(
-                        "success", true,
-                        "message", "Article unsaved"
-                )
-        );
+    public ResponseEntity<MessageResponse> unsave(@PathVariable UUID id, Authentication authentication) {
+        return ResponseEntity.ok(articleService.unsave(id, authentication.getName()));
     }
 }

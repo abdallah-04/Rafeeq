@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -24,4 +25,10 @@ public class StudentResponse {
     private LearningDifficulty learningDifficulty;
     private UUID parentId;
     private UUID teacherId;
+    private String phone;
+    private String nationalId;
+    private String status;
+    private Integer assessedLevel;
+    private LocalDateTime placementCompletedAt;
+    private Boolean active;
 }

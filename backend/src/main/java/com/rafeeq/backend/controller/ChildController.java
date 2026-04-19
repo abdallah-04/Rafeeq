@@ -8,6 +8,7 @@ import com.rafeeq.backend.dto.child.LinkChildRequest;
 import com.rafeeq.backend.dto.child.UpdateChildRequest;
 import com.rafeeq.backend.service.ChildService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -45,7 +46,7 @@ public class ChildController {
 
         @PostMapping("/link")
         public ResponseEntity<MessageResponse> linkChild(
-                @RequestBody LinkChildRequest request,
+                @Valid @RequestBody LinkChildRequest request,
                 Authentication authentication
         ) {
             return ResponseEntity.ok(childService.linkChildByNationalId(request, authentication.getName()));

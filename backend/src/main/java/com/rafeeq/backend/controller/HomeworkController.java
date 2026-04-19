@@ -3,6 +3,7 @@ package com.rafeeq.backend.controller;
 import com.rafeeq.backend.dto.homework.CreateHomeworkRequest;
 import com.rafeeq.backend.dto.homework.HomeworkResponse;
 import com.rafeeq.backend.service.HomeworkService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,7 +21,7 @@ public class HomeworkController {
 
     @PostMapping
     public ResponseEntity<HomeworkResponse> addTeacherHomework(
-            @RequestBody CreateHomeworkRequest request,
+            @Valid @RequestBody CreateHomeworkRequest request,
             Authentication auth
     ) {
         return ResponseEntity.ok(homeworkService.addTeacherHomework(request, auth.getName()));

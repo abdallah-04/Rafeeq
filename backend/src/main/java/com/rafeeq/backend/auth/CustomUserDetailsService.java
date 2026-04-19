@@ -4,7 +4,9 @@ import com.rafeeq.backend.entity.User;
 import com.rafeeq.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,10 +22,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByNationalId(nationalId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getNationalId(),
-                user.getPasswordHash(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
-        );
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getNationalId())
+                .password(user.getPasswordHash())
+                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())))
+                .disabled(!Boolean.TRUE.equals(user.getIsActive()))
+                .build();
     }
 }

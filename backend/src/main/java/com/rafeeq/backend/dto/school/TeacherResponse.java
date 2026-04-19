@@ -16,4 +16,7 @@ public class TeacherResponse {
     private String fullNameEn;
     private String specialization;
     private UUID schoolId;
+    private String phone;
+    private String email;
+    private String nationalId;
 }

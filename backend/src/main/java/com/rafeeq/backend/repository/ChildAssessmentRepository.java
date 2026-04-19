@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface ChildAssessmentRepository extends JpaRepository<ChildAssessment, UUID> {
     List<ChildAssessment> findByChildId(UUID childId);
     List<ChildAssessment> findByTeacherId(UUID teacherId);
+    List<ChildAssessment> findByChildIdOrderByCreatedAtDesc(UUID childId);
 }
