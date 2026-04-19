@@ -23,7 +23,8 @@ public class User {
     private UUID id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false, length = 50)
+    @Column(name = "role", nullable = false, columnDefinition = "user_role")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
     private UserRole role;
 
     @Column(name = "national_id", length = 100)
@@ -49,7 +50,8 @@ public class User {
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "language", length = 10)
+    @Column(name = "language", columnDefinition = "app_language")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
     private AppLanguage language;
 
     @Column(name = "otp_code", length = 10)
