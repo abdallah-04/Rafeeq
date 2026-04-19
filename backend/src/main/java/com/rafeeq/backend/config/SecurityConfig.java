@@ -45,8 +45,18 @@ public class SecurityConfig {
                             "/ping",
                             "/auth/resend-otp"
                         ).permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/school/**").hasRole("SCHOOL")
+                            .requestMatchers("/teacher/**").hasRole("TEACHER")
+                            .requestMatchers("/parent/**").hasRole("PARENT")
+
+                            .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/notes/**").hasRole("TEACHER")
+                            .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/homework/**").hasRole("TEACHER")
+                            .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/reports/**").hasRole("TEACHER")
+
+                            .requestMatchers("/api/notifications/**").authenticated()
+
+                            .anyRequest().authenticated()
+                                            )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
