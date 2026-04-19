@@ -11,6 +11,8 @@ import com.rafeeq.backend.entity.ChildProfile;
 import com.rafeeq.backend.entity.Teacher;
 import com.rafeeq.backend.entity.User;
 import com.rafeeq.backend.entity_enums.AppLanguage;
+import com.rafeeq.backend.entity_enums.Gender;
+import com.rafeeq.backend.entity_enums.LearningDifficulty;
 import com.rafeeq.backend.entity_enums.UserRole;
 import com.rafeeq.backend.repository.ChildProfileRepository;
 import com.rafeeq.backend.repository.TeacherRepository;
@@ -38,15 +40,15 @@ public class TeacherStudentService {
         Teacher teacher = teacherRepository.findByUserId(currentUser.getId())
                 .orElseThrow(() -> new NotFoundException("Teacher profile not found"));
 
-        if (request.getPhone() != null && userRepository.existsByPhone(request.getPhone())) {
+        if (request.getPhone() != null
+                && !request.getPhone().isBlank()
+                && userRepository.existsByPhone(request.getPhone())) {
             throw new ConflictException("Phone already exists");
         }
 
-        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
-            throw new ConflictException("Email already exists");
-        }
-
-        if (request.getNationalId() != null && userRepository.existsByNationalId(request.getNationalId())) {
+        if (request.getNationalId() != null
+                && !request.getNationalId().isBlank()
+                && userRepository.existsByNationalId(request.getNationalId())) {
             throw new ConflictException("National ID already exists");
         }
 
@@ -54,11 +56,15 @@ public class TeacherStudentService {
             throw new BadRequestException("Password is required");
         }
 
+        Integer fixedLevel = normalizeLevel(request.getLevel());
+        Gender fixedGender = normalizeGender(request.getGender());
+        LearningDifficulty fixedDifficulty = normalizeLearningDifficulty(request.getLearningDifficulty());
+
         User studentUser = new User();
         studentUser.setId(UUID.randomUUID());
         studentUser.setRole(UserRole.CHILD);
         studentUser.setPhone(request.getPhone());
-        studentUser.setEmail(request.getEmail());
+        studentUser.setEmail(null);
         studentUser.setNationalId(request.getNationalId());
         studentUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         studentUser.setLanguage(AppLanguage.AR);
@@ -74,10 +80,10 @@ public class TeacherStudentService {
         child.setFullNameAr(request.getFullNameAr());
         child.setFullNameEn(request.getFullNameEn());
         child.setClassName(request.getClassName());
-        child.setLevel(request.getLevel());
-        child.setGender(request.getGender());
+        child.setLevel(fixedLevel);
+        child.setGender(fixedGender);
         child.setDateOfBirth(request.getDateOfBirth());
-        child.setLearningDifficulty(request.getLearningDifficulty());
+        child.setLearningDifficulty(fixedDifficulty);
 
         childProfileRepository.save(child);
 
@@ -131,10 +137,10 @@ public class TeacherStudentService {
         child.setFullNameAr(request.getFullNameAr());
         child.setFullNameEn(request.getFullNameEn());
         child.setClassName(request.getClassName());
-        child.setLevel(request.getLevel());
-        child.setGender(request.getGender());
+        child.setLevel(normalizeLevel(request.getLevel()));
+        child.setGender(normalizeGender(request.getGender()));
         child.setDateOfBirth(request.getDateOfBirth());
-        child.setLearningDifficulty(request.getLearningDifficulty());
+        child.setLearningDifficulty(normalizeLearningDifficulty(request.getLearningDifficulty()));
 
         childProfileRepository.save(child);
 
@@ -164,6 +170,47 @@ public class TeacherStudentService {
         }
 
         return new MessageResponse(true, "Student deleted successfully");
+    }
+
+    private Integer normalizeLevel(String level) {
+        if (level == null || level.isBlank()) {
+            throw new BadRequestException("Level is required");
+        }
+
+        String value = level.trim().toUpperCase();
+
+        return switch (value) {
+            case "1", "LEVEL_1" -> 1;
+            case "2", "LEVEL_2" -> 2;
+            case "3", "LEVEL_3" -> 3;
+            case "4", "LEVEL_4" -> 4;
+            case "5", "LEVEL_5" -> 5;
+            default -> throw new BadRequestException("Invalid level value");
+        };
+    }
+
+    private Gender normalizeGender(String gender) {
+        if (gender == null || gender.isBlank()) {
+            throw new BadRequestException("Gender is required");
+        }
+
+        try {
+            return Gender.valueOf(gender.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new BadRequestException("Invalid gender value");
+        }
+    }
+
+    private LearningDifficulty normalizeLearningDifficulty(String learningDifficulty) {
+        if (learningDifficulty == null || learningDifficulty.isBlank()) {
+            throw new BadRequestException("Learning difficulty is required");
+        }
+
+        try {
+            return LearningDifficulty.valueOf(learningDifficulty.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new BadRequestException("Invalid learning difficulty value");
+        }
     }
 
     private StudentResponse mapToResponse(ChildProfile child) {

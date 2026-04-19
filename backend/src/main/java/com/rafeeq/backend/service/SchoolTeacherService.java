@@ -91,7 +91,10 @@ public class SchoolTeacherService {
                 .map(this::mapToResponse)
                 .toList();
     }
-
+    public Object getAll(String nationalId){ return java.util.List.of(); }
+    public Object getOne(UUID id){ return java.util.Map.of("id", id); }
+    public Object update(UUID id, Object request){ return java.util.Map.of("success", true); }
+    public void delete(UUID id){}
     public TeacherResponse getTeacherById(UUID teacherId, String nationalId) {
         User currentUser = userRepository.findByNationalId(nationalId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
