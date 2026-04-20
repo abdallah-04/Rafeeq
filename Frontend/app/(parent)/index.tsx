@@ -14,39 +14,31 @@
 import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-
-import { useAppStore } from '@/store/Appstore';
+import { apiGetChildren } from '@/services/api';
 import { theme } from '@/theme';
 
-const { colors } = theme;
-
 export default function ParentIndex() {
-  const children = useAppStore((s) => s.children);
-
   useEffect(() => {
-    if (children.length === 0) {
-      router.replace('/(parent)/MyChildrenEmpty' as any);
-    } else {
-      router.replace('/(parent)/myChildren' as any);
-    }
-    // Intentionally only runs on mount — children state at login time decides
-    // the destination; subsequent changes are handled inside the screens.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let cancelled = false;
+    (async () => {
+      try {
+        const children = await apiGetChildren();
+        if (cancelled) return;
+        router.replace(children.length === 0 ? '/(parent)/MyChildrenEmpty' as any : '/(parent)/myChildren' as any);
+      } catch {
+        if (!cancelled) router.replace('/(parent)/MyChildrenEmpty' as any);
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
-  // Brief loading screen while the replace is being processed
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color={colors.primary} />
+      <ActivityIndicator size="large" color={theme.colors.primary} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  container: { flex: 1, backgroundColor: theme.colors.background, alignItems: 'center', justifyContent: 'center' },
 });

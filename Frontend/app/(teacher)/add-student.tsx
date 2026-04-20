@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import {
   View, Text, TextInput, StyleSheet, ScrollView,
   KeyboardAvoidingView, Platform, TouchableOpacity,
-  Modal, ActivityIndicator, Alert,
+  Modal, ActivityIndicator,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useForm, Controller } from 'react-hook-form'
@@ -148,55 +148,7 @@ export default function AddStudentScreen() {
       })
       router.back()
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message ?? t('addStudent.failed', 'Failed to add student'))
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-
-          <View style={styles.card}>
-            {/* Full Name */}
-            <Text style={styles.label}>{t('addStudent.fullName')}</Text>
-            <Controller control={control} name="fullName" render={({ field: { onChange, value } }) => (
-              <TextInput style={[styles.input, errors.fullName && styles.inputError]} onChangeText={onChange} value={value}
-                placeholder={t('addStudent.fullNamePlaceholder')} placeholderTextColor={colors.inputPlaceholder} />
-            )} />
-            {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
-
-            {/* National ID */}
-            <Text style={styles.label}>{t('addStudent.nationalId')}</Text>
-            <Controller control={control} name="nationalId" render={({ field: { onChange, value } }) => (
-              <TextInput style={[styles.input, errors.nationalId && styles.inputError]} onChangeText={onChange} value={value}
-                placeholder="0000000000" placeholderTextColor={colors.inputPlaceholder} keyboardType="numeric" maxLength={10} />
-            )} />
-            {errors.nationalId && <Text style={styles.error}>{errors.nationalId.message}</Text>}
-
-            {/* Date of Birth */}
-            <Text style={styles.label}>{t('addStudent.dateOfBirth')}</Text>
-            <TouchableOpacity style={[styles.dateRow, errors.dateOfBirth && styles.inputError]} onPress={() => setShowDatePicker(true)}>
-              <Text style={[styles.dateText, !dateOfBirth && styles.datePlaceholder]}>{dateOfBirth || 'MM/DD/YYYY'}</Text>
-              <Text style={styles.calendarIcon}>📅</Text>
-            </TouchableOpacity>
-            {errors.dateOfBirth && <Text style={styles.error}>{errors.dateOfBirth.message}</Text>}
-
-            {/* Difficulty */}
-            <Text style={styles.label}>{t('addStudent.difficulty')}</Text>
-            <Controller control={control} name="difficulty" render={({ field: { onChange, value } }) => (
-              <DifficultyDropdown value={value} onChange={onChange} error={!!errors.difficulty} t={t} />
-            )} />
-            {errors.difficulty && <Text style={styles.error}>{errors.difficulty.message}</Text>}
-          </View>
-
-          {/* Gender */}
-          <View style={styles.genderSection}>
-            <Text style={styles.genderTitle}>{t('addStudent.gender')}</Text>
-            <View style={styles.genderRow}>
-              <GenderCard gender="female" selected={gender === 'female'} onPress={() => { setGender('female'); setGenderError(false) }} t={t} />
+      show('error', { variant: 'invalidInfo' }); setGenderError(false) }} t={t} />
               <GenderCard gender="male"   selected={gender === 'male'}   onPress={() => { setGender('male');   setGenderError(false) }} t={t} />
             </View>
             {genderError && <Text style={styles.error}>Please select a gender</Text>}

@@ -19,6 +19,7 @@ import Footer from '@/components/modal/shared/Footer';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
 import { apiVerifyOTP, apiResendOTP } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -60,6 +61,7 @@ const resendStyles = StyleSheet.create({
 });
 
 export default function VerifyPhoneScreen() {
+  const { show } = useModal();
   const { t, i18n } = useTranslation();
   const [otp, setOtp]             = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [loading, setLoading]     = useState(false);
@@ -95,7 +97,7 @@ export default function VerifyPhoneScreen() {
     try {
       await apiResendOTP(nationalId);
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message ?? 'Could not resend OTP');
+      show('error', { variant: 'invalidInfo' });
     }
   };
 

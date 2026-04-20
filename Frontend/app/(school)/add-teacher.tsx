@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Image, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
+import { View, Image, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useForm, Controller } from 'react-hook-form';
@@ -15,10 +15,12 @@ import { Text } from '@/components/modal/shared/Text';
 import TextInput from '@/components/modal/shared/TextInput';
 import { theme } from '@/theme';
 import { apiCreateTeacher } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 
 const { colors, spacing, radius } = theme;
 
 export default function AddTeacherScreen() {
+  const { show } = useModal();
   const { t } = useTranslation();
   const [photo,   setPhoto]   = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,9 +50,10 @@ export default function AddTeacherScreen() {
         password:    data.password,
         email:       `${data.nationalId}@teachers.rafeeq.local`, // backend accepts optional email
       });
-      router.replace('/(school)/teachers' as any);
+      show('success', { variant: 'greatJob' });
+      setTimeout(() => router.replace('/(school)/teachers' as any), 1200);
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message ?? t('addTeacher.failed', 'Failed to add teacher'));
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setLoading(false);
     }

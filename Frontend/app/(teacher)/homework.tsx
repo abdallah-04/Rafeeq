@@ -2,16 +2,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, TextInput, KeyboardAvoidingView, Platform, Alert,
+  ScrollView, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { HWHistorySkeleton } from '@/components/LoadingSkeleton';
 import BackButton from '@/components/BackButton';
 import { apiGetHomeworkForTeacher, apiCreateHomework, HomeworkResponse } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 
 export default function HomeworkScreen() {
   const router = useRouter();
+  const { show } = useModal();
   const { t, i18n } = useTranslation();
   const { studentId } = useLocalSearchParams<{ studentId: string }>();
   const isRTL = i18n.language === 'ar';
@@ -30,7 +32,7 @@ export default function HomeworkScreen() {
       const data = await apiGetHomeworkForTeacher(studentId);
       setHwList(data);
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message);
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +63,7 @@ export default function HomeworkScreen() {
       setDueDate('');
       setShowForm(false);
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message);
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setSubmitting(false);
     }

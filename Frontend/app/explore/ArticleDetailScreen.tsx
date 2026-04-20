@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 
 import BackButton from '@/components/modal/shared/BackButton';
+import { apiGetArticle, apiSaveArticle, apiUnsaveArticle, ArticleResponse } from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { useModal } from '@/components/modal/ModalProvider';
 import { theme } from '@/theme';
@@ -144,22 +145,36 @@ export default function ArticleDetailScreen() {
   const { show } = useModal();
 
   const { id } = useLocalSearchParams<{ id: string }>();
-  const article = ARTICLE_DATA[id ?? '1'] ?? ARTICLE_DATA['1'];
-
+  const [article,    setArticle]    = useState<ArticleResponse | null>(null);
   const [bookmarked, setBookmarked] = useState(false);
   const [following,  setFollowing]  = useState(false);
+  const [saving,     setSaving]     = useState(false);
 
-  const handleBookmark = () => {
-    if (!bookmarked) {
-      setBookmarked(true);
-      show('success', { variant: 'saved' });
-    } else {
-      setBookmarked(false);
-    }
+  useEffect(() => {
+    if (!id) return;
+    apiGetArticle(String(id))
+      .then((a) => { setArticle(a); setBookmarked(a.isSaved); })
+      .catch(() => {});
+  }, [id]);
+
+  const handleBookmark = async () => {
+    if (!article || saving) return;
+    setSaving(true);
+    try {
+      if (bookmarked) { await apiUnsaveArticle(article.id); setBookmarked(false); }
+      else { await apiSaveArticle(article.id); setBookmarked(true); show('success', { variant: 'saved' }); }
+    } catch { /* silent */ } finally { setSaving(false); }
   };
 
-  const color = CATEGORY_COLORS[article.category] ?? '#4A90E2';
-  const emoji = CATEGORY_EMOJIS[article.category] ?? '📄';
+  if (!article) return null;
+
+  const lang  = isRTL ? 'ar' : 'en';
+  const title  = (isRTL ? title_Ar : title) ?? title ?? '';
+  const body   = (isRTL ? article.bodyAr : article.body) ?? article.body ?? '';
+  const cat    = article.tags?.[0] ?? 'Learning';
+  const color  = CATEGORY_COLORS[cat] ?? '#4A90E2';
+  const emoji  = CATEGORY_EMOJIS[cat] ?? '📄';
+  const paragraphs = body.split('\n').filter(Boolean);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -199,25 +214,25 @@ export default function ArticleDetailScreen() {
           <View style={[styles.metaRow, isRTL && styles.rowReverse]}>
             <View style={[styles.categoryTag, { backgroundColor: color + '22' }]}>
               <Text style={[styles.categoryTagText, { color }]}>
-                {article.category.toUpperCase()}
+                {cat.toUpperCase()}
               </Text>
             </View>
             <Text style={styles.readTime}>
-              {article.readTime}
+              {new Date(article.createdAt).toLocaleDateString(isRTL?'ar-JO':'en-GB')}
             </Text>
           </View>
 
           {/* Title */}
           <Text style={[styles.title, isRTL && styles.textRight]}>
-            {article.title}
+            {title}
           </Text>
 
           {/* Author row */}
           <View style={[styles.authorRow, isRTL && styles.rowReverse]}>
             <View style={styles.authorAvatar}>
-              <Text style={styles.authorAvatarText}>{article.author.charAt(0)}</Text>
+              <Text style={styles.authorAvatarText}>{'R'}</Text>
             </View>
-            <Text style={[styles.authorName, { flex: 1 }]}>{article.author}</Text>
+            <Text style={[styles.authorName, { flex: 1 }]}>{'Rafeeq'}</Text>
             <TouchableOpacity
               style={[styles.followBtn, following && styles.followBtnActive]}
               onPress={() => setFollowing(!following)}
@@ -231,16 +246,16 @@ export default function ArticleDetailScreen() {
 
           {/* Stats */}
           <View style={[styles.statsRow, isRTL && styles.rowReverse]}>
-            <StatChip value={article.views} label={t('explore.views')} />
-            <StatChip value={article.likes} label={t('explore.likes')} />
-            <StatChip value={article.saved} label={t('explore.savedBadge')} />
+            <StatChip value={'—'} label={t('explore.views')} />
+            <StatChip value={0} label={t('explore.likes')} />
+            <StatChip value={bookmarked ? 1 : 0} label={t('explore.savedBadge')} />
           </View>
 
           {/* Divider */}
           <View style={styles.divider} />
 
           {/* Body paragraphs */}
-          {article.body.map((para, i) =>
+          {paragraphs.map((para, i) =>
             para.startsWith('"') ? (
               <View key={i} style={[styles.quoteBlock, isRTL && styles.rowReverse]}>
                 <View style={styles.quoteLine} />

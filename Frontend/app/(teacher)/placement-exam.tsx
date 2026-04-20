@@ -21,6 +21,7 @@ import {
   PlacementAssessmentResponse,
   PlacementQuestionResponse,
 } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 
 // ─── Observational Exam (Difficulty Detection) ────────────────
 // This exam is filled by the TEACHER to determine learning difficulty.
@@ -122,6 +123,7 @@ type Phase = 'obs_intro' | 'obs_exam' | 'obs_result' | 'mcq_loading' | 'mcq_exam
 
 export default function PlacementExamScreen() {
   const router = useRouter();
+  const { show } = useModal();
   const { t, i18n } = useTranslation();
   const { studentId, studentName } = useLocalSearchParams<{ studentId: string; studentName?: string }>();
   const isRTL = i18n.language === 'ar';
@@ -146,17 +148,13 @@ export default function PlacementExamScreen() {
     try {
       const data = await apiGetPlacementAssessment(studentId);
       if (data.placementCompleted) {
-        Alert.alert(
-          isRTL ? 'اكتمل التقييم' : 'Already Completed',
-          isRTL ? 'تم إجراء اختبار التحديد مسبقاً لهذا الطالب.' : 'This student already completed the placement exam.',
-          [{ text: 'OK', onPress: () => router.back() }]
-        );
+        show('error', { variant: 'invalidInfo' });
         return;
       }
       setMcqData(data);
       setPhase('mcq_exam');
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message ?? 'Failed to load exam');
+      show('error', { variant: 'invalidInfo' });
       setPhase('obs_result'); // stay on obs result
     }
   };
@@ -171,7 +169,7 @@ export default function PlacementExamScreen() {
       // Now load the backend MCQ exam
       await loadMcq();
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message);
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setSaving(false);
     }
@@ -184,13 +182,13 @@ export default function PlacementExamScreen() {
     try {
       const answers = mcqData.questions.map((q: PlacementQuestionResponse) => ({
         questionId:     q.id,
-        selectedAnswer: mcqAnswers[q.id] ?? 1,  // default 1 if unanswered
+        selectedOption: mcqAnswers[q.id] ?? 1,  // default 1 if unanswered
       }));
       const result = await apiSubmitPlacementAssessment(studentId, answers);
       setMcqResult({ level: result.assessedLevel, confidence: result.score });
       setPhase('mcq_done');
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message);
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setSaving(false);
     }

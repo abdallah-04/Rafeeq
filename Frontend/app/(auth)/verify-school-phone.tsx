@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, TouchableOpacity, StyleSheet,
-  Image, Alert,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -20,6 +20,7 @@ import { useSchoolSignupStore } from '@/store/schoolSignupStore';
 import {
   apiRegisterSchool, apiVerifyOTP, apiResendOTP, apiForgotPassword,
 } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 import type { UserRole } from '@/types';
 
 const { colors, spacing, typography, radius } = theme;
@@ -66,6 +67,7 @@ export default function VerifySchoolPhoneScreen() {
   // nationalId stored in ref so it survives store.clearSignup()
   const nationalIdRef = useRef('');
 
+  const { show } = useModal();
   const { t, i18n }  = useTranslation();
   const login        = useAuthStore((s) => s.login);
   const { step1, step2, clearSignup } = useSchoolSignupStore();
@@ -145,7 +147,7 @@ export default function VerifySchoolPhoneScreen() {
       const nid = nationalIdRef.current || (await AsyncStorage.getItem(NID_KEY)) || '';
       await apiResendOTP(nid);
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message ?? 'Could not resend OTP');
+      show('error', { variant: 'invalidInfo' });
     }
   };
 

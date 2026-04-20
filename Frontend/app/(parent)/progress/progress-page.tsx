@@ -3,11 +3,13 @@
 
 
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { theme } from '@/theme'
+import { useActiveChildStore } from '@/store/activeChildStore'
+import { apiGetChildSummary } from '@/services/api'
 import { Text } from '@/components/modal/shared/Text'
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
@@ -47,6 +49,20 @@ const TABS = ['Progress', 'Quizes', 'Activities', 'Homeworks']
 export default function ProgressScreen() {
     const { t } = useTranslation()
     const [activeTab, setActiveTab] = useState('Progress')
+    const activeChild = useActiveChildStore((s) => s.activeChild)
+    const [assessedLevel, setAssessedLevel] = useState<number | null>(null)
+
+    useEffect(() => {
+        if (!activeChild) return
+        apiGetChildSummary(activeChild.id)
+            .then((s) => setAssessedLevel(s.assessedLevel))
+            .catch(() => {})
+    }, [activeChild?.id])
+
+    const childName  = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? '—'
+    const level      = assessedLevel ?? activeChild?.level ?? activeChild?.assessedLevel ?? null
+    const levelPct   = level ? Math.min(level * 20, 100) : 0
+    const skills     = level ? [{ label: t('progress.assessedLevel','Assessed Level'), percentage: levelPct, color: '#5B8DEF' }] : []
 
     const handleTabChange = (tab: string) => {
         if (tab === 'Quizes') {
@@ -77,20 +93,20 @@ export default function ProgressScreen() {
         />
 
         <ChildSelector
-        name={MOCK_CHILD.name}
-        age={MOCK_CHILD.age}
-        avatar={MOCK_CHILD.avatar}
-        badges={MOCK_CHILD.badges}
+        name={childName}
+        age={activeChild?.dateOfBirth ? Math.floor((Date.now()-new Date(activeChild.dateOfBirth).getTime())/(1000*60*60*24*365)) : 0}
+        avatar={require('@/assets/images/boy.png')}
+        badges={level ? [{ label: `Level ${level}`, color: '#A78BFA' }] : []}
         onPress={() => {}}
     />
 
         <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
         <View style={styles.content}>
-            <ProgressCard {...MOCK_PROGRESS_CARD} />
+            <ProgressCard childName={childName} monthLabel={t('progress.thisMonth','This Month 🎉')} description={t('progress.description','Keep going!')} percentage={levelPct} mascotImage={require('@/assets/images/mascot/rafeeq_reading.png')} />
             <ProgressSummary
             title={t('progress.summary')}
-            items={MOCK_SKILLS}
+            items={skills}
             onViewDetails={() => router.push('/(parent)/progress-details' as any)}
             />
         </View>

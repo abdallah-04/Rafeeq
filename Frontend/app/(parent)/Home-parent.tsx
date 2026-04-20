@@ -18,6 +18,7 @@ import CalendarStrip from './calender';
 import ScreenWrapper from '@/components/modal/shared/ScreenWap';
 import { useAuthStore } from '@/store/authStore';
 import { apiGetChildren, ChildResponse } from '@/services/api';
+import { useActiveChildStore } from '@/store/activeChildStore';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -116,7 +117,8 @@ const qaStyles = StyleSheet.create({
 
 export default function HomeScreen() {
     const { t } = useTranslation();
-    const user  = useAuthStore((s) => s.user);
+    const user        = useAuthStore((s) => s.user);
+    const activeChild = useActiveChildStore((s) => s.activeChild);
 
     const [children,  setChildren]  = useState<ChildResponse[]>([]);
     const [loading,   setLoading]   = useState(true);
@@ -135,7 +137,7 @@ export default function HomeScreen() {
     useEffect(() => { load(); }, [load]);
 
     const parentName = user?.name ?? user?.nameAr ?? 'Parent';
-    const firstChild = children[0] ?? null;
+    const firstChild = activeChild ?? children[0] ?? null;
 
     return (
         <ScreenWrapper padded={false}>

@@ -22,6 +22,7 @@ import BackButton from '@/components/modal/shared/BackButton';
 import OTPInput from '@/components/modal/shared/OTPInput';
 import { useAuthStore } from '@/store/authStore';
 import { apiForgotPassword, apiVerifyOTP, apiResetPassword } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -66,6 +67,7 @@ function Step1({
   onNext: () => void;
   setNationalId: (id: string) => void;
 }) {
+  const { show } = useModal();
   const { t } = useTranslation();
   const isRTL = useAuthStore((s) => s.isRTL);
   const [loading, setLoading] = useState(false);
@@ -81,7 +83,7 @@ function Step1({
       setNationalId(data.nationalId);
       onNext();
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message ?? 'User not found');
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setLoading(false);
     }
@@ -214,7 +216,7 @@ function Step3({
       });
       onNext();
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message ?? 'Failed to reset password');
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setLoading(false);
     }
@@ -384,3 +386,7 @@ const styles = StyleSheet.create({
   successCenter:  { alignItems: 'center' },
   countdownText:  { fontSize: typography.fontSize.sm, color: colors.textMuted, textAlign: 'center' },
 });
+
+function show(arg0: string, arg1: { variant: string; }) {
+  throw new Error('Function not implemented.');
+}

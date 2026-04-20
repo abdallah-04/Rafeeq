@@ -2,12 +2,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  FlatList, RefreshControl, Alert,
+  FlatList, RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StudentListSkeleton } from '@/components/LoadingSkeleton';
 import { apiGetStudents, StudentResponse } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 
 const LEVEL_COLOR  = '#BA6DE9';
 const DIFF_COLORS: Record<string, string> = {
@@ -17,6 +18,7 @@ const DIFF_COLORS: Record<string, string> = {
 
 export default function StudentsScreen() {
   const router = useRouter();
+  const { show } = useModal();
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
@@ -29,7 +31,7 @@ export default function StudentsScreen() {
       const data = await apiGetStudents();
       setStudents(data);
     } catch (err: any) {
-      Alert.alert('Error', err?.message ?? 'Failed to load students');
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setIsLoading(false);
       setRefreshing(false);

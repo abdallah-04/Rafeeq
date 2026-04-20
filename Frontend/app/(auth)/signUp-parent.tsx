@@ -27,6 +27,7 @@ import Input from '@/components/modal/shared/TextInput';
 import BackButton from '@/components/modal/shared/BackButton';
 import { useAuthStore } from '@/store/authStore';
 import { apiRegisterParent, apiForgotPassword } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 import type { UserRole } from '@/types';
 
 const { colors, spacing, typography, radius } = theme;
@@ -46,6 +47,7 @@ const createSignupSchema = (t: TFunction) =>
     });
 
 export default function SignUpParentScreen() {
+  const { show } = useModal();
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
@@ -89,7 +91,7 @@ export default function SignUpParentScreen() {
       try { await apiForgotPassword(data.nationalId); } catch { /* ignore */ }
       router.push('/(auth)/verify-phone');
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message ?? t('auth.signup.failed', 'Registration failed'));
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setLoading(false);
     }

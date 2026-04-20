@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, I18nManager, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { I18nManager, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import * as Updates from 'expo-updates'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -8,9 +8,13 @@ import { useTranslation } from 'react-i18next'
 import { Ionicons } from '@expo/vector-icons'
 import { theme } from '@/theme'
 import { useAuthStore } from '@/store/authStore'
+import { performLogout } from '@/utils/logout'
 import { Text } from '@/components/modal/shared/Text'
 import Header from '@/components/modal/shared/Header'
 import Card from '@/components/modal/shared/Card'
+import { effect } from 'zod/v3'
+import { is } from 'zod/v4/locales'
+import language from '../(auth)/language'
 
 const { colors, spacing, radius } = theme
 
@@ -97,30 +101,7 @@ export default function ProfileScreen() {
   const setLanguage  = useAuthStore((s) => s.setLanguage)
 
   function handleLogout() {
-    Alert.alert(
-      t('profile.logoutConfirmTitle'),
-      t('profile.logoutConfirmMsg'),
-      [
-        { text: t('profile.cancel'), style: 'cancel' },
-        {
-          text: t('profile.logout'),
-          style: 'destructive',
-          onPress: () => router.replace('/(auth)/login'),
-        },
-      ],
-    )
-  }
-
-  async function handleToggleLanguage() {
-    const newLang = i18n.language === 'ar' ? 'en' : 'ar'
-    const needsRTLFlip = I18nManager.isRTL !== (newLang === 'ar')
-    setLanguage(newLang as 'en' | 'ar')   // persists to store + calls I18nManager.forceRTL
-    if (needsRTLFlip && Updates.isEnabled) {
-      // Restart required for RTL layout to take effect — only works in production/standalone builds
-      try {
-        await Updates.reloadAsync()
-      } catch {
-        // Expo Go / dev builds don't support reloadAsync; language is saved and takes effect on next cold start
+    performLogout(); language is saved and takes effect on next cold start
       }
     }
   }

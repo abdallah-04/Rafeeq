@@ -2,16 +2,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, TextInput, KeyboardAvoidingView, Platform, Alert,
+  ScrollView, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ReportsListSkeleton } from '@/components/LoadingSkeleton';
 import BackButton from '@/components/BackButton';
 import { apiGetReportsForTeacher, apiCreateReport, ReportResponse } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 
 export default function ReportsScreen() {
   const router = useRouter();
+  const { show } = useModal();
   const { t, i18n } = useTranslation();
   const { studentId } = useLocalSearchParams<{ studentId: string }>();
   const isRTL = i18n.language === 'ar';
@@ -29,7 +31,7 @@ export default function ReportsScreen() {
       const data = await apiGetReportsForTeacher(studentId);
       setReportList(data);
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message);
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +53,7 @@ export default function ReportsScreen() {
       setReportContent('');
       setShowForm(false);
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message);
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setSubmitting(false);
     }

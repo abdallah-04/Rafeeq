@@ -772,11 +772,11 @@ export async function apiStartPlacementAssessment(
 /**
  * POST /teacher/students/:childId/placement/submit
  * Submits placement answers and returns the assessed level
- * answers: Array of { questionId, selectedAnswer }
+ * answers: Array of { questionId, selectedOption }
  */
 export async function apiSubmitPlacementAssessment(
   childId: string,
-  answers: Array<{ questionId: string; selectedAnswer: number }>
+  answers: Array<{ questionId: string; selectedOption: number }>
 ): Promise<PlacementSubmissionResponse> {
   return _post<PlacementSubmissionResponse>(
     `/teacher/students/${childId}/placement/submit`,

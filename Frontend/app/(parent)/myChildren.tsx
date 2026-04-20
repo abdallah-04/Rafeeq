@@ -17,10 +17,12 @@ import ProgressBar from '@/components/modal/shared/progressBar';
 import Footer from '@/components/modal/shared/Footer';
 import { useModal } from '@/components/modal/ModalProvider';
 import { apiGetChildren, ChildResponse } from '@/services/api';
+import { useActiveChildStore } from '@/store/activeChildStore';
+import { useAuthStore } from '@/store/authStore';
 
 const { colors, spacing, typography, radius } = theme;
 
-function ChildCard({ child }: { child: ChildResponse }) {
+function ChildCard({ child, onPress }: { child: ChildResponse; onPress: () => void }) {
   const { t } = useTranslation();
   const displayName = child.fullNameAr ?? child.fullNameEn ?? '—';
   const age = child.dateOfBirth
@@ -31,7 +33,7 @@ function ChildCard({ child }: { child: ChildResponse }) {
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.8}
-      onPress={() => router.push('/(parent)/Home-parent')}
+      onPress={onPress}
       accessibilityRole="button"
     >
       <Avatar name={displayName} size="md" />
@@ -66,6 +68,8 @@ function AddSlot({ onPress }: { onPress: () => void }) {
 export default function MyChildrenListScreen() {
   const { t }    = useTranslation();
   const { show } = useModal();
+  const setActiveChild = useActiveChildStore((s) => s.setActiveChild);
+  const setSelectedChild = useAuthStore((s) => s.setSelectedChild);
 
   const [children,   setChildren]   = useState<ChildResponse[]>([]);
   const [loading,    setLoading]    = useState(true);
@@ -116,7 +120,11 @@ export default function MyChildrenListScreen() {
 
           <View style={styles.list}>
             {children.map((child) => (
-              <ChildCard key={child.id} child={child} />
+              <ChildCard key={child.id} child={child} onPress={() => {
+                setActiveChild(child);
+                setSelectedChild(child);
+                router.push('/(parent)/Home-parent' as any);
+              }} />
             ))}
             <AddSlot onPress={handleAdd} />
           </View>

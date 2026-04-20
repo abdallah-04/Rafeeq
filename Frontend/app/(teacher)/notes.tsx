@@ -2,15 +2,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, Alert,
+  ScrollView,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { NotesFeedSkeleton } from '@/components/LoadingSkeleton';
 import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
 import BackButton from '@/components/BackButton';
-import { TEACHER_STUDENTS_MAP } from './_students';
-import { apiGetNotesForTeacher, apiGetNotesForParent, NoteResponse } from '@/services/api';
+
+import { apiGetNotesForTeacher, apiGetNotesForParent, apiGetStudent, NoteResponse } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 
 function NoteItem({ note, isRTL, t }: {
   note: NoteResponse & { authorName?: string; avatarBg?: string; initials?: string };
@@ -40,9 +41,14 @@ function NoteItem({ note, isRTL, t }: {
 export default function NotesScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
+  const { show } = useModal();
   const { studentId } = useLocalSearchParams<{ studentId: string }>();
   const isRTL = i18n.language === 'ar';
-  const student = TEACHER_STUDENTS_MAP[studentId ?? '1'] ?? TEACHER_STUDENTS_MAP['1'];
+  const [studentName, setStudentName] = useState('');
+  useEffect(() => {
+    if (!studentId) return;
+    apiGetStudent(studentId).then((s) => setStudentName(s.fullNameAr ?? s.fullNameEn ?? '')).catch(() => {});
+  }, [studentId]);
 
   const [activeTab,   setActiveTab]   = useState<'teacher' | 'parent'>('teacher');
   const [teacherNotes, setTeacherNotes] = useState<NoteResponse[]>([]);
@@ -59,7 +65,7 @@ export default function NotesScreen() {
       setTeacherNotes(tNotes);
       setParentNotes(pNotes);
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message);
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setIsLoading(false);
     }

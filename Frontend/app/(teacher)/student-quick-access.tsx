@@ -5,7 +5,7 @@
 
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { TEACHER_STUDENTS_MAP } from './_students';
+import { apiGetStudent, StudentResponse } from '@/services/api';
 import BackButton from '@/components/BackButton';
 
 const QUICK_ACCESS = [
@@ -33,16 +33,21 @@ export default function StudentQuickAccessScreen() {
   const { studentId } = useLocalSearchParams<{ studentId: string }>();
   const isRTL = i18n.language === 'ar';
 
-  const student = TEACHER_STUDENTS_MAP[studentId ?? '1'] ?? TEACHER_STUDENTS_MAP['1'];
-  const isUnplaced = student.level === 'Level 0';
-
+  const [student,      setStudent]      = useState<StudentResponse | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (!studentId) return;
+    apiGetStudent(studentId).then(setStudent).catch(() => {});
+  }, [studentId]);
+
+  const isUnplaced = student ? (student.assessedLevel == null) : false;
 
   const handleGridPress = (route: string) => {
     if (isUnplaced) {
       setModalVisible(true);
     } else {
-      router.push({ pathname: route as any, params: { studentId: student.id } });
+      router.push({ pathname: route as any, params: { studentId: studentId ?? '' } });
     }
   };
 
@@ -60,18 +65,18 @@ export default function StudentQuickAccessScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* ── Profile Card ── */}
         <View style={styles.profileCard}>
-          <View style={[styles.avatar, { backgroundColor: student.avatarBg }]}>
-            <Text style={styles.avatarText}>{student.initials}</Text>
+          <View style={[styles.avatar, { backgroundColor: '#BBDEFB' }]}>
+            <Text style={styles.avatarText}>{(student?.fullNameAr ?? '?').split(' ').map((w:string)=>w[0]).slice(0,2).join('').toUpperCase()}</Text>
           </View>
 
-          <Text style={styles.studentName}>{isRTL ? student.nameAr : student.name}</Text>
+          <Text style={styles.studentName}>{student?.fullNameAr ?? student?.fullNameEn ?? ''}</Text>
 
           <View style={styles.pillsRow}>
             <View style={[styles.pill, isUnplaced && styles.pillWarning]}>
               <Text style={[styles.pillText, isUnplaced && styles.pillTextWarning]}>
                 {isUnplaced
                   ? t('teacher.placementExam.levelNotSet', 'Level Not Set')
-                  : student.condition}
+                  : student?.learningDifficulty ? String(student.learningDifficulty) : '—'}
               </Text>
             </View>
             <View style={styles.pill}>
@@ -82,7 +87,7 @@ export default function StudentQuickAccessScreen() {
             {!isUnplaced && (
               <View style={styles.pill}>
                 <Text style={styles.pillText}>
-                  {t('teacher.studentCard.level', { level: student.level.replace('Level ', '') })}
+                  {t('teacher.studentCard.level', { level: student?.assessedLevel ? `Level ${student.assessedLevel}` : '—'.replace('Level ', '') })}
                 </Text>
               </View>
             )}
@@ -112,10 +117,10 @@ export default function StudentQuickAccessScreen() {
                 <Text style={styles.progressLabel}>
                   {t('teacher.quickAccess.progress', 'Progress')}
                 </Text>
-                <Text style={styles.progressValue}>{student.progress}%</Text>
+                <Text style={styles.progressValue}>{student?.assessedLevel ? Math.min(student.assessedLevel*20,100) : 0}%</Text>
               </View>
               <View style={styles.progressTrack}>
-                <View style={[styles.progressFill, { width: `${student.progress}%` }]} />
+                <View style={[styles.progressFill, { width: `${student?.assessedLevel ? Math.min(student.assessedLevel*20,100) : 0}%` }]} />
               </View>
             </View>
           )}
@@ -165,8 +170,8 @@ export default function StudentQuickAccessScreen() {
             </Text>
             <Text style={styles.modalBody}>
               {t('teacher.placementExam.modalBody', {
-                name: isRTL ? student.nameAr : student.name,
-                defaultValue: `${student.name} hasn't taken the placement exam yet.`,
+                name: student?.fullNameAr ?? student?.fullNameEn ?? '',
+                defaultValue: `${student?.fullNameAr ?? student?.fullNameEn ?? ''} hasn't taken the placement exam yet.`,
               })}
             </Text>
 
@@ -176,7 +181,7 @@ export default function StudentQuickAccessScreen() {
                 setModalVisible(false);
                 router.push({
                   pathname: '/(teacher)/placement-exam' as any,
-                  params: { studentId: student.id },
+                  params: { studentId: studentId ?? '' },
                 });
               }}
             >
@@ -296,5 +301,3 @@ const styles = StyleSheet.create({
   modalBtnSecondary: { paddingVertical: 10, width: '100%', alignItems: 'center' },
   modalBtnSecondaryText: { fontFamily: 'Lexend_500Medium', fontSize: 14, color: '#9CA3AF' },
 });
-
-

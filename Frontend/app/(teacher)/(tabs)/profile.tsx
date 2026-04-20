@@ -7,6 +7,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
+import { performLogout } from '@/utils/logout';
 
 const MENU_ITEMS = [
   { id: 'account',   icon: '👤', labelKey: 'teacher.profile.account',    label: 'Account Info' },
@@ -28,10 +29,7 @@ export default function TeacherProfileScreen() {
   const initials = teacherName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
 
   const handleMenuPress = (id: string) => {
-    if (id === 'logout') {
-      logout();
-      router.replace('/(auth)/login' as any);
-    }
+    if (id === 'logout') { performLogout(); }
   };
 
   const handleLanguageChange = (lang: 'en' | 'ar') => {

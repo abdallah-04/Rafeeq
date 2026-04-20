@@ -338,11 +338,13 @@ export interface TreeNode {
 }
  
 // ── AUTH STATE (for Zustand) ─────────────────
+import type { ChildResponse } from '../services/api';
+
 export interface AuthState {
   role:             UserRole | null;
   user:             User | null;
   token:            string | null;
-  selectedChild:    Child | null;
+  selectedChild:    ChildResponse | null;
   language:         Language;
   isRTL:            boolean;
   isAuthenticated:  boolean;

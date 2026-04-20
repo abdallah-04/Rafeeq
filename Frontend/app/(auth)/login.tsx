@@ -26,6 +26,7 @@ import BackButton from '@/components/modal/shared/BackButton';
 import { useAuthStore } from '@/store/authStore';
 import Footer from '@/components/modal/shared/Footer';
 import { apiLogin } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 import type { UserRole } from '@/types';
 
 const loginSchema = z.object({
@@ -36,6 +37,7 @@ const loginSchema = z.object({
 type FormValues = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
+  const { show } = useModal();
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
@@ -80,7 +82,7 @@ export default function LoginScreen() {
       else router.replace('/(parent)/' as any);
 
     } catch (err: any) {
-      Alert.alert(t('common.error', 'Error'), err?.message ?? t('auth.login.failed', 'Login failed'));
+      show('error', { variant: 'invalidInfo' });
     } finally {
       setIsLoading(false);
     }
