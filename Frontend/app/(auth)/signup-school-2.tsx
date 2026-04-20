@@ -18,16 +18,17 @@ import { StatusBar } from 'expo-status-bar'
 const { colors, spacing, typography, radius } = theme
 
 export default function SchoolSignupStep2() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const setStep2 = useSchoolSignupStore((s) => s.setStep2)
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirm, setShowConfirm]   = useState(false)
+  const [showConfirm,  setShowConfirm]  = useState(false)
 
   const schema = useMemo(() => createSchoolStep2Schema(t), [t])
   const { control, handleSubmit, formState: { errors } } = useForm<SchoolStep2Form>({
     resolver: zodResolver(schema),
   })
 
+  // Just save step2 and navigate — registration happens in verify-school-phone
   const onContinue = (data: SchoolStep2Form) => {
     setStep2(data)
     router.push('/(auth)/verify-school-phone')
@@ -121,7 +122,6 @@ export default function SchoolSignupStep2() {
 
             <Button label={t('common.continue')} onPress={handleSubmit(onContinue)} style={styles.btn} />
 
-            {/* Divider */}
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
               <Text variant="caption" color="textMuted">{t('common.or')}</Text>
@@ -137,10 +137,7 @@ export default function SchoolSignupStep2() {
 
           </Card>
 
-          <Footer
-            onPrivacyPress={() => {}}
-            onTermsPress={() => {}}
-          />
+          <Footer onPrivacyPress={() => {}} onTermsPress={() => {}} />
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenWrapper>
@@ -148,107 +145,22 @@ export default function SchoolSignupStep2() {
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.lg,
-    gap: spacing.md,
-  },
-  subtitle: {
-    textAlign: 'center',
-    lineHeight: 20,
-    paddingHorizontal: spacing.md,
-  },
-  card: {
-    gap: spacing.xs,
-    borderColor: colors.border,
-    borderWidth: 1,
-  },
-  label: {
-    color: colors.textPrimary,
-    marginTop: spacing.sm,
-    marginBottom: spacing.xs,
-  },
-  phoneRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: radius.md,
-    height: 52,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
-  },
-  prefix: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.primary,
-  },
-  phoneDivider: {
-    width: 1,
-    height: 20,
-    backgroundColor: colors.border,
-  },
-  phoneInput: {
-    flex: 1,
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.textPrimary,
-    height: '100%',
-  },
-  passwordRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: radius.md,
-    height: 52,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-    paddingHorizontal: spacing.md,
-  },
-  passwordInput: {
-    flex: 1,
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.textPrimary,
-    height: '100%',
-  },
-  eyeIcon: {
-    fontSize: 18,
-    paddingStart: spacing.sm,
-  },
-  inputError: {
-    borderColor: colors.error,
-  },
-  error: {
-    fontSize: typography.fontSize.xs,
-    color: colors.error,
-    marginTop: spacing.xs,
-    fontFamily: typography.fontFamily.regular,
-  },
-  btn: {
-    marginTop: spacing.md,
-    width: '100%',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: spacing.sm,
-    gap: spacing.sm,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  loginText: {
-    textAlign: 'center',
-    color: colors.textSecondary,
-  },
-  loginLink: {
-    color: colors.primary,
-    fontFamily: typography.fontFamily.semiBold,
-  },
+  scroll:       { flexGrow: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg, gap: spacing.md },
+  subtitle:     { textAlign: 'center', lineHeight: 20, paddingHorizontal: spacing.md },
+  card:         { gap: spacing.xs, borderColor: colors.border, borderWidth: 1 },
+  label:        { color: colors.textPrimary, marginTop: spacing.sm, marginBottom: spacing.xs },
+  phoneRow:     { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surfaceElevated, borderRadius: radius.md, height: 52, borderWidth: 1.5, borderColor: 'transparent', paddingHorizontal: spacing.md, gap: spacing.sm },
+  prefix:       { fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.semiBold, color: colors.primary },
+  phoneDivider: { width: 1, height: 20, backgroundColor: colors.border },
+  phoneInput:   { flex: 1, fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.regular, color: colors.textPrimary, height: '100%' },
+  passwordRow:  { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surfaceElevated, borderRadius: radius.md, height: 52, borderWidth: 1.5, borderColor: 'transparent', paddingHorizontal: spacing.md },
+  passwordInput:{ flex: 1, fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.regular, color: colors.textPrimary, height: '100%' },
+  eyeIcon:      { fontSize: 18, paddingStart: spacing.sm },
+  inputError:   { borderColor: colors.error },
+  error:        { fontSize: typography.fontSize.xs, color: colors.error, marginTop: spacing.xs, fontFamily: typography.fontFamily.regular },
+  btn:          { marginTop: spacing.md, width: '100%' },
+  divider:      { flexDirection: 'row', alignItems: 'center', marginVertical: spacing.sm, gap: spacing.sm },
+  dividerLine:  { flex: 1, height: 1, backgroundColor: colors.border },
+  loginText:    { textAlign: 'center', color: colors.textSecondary },
+  loginLink:    { color: colors.primary, fontFamily: typography.fontFamily.semiBold },
 })

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, TouchableOpacity, StyleSheet,
   Image, Alert,
@@ -25,20 +25,19 @@ import type { UserRole } from '@/types';
 const { colors, spacing, typography, radius } = theme;
 const OTP_LENGTH     = 4;
 const RESEND_SECONDS = 60;
+// Key to persist nationalId across store clear
+const NID_KEY = 'school_signup_nid';
 
 function ResendTimer({ onResend }: { onResend: () => void }) {
   const { t } = useTranslation();
   const [seconds, setSeconds] = useState(RESEND_SECONDS);
-
   React.useEffect(() => {
     if (seconds <= 0) return;
     const timer = setTimeout(() => setSeconds((s) => s - 1), 1000);
     return () => clearTimeout(timer);
   }, [seconds]);
-
   const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
   const ss = String(seconds % 60).padStart(2, '0');
-
   return (
     <View style={resendStyles.row}>
       <Text style={resendStyles.text}>{t('auth.otp.didntReceive')} </Text>
@@ -52,7 +51,6 @@ function ResendTimer({ onResend }: { onResend: () => void }) {
     </View>
   );
 }
-
 const resendStyles = StyleSheet.create({
   row:   { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   text:  { fontSize: typography.fontSize.sm, color: colors.textSecondary },
@@ -65,28 +63,40 @@ export default function VerifySchoolPhoneScreen() {
   const [loading,     setLoading]     = useState(false);
   const [error,       setError]       = useState('');
   const [trustDevice, setTrustDevice] = useState(false);
+  // nationalId stored in ref so it survives store.clearSignup()
+  const nationalIdRef = useRef('');
 
   const { t, i18n }  = useTranslation();
   const login        = useAuthStore((s) => s.login);
   const { step1, step2, clearSignup } = useSchoolSignupStore();
-
-  const phone      = step2.advisorPhone ? `+962${step2.advisorPhone}` : '';
-  const nationalId = step1.advisorNationalId ?? '';
   const isComplete = otp.every((d) => d !== '');
 
-  // ── Step 1: Register school + trigger OTP when screen mounts ──────────────
   useEffect(() => {
     (async () => {
-      if (!nationalId || !step2.password) return;
+      // Read nationalId from store first, fall back to AsyncStorage
+      let nid = step1.advisorNationalId ?? '';
+      if (!nid) {
+        nid = (await AsyncStorage.getItem(NID_KEY)) ?? '';
+      }
+      nationalIdRef.current = nid;
+
+      // Save it to AsyncStorage BEFORE clearing store
+      if (nid) await AsyncStorage.setItem(NID_KEY, nid);
+
+      const phone    = step2.advisorPhone ? `+962${step2.advisorPhone}` : '';
+      const password = step2.password ?? '';
+
+      if (!nid || !password) return; // already registered in a previous attempt
+
       try {
         const res = await apiRegisterSchool({
-          nationalId,
+          nationalId: nid,
           phone,
-          email:       `${nationalId}@rafeeq.app`,
-          password:    step2.password,
-          nameAr:      step1.schoolName ?? '',
-          nameEn:      step1.schoolName ?? '',
-          location:    'Jordan',
+          email:    `${nid}@rafeeq.app`,
+          password,
+          nameAr:   step1.schoolName ?? '',
+          nameEn:   step1.schoolName ?? '',
+          location: 'Jordan',
         });
 
         await AsyncStorage.setItem('rafeeq-refresh-token', res.refreshToken ?? '');
@@ -94,30 +104,32 @@ export default function VerifySchoolPhoneScreen() {
         login(
           {
             id: '', name: step1.advisorName ?? '', nameAr: step1.advisorName ?? '',
-            phone, nationalId, role: rawRole,
+            phone, nationalId: nid, role: rawRole,
             language: i18n.language as 'en' | 'ar', createdAt: new Date().toISOString(),
           } as any,
           res.accessToken
         );
-        clearSignup();
 
-        // Now trigger OTP generation
-        await apiForgotPassword(nationalId);
-      } catch (err: any) {
-        // If school already registered from a previous attempt, just trigger OTP
-        try { await apiForgotPassword(nationalId); } catch { /* ignore */ }
+        // Trigger OTP BEFORE clearing store
+        await apiForgotPassword(nid);
+        clearSignup();
+      } catch {
+        // School already registered — just send OTP
+        clearSignup();
+        try { await apiForgotPassword(nid); } catch { /* ignore */ }
       }
     })();
-  }, []); // run once on mount
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Step 2: Verify OTP ────────────────────────────────────────────────────
   const handleConfirm = async () => {
     if (!isComplete) return;
     setError('');
     setLoading(true);
     try {
+      const nid  = nationalIdRef.current || (await AsyncStorage.getItem(NID_KEY)) || '';
       const code = otp.join('');
-      await apiVerifyOTP(nationalId, code, trustDevice);
+      await apiVerifyOTP(nid, code, trustDevice);
+      await AsyncStorage.removeItem(NID_KEY); // cleanup
       router.replace('/(school)/add-teacher-empty');
     } catch (err: any) {
       setError(err?.message ?? t('auth.otp.invalidCode', 'Invalid or expired code'));
@@ -130,7 +142,8 @@ export default function VerifySchoolPhoneScreen() {
     setOtp(Array(OTP_LENGTH).fill(''));
     setError('');
     try {
-      await apiResendOTP(nationalId);
+      const nid = nationalIdRef.current || (await AsyncStorage.getItem(NID_KEY)) || '';
+      await apiResendOTP(nid);
     } catch (err: any) {
       Alert.alert(t('common.error', 'Error'), err?.message ?? 'Could not resend OTP');
     }
