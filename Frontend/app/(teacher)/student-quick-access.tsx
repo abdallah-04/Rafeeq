@@ -1,20 +1,16 @@
-// 
-
-
-
 
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
   Modal,
   Pressable,
 } from 'react-native';
+import { Text } from '@/components/RNText';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { TEACHER_STUDENTS_MAP } from './_students';

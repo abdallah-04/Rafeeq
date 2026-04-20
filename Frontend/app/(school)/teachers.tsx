@@ -13,12 +13,15 @@ import Header from '@/components/modal/shared/Header'
 import Avatar from '@/components/modal/shared/Avatar'
 import Badge from '@/components/modal/shared/Badge'
 import ProgressBar from '@/components/modal/shared/progressBar'
+import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 
 const { colors, spacing, radius } = theme
 
 const MOCK_TEACHERS = [
   { id: '1', name: 'Ahmad Sami', childCount: 3, progress: 62 },
   { id: '2', name: 'Tala Kamal', childCount: 5, progress: 78 },
+  { id: '3', name: 'Mohammad Rami', childCount: 4, progress: 45 },
+  { id: '4', name: 'Layla Hani', childCount: 2, progress: 90 },
 ]
 
 function TeacherCard({ teacher, t }: { teacher: typeof MOCK_TEACHERS[0]; t: any }) {
@@ -27,7 +30,7 @@ function TeacherCard({ teacher, t }: { teacher: typeof MOCK_TEACHERS[0]; t: any 
       onPress={() => router.push(`/(school)/teacher/${teacher.id}` as any)}
       activeOpacity={0.7}
     >
-      <Card variant="elevated" style={styles.card}>
+      <Card variant="elevated" style={styles.teacherCard}>
         <View style={styles.cardRow}>
           <Avatar name={teacher.name} size="md" />
 
@@ -42,10 +45,12 @@ function TeacherCard({ teacher, t }: { teacher: typeof MOCK_TEACHERS[0]; t: any 
               variant="blue"
             />
 
-            <ProgressBar value={teacher.progress} height={6} showLabel={false} />
-            <Text variant="caption" color="textSecondary" style={styles.progressText}>
-              {teacher.progress}%
-            </Text>
+            <View style={styles.progressContainer}>
+              <ProgressBar value={teacher.progress} height={6} showLabel={false} />
+              <Text variant="caption" color="textSecondary" style={styles.progressText}>
+                {teacher.progress}%
+              </Text>
+            </View>
           </View>
         </View>
       </Card>
@@ -68,9 +73,6 @@ function EmptyState({ t }: { t: any }) {
         {t('teachers.emptySubtitle')}
       </Text>
 
-      <Card variant="outlined" padded={false} style={styles.ghostCard}>{null}</Card>
-      <Card variant="outlined" padded={false} style={styles.ghostCard}>{null}</Card>
-
       <Button
         label={t('teachers.addFirst')}
         onPress={() => router.push('/(school)/add-teacher')}
@@ -86,72 +88,77 @@ export default function TeachersScreen() {
   const isEmpty = teachers.length === 0
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <ScreenWrapper>
       <StatusBar style="dark" />
-
+      
       <Header
         title={t('teachers.title')}
         onBack={() => router.back()}
-        rightElement={
-          <TouchableOpacity
-            style={styles.addBtn}
-            onPress={() => router.push('/(school)/add-teacher')}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="add" size={22} color={colors.white} />
-          </TouchableOpacity>
-        }
       />
+      
+      <Text style={styles.subtitle}>
+        {t('school.teachers.subtitle')}
+      </Text>
 
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
-        {isEmpty ? (
-          <EmptyState t={t} />
-        ) : (
-          <View style={styles.list}>
-            {teachers.map(tc => <TeacherCard key={tc.id} teacher={tc} t={t} />)}
-
-            <TouchableOpacity
-              style={styles.ghostCardAdd}
-              onPress={() => router.push('/(school)/add-teacher')}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="add" size={28} color={colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+      <Card variant="elevated" style={styles.mainCard}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {isEmpty ? (
+            <EmptyState t={t} />
+          ) : (
+            <View style={styles.list}>
+              {teachers.map(teacher => (
+                <TeacherCard key={teacher.id} teacher={teacher} t={t} />
+              ))}
+              
+              {/* Add Teacher Button */}
+              <TouchableOpacity
+                style={styles.addTeacherCard}
+                onPress={() => router.push('/(school)/add-teacher')}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="add" size={32} color={colors.primary} />
+                <Text variant="caption" color="primary" style={styles.addText}>
+                  {t('teachers.addTeacher')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </ScrollView>
+      </Card>
+    </ScreenWrapper>
   )
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  addBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.full,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scroll: {
-    flexGrow: 1,
+  subtitle: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.lg,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  mainCard: {
+    flex: 1,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    padding: 0,
+    overflow: 'hidden',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: spacing.md,
   },
   list: {
     gap: spacing.md,
   },
-  card: {
+  teacherCard: {
     borderWidth: 1,
     borderColor: colors.border,
+    padding: spacing.md,
   },
   cardRow: {
     flexDirection: 'row',
@@ -167,6 +174,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  progressContainer: {
+    marginTop: spacing.xs,
+  },
   progressText: {
     textAlign: 'right',
     marginTop: 2,
@@ -174,7 +184,7 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: 'center',
     gap: spacing.md,
-    paddingTop: spacing.lg,
+    paddingVertical: spacing.xl,
   },
   emptyImage: {
     width: 120,
@@ -188,24 +198,24 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     paddingHorizontal: spacing.lg,
   },
-  ghostCard: {
-    width: '100%',
-    height: 72,
-    borderStyle: 'dashed',
-    backgroundColor: colors.backgroundLight,
-  },
   ctaBtn: {
     width: '100%',
     marginTop: spacing.sm,
   },
-  ghostCardAdd: {
+  addTeacherCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
     height: 72,
     borderRadius: radius.lg,
     borderWidth: 1.5,
     borderColor: colors.border,
     borderStyle: 'dashed',
     backgroundColor: colors.backgroundLight,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: spacing.xs,
+  },
+  addText: {
+    fontFamily: theme.typography.fontFamily.medium,
   },
 })

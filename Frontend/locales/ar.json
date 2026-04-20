@@ -48,7 +48,11 @@
     "completed": "مكتمل",
     "inProgress": "قيد التنفيذ",
     "new": "جديد",
-    "underReview": "قيد المراجعة"
+    "underReview": "قيد المراجعة",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "example@email.com",
+    "fullName": "الاسم الكامل",
+    "fullNamePlaceholder": "أدخل الاسم الكامل"
   },
 
   "language": {
@@ -561,6 +565,7 @@
     },
     "teachers": {
       "title": "معلموي",
+      "subtitle": "إدارة معلمي مدرستك، أضف معلمين جدد، وتابع تقدم طلابهم كل ذلك في مكان واحد.",
       "emptyTitle": "يبدو الأمر هادئاً هنا!",
       "emptySubtitle": "لم يُضف أي معلم بعد",
       "addFirst": "أضف معلمك الأول",
@@ -916,25 +921,37 @@
 
   "teacherDetail": {
     "students": "الطلاب",
+    "avgProgress": "متوسط التقدم",
+    "joined": "انضم",
+    "phone": "رقم الهاتف",
+    "nationalId": "الرقم الوطني",
+    "grade": "الصف",
+    "section": "القسم",
     "dangerZone": "إجراءات الحساب",
     "deactivate": "تعطيل المعلم",
     "remove": "إزالة المعلم"
   },
 
   "validation": {
-    "schoolNameRequired": "اسم المدرسة مطلوب",
-    "schoolIdRequired": "رقم المدرسة مطلوب",
-    "advisorNameRequired": "اسم المستشار مطلوب",
-    "nationalId10Digits": "الرقم الوطني يجب أن يكون 10 أرقام",
     "numbersOnly": "أرقام فقط",
-    "phoneRequired": "رقم الهاتف مطلوب",
-    "validJordanianNumber": "أدخل رقم أردني صحيح",
-    "passwordMin8": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
-    "passwordsNoMatch": "كلمتا المرور غير متطابقتين",
     "fullNameRequired": "الاسم الكامل مطلوب",
     "dobRequired": "تاريخ الميلاد مطلوب",
     "selectDifficulty": "الرجاء اختيار صعوبة",
-    "selectGender": "الرجاء اختيار الجنس"
+    "selectGender": "الرجاء اختيار الجنس",
+    "nationalIdRequired": "رقم الهوية الوطنية مطلوب",
+    "nationalId10Digits": "رقم الهوية يجب أن يكون ١٠ أرقام",
+    "phoneRequired": "رقم الهاتف مطلوب",
+    "validJordanianNumber": "رقم هاتف أردني صالح (يبدأ بـ ٧ ويليه ٨ أرقام)",
+    "passwordRequired": "كلمة المرور مطلوبة",
+    "passwordMin8": "كلمة المرور يجب أن تكون {{count}} أحرف على الأقل",
+    "confirmPasswordRequired": "تأكيد كلمة المرور مطلوب",
+    "passwordsNoMatch": "كلمتا المرور غير متطابقتين",
+    "schoolIdRequired": "رقم المدرسة مطلوب",
+    "schoolIdMinLength": "رقم المدرسة يجب أن يكون ٣ أحرف على الأقل",
+    "schoolNameRequired": "اسم المدرسة مطلوب",
+    "schoolNameMinLength": "اسم المدرسة يجب أن يكون ٣ أحرف على الأقل",
+    "advisorNameRequired": "اسم المشرف مطلوب",
+    "nameMinLength": "الاسم يجب أن يكون {{count}} أحرف على الأقل"
   },
 
   "placementExam": {

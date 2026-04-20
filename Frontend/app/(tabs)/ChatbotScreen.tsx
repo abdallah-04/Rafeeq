@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -13,6 +12,7 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
+import { Text } from '@/components/RNText';
 import { useRouter } from 'expo-router';
 
 type Lang = 'en' | 'ar';

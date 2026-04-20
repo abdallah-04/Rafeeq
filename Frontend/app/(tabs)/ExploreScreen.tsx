@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -11,6 +10,7 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
+import { Text } from '@/components/RNText';
 import { useRouter } from 'expo-router';
 
 type Category = 'All' | 'Speech' | 'Learning' | 'Behavior';

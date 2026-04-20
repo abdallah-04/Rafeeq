@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, TouchableOpacity, Modal, Pressable } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, Modal, Pressable, I18nManager } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -27,16 +27,17 @@ interface RowProps {
 }
 
 function SettingsRow({ icon, label, onPress, danger }: RowProps) {
+  const isRTL = I18nManager.isRTL;
   return (
     <TouchableOpacity
-      style={styles.row}
+      style={[styles.row, isRTL && styles.rowRTL]}
       onPress={onPress}
       activeOpacity={0.7}
       accessibilityRole="button"
     >
       <View style={[styles.rowIcon, danger && styles.rowIconDanger]}>{icon}</View>
-      <Text style={[styles.rowLabel, danger && styles.rowLabelDanger]}>{label}</Text>
-      <Text style={styles.rowChevron}>›</Text>
+      <Text style={[styles.rowLabel, danger && styles.rowLabelDanger, isRTL && styles.rowLabelRTL]} numberOfLines={1}>{label}</Text>
+      <Text style={styles.rowChevron}>{isRTL ? '‹' : '›'}</Text>
     </TouchableOpacity>
   );
 }
@@ -81,8 +82,8 @@ export default function ProfileScreen() {
       {/* Avatar + name */}
       <View style={styles.hero}>
         <Avatar name={PARENT_NAME} size="lg" />
-        <Text variant="body" style={styles.name}>{PARENT_NAME}</Text>
-        <Text variant="caption" style={styles.role}>{t('roleSelect.parentTitle')}</Text>
+        <Text variant="body" style={styles.name} numberOfLines={1}>{PARENT_NAME}</Text>
+        <Text variant="caption" style={styles.role} numberOfLines={1}>{t('roleSelect.parentTitle')}</Text>
       </View>
 
       <View style={styles.divider} />
@@ -228,6 +229,12 @@ const styles = StyleSheet.create({
   },
   rowLabelDanger: {
     color: colors.error,
+  },
+  rowRTL: {
+    flexDirection: 'row-reverse',
+  },
+  rowLabelRTL: {
+    textAlign: 'right',
   },
   rowChevron: {
     fontSize: 20,

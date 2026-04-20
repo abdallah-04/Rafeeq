@@ -3,15 +3,16 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useTranslation } from 'react-i18next'
+import { Ionicons } from '@expo/vector-icons'
 import BackButton from '@/components/BackButton'
 import { colors, spacing, borderRadius } from '@/constants'
+import { Text } from '@/components/modal/shared/Text'
 
 // ─── Mock Data ────────────────────────────────────────────────
 const MOCK_TEACHERS: Record<string, {
@@ -69,11 +70,14 @@ const DIFFICULTY_COLORS: Record<string, { bg: string; text: string }> = {
 
 // ─── Stat Card ────────────────────────────────────────────────
 function StatCard({ icon, value, label, color }: {
-  icon: string; value: string; label: string; color: string
+  icon: React.ComponentProps<typeof Ionicons>['name']
+  value: string
+  label: string
+  color: string
 }) {
   return (
     <View style={[statStyles.card, { borderTopColor: color }]}>
-      <Text style={statStyles.icon}>{icon}</Text>
+      <Ionicons name={icon} size={24} color={color} />
       <Text style={[statStyles.value, { color }]}>{value}</Text>
       <Text style={statStyles.label}>{label}</Text>
     </View>
@@ -95,7 +99,6 @@ const statStyles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  icon: { fontSize: 20 },
   value: {
     fontFamily: 'Lexend-Bold',
     fontSize: 18,
@@ -111,6 +114,7 @@ const statStyles = StyleSheet.create({
 
 // ─── Student Row ──────────────────────────────────────────────
 function StudentRow({ student }: { student: typeof MOCK_STUDENTS[0] }) {
+  const { t } = useTranslation()
   const diffColor = DIFFICULTY_COLORS[student.difficulty] ?? { bg: '#F3F4F6', text: '#6B7280' }
 
   return (
@@ -126,14 +130,14 @@ function StudentRow({ student }: { student: typeof MOCK_STUDENTS[0] }) {
 
       <View style={rowStyles.info}>
         <View style={rowStyles.topRow}>
-          <Text style={rowStyles.name}>{student.name}</Text>
+          <Text style={rowStyles.name} numberOfLines={1}>{student.name}</Text>
           <View style={rowStyles.activeBadge}>
-            <Text style={rowStyles.activeText}>{student.status}</Text>
+            <Text style={rowStyles.activeText}>{t('common.active')}</Text>
           </View>
         </View>
         <View style={rowStyles.tagsRow}>
           <View style={rowStyles.levelBadge}>
-            <Text style={rowStyles.levelText}>Level {student.level}</Text>
+            <Text style={rowStyles.levelText}>{t('teacher.studentCard.level', { level: student.level })}</Text>
           </View>
           <View style={[rowStyles.diffBadge, { backgroundColor: diffColor.bg }]}>
             <Text style={[rowStyles.diffText, { color: diffColor.text }]}>
@@ -193,6 +197,7 @@ const rowStyles = StyleSheet.create({
     fontFamily: 'Lexend-Bold',
     fontWeight: '700',
     color: colors.textPrimary,
+    flexShrink: 1,
   },
   activeBadge: {
     backgroundColor: '#E6F9F0',
@@ -210,6 +215,7 @@ const rowStyles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.sm,
     marginBottom: 7,
+    flexWrap: 'wrap',
   },
   levelBadge: {
     backgroundColor: '#EFF6FF',
@@ -253,6 +259,47 @@ const rowStyles = StyleSheet.create({
   },
 })
 
+// ─── Info Row Component ────────────────────────────────────────
+function InfoRow({ icon, label, value }: {
+  icon: React.ComponentProps<typeof Ionicons>['name']
+  label: string
+  value: string
+}) {
+  return (
+    <View style={infoStyles.row}>
+      <Ionicons name={icon} size={18} color={colors.textSecondary} style={infoStyles.icon} />
+      <Text style={infoStyles.label}>{label}</Text>
+      <Text style={infoStyles.value} numberOfLines={1}>{value}</Text>
+    </View>
+  )
+}
+
+const infoStyles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 11,
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.border,
+    gap: spacing.md,
+  },
+  icon: { width: 24 },
+  label: {
+    fontFamily: 'Lexend-Regular',
+    fontSize: 13,
+    color: colors.textSecondary,
+    flex: 1,
+  },
+  value: {
+    fontFamily: 'Lexend-SemiBold',
+    fontSize: 13,
+    color: colors.textPrimary,
+    fontWeight: '600',
+    flexShrink: 1,
+    textAlign: 'right',
+  },
+})
+
 // ─── Main Screen ──────────────────────────────────────────────
 export default function TeacherDetailScreen() {
   const { t } = useTranslation()
@@ -265,9 +312,9 @@ export default function TeacherDetailScreen() {
 
       <View style={styles.header}>
         <BackButton onPress={() => router.back()} />
-        <Text style={styles.headerTitle}>{teacher.name}</Text>
-        <TouchableOpacity style={styles.editBtn}>
-          <Text style={styles.editIcon}>✏️</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>{teacher.name}</Text>
+        <TouchableOpacity style={styles.editBtn} onPress={() => router.push('/(school)/edit-teacher' as any)}>
+          <Ionicons name="create-outline" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -290,47 +337,55 @@ export default function TeacherDetailScreen() {
 
           <View style={styles.classRow}>
             <View style={styles.classBadge}>
-              <Text style={styles.classBadgeText}>🏫 {teacher.grade}</Text>
+              <Ionicons name="business-outline" size={12} color={colors.textSecondary} />
+              <Text style={styles.classBadgeText}>{teacher.grade}</Text>
             </View>
             <View style={styles.classBadge}>
-              <Text style={styles.classBadgeText}>📋 {teacher.section}</Text>
+              <Ionicons name="book-outline" size={12} color={colors.textSecondary} />
+              <Text style={styles.classBadgeText}>{teacher.section}</Text>
             </View>
           </View>
         </View>
 
         {/* Stat cards */}
         <View style={styles.statsRow}>
-          <StatCard icon="👨‍🎓" value={String(teacher.childCount)} label="Students"    color={colors.primary} />
-          <StatCard icon="📈"   value={`${teacher.progress}%`}    label="Avg Progress" color="#22C55E" />
-          <StatCard icon="📅"   value={teacher.joinDate}           label="Joined"       color="#FFB84C" />
+          <StatCard
+            icon="people-outline"
+            value={String(teacher.childCount)}
+            label={t('teacherDetail.students')}
+            color={colors.primary}
+          />
+          <StatCard
+            icon="trending-up-outline"
+            value={`${teacher.progress}%`}
+            label={t('teacherDetail.avgProgress')}
+            color="#22C55E"
+          />
+          <StatCard
+            icon="calendar-outline"
+            value={teacher.joinDate}
+            label={t('teacherDetail.joined')}
+            color="#FFB84C"
+          />
         </View>
 
         {/* Info rows */}
         <View style={styles.infoCard}>
-          {[
-            { icon: '📞', label: 'Phone',       value: teacher.phone },
-            { icon: '🪪', label: 'National ID', value: teacher.nationalId },
-            { icon: '🏫', label: 'Grade',       value: teacher.grade },
-            { icon: '📋', label: 'Section',     value: teacher.section },
-          ].map((item) => (
-            <View key={item.label} style={styles.infoRow}>
-              <Text style={styles.infoIcon}>{item.icon}</Text>
-              <Text style={styles.infoLabel}>{item.label}</Text>
-              <Text style={styles.infoValue}>{item.value}</Text>
-            </View>
-          ))}
+          <InfoRow icon="call-outline" label={t('teacherDetail.phone')} value={teacher.phone} />
+          <InfoRow icon="card-outline" label={t('teacherDetail.nationalId')} value={teacher.nationalId} />
+          <InfoRow icon="business-outline" label={t('teacherDetail.grade')} value={teacher.grade} />
+          <InfoRow icon="book-outline" label={t('teacherDetail.section')} value={teacher.section} />
         </View>
 
         {/* Students section */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>
-            {t('teacherDetail.students', 'Students')}
-          </Text>
+          <Text style={styles.sectionTitle}>{t('teacherDetail.students')}</Text>
           <TouchableOpacity
             onPress={() => router.push('/(school)/add-student')}
             style={styles.addStudentBtn}
           >
-            <Text style={styles.addStudentText}>+ Add</Text>
+            <Ionicons name="add" size={16} color={colors.white} />
+            <Text style={styles.addStudentText}>{t('common.add')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -340,18 +395,12 @@ export default function TeacherDetailScreen() {
 
         {/* Danger zone */}
         <View style={styles.dangerCard}>
-          <Text style={styles.dangerTitle}>
-            {t('teacherDetail.dangerZone', 'Account Actions')}
-          </Text>
+          <Text style={styles.dangerTitle}>{t('teacherDetail.dangerZone')}</Text>
           <TouchableOpacity style={styles.deactivateBtn}>
-            <Text style={styles.deactivateText}>
-              {t('teacherDetail.deactivate', 'Deactivate Teacher')}
-            </Text>
+            <Text style={styles.deactivateText}>{t('teacherDetail.deactivate')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.removeBtn}>
-            <Text style={styles.removeText}>
-              {t('teacherDetail.remove', 'Remove Teacher')}
-            </Text>
+            <Text style={styles.removeText}>{t('teacherDetail.remove')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -375,10 +424,13 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   headerTitle: {
+    flex: 1,
     fontSize: 18,
     fontFamily: 'Lexend-Bold',
     fontWeight: '700',
     color: colors.textPrimary,
+    textAlign: 'center',
+    paddingHorizontal: spacing.sm,
   },
   editBtn: {
     width: 36,
@@ -388,7 +440,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  editIcon: { fontSize: 16 },
   container: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xl,
@@ -463,8 +514,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.sm,
     marginTop: spacing.sm,
+    flexWrap: 'wrap',
   },
   classBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: colors.backgroundLight,
     paddingHorizontal: 12,
     paddingVertical: 5,
@@ -495,27 +550,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 11,
-    borderBottomWidth: 0.5,
-    borderBottomColor: colors.border,
-    gap: spacing.md,
-  },
-  infoIcon: { fontSize: 16, width: 24 },
-  infoLabel: {
-    fontFamily: 'Lexend-Regular',
-    fontSize: 13,
-    color: colors.textSecondary,
-    flex: 1,
-  },
-  infoValue: {
-    fontFamily: 'Lexend-SemiBold',
-    fontSize: 13,
-    color: colors.textPrimary,
-    fontWeight: '600',
-  },
 
   // Students section
   sectionHeader: {
@@ -531,6 +565,9 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   addStudentBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: colors.primary,
     paddingHorizontal: 14,
     paddingVertical: 6,

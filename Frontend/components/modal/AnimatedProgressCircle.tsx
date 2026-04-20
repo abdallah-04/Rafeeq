@@ -9,7 +9,8 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, StyleSheet, Animated } from 'react-native';
+import { Text } from '@/components/RNText';
 import Svg, { Circle } from 'react-native-svg';
 
 // ─── Props ─────────────────────────────────────────────────────

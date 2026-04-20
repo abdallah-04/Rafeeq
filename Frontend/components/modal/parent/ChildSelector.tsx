@@ -1,13 +1,13 @@
 import React from 'react'
 import {
     View,
-    Text,
     Image,
     TouchableOpacity,
     StyleSheet,
     ImageSourcePropType,
     I18nManager,
 } from 'react-native'
+import { Text } from '@/components/RNText'
 import { theme } from '@/theme'
 
 export interface Badge {
