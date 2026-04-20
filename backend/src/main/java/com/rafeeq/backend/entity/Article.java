@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,8 +38,29 @@ public class Article {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
+    /**
+     * Comma-separated category tags, e.g. "Speech,Learning"
+     * Stored as VARCHAR(255) — use getTags() / setTagsList() helpers.
+     */
+    @Column(name = "tags", length = 255)
+    private String tags;
+
     @OneToMany(mappedBy = "article", fetch = FetchType.LAZY)
     private List<SavedArticle> savedArticles = new ArrayList<>();
+
+    /** Returns tags as a List<String>. Never null. */
+    public List<String> getTagsList() {
+        if (tags == null || tags.isBlank()) return List.of();
+        return Arrays.stream(tags.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+    }
+
+    /** Sets tags from a List<String>. */
+    public void setTagsList(List<String> tagList) {
+        this.tags = tagList == null ? null : String.join(",", tagList);
+    }
 
     @PrePersist
     public void prePersist() {

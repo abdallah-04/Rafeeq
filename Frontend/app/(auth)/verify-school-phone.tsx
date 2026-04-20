@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Alert,
+  View, TouchableOpacity, StyleSheet,
+  Image, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -20,12 +17,13 @@ import OTPInput from '@/components/modal/shared/OTPInput';
 import Footer from '@/components/modal/shared/Footer';
 import { useAuthStore } from '@/store/authStore';
 import { useSchoolSignupStore } from '@/store/schoolSignupStore';
-import { apiRegisterSchool, apiVerifyOTP, apiResendOTP } from '@/services/api';
+import {
+  apiRegisterSchool, apiVerifyOTP, apiResendOTP, apiForgotPassword,
+} from '@/services/api';
 import type { UserRole } from '@/types';
 
 const { colors, spacing, typography, radius } = theme;
-
-const OTP_LENGTH = 4;
+const OTP_LENGTH     = 4;
 const RESEND_SECONDS = 60;
 
 function ResendTimer({ onResend }: { onResend: () => void }) {
@@ -63,39 +61,29 @@ const resendStyles = StyleSheet.create({
 });
 
 export default function VerifySchoolPhoneScreen() {
-  const [otp, setOtp]             = useState<string[]>(Array(OTP_LENGTH).fill(''));
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState('');
+  const [otp,         setOtp]         = useState<string[]>(Array(OTP_LENGTH).fill(''));
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState('');
   const [trustDevice, setTrustDevice] = useState(false);
-  const [registering, setRegistering] = useState(false);
 
-  const { t, i18n } = useTranslation();
-  const login       = useAuthStore((s) => s.login);
+  const { t, i18n }  = useTranslation();
+  const login        = useAuthStore((s) => s.login);
   const { step1, step2, clearSignup } = useSchoolSignupStore();
 
   const phone      = step2.advisorPhone ? `+962${step2.advisorPhone}` : '';
   const nationalId = step1.advisorNationalId ?? '';
-
   const isComplete = otp.every((d) => d !== '');
 
-  // Step 1: Register the school (called once when this screen mounts, if not done)
-  // We register on confirm so the OTP just sent is from the backend
-  const handleConfirm = async () => {
-    if (!isComplete) return;
-    setError('');
-    setLoading(true);
-    try {
-      const code = otp.join('');
-
-      // If school not registered yet, register now then verify
-      // Otherwise just verify
-      if (!registering) {
-        setRegistering(true);
+  // ── Step 1: Register school + trigger OTP when screen mounts ──────────────
+  useEffect(() => {
+    (async () => {
+      if (!nationalId || !step2.password) return;
+      try {
         const res = await apiRegisterSchool({
-          nationalId:  nationalId,
-          phone:       phone,
+          nationalId,
+          phone,
           email:       `${nationalId}@rafeeq.app`,
-          password:    step2.password ?? '',
+          password:    step2.password,
           nameAr:      step1.schoolName ?? '',
           nameEn:      step1.schoolName ?? '',
           location:    'Jordan',
@@ -103,7 +91,6 @@ export default function VerifySchoolPhoneScreen() {
 
         await AsyncStorage.setItem('rafeeq-refresh-token', res.refreshToken ?? '');
         const rawRole = res.role?.replace('ROLE_', '').toLowerCase() as UserRole;
-
         login(
           {
             id: '', name: step1.advisorName ?? '', nameAr: step1.advisorName ?? '',
@@ -113,14 +100,27 @@ export default function VerifySchoolPhoneScreen() {
           res.accessToken
         );
         clearSignup();
-      }
 
-      // Verify the OTP
+        // Now trigger OTP generation
+        await apiForgotPassword(nationalId);
+      } catch (err: any) {
+        // If school already registered from a previous attempt, just trigger OTP
+        try { await apiForgotPassword(nationalId); } catch { /* ignore */ }
+      }
+    })();
+  }, []); // run once on mount
+
+  // ── Step 2: Verify OTP ────────────────────────────────────────────────────
+  const handleConfirm = async () => {
+    if (!isComplete) return;
+    setError('');
+    setLoading(true);
+    try {
+      const code = otp.join('');
       await apiVerifyOTP(nationalId, code, trustDevice);
       router.replace('/(school)/add-teacher-empty');
     } catch (err: any) {
       setError(err?.message ?? t('auth.otp.invalidCode', 'Invalid or expired code'));
-      setRegistering(false);
     } finally {
       setLoading(false);
     }
@@ -139,54 +139,27 @@ export default function VerifySchoolPhoneScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
-
       <View style={styles.header}>
         <BackButton />
         <Text style={styles.headerTitle}>{t('roleSelect.title')}</Text>
         <View style={{ width: 36 }} />
       </View>
-
       <View style={styles.body}>
         <View style={styles.mascotWrap}>
-          <Image
-            source={require('@/assets/images/mascot/rafeeq_like.png')}
-            style={styles.mascot}
-            resizeMode="contain"
-          />
+          <Image source={require('@/assets/images/mascot/rafeeq_like.png')} style={styles.mascot} resizeMode="contain" />
         </View>
-
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t('auth.otp.subtitle')}</Text>
-          <OTPInput
-            length={OTP_LENGTH}
-            value={otp}
-            onChange={setOtp}
-            onComplete={() => {}}
-            error={!!error}
-          />
-
+          <OTPInput length={OTP_LENGTH} value={otp} onChange={setOtp} onComplete={() => {}} error={!!error} />
           {error ? <Text style={styles.error}>{error}</Text> : null}
-
-          <TouchableOpacity
-            style={styles.checkRow}
-            onPress={() => setTrustDevice((v) => !v)}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity style={styles.checkRow} onPress={() => setTrustDevice((v) => !v)} activeOpacity={0.7}>
             <View style={[styles.checkbox, trustDevice && styles.checkboxChecked]}>
               {trustDevice && <Text style={styles.checkmark}>✓</Text>}
             </View>
             <Text style={styles.checkLabel}>{t('auth.otp.trustDevice')}</Text>
           </TouchableOpacity>
-
           <ResendTimer onResend={handleResend} />
-
-          <Button
-            label={t('auth.otp.confirmButton')}
-            onPress={handleConfirm}
-            loading={loading}
-            disabled={!isComplete}
-            style={styles.btn}
-          />
+          <Button label={t('auth.otp.confirmButton')} onPress={handleConfirm} loading={loading} disabled={!isComplete} style={styles.btn} />
         </View>
         <Footer onPrivacyPress={() => {}} onTermsPress={() => {}} />
       </View>
@@ -195,19 +168,19 @@ export default function VerifySchoolPhoneScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe:             { flex: 1, backgroundColor: colors.background },
-  header:           { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  headerTitle:      { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.textPrimary },
-  body:             { flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
-  mascotWrap:       { alignItems: 'center', marginBottom: spacing.lg },
-  mascot:           { width: 140, height: 140 },
-  card:             { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2, gap: spacing.sm },
-  cardTitle:        { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.textPrimary, textAlign: 'center', lineHeight: 28 },
-  error:            { fontSize: typography.fontSize.xs, color: colors.error, textAlign: 'center' },
-  checkRow:         { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  checkbox:         { width: 20, height: 20, borderRadius: radius.sm, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
-  checkboxChecked:  { backgroundColor: colors.primary, borderColor: colors.primary },
-  checkmark:        { color: colors.textWhite, fontSize: 12, fontFamily: typography.fontFamily.bold },
-  checkLabel:       { fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.regular, color: colors.textSecondary },
-  btn:              { width: '100%', marginTop: spacing.xs },
+  safe:            { flex: 1, backgroundColor: colors.background },
+  header:          { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
+  headerTitle:     { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.textPrimary },
+  body:            { flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
+  mascotWrap:      { alignItems: 'center', marginBottom: spacing.lg },
+  mascot:          { width: 140, height: 140 },
+  card:            { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2, gap: spacing.sm },
+  cardTitle:       { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.textPrimary, textAlign: 'center', lineHeight: 28 },
+  error:           { fontSize: typography.fontSize.xs, color: colors.error, textAlign: 'center' },
+  checkRow:        { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  checkbox:        { width: 20, height: 20, borderRadius: radius.sm, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  checkboxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
+  checkmark:       { color: colors.textWhite, fontSize: 12, fontFamily: typography.fontFamily.bold },
+  checkLabel:      { fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.regular, color: colors.textSecondary },
+  btn:             { width: '100%', marginTop: spacing.xs },
 });

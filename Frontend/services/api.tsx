@@ -249,8 +249,6 @@ export interface PlacementAssessmentResponse {
 }
 
 export interface PlacementSubmissionResponse {
-  resultLevel: number;
-  confidencePercentage: number;
   childId:       string;
   assessedLevel: number;
   score:         number;

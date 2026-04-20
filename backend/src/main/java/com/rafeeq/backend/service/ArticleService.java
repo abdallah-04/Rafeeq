@@ -87,6 +87,7 @@ public class ArticleService {
                 article.getContentAr(),
                 article.getContentEn(),
                 article.getImageUrl(),
+                article.getTagsList(),
                 saved
         );
     }

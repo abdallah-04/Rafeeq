@@ -26,7 +26,7 @@ import { Button } from '@/components/modal/shared/Button';
 import Input from '@/components/modal/shared/TextInput';
 import BackButton from '@/components/modal/shared/BackButton';
 import { useAuthStore } from '@/store/authStore';
-import { apiRegisterParent } from '@/services/api';
+import { apiRegisterParent, apiForgotPassword } from '@/services/api';
 import type { UserRole } from '@/types';
 
 const { colors, spacing, typography, radius } = theme;
@@ -85,7 +85,8 @@ export default function SignUpParentScreen() {
         res.accessToken
       );
 
-      // OTP verification step after registration
+      // Trigger OTP generation then navigate to verify screen
+      try { await apiForgotPassword(data.nationalId); } catch { /* ignore */ }
       router.push('/(auth)/verify-phone');
     } catch (err: any) {
       Alert.alert(t('common.error', 'Error'), err?.message ?? t('auth.signup.failed', 'Registration failed'));
