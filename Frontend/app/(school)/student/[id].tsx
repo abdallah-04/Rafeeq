@@ -1,173 +1,397 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Image, ScrollView, StatusBar, StyleSheet,
-  Text, TouchableOpacity, View, RefreshControl, ActivityIndicator,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { router } from 'expo-router'
-import { useTranslation } from 'react-i18next'
-import { colors, spacing, borderRadius } from '@/constants'
-import { apiGetStudents, StudentResponse } from '@/services/api'
+  View, Text, StyleSheet, TouchableOpacity,
+  ScrollView, ActivityIndicator, RefreshControl,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import BackButton from '@/components/BackButton';
+import { apiGetChild, ChildResponse } from '@/services/api';
 
-const DIFF_COLORS: Record<string, { bg: string; text: string }> = {
-  ADD:   { bg: '#EFF6FF', text: '#3B82F6' },
-  ADHD:  { bg: '#FDF4FF', text: '#A855F7' },
-  IFD:   { bg: '#FFF7ED', text: '#F97316' },
-  ASD:   { bg: '#F0FDF4', text: '#16A34A' },
-  DYS:   { bg: '#FFF1F2', text: '#E11D48' },
-  OTHER: { bg: '#F9FAFB', text: '#6B7280' },
-}
+// ─── Static tab content (UI design preserved from original) ──
+const GRADES = [
+  { subject: 'Arabic',  score: 92, color: '#508DF7' },
+  { subject: 'Math',    score: 88, color: '#FFB84C' },
+  { subject: 'Science', score: 79, color: '#BA6DE9' },
+  { subject: 'English', score: 84, color: '#22C55E' },
+  { subject: 'Art',     score: 55, color: '#FF6B6B' },
+  { subject: 'PE',      score: 97, color: '#06B6D4' },
+];
+const HW_TASKS = [
+  { id: '1', title: 'Reading Homework – Lesson 7', subject: 'Arabic language',  due: 'Tomorrow', status: 'pending',  statusColor: '#FFB84C' },
+  { id: '2', title: 'Math Worksheet – Chapter 4',  subject: 'Mathematics',      due: 'Today',    status: 'done',     statusColor: '#22C55E' },
+  { id: '3', title: 'Science Quiz Prep',            subject: 'Science',          due: 'Oct 28',   status: 'pending',  statusColor: '#FFB84C' },
+];
+const PROGRESS_SUBJECTS = [
+  { subject: 'Arabic',  percent: 79, color: '#508DF7' },
+  { subject: 'Math',    percent: 59, color: '#FFB84C' },
+  { subject: 'Science', percent: 85, color: '#BA6DE9' },
+];
+const REPORTS = [
+  { id: '1', author: 'Ms. Sara Mahmoud – Math', text: 'Zaid did well on the term test overall, but we notice difficulty with fractions.', time: 'Today, 8:30 AM', read: false },
+  { id: '2', author: 'Ms. Sara Mahmoud – Math', text: 'Extra practice this week is advised.', time: 'Yesterday, 9:00 AM', read: false },
+  { id: '3', author: 'Mr. Ahmad – Science',     text: 'Good progress in lab activities.', time: 'Oct 18, 10:00 AM', read: true },
+];
 
-function EmptyState({ t }: { t: any }) {
+// ─── Tab Components ───────────────────────────────────────────
+function GradesTab({ isRTL }: { isRTL: boolean }) {
   return (
-    <View style={styles.emptyContainer}>
-      <Image source={require('@/assets/images/mascot/rafeeq_clabbing.png')} style={styles.emptyPenguin} resizeMode="contain" />
-      <Text style={styles.emptyTitle}>{t('students.emptyTitle')}</Text>
-      <Text style={styles.emptySubtitle}>{t('students.emptySubtitle')}</Text>
-      <View style={styles.ghostCard} />
-      <View style={styles.ghostCard} />
-      <TouchableOpacity style={styles.ctaButton} onPress={() => router.push('/(school)/add-student')}>
-        <Text style={styles.ctaButtonText}>{t('students.addFirst')}</Text>
-      </TouchableOpacity>
-    </View>
-  )
-}
-
-function StudentCard({ student, t }: { student: StudentResponse; t: any }) {
-  const diff = student.learningDifficulty ?? 'OTHER'
-  const diffColor = DIFF_COLORS[diff] ?? DIFF_COLORS.OTHER
-  const displayName = student.fullNameAr ?? student.fullNameEn ?? '—'
-
-  return (
-    <TouchableOpacity
-      style={styles.studentCard}
-      onPress={() => router.push(`/(school)/student/${student.id}`)}
-      accessibilityRole="button"
-    >
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{displayName.charAt(0)}</Text>
+    <ScrollView contentContainerStyle={tabStyles.content} showsVerticalScrollIndicator={false}>
+      <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight]}>Current Term Grades</Text>
+      <View style={tabStyles.gradesGrid}>
+        {GRADES.map((g) => {
+          const scoreColor = g.score >= 90 ? '#22C55E' : g.score >= 70 ? '#508DF7' : g.score >= 50 ? '#FFB84C' : '#FF6B6B';
+          return (
+            <View key={g.subject} style={tabStyles.gradeCard}>
+              <Text style={tabStyles.gradeSubject}>{g.subject}</Text>
+              <Text style={[tabStyles.gradeScore, { color: scoreColor }]}>{g.score}</Text>
+              <Text style={tabStyles.gradeOutOf}>/100</Text>
+            </View>
+          );
+        })}
       </View>
-      <View style={styles.studentInfo}>
-        <View style={styles.topRow}>
-          <Text style={styles.studentName}>{displayName}</Text>
-          <View style={[styles.statusBadge, student.status === 'ACTIVE' ? styles.statusActive : styles.statusPending]}>
-            <Text style={[styles.statusText, student.status === 'ACTIVE' ? styles.statusTextActive : styles.statusTextPending]}>
-              {student.status === 'ACTIVE' ? t('students.active') : t('students.pending','Pending')}
-            </Text>
+      <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight, { marginTop: 20 }]}>Coming Up This Week</Text>
+      {HW_TASKS.slice(0, 2).map((hw) => (
+        <View key={hw.id} style={tabStyles.hwCard}>
+          <View style={tabStyles.hwIcon}><Text style={{ fontSize: 20 }}>📚</Text></View>
+          <View style={tabStyles.hwInfo}>
+            <Text style={[tabStyles.hwTitle, isRTL && tabStyles.textRight]}>{hw.title}</Text>
+            <Text style={[tabStyles.hwSubject, isRTL && tabStyles.textRight]}>{hw.subject}</Text>
+          </View>
+          <View style={[tabStyles.dueBadge, { backgroundColor: hw.statusColor + '22' }]}>
+            <Text style={[tabStyles.dueText, { color: hw.statusColor }]}>{hw.due}</Text>
           </View>
         </View>
-        <View style={styles.tagsRow}>
-          {student.level != null && (
-            <View style={styles.levelBadge}>
-              <Text style={styles.levelText}>{t('students.level')} {student.level}</Text>
-            </View>
-          )}
-          {student.learningDifficulty && (
-            <View style={[styles.diffBadge, { backgroundColor: diffColor.bg }]}>
-              <Text style={[styles.diffText, { color: diffColor.text }]}>{student.learningDifficulty}</Text>
-            </View>
-          )}
-        </View>
-        <View style={styles.progressBarBg}>
-          <View style={[styles.progressBarFill, { width: '0%' }]} />
-        </View>
-        <Text style={styles.progressText}>—</Text>
-      </View>
-    </TouchableOpacity>
-  )
+      ))}
+    </ScrollView>
+  );
 }
 
-export default function StudentsScreen() {
-  const { t } = useTranslation()
-  const [students,   setStudents]   = useState<StudentResponse[]>([])
-  const [loading,    setLoading]    = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
+function HWTasksTab({ isRTL }: { isRTL: boolean }) {
+  return (
+    <ScrollView contentContainerStyle={tabStyles.content} showsVerticalScrollIndicator={false}>
+      <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight]}>All Homework & Tasks</Text>
+      {HW_TASKS.map((hw) => (
+        <View key={hw.id} style={tabStyles.hwCard}>
+          <View style={tabStyles.hwIcon}><Text style={{ fontSize: 20 }}>📖</Text></View>
+          <View style={tabStyles.hwInfo}>
+            <Text style={[tabStyles.hwTitle, isRTL && tabStyles.textRight]}>{hw.title}</Text>
+            <Text style={[tabStyles.hwSubject, isRTL && tabStyles.textRight]}>{hw.subject}</Text>
+          </View>
+          <View style={[tabStyles.dueBadge, { backgroundColor: hw.statusColor + '22' }]}>
+            <Text style={[tabStyles.dueText, { color: hw.statusColor }]}>{hw.status}</Text>
+          </View>
+        </View>
+      ))}
+    </ScrollView>
+  );
+}
+
+function ProgressTab({ student, isRTL }: { student: ChildResponse; isRTL: boolean }) {
+  const progress = 0;
+  const name = student.fullNameEn ?? student.fullNameAr ?? '—';
+  return (
+    <ScrollView contentContainerStyle={tabStyles.content} showsVerticalScrollIndicator={false}>
+      <View style={tabStyles.overallCard}>
+        <Text style={tabStyles.overallTitle}>Overall progress</Text>
+        <Text style={tabStyles.overallSub}>Second semester</Text>
+        <View style={[tabStyles.overallRow, isRTL && tabStyles.rowReverse]}>
+          <View style={tabStyles.overallTrack}>
+            <View style={[tabStyles.overallFill, { width: `${progress}%` }]} />
+          </View>
+          <Text style={tabStyles.overallPct}>{progress}%</Text>
+        </View>
+      </View>
+      <View style={tabStyles.subjectCard}>
+        <Text style={{ fontSize: 16, marginBottom: 14 }}>✏️</Text>
+        {PROGRESS_SUBJECTS.map((s) => (
+          <View key={s.subject} style={tabStyles.subjectRow}>
+            <Text style={[tabStyles.subjectName, isRTL && tabStyles.textRight]}>{s.subject}</Text>
+            <View style={tabStyles.subjectTrack}>
+              <View style={[tabStyles.subjectFill, { width: `${s.percent}%`, backgroundColor: s.color }]} />
+            </View>
+            <Text style={[tabStyles.subjectPct, { color: s.color }]}>{s.percent}%</Text>
+          </View>
+        ))}
+      </View>
+      <View style={tabStyles.noteCard}>
+        <Text style={{ fontSize: 20, marginBottom: 8 }}>💬</Text>
+        <Text style={[tabStyles.noteTitle, isRTL && tabStyles.textRight]}>Note – Last Week</Text>
+        <Text style={[tabStyles.noteText, isRTL && tabStyles.textRight]}>
+          {name} needs extra support in Math, especially fractions. A short daily review is highly recommended.
+        </Text>
+        <Text style={[tabStyles.noteAuthor, isRTL && tabStyles.textRight]}>Ms. Sara Mahmoud · Mar 20</Text>
+      </View>
+    </ScrollView>
+  );
+}
+
+function ReportsTab({ isRTL }: { isRTL: boolean }) {
+  const [filter, setFilter] = useState<'unread' | 'read'>('unread');
+  const filtered = REPORTS.filter((r) => filter === 'unread' ? !r.read : r.read);
+  return (
+    <ScrollView contentContainerStyle={tabStyles.content} showsVerticalScrollIndicator={false}>
+      <View style={tabStyles.toggle}>
+        {(['unread', 'read'] as const).map((f) => (
+          <TouchableOpacity key={f} style={[tabStyles.toggleBtn, filter === f && tabStyles.toggleBtnActive]} onPress={() => setFilter(f)}>
+            <Text style={[tabStyles.toggleText, filter === f && tabStyles.toggleTextActive]}>
+              {f === 'unread' ? `Unread (${REPORTS.filter(r => !r.read).length})` : 'Read'}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      {filtered.length > 0 && <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight]}>New</Text>}
+      {filtered.map((r) => (
+        <View key={r.id} style={tabStyles.reportCard}>
+          <View style={[tabStyles.reportRow, isRTL && tabStyles.rowReverse]}>
+            <View style={tabStyles.reportAvatar}><Text style={{ fontSize: 18 }}>👤</Text></View>
+            <View style={tabStyles.reportInfo}>
+              <Text style={[tabStyles.reportAuthor, isRTL && tabStyles.textRight]}>{r.author}</Text>
+              <Text style={[tabStyles.reportText, isRTL && tabStyles.textRight]}>{r.text}</Text>
+              <Text style={[tabStyles.reportTime, isRTL && tabStyles.textRight]}>{r.time}</Text>
+            </View>
+          </View>
+        </View>
+      ))}
+      {filtered.length === 0 && (
+        <View style={tabStyles.emptyState}>
+          <Text style={tabStyles.emptyIcon}>📭</Text>
+          <Text style={tabStyles.emptyText}>No {filter} reports</Text>
+        </View>
+      )}
+    </ScrollView>
+  );
+}
+
+// ─── Main Screen ──────────────────────────────────────────────
+type Tab = 'grades' | 'hw' | 'progress' | 'reports';
+
+export default function SchoolStudentDetailScreen() {
+  const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const isRTL = i18n.language === 'ar';
+
+  const [student,    setStudent]    = useState<ChildResponse | null>(null);
+  const [loading,    setLoading]    = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab,  setActiveTab]  = useState<Tab>('grades');
 
   const load = useCallback(async () => {
-    try {
-      const data = await apiGetStudents()
-      setStudents(data)
-    } catch (e) {
-      // silently fail — empty list shown
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
-    }
-  }, [])
+    try { setStudent(await apiGetChild(id ?? '')) }
+    catch { }
+    finally { setLoading(false); setRefreshing(false); }
+  }, [id]);
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { load(); }, [load]);
+
+  const TABS: { key: Tab; label: string; labelAr: string }[] = [
+    { key: 'grades',   label: 'Grades',     labelAr: 'الدرجات' },
+    { key: 'hw',       label: 'HW & Tasks', labelAr: 'الواجبات' },
+    { key: 'progress', label: 'Progress',   labelAr: 'التقدم' },
+    { key: 'reports',  label: 'Reports',    labelAr: 'التقارير' },
+  ];
+
+  if (loading) return (
+    <SafeAreaView style={styles.safe}>
+      <ActivityIndicator style={{ marginTop: 60 }} color="#508DF7" />
+    </SafeAreaView>
+  );
+
+  if (!student) return (
+    <SafeAreaView style={styles.safe}>
+      <View style={[styles.navBar, isRTL && styles.rowReverse]}>
+        <BackButton onPress={() => router.back()} />
+        <View style={styles.navCenter}><Text style={styles.navTitle}>Student</Text></View>
+        <View style={{ width: 40 }} />
+      </View>
+      <Text style={{ textAlign: 'center', marginTop: 60, color: '#9CA3AF' }}>Student not found</Text>
+    </SafeAreaView>
+  );
+
+  const displayName = student.fullNameEn ?? student.fullNameAr ?? '—';
+  const age = student.dateOfBirth
+    ? Math.floor((Date.now() - new Date(student.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365))
+    : null;
+  const level = student.level ?? student.assessedLevel;
+  const AVATAR_COLORS = ['#FFD9B3','#C8E6C9','#BBDEFB','#F8BBD0'];
+  const avatarBg = AVATAR_COLORS[displayName.charCodeAt(0) % AVATAR_COLORS.length];
+  const initials = displayName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('students.title')}</Text>
-        <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/(school)/add-student')}>
-          <Text style={styles.addBtnText}>+</Text>
+      {/* Nav Bar */}
+      <View style={[styles.navBar, isRTL && styles.rowReverse]}>
+        <BackButton onPress={() => router.back()} />
+        <View style={styles.navCenter}>
+          <Text style={styles.navTitle}>{displayName}</Text>
+          {student.learningDifficulty && <Text style={styles.navSub}>{student.learningDifficulty}</Text>}
+        </View>
+        <TouchableOpacity style={styles.bellBtn}>
+          <Text style={styles.bellIcon}>🔔</Text>
+          <View style={styles.bellBadge} />
         </TouchableOpacity>
       </View>
 
-      {loading ? (
-        <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : (
-        <ScrollView
-          contentContainerStyle={styles.container}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load() }} />}
-        >
-          {students.length === 0 ? (
-            <EmptyState t={t} />
-          ) : (
-            <View style={styles.listContainer}>
-              {students.map((s) => <StudentCard key={s.id} student={s} t={t} />)}
-              <TouchableOpacity style={styles.ghostCardAdd} onPress={() => router.push('/(school)/add-student')}>
-                <Text style={styles.ghostCardPlus}>+</Text>
-              </TouchableOpacity>
+      {/* Student Header Card */}
+      <View style={styles.headerCard}>
+        <View style={[styles.headerInner, isRTL && styles.rowReverse]}>
+          <View style={[styles.avatar, { backgroundColor: avatarBg }]}>
+            <Text style={styles.avatarText}>{initials}</Text>
+          </View>
+          <View style={styles.headerInfo}>
+            <Text style={[styles.studentName, isRTL && styles.textRight]}>{displayName}</Text>
+            <View style={styles.progressRow}>
+              <View style={styles.progressTrack}>
+                <View style={[styles.progressFill, { width: '0%' }]} />
+              </View>
+              <Text style={styles.progressPct}>—</Text>
             </View>
-          )}
+            <View style={[styles.tagsRow, isRTL && styles.rowReverse]}>
+              {student.learningDifficulty && (
+                <View style={styles.tagOrange}>
+                  <Text style={styles.tagOrangeText}>{student.learningDifficulty}</Text>
+                </View>
+              )}
+              {age != null && (
+                <View style={styles.tagBlue}>
+                  <Text style={styles.tagBlueText}>{age} Years</Text>
+                </View>
+              )}
+              {level != null && (
+                <View style={styles.tagPurple}>
+                  <Text style={styles.tagPurpleText}>Level {level}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+        <View style={[styles.metaRow, isRTL && styles.rowReverse]}>
+          <Text style={styles.metaText}>
+            {student.teacherId ? '👨‍🏫 Teacher assigned' : '👨‍🏫 No teacher yet'}
+          </Text>
+          <Text style={styles.metaDot}>·</Text>
+          <Text style={styles.metaText}>
+            {student.status === 'ACTIVE' ? '✅ Active' : '⏳ Pending'}
+          </Text>
+        </View>
+      </View>
+
+      {/* Tab Bar */}
+      <View style={styles.tabBar}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabBarContent}>
+          {TABS.map((tab) => (
+            <TouchableOpacity
+              key={tab.key}
+              style={[styles.tabBtn, activeTab === tab.key && styles.tabBtnActive]}
+              onPress={() => setActiveTab(tab.key)}
+            >
+              <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
+                {isRTL ? tab.labelAr : tab.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
-      )}
+      </View>
+
+      {/* Tab Content */}
+      <View style={{ flex: 1 }}>
+        {activeTab === 'grades'   && <GradesTab isRTL={isRTL} />}
+        {activeTab === 'hw'       && <HWTasksTab isRTL={isRTL} />}
+        {activeTab === 'progress' && <ProgressTab student={student} isRTL={isRTL} />}
+        {activeTab === 'reports'  && <ReportsTab isRTL={isRTL} />}
+      </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-  safe:             { flex: 1, backgroundColor: colors.white },
-  loadingBox:       { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  header:           { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  headerTitle:      { fontSize: 20, fontFamily: 'Lexend-Bold', fontWeight: '700', color: colors.textPrimary },
-  addBtn:           { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  addBtnText:       { fontSize: 24, color: colors.white, fontWeight: '300', lineHeight: 28 },
-  container:        { flexGrow: 1, paddingHorizontal: spacing.xl, paddingTop: spacing.xl, paddingBottom: spacing.xl },
-  emptyContainer:   { flex: 1, alignItems: 'center', paddingTop: spacing.xl, gap: spacing.md },
-  emptyPenguin:     { width: 120, height: 120 },
-  emptyTitle:       { fontSize: 18, fontFamily: 'Lexend-Bold', fontWeight: '700', color: colors.textPrimary, textAlign: 'center', marginTop: spacing.md },
-  emptySubtitle:    { fontSize: 13, fontFamily: 'Lexend-Regular', color: colors.textSecondary, textAlign: 'center', lineHeight: 20, paddingHorizontal: spacing.xl },
-  ghostCard:        { width: '100%', height: 88, borderRadius: borderRadius.lg, borderWidth: 1.5, borderColor: colors.border, borderStyle: 'dashed', backgroundColor: colors.backgroundLight },
-  ctaButton:        { backgroundColor: colors.primary, borderRadius: borderRadius.md, height: 52, width: '100%', alignItems: 'center', justifyContent: 'center', marginTop: spacing.md, elevation: 6 },
-  ctaButtonText:    { fontFamily: 'Lexend-Bold', fontSize: 16, fontWeight: '700', color: colors.white },
-  listContainer:    { gap: spacing.md },
-  studentCard:      { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.lg, gap: spacing.md, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 4, borderWidth: 1, borderColor: colors.border },
-  avatar:           { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.primaryLighter, alignItems: 'center', justifyContent: 'center' },
-  avatarText:       { fontSize: 22, fontFamily: 'Lexend-Bold', fontWeight: '700', color: colors.primary },
-  studentInfo:      { flex: 1 },
-  topRow:           { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
-  studentName:      { fontSize: 15, fontFamily: 'Lexend-Bold', fontWeight: '700', color: colors.textPrimary, flex: 1 },
-  statusBadge:      { borderRadius: 99, paddingHorizontal: 10, paddingVertical: 3 },
-  statusActive:     { backgroundColor: '#E6F9F0' },
-  statusPending:    { backgroundColor: '#FFF3E0' },
-  statusText:       { fontSize: 11, fontFamily: 'Lexend-SemiBold', fontWeight: '600' },
-  statusTextActive: { color: '#22C55E' },
-  statusTextPending:{ color: '#E65100' },
-  tagsRow:          { flexDirection: 'row', gap: spacing.sm, marginBottom: 8 },
-  levelBadge:       { backgroundColor: '#EFF6FF', borderRadius: 99, paddingHorizontal: 10, paddingVertical: 3 },
-  levelText:        { fontSize: 11, fontFamily: 'Lexend-SemiBold', color: '#3B82F6', fontWeight: '600' },
-  diffBadge:        { borderRadius: 99, paddingHorizontal: 10, paddingVertical: 3 },
-  diffText:         { fontSize: 11, fontFamily: 'Lexend-SemiBold', fontWeight: '600' },
-  progressBarBg:    { height: 6, backgroundColor: colors.border, borderRadius: 99, overflow: 'hidden' },
-  progressBarFill:  { height: '100%', backgroundColor: colors.primary, borderRadius: 99 },
-  progressText:     { fontSize: 11, fontFamily: 'Lexend-SemiBold', color: colors.textSecondary, textAlign: 'right', marginTop: 4 },
-  ghostCardAdd:     { height: 88, borderRadius: borderRadius.lg, borderWidth: 1.5, borderColor: colors.border, borderStyle: 'dashed', backgroundColor: colors.backgroundLight, alignItems: 'center', justifyContent: 'center' },
-  ghostCardPlus:    { fontSize: 28, color: colors.textMuted, fontWeight: '300' },
-})
+  safe:         { flex: 1, backgroundColor: '#F5F7FF' },
+  rowReverse:   { flexDirection: 'row-reverse' },
+  textRight:    { textAlign: 'right' },
+  navBar:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },
+  navCenter:    { alignItems: 'center' },
+  navTitle:     { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
+  navSub:       { fontFamily: 'Lexend_400Regular', fontSize: 12, color: '#9CA3AF', marginTop: 1 },
+  bellBtn:      { width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+  bellIcon:     { fontSize: 18 },
+  bellBadge:    { position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FF6B6B', borderWidth: 1.5, borderColor: '#fff' },
+  headerCard:   { marginHorizontal: 16, backgroundColor: '#fff', borderRadius: 24, padding: 16, shadowColor: '#508DF7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 3, marginBottom: 12 },
+  headerInner:  { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 10 },
+  avatar:       { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'rgba(80,141,247,0.15)', flexShrink: 0 },
+  avatarText:   { fontFamily: 'Lexend_700Bold', fontSize: 20, color: '#1a1a2e' },
+  headerInfo:   { flex: 1 },
+  studentName:  { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e', marginBottom: 6 },
+  progressRow:  { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  progressTrack:{ flex: 1, height: 7, backgroundColor: '#EEF2FF', borderRadius: 99, overflow: 'hidden' },
+  progressFill: { height: '100%', backgroundColor: '#508DF7', borderRadius: 99 },
+  progressPct:  { fontFamily: 'Lexend_700Bold', fontSize: 12, color: '#508DF7', minWidth: 32, textAlign: 'right' },
+  tagsRow:      { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  tagOrange:    { backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
+  tagOrangeText:{ fontFamily: 'Lexend_600SemiBold', fontSize: 10, color: '#D97706' },
+  tagBlue:      { backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
+  tagBlueText:  { fontFamily: 'Lexend_600SemiBold', fontSize: 10, color: '#1D4ED8' },
+  tagPurple:    { backgroundColor: '#EDE9FE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
+  tagPurpleText:{ fontFamily: 'Lexend_600SemiBold', fontSize: 10, color: '#7C3AED' },
+  metaRow:      { flexDirection: 'row', alignItems: 'center', gap: 6, borderTopWidth: 0.5, borderTopColor: '#F0F0F0', paddingTop: 10 },
+  metaText:     { fontFamily: 'Lexend_400Regular', fontSize: 12, color: '#6B7280' },
+  metaDot:      { color: '#D1D5DB', fontSize: 12 },
+  tabBar:       { backgroundColor: '#fff', borderBottomWidth: 0.5, borderBottomColor: '#E8EEFF' },
+  tabBarContent:{ paddingHorizontal: 16, paddingVertical: 4, gap: 4 },
+  tabBtn:       { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 99 },
+  tabBtnActive: { backgroundColor: '#508DF7' },
+  tabText:      { fontFamily: 'Lexend_500Medium', fontSize: 13, color: '#9CA3AF' },
+  tabTextActive:{ color: '#fff', fontFamily: 'Lexend_700Bold' },
+});
+
+const tabStyles = StyleSheet.create({
+  content:        { padding: 16, paddingBottom: 32 },
+  rowReverse:     { flexDirection: 'row-reverse' },
+  textRight:      { textAlign: 'right' },
+  sectionTitle:   { fontFamily: 'Lexend_700Bold', fontSize: 15, color: '#1a1a2e', marginBottom: 12 },
+  gradesGrid:     { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  gradeCard:      { width: '30%', backgroundColor: '#fff', borderRadius: 16, padding: 12, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 2 },
+  gradeSubject:   { fontFamily: 'Lexend_400Regular', fontSize: 11, color: '#9CA3AF', marginBottom: 4 },
+  gradeScore:     { fontFamily: 'Lexend_700Bold', fontSize: 22 },
+  gradeOutOf:     { fontFamily: 'Lexend_400Regular', fontSize: 10, color: '#D1D5DB' },
+  hwCard:         { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#fff', borderRadius: 16, padding: 14, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 2 },
+  hwIcon:         { width: 44, height: 44, borderRadius: 12, backgroundColor: '#EEF4FF', alignItems: 'center', justifyContent: 'center' },
+  hwInfo:         { flex: 1 },
+  hwTitle:        { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#1a1a2e' },
+  hwSubject:      { fontFamily: 'Lexend_400Regular', fontSize: 11, color: '#9CA3AF', marginTop: 2 },
+  dueBadge:       { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99 },
+  dueText:        { fontFamily: 'Lexend_600SemiBold', fontSize: 11 },
+  overallCard:    { backgroundColor: '#508DF7', borderRadius: 20, padding: 18, marginBottom: 14 },
+  overallTitle:   { fontFamily: 'Lexend_700Bold', fontSize: 16, color: '#fff', marginBottom: 2 },
+  overallSub:     { fontFamily: 'Lexend_400Regular', fontSize: 12, color: 'rgba(255,255,255,0.75)', marginBottom: 10 },
+  overallRow:     { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  overallTrack:   { flex: 1, height: 8, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 99, overflow: 'hidden' },
+  overallFill:    { height: '100%', backgroundColor: '#FFB84C', borderRadius: 99 },
+  overallPct:     { fontFamily: 'Lexend_700Bold', fontSize: 15, color: '#FFB84C' },
+  subjectCard:    { backgroundColor: '#fff', borderRadius: 20, padding: 16, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
+  subjectRow:     { marginBottom: 12 },
+  subjectName:    { fontFamily: 'Lexend_500Medium', fontSize: 13, color: '#374151', marginBottom: 5 },
+  subjectTrack:   { height: 7, backgroundColor: '#F3F4F6', borderRadius: 99, overflow: 'hidden', marginBottom: 2 },
+  subjectFill:    { height: '100%', borderRadius: 99 },
+  subjectPct:     { fontFamily: 'Lexend_700Bold', fontSize: 12, textAlign: 'right' },
+  noteCard:       { backgroundColor: '#fff', borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
+  noteTitle:      { fontFamily: 'Lexend_600SemiBold', fontSize: 14, color: '#1a1a2e', marginBottom: 6 },
+  noteText:       { fontFamily: 'Lexend_400Regular', fontSize: 13, color: '#6B7280', lineHeight: 20, marginBottom: 8 },
+  noteAuthor:     { fontFamily: 'Lexend_400Regular', fontSize: 11, color: '#9CA3AF' },
+  toggle:         { flexDirection: 'row', backgroundColor: '#F3F4F6', borderRadius: 12, padding: 4, marginBottom: 16 },
+  toggleBtn:      { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 10 },
+  toggleBtnActive:{ backgroundColor: '#508DF7' },
+  toggleText:     { fontFamily: 'Lexend_500Medium', fontSize: 13, color: '#9CA3AF' },
+  toggleTextActive:{ color: '#fff', fontFamily: 'Lexend_700Bold' },
+  reportCard:     { backgroundColor: '#EEF4FF', borderRadius: 16, padding: 14, marginBottom: 10 },
+  reportRow:      { flexDirection: 'row', gap: 12 },
+  reportAvatar:   { width: 44, height: 44, borderRadius: 22, backgroundColor: '#DBEAFE', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  reportInfo:     { flex: 1 },
+  reportAuthor:   { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#1a1a2e', marginBottom: 4 },
+  reportText:     { fontFamily: 'Lexend_400Regular', fontSize: 12, color: '#374151', lineHeight: 18, marginBottom: 4 },
+  reportTime:     { fontFamily: 'Lexend_400Regular', fontSize: 11, color: '#9CA3AF' },
+  emptyState:     { alignItems: 'center', paddingVertical: 40, gap: 8 },
+  emptyIcon:      { fontSize: 40 },
+  emptyText:      { fontFamily: 'Lexend_500Medium', fontSize: 14, color: '#9CA3AF' },
+});
