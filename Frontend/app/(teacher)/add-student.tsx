@@ -2,23 +2,24 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   ScrollView, TextInput, Image,
-  KeyboardAvoidingView, Platform,
+  KeyboardAvoidingView, Platform, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import BackButton from '@/components/BackButton';
+import { apiCreateStudent } from '@/services/api';
 
 const MALE_PING   = require('@/assets/images/mascot/rafeeq_like.png');
 const FEMALE_PING = require('@/assets/images/mascot/rafeeqa.png');
 
 const CONDITIONS: { key: string; default: string }[] = [
-  { key: 'ADD',         default: 'ADD' },
-  { key: 'ADHD',        default: 'ADHD' },
-  { key: 'IFD',         default: 'IFD' },
-  { key: 'Autism',      default: 'Autism' },
-  { key: 'DownSyndrome',default: 'Down Syndrome' },
-  { key: 'OTHER',       default: 'Other' },
+  { key: 'ADD',          default: 'ADD' },
+  { key: 'ADHD',         default: 'ADHD' },
+  { key: 'IFD',          default: 'IFD' },
+  { key: 'Autism',       default: 'Autism' },
+  { key: 'DownSyndrome', default: 'Down Syndrome' },
+  { key: 'OTHER',        default: 'Other' },
 ];
 
 export default function AddStudentScreen() {
@@ -26,14 +27,44 @@ export default function AddStudentScreen() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  const [fullName, setFullName] = useState('');
-  const [nationalId, setNationalId] = useState('');
-  const [dob, setDob] = useState('');
-  const [condition, setCondition] = useState('');
-  const [gender, setGender] = useState<'male' | 'female' | null>(null);
+  const [fullName,     setFullName]     = useState('');
+  const [nationalId,   setNationalId]   = useState('');
+  const [dob,          setDob]          = useState('');
+  const [condition,    setCondition]    = useState('');
+  const [gender,       setGender]       = useState<'male' | 'female' | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [loading,      setLoading]      = useState(false);
 
   const isValid = fullName && nationalId && dob && condition && gender;
+
+  const parseDob = (raw: string): string => {
+    // Accept MM/DD/YYYY or DD/MM/YYYY → YYYY-MM-DD
+    const parts = raw.split('/');
+    if (parts.length === 3 && parts[2].length === 4) {
+      return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+    }
+    return raw; // already ISO or unrecognized — let backend validate
+  };
+
+  const handleContinue = async () => {
+    if (!isValid || !gender) return;
+    setLoading(true);
+    try {
+      await apiCreateStudent({
+        fullNameAr: fullName,
+        nationalId: nationalId.trim(),
+        dateOfBirth: parseDob(dob),
+        learningDifficulty: condition,
+        gender: gender.toUpperCase(),
+        password: ''
+      });
+      router.replace('/(teacher)/students' as any);
+    } catch (err: any) {
+      Alert.alert(t('common.error', 'Error'), err?.message ?? t('addStudent.failed', 'Failed to add student'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -50,12 +81,12 @@ export default function AddStudentScreen() {
 
           {/* Full Name */}
           <Text style={[styles.label, isRTL && styles.textRight]}>
-            {t('teacher.addStudent.fullName', "Child's Full Name")}
+            {t('teacher.addStudent.fullName', 'Full Name')}
           </Text>
           <TextInput
             style={[styles.input, isRTL && styles.textRight]}
-            placeholder={t('teacher.addStudent.fullNamePlaceholder', 'Enter full name...')}
-            placeholderTextColor="#93C5FD"
+            placeholder={t('teacher.addStudent.fullNamePlaceholder', "Student's full name")}
+            placeholderTextColor="#9CA3AF"
             value={fullName}
             onChangeText={setFullName}
             textAlign={isRTL ? 'right' : 'left'}
@@ -67,8 +98,8 @@ export default function AddStudentScreen() {
           </Text>
           <TextInput
             style={[styles.input, isRTL && styles.textRight]}
-            placeholder="0000000000"
-            placeholderTextColor="#93C5FD"
+            placeholder={t('teacher.addStudent.nationalIdPlaceholder', '10-digit National ID')}
+            placeholderTextColor="#9CA3AF"
             value={nationalId}
             onChangeText={setNationalId}
             keyboardType="numeric"
@@ -80,26 +111,24 @@ export default function AddStudentScreen() {
           <Text style={[styles.label, isRTL && styles.textRight]}>
             {t('teacher.addStudent.dob', 'Date of Birth')}
           </Text>
-          <TouchableOpacity style={[styles.dateInput, isRTL && styles.rowReverse]}>
-            <TextInput
-              style={[styles.dateInputText, isRTL && styles.textRight]}
-              placeholder="MM/DD/YYYY"
-              placeholderTextColor="#93C5FD"
-              value={dob}
-              onChangeText={setDob}
-              keyboardType="numeric"
-              textAlign={isRTL ? 'right' : 'left'}
-            />
-            <Text style={styles.calendarIcon}>📅</Text>
-          </TouchableOpacity>
+          <TextInput
+            style={[styles.input, isRTL && styles.textRight]}
+            placeholder="MM/DD/YYYY"
+            placeholderTextColor="#9CA3AF"
+            value={dob}
+            onChangeText={setDob}
+            keyboardType="numeric"
+            textAlign={isRTL ? 'right' : 'left'}
+          />
 
-          {/* Condition dropdown */}
+          {/* Difficulty Dropdown */}
           <Text style={[styles.label, isRTL && styles.textRight]}>
             {t('teacher.addStudent.condition', "Child's Difficulty")}
           </Text>
           <TouchableOpacity
-            style={[styles.dropdown, isRTL && styles.rowReverse]}
+            style={styles.dropdown}
             onPress={() => setDropdownOpen(!dropdownOpen)}
+            activeOpacity={0.8}
           >
             <Text style={[styles.dropdownText, !condition && styles.dropdownPlaceholder]}>
               {condition
@@ -108,15 +137,16 @@ export default function AddStudentScreen() {
             </Text>
             <Text style={styles.dropdownArrow}>{dropdownOpen ? '▲' : '▼'}</Text>
           </TouchableOpacity>
+
           {dropdownOpen && (
             <View style={styles.dropdownList}>
               {CONDITIONS.map((c) => (
                 <TouchableOpacity
                   key={c.key}
-                  style={styles.dropdownItem}
+                  style={[styles.dropdownItem, condition === c.key && styles.dropdownItemActive]}
                   onPress={() => { setCondition(c.key); setDropdownOpen(false); }}
                 >
-                  <Text style={[styles.dropdownItemText, condition === c.key && styles.dropdownItemActive]}>
+                  <Text style={[styles.dropdownItemText, condition === c.key && styles.dropdownItemActiveText]}>
                     {t(`difficulties.${c.key}`, c.default)}
                   </Text>
                 </TouchableOpacity>
@@ -124,7 +154,7 @@ export default function AddStudentScreen() {
             </View>
           )}
 
-          {/* Gender — penguin cards */}
+          {/* Gender */}
           <Text style={[styles.label, isRTL && styles.textRight]}>
             {t('teacher.addStudent.gender', 'Gender')}
           </Text>
@@ -146,12 +176,14 @@ export default function AddStudentScreen() {
 
           {/* Continue button */}
           <TouchableOpacity
-            style={[styles.continueBtn, !isValid && styles.continueBtnDisabled]}
-            disabled={!isValid}
-            onPress={() => router.replace('/(teacher)/students')}
+            style={[styles.continueBtn, (!isValid || loading) && styles.continueBtnDisabled]}
+            disabled={!isValid || loading}
+            onPress={handleContinue}
           >
             <Text style={styles.continueBtnText}>
-              {t('teacher.addStudent.continue', 'Continue')}
+              {loading
+                ? t('common.loading', 'Please wait...')
+                : t('teacher.addStudent.continue', 'Continue')}
             </Text>
           </TouchableOpacity>
 
@@ -167,32 +199,30 @@ const styles = StyleSheet.create({
   rowReverse: { flexDirection: 'row-reverse' },
   textRight: { textAlign: 'right' },
 
-  navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },
-  navTitle: { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
+  navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
+  navTitle: { fontFamily: 'Lexend_700Bold', fontSize: 20, color: '#1a1a2e' },
 
-  label: { fontFamily: 'Lexend_600SemiBold', fontSize: 14, color: '#374151', marginBottom: 8, marginTop: 16 },
-  input: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#BFDBFE', borderRadius: 16, padding: 14, fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#1a1a2e', height: 52 },
-  dateInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#BFDBFE', borderRadius: 16, paddingHorizontal: 14, height: 52 },
-  dateInputText: { flex: 1, fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#1a1a2e' },
-  calendarIcon: { fontSize: 18 },
+  label: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#374151', marginBottom: 6, marginTop: 14 },
+  input: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#E5E7EB', borderRadius: 14, padding: 14, fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#1a1a2e', height: 52 },
 
-  dropdown: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#BFDBFE', borderRadius: 16, paddingHorizontal: 14, height: 52 },
+  dropdown: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#E5E7EB', borderRadius: 14, padding: 14, height: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dropdownText: { fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#1a1a2e' },
-  dropdownPlaceholder: { color: '#93C5FD' },
-  dropdownArrow: { fontSize: 12, color: '#93C5FD' },
-  dropdownList: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#BFDBFE', borderRadius: 16, marginTop: 4, overflow: 'hidden' },
-  dropdownItem: { paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 0.5, borderBottomColor: '#F0F0F0' },
-  dropdownItemText: { fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#374151' },
-  dropdownItemActive: { color: '#508DF7', fontFamily: 'Lexend_600SemiBold' },
+  dropdownPlaceholder: { color: '#9CA3AF' },
+  dropdownArrow: { fontSize: 12, color: '#9CA3AF' },
+  dropdownList: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#E5E7EB', borderRadius: 14, marginTop: 4, overflow: 'hidden' },
+  dropdownItem: { padding: 14, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
+  dropdownItemActive: { backgroundColor: '#EEF2FF' },
+  dropdownItemText: { fontFamily: 'Lexend_500Medium', fontSize: 14, color: '#374151' },
+  dropdownItemActiveText: { color: '#508DF7', fontFamily: 'Lexend_600SemiBold' },
 
   genderRow: { flexDirection: 'row', gap: 12 },
-  genderCard: { flex: 1, backgroundColor: '#fff', borderRadius: 20, padding: 20, alignItems: 'center', gap: 8, borderWidth: 2, borderColor: '#E8EEFF', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
-  genderCardSelected: { borderColor: '#508DF7', backgroundColor: '#EEF4FF' },
-  genderEmoji: { width: 60, height: 60, resizeMode: 'contain' },
-  genderLabel: { fontFamily: 'Lexend_600SemiBold', fontSize: 14, color: '#9CA3AF' },
-  genderLabelSelected: { color: '#508DF7' },
+  genderCard: { flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 16, alignItems: 'center', borderWidth: 1.5, borderColor: '#E5E7EB', gap: 8 },
+  genderCardSelected: { borderColor: '#508DF7', backgroundColor: '#EEF2FF' },
+  genderEmoji: { width: 56, height: 56 },
+  genderLabel: { fontFamily: 'Lexend_500Medium', fontSize: 13, color: '#6B7280' },
+  genderLabelSelected: { color: '#508DF7', fontFamily: 'Lexend_700Bold' },
 
-  continueBtn: { marginTop: 28, backgroundColor: '#508DF7', borderRadius: 16, padding: 16, alignItems: 'center', shadowColor: '#508DF7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 4 },
+  continueBtn: { marginTop: 28, backgroundColor: '#508DF7', borderRadius: 16, padding: 16, alignItems: 'center' },
   continueBtnDisabled: { backgroundColor: '#93C5FD' },
   continueBtnText: { fontFamily: 'Lexend_700Bold', fontSize: 16, color: '#fff' },
 });

@@ -1,40 +1,38 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ScrollView,
+  ScrollView, Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { TEACHER_STUDENTS_MAP } from './_students';
 import { NotesFeedSkeleton } from '@/components/LoadingSkeleton';
 import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
 import BackButton from '@/components/BackButton';
+import { TEACHER_STUDENTS_MAP } from './_students';
+import { apiGetNotesForTeacher, apiGetNotesForParent, NoteResponse } from '@/services/api';
 
-const PARENT_NOTES = [
-  { id: '1', author: 'Ayoub Parent', authorAr: 'والد أيوب', date: 'Today', text: 'Reviewed last Exam. Please focus more on new TASKS!', avatarBg: '#FFD9B3', initials: 'AP' },
-  { id: '2', author: 'Ayoub Parent', authorAr: 'والد أيوب', date: '18/10', text: 'Ayoub had a great week! He completed all his activities.', avatarBg: '#FFD9B3', initials: 'AP' },
-];
-
-const TEACHER_NOTES = [
-  { id: '3', author: 'Mr. Ahmad', authorAr: 'الأستاذ أحمد', date: 'Today', text: 'Modify done. Please review the IEP', avatarBg: '#BBDEFB', initials: 'MA' },
-  { id: '4', author: 'Mr. Ahmad', authorAr: 'الأستاذ أحمد', date: '17/10', text: 'Student showed improvement in reading tasks this week.', avatarBg: '#BBDEFB', initials: 'MA' },
-];
-
-function NoteItem({ note, isRTL, t }: { note: typeof PARENT_NOTES[0]; isRTL: boolean; t: any }) {
-  const displayDate = note.date === 'Today' ? t('homework.today', 'Today') : note.date;
+function NoteItem({ note, isRTL, t }: {
+  note: NoteResponse & { authorName?: string; avatarBg?: string; initials?: string };
+  isRTL: boolean;
+  t: any;
+}) {
+  const displayDate = note.createdAt
+    ? new Date(note.createdAt).toLocaleDateString(isRTL ? 'ar-JO' : 'en-GB', { day: '2-digit', month: '2-digit' })
+    : '';
   return (
     <View style={styles.noteCard}>
       <View style={[styles.noteHeader, isRTL && styles.rowReverse]}>
-        <View style={[styles.avatar, { backgroundColor: note.avatarBg }]}>
-          <Text style={styles.avatarText}>{note.initials}</Text>
+        <View style={[styles.avatar, { backgroundColor: note.avatarBg ?? '#BBDEFB' }]}>
+          <Text style={styles.avatarText}>{note.initials ?? '?'}</Text>
         </View>
         <View style={styles.noteAuthorBlock}>
-          <Text style={[styles.noteAuthor, isRTL && styles.textRight]}>{isRTL ? note.authorAr : note.author}</Text>
+          <Text style={[styles.noteAuthor, isRTL && styles.textRight]}>{note.authorName ?? '—'}</Text>
           <Text style={[styles.noteDate, isRTL && styles.textRight]}>{displayDate}</Text>
         </View>
       </View>
-      <Text style={[styles.noteText, isRTL && styles.textRight]}>{note.text}</Text>
+      <Text style={styles.noteTitle}>{note.title}</Text>
+      <Text style={[styles.noteText, isRTL && styles.textRight]}>{note.content}</Text>
     </View>
   );
 }
@@ -45,15 +43,38 @@ export default function NotesScreen() {
   const { studentId } = useLocalSearchParams<{ studentId: string }>();
   const isRTL = i18n.language === 'ar';
   const student = TEACHER_STUDENTS_MAP[studentId ?? '1'] ?? TEACHER_STUDENTS_MAP['1'];
-  const [activeTab, setActiveTab] = useState<'teacher' | 'parent'>('teacher');
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, []);
+  const [activeTab,   setActiveTab]   = useState<'teacher' | 'parent'>('teacher');
+  const [teacherNotes, setTeacherNotes] = useState<NoteResponse[]>([]);
+  const [parentNotes,  setParentNotes]  = useState<NoteResponse[]>([]);
+  const [isLoading,   setIsLoading]   = useState(true);
+
+  const load = useCallback(async () => {
+    if (!studentId) return;
+    try {
+      const [tNotes, pNotes] = await Promise.all([
+        apiGetNotesForTeacher(studentId),
+        apiGetNotesForParent(studentId),
+      ]);
+      setTeacherNotes(tNotes);
+      setParentNotes(pNotes);
+    } catch (err: any) {
+      Alert.alert(t('common.error', 'Error'), err?.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [studentId]);
+
+  useEffect(() => { load(); }, [load]);
 
   if (isLoading) return <NotesFeedSkeleton count={4} />;
+
+  const enrichNote = (note: NoteResponse, isTeacher: boolean) => ({
+    ...note,
+    authorName: isTeacher ? (isRTL ? 'المعلم' : 'Teacher') : (isRTL ? 'ولي الأمر' : 'Parent'),
+    avatarBg:   isTeacher ? '#BBDEFB' : '#FFD9B3',
+    initials:   isTeacher ? 'T' : 'P',
+  });
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -64,14 +85,12 @@ export default function NotesScreen() {
           <Text style={styles.headerTitle}>{t('teacher.notes.title', 'Notes')}</Text>
           <TouchableOpacity
             style={styles.addBtn}
-            onPress={() => router.push({ pathname: '/(teacher)/add-note', params: { studentId } })}
+            onPress={() => router.push({ pathname: '/(teacher)/add-note', params: { studentId } } as any)}
           >
             <Text style={styles.addBtnText}>+ {t('teacher.notes.add', 'Add')}</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Progress circle in header */}
-        <AnimatedProgressCircle progress={student.progress} size={64} color="#FFB84C" />
+        <AnimatedProgressCircle progress={student?.progress ?? 0} size={64} color="#FFB84C" />
       </View>
 
       {/* Tabs */}
@@ -93,8 +112,12 @@ export default function NotesScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {activeTab === 'teacher'
-          ? TEACHER_NOTES.map((n) => <NoteItem key={n.id} note={n} isRTL={isRTL} t={t} />)
-          : PARENT_NOTES.map((n)  => <NoteItem key={n.id} note={n} isRTL={isRTL} t={t} />)
+          ? teacherNotes.length === 0
+            ? <Text style={styles.emptyText}>{t('teacher.notes.empty', 'No notes yet')}</Text>
+            : teacherNotes.map((n) => <NoteItem key={n.id} note={enrichNote(n, true)} isRTL={isRTL} t={t} />)
+          : parentNotes.length === 0
+            ? <Text style={styles.emptyText}>{t('teacher.notes.emptyParent', 'No parent notes yet')}</Text>
+            : parentNotes.map((n)  => <NoteItem key={n.id} note={enrichNote(n, false)} isRTL={isRTL} t={t} />)
         }
       </ScrollView>
     </SafeAreaView>
@@ -106,14 +129,13 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 16, paddingBottom: 32 },
   rowReverse: { flexDirection: 'row-reverse' },
   textRight: { textAlign: 'right' },
+  emptyText: { color: '#9CA3AF', fontFamily: 'Lexend_400Regular', fontSize: 14, textAlign: 'center', marginTop: 24 },
 
   header: { backgroundColor: '#FFB84C', paddingBottom: 20, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   headerInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 },
   headerTitle: { fontFamily: 'Lexend_700Bold', fontSize: 20, color: '#fff' },
   addBtn: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: 14, paddingVertical: 7, borderRadius: 99 },
   addBtnText: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#fff' },
-  progressCircle: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', alignSelf: 'center', borderWidth: 5, borderColor: '#FFB84C' },
-  progressCircleText: { fontFamily: 'Lexend_700Bold', fontSize: 14, color: '#FFB84C' },
 
   tabs: { flexDirection: 'row', backgroundColor: '#fff', marginHorizontal: 16, marginTop: 16, borderRadius: 12, padding: 4 },
   tab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 10 },
@@ -122,11 +144,12 @@ const styles = StyleSheet.create({
   tabTextActive: { color: '#fff', fontFamily: 'Lexend_700Bold' },
 
   noteCard: { backgroundColor: '#fff', borderRadius: 16, padding: 14, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
-  noteHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
+  noteHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 },
   avatar: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#1a1a2e' },
   noteAuthorBlock: { flex: 1 },
   noteAuthor: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#1a1a2e' },
   noteDate: { fontFamily: 'Lexend_400Regular', fontSize: 11, color: '#9CA3AF' },
+  noteTitle: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#374151', marginBottom: 4 },
   noteText: { fontFamily: 'Lexend_400Regular', fontSize: 13, color: '#374151', lineHeight: 20 },
 });

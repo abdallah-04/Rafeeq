@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Image, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { View, Image, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useForm, Controller } from 'react-hook-form';
@@ -14,12 +14,13 @@ import { Button } from '@/components/modal/shared/Button';
 import { Text } from '@/components/modal/shared/Text';
 import TextInput from '@/components/modal/shared/TextInput';
 import { theme } from '@/theme';
+import { apiCreateTeacher } from '@/services/api';
 
 const { colors, spacing, radius } = theme;
 
 export default function AddTeacherScreen() {
   const { t } = useTranslation();
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [photo,   setPhoto]   = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const schema = useMemo(() => createAddTeacherSchema(t), [t]);
@@ -38,13 +39,18 @@ export default function AddTeacherScreen() {
   };
 
   const onSubmit = async (data: AddTeacherForm) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      await new Promise(res => setTimeout(res, 1000));
-      console.log('New teacher:', { ...data, photo });
-      router.replace('/(school)/teachers');
-    } catch (e) {
-      console.error(e);
+      await apiCreateTeacher({
+        fullNameAr:  data.fullName,
+        nationalId:  data.nationalId,
+        phone:       `+962${data.phone}`,
+        password:    data.password,
+        email:       `${data.nationalId}@teachers.rafeeq.local`, // backend accepts optional email
+      });
+      router.replace('/(school)/teachers' as any);
+    } catch (err: any) {
+      Alert.alert(t('common.error', 'Error'), err?.message ?? t('addTeacher.failed', 'Failed to add teacher'));
     } finally {
       setLoading(false);
     }
@@ -171,54 +177,12 @@ export default function AddTeacherScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  container: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xl,
-    alignItems: 'center',
-    gap: spacing.lg,
-  },
-  photoCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.surfaceElevated,
-    borderWidth: 1.5,
-    borderColor: colors.primaryLighter,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  photoImage: {
-    width: '100%',
-    height: '100%',
-  },
-  photoPlaceholder: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  photoLabel: {
-    textAlign: 'center',
-  },
-  card: {
-    width: '100%',
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: spacing.xl,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
-    gap: spacing.xs,
-  },
-  btn: {
-    marginTop: spacing.md,
-  },
+  safe:             { flex: 1, backgroundColor: colors.background },
+  container:        { flexGrow: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.xl, alignItems: 'center', gap: spacing.lg },
+  photoCircle:      { width: 100, height: 100, borderRadius: 50, backgroundColor: colors.surfaceElevated, borderWidth: 1.5, borderColor: colors.primaryLighter, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  photoImage:       { width: '100%', height: '100%' },
+  photoPlaceholder: { alignItems: 'center', gap: 4 },
+  photoLabel:       { fontSize: 11, textAlign: 'center' },
+  card:             { width: '100%', backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.md, borderWidth: 1, borderColor: colors.border },
+  btn:              { marginTop: spacing.sm },
 });

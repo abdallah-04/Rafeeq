@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import {
-    View,
-    TouchableOpacity,
-    StyleSheet,
-    Image,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -17,288 +18,159 @@ import OTPInput from '@/components/modal/shared/OTPInput';
 import Footer from '@/components/modal/shared/Footer';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
+import { apiVerifyOTP, apiResendOTP } from '@/services/api';
 
 const { colors, spacing, typography, radius } = theme;
 
 const OTP_LENGTH = 4;
 const RESEND_SECONDS = 60;
 
-/* ── Resend Timer ── */
 function ResendTimer({ onResend }: { onResend: () => void }) {
-    const { t } = useTranslation();
-    const [seconds, setSeconds] = useState(RESEND_SECONDS);
+  const { t } = useTranslation();
+  const [seconds, setSeconds] = useState(RESEND_SECONDS);
 
-    React.useEffect(() => {
-        if (seconds <= 0) return;
-        const timer = setTimeout(() => setSeconds((s) => s - 1), 1000);
-        return () => clearTimeout(timer);
-    }, [seconds]);
+  React.useEffect(() => {
+    if (seconds <= 0) return;
+    const timer = setTimeout(() => setSeconds((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [seconds]);
 
-    const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
-    const ss = String(seconds % 60).padStart(2, '0');
+  const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const ss = String(seconds % 60).padStart(2, '0');
 
-    return (
-        <View style={resendStyles.row}>
-        <Text style={resendStyles.text}>{t('auth.otp.didntReceive')} </Text>
-        {seconds > 0 ? (
-            <Text style={resendStyles.timer}>{t('auth.otp.resendIn')} {mm}:{ss}</Text>
-        ) : (
-            <TouchableOpacity onPress={() => { setSeconds(RESEND_SECONDS); onResend(); }}>
-            <Text style={resendStyles.link}>{t('auth.otp.resend')}</Text>
-            </TouchableOpacity>
-        )}
-        </View>
-    );
+  return (
+    <View style={resendStyles.row}>
+      <Text style={resendStyles.text}>{t('auth.otp.didntReceive')} </Text>
+      {seconds > 0 ? (
+        <Text style={resendStyles.timer}>{t('auth.otp.resendIn')} {mm}:{ss}</Text>
+      ) : (
+        <TouchableOpacity onPress={() => { setSeconds(RESEND_SECONDS); onResend(); }}>
+          <Text style={resendStyles.link}>{t('auth.otp.resend')}</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
+const resendStyles = StyleSheet.create({
+  row:   { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  text:  { fontSize: typography.fontSize.sm, color: colors.textSecondary },
+  timer: { fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.semiBold, color: colors.primary },
+  link:  { fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.semiBold, color: colors.primary },
+});
+
+export default function VerifyPhoneScreen() {
+  const { t, i18n } = useTranslation();
+  const [otp, setOtp]             = useState<string[]>(Array(OTP_LENGTH).fill(''));
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState('');
+  const [trustDevice, setTrustDevice] = useState(false);
+
+  // Read the nationalId that was used during signup/forgot-password
+  // It is stored by the signup screen; fall back to authStore if available
+  const user       = useAuthStore((s) => s.user);
+  const nationalId = (user as any)?.nationalId ?? '';
+
+  const isComplete = otp.every((d) => d !== '');
+
+  const handleConfirm = async () => {
+    if (!isComplete) return;
+    setError('');
+    setLoading(true);
+    try {
+      const code = otp.join('');
+      await apiVerifyOTP(nationalId, code, trustDevice);
+      // Navigate to parent home after successful OTP
+      router.replace('/(parent)/' as any);
+    } catch (err: any) {
+      setError(err?.message ?? t('auth.otp.invalidCode', 'Invalid or expired code'));
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const resendStyles = StyleSheet.create({
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    text: {
-        fontSize: typography.fontSize.sm,
-        color: colors.textSecondary,
-    },
-    timer: {
-        fontSize: typography.fontSize.sm,
-        fontFamily: typography.fontFamily.semiBold,
-        color: colors.primary,
-    },
-    link: {
-        fontSize: typography.fontSize.sm,
-        fontFamily: typography.fontFamily.semiBold,
-        color: colors.primary,
-    },
-    });
+  const handleResend = async () => {
+    setOtp(Array(OTP_LENGTH).fill(''));
+    setError('');
+    try {
+      await apiResendOTP(nationalId);
+    } catch (err: any) {
+      Alert.alert(t('common.error', 'Error'), err?.message ?? 'Could not resend OTP');
+    }
+  };
 
-    /* ── Main Screen ── */
-    export default function VerifyPhoneScreen() {
-    const { t, i18n } = useTranslation();
-    const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [trustDevice, setTrustDevice] = useState(false);
+  return (
+    <SafeAreaView style={styles.safe}>
+      <StatusBar style="dark" />
 
-    const login = useAuthStore((s) => s.login);
+      <View style={styles.header}>
+        <BackButton />
+        <Text style={styles.headerTitle}>{t('auth.otp.title')}</Text>
+        <View style={{ width: 36 }} />
+      </View>
 
-    const isComplete = otp.every((d) => d !== '');
-
-    const handleConfirm = () => {
-        if (!isComplete) return;
-        setError('');
-        setLoading(true);
-        setTimeout(() => {
-        setLoading(false);
-        login({ role: 'parent', language: i18n.language as 'en' | 'ar' } as any, 'mock-token');
-        router.replace('/(parent)/' as any);
-        }, 1200);
-    };
-
-    const handleResend = () => {
-        setOtp(Array(OTP_LENGTH).fill(''));
-        setError('');
-        // TODO: call resend API
-    };
-
-    const handleOTPComplete = (completeOtp: string) => {
-        console.log('OTP completed:', completeOtp);
-        // Optional: auto-submit when OTP is complete
-        // handleConfirm();
-    };
-
-    return (
-        <SafeAreaView style={styles.safe}>
-        <StatusBar style="dark" />
-
-        {/* Header */}
-        <View style={styles.header}>
-            <BackButton />
-            <Text style={styles.headerTitle}>{t('auth.otp.title')}</Text>
-            <View style={{ width: 36 }} />
+      <View style={styles.body}>
+        <View style={styles.mascotWrap}>
+          <Image
+            source={require('@/assets/images/mascot/rafeeq_like.png')}
+            style={styles.mascot}
+            resizeMode="contain"
+          />
         </View>
 
-        <View style={styles.body}>
-            {/* Mascot */}
-            <View style={styles.mascotWrap}>
-            <Image
-                source={require('@/assets/images/mascot/rafeeq_like.png')}
-                style={styles.mascot}
-                resizeMode="contain"
-            />
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>{t('auth.otp.subtitle')}</Text>
+          <OTPInput
+            length={OTP_LENGTH}
+            value={otp}
+            onChange={setOtp}
+            onComplete={() => {}}
+            error={!!error}
+          />
+
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          <TouchableOpacity
+            style={styles.checkRow}
+            onPress={() => setTrustDevice((v) => !v)}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.checkbox, trustDevice && styles.checkboxChecked]}>
+              {trustDevice && <Text style={styles.checkmark}>✓</Text>}
             </View>
+            <Text style={styles.checkLabel}>{t('auth.otp.trustDevice')}</Text>
+          </TouchableOpacity>
 
-            {/* Card */}
-            <View style={styles.card}>
-            <Text style={styles.cardTitle}>{t('auth.otp.subtitle')}</Text>
-            <OTPInput
-                length={OTP_LENGTH}
-                value={otp}
-                onChange={setOtp}
-                onComplete={handleOTPComplete}
-                error={!!error}
-            />
+          <ResendTimer onResend={handleResend} />
 
-            {/* Error */}
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-
-            {/* Trust device checkbox */}
-            <TouchableOpacity
-                style={styles.checkRow}
-                onPress={() => setTrustDevice((v) => !v)}
-                activeOpacity={0.7}
-            >
-                <View style={[styles.checkbox, trustDevice && styles.checkboxChecked]}>
-                {trustDevice && <Text style={styles.checkmark}>✓</Text>}
-                </View>
-                <Text style={styles.checkLabel}>{t('auth.otp.trustDevice')}</Text>
-            </TouchableOpacity>
-
-            {/* Resend */}
-            <ResendTimer onResend={handleResend} />
-
-            {/* Confirm button */}
-            <Button
-                label={t('auth.otp.confirmButton')}
-                onPress={handleConfirm}
-                loading={loading}
-                disabled={!isComplete}
-                style={styles.btn}
-            />
-            </View>
-            <Footer
-                onPrivacyPress={() => {}}
-                onTermsPress={() => {}}
-                />
+          <Button
+            label={t('auth.otp.confirmButton')}
+            onPress={handleConfirm}
+            loading={loading}
+            disabled={!isComplete}
+            style={styles.btn}
+          />
         </View>
-        </SafeAreaView>
-    );
+        <Footer onPrivacyPress={() => {}} onTermsPress={() => {}} />
+      </View>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-    safe: {
-        flex: 1,
-        backgroundColor: colors.background,
-    },
-
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: spacing.lg,
-        paddingVertical: spacing.md,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.border,
-    },
-
-    headerTitle: {
-        fontSize: typography.fontSize.lg,
-        fontFamily: typography.fontFamily.bold,
-        color: colors.textPrimary,
-    },
-
-    body: {
-        flex: 1,
-        paddingHorizontal: spacing.lg,
-        paddingTop: spacing.lg,
-    },
-
-    mascotWrap: {
-        alignItems: 'center',
-        marginBottom: spacing.lg,
-    },
-
-    mascot: {
-        width: 140,
-        height: 140,
-    },
-
-    card: {
-        backgroundColor: colors.surface,
-        borderRadius: radius.xl,
-        padding: spacing.lg,
-        borderWidth: 1,
-        borderColor: colors.border,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
-        gap: spacing.sm,
-    },
-
-    cardTitle: {
-        fontSize: typography.fontSize.lg,
-        fontFamily: typography.fontFamily.bold,
-        color: colors.textPrimary,
-        textAlign: 'center',
-        lineHeight: 28,
-    },
-
-    error: {
-        fontSize: typography.fontSize.xs,
-        color: colors.error,
-        textAlign: 'center',
-    },
-
-    checkRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.sm,
-    },
-
-    checkbox: {
-        width: 20,
-        height: 20,
-        borderRadius: radius.sm,
-        borderWidth: 1.5,
-        borderColor: colors.border,
-        backgroundColor: colors.background,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-
-    checkboxChecked: {
-        backgroundColor: colors.primary,
-        borderColor: colors.primary,
-    },
-
-    checkmark: {
-        color: colors.textWhite,
-        fontSize: 12,
-        fontFamily: typography.fontFamily.bold,
-    },
-
-    checkLabel: {
-        fontSize: typography.fontSize.sm,
-        fontFamily: typography.fontFamily.regular,
-        color: colors.textSecondary,
-    },
-
-    btn: {
-        width: '100%',
-        marginTop: spacing.xs,
-    },
-
-    footer: {
-        alignItems: 'center',
-        gap: spacing.xs,
-        marginTop: spacing.xl,
-    },
-
-    footerLinks: {
-        flexDirection: 'row',
-        gap: spacing.sm,
-    },
-
-    footerLink: {
-        fontSize: typography.fontSize.xs,
-        color: colors.textMuted,
-    },
-
-    footerDot: {
-        fontSize: typography.fontSize.xs,
-        color: colors.textMuted,
-    },
+  safe:             { flex: 1, backgroundColor: colors.background },
+  header:           { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
+  headerTitle:      { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.textPrimary },
+  body:             { flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
+  mascotWrap:       { alignItems: 'center', marginBottom: spacing.lg },
+  mascot:           { width: 140, height: 140 },
+  card:             { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2, gap: spacing.sm },
+  cardTitle:        { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.textPrimary, textAlign: 'center', lineHeight: 28 },
+  error:            { fontSize: typography.fontSize.xs, color: colors.error, textAlign: 'center' },
+  checkRow:         { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  checkbox:         { width: 20, height: 20, borderRadius: radius.sm, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  checkboxChecked:  { backgroundColor: colors.primary, borderColor: colors.primary },
+  checkmark:        { color: colors.textWhite, fontSize: 12, fontFamily: typography.fontFamily.bold },
+  checkLabel:       { fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.regular, color: colors.textSecondary },
+  btn:              { width: '100%', marginTop: spacing.xs },
 });

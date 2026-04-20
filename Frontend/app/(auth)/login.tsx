@@ -7,6 +7,7 @@ import {
   Platform,
   ScrollView,
   Image,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -15,6 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { theme } from '@/theme';
 import { Text } from '@/components/modal/shared/Text';
@@ -23,29 +25,65 @@ import Input from '@/components/modal/shared/TextInput';
 import BackButton from '@/components/modal/shared/BackButton';
 import { useAuthStore } from '@/store/authStore';
 import Footer from '@/components/modal/shared/Footer';
+import { apiLogin } from '@/services/api';
+import type { UserRole } from '@/types';
 
 const loginSchema = z.object({
   identifier: z.string().min(5),
   password:   z.string().min(6),
 });
 
+type FormValues = z.infer<typeof loginSchema>;
+
 export default function LoginScreen() {
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
 
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const { control, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { identifier: '', password: '' },
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
-    setTimeout(() => {
-      login({ role: 'parent', language: 'en' } as any, 'token');
+    try {
+      const res = await apiLogin(values.identifier, values.password);
+
+      // Backend returns e.g. "ROLE_PARENT" — strip prefix and lowercase
+      const rawRole = res.role?.replace('ROLE_', '').toLowerCase() as UserRole;
+
+      // Persist the refresh token separately (access token goes into authStore)
+      await AsyncStorage.setItem('rafeeq-refresh-token', res.refreshToken ?? '');
+
+      // Build a minimal User shape — real profile fetched lazily when needed
+      login(
+        {
+          id:         '',
+          name:       '',
+          nameAr:     '',
+          phone:      '',
+          nationalId: values.identifier,
+          role:       rawRole,
+          language:   i18n.language as 'en' | 'ar',
+          createdAt:  new Date().toISOString(),
+          // ── store the accessToken so api.tsx can read it ──
+          // (authStore.token is what api.tsx reads via AsyncStorage)
+        } as any,
+        res.accessToken
+      );
+
+      // Route to the right dashboard
+      if (rawRole === 'parent')  router.replace('/(parent)/' as any);
+      else if (rawRole === 'teacher') router.replace('/(teacher)/' as any);
+      else if (rawRole === 'school')  router.replace('/(school)/students' as any);
+      else router.replace('/(parent)/' as any);
+
+    } catch (err: any) {
+      Alert.alert(t('common.error', 'Error'), err?.message ?? t('auth.login.failed', 'Login failed'));
+    } finally {
       setIsLoading(false);
-      router.replace('/(parent)/' as any);
-    }, 1000);
+    }
   };
 
   return (
@@ -113,23 +151,17 @@ export default function LoginScreen() {
               <View style={styles.line} />
             </View>
 
-            {/* Sanad */}
-            {/* <TouchableOpacity style={styles.sanad}>
-              <Text style={styles.sanadFlag}>🇯🇴</Text>
-              <Text style={styles.sanadText}>{t('auth.login.sanad')}</Text>
-            </TouchableOpacity> */}
-
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.sanad}
               activeOpacity={0.7}
               onPress={() => {
-                // TODO: Implement Sanad login
+                // TODO: Implement Sanad OAuth once backend adds /auth/sanad-oauth
                 console.log('Sanad login pressed');
               }}
             >
-              <Image 
-                source={require('@/assets/images/Sanad.png')} 
-                style={styles.sanadLogo} 
+              <Image
+                source={require('@/assets/images/Sanad.png')}
+                style={styles.sanadLogo}
                 resizeMode="contain"
               />
               <Text style={styles.sanadText}>{t('auth.login.sanad')}</Text>
@@ -144,10 +176,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          <Footer
-            onPrivacyPress={() => {}}
-            onTermsPress={() => {}}
-            />
+          <Footer onPrivacyPress={() => {}} onTermsPress={() => {}} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -157,113 +186,21 @@ export default function LoginScreen() {
 const { colors, spacing, typography, radius } = theme;
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-
-  scroll: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-
-  mascotWrap: {
-    alignItems: 'center',
-    marginVertical: spacing.lg,
-  },
-
-  // mascotEmoji: {
-  //   fontSize: 72,
-  // },
-
-  title: {
-    fontSize: typography.fontSize['2xl'],
-    fontFamily: typography.fontFamily.bold,
-    textAlign: 'center',
-    color: colors.textPrimary,
-    marginBottom: spacing.xs,
-  },
-
-  subtitle: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    textAlign: 'center',
-    color: colors.textSecondary,
-    marginBottom: spacing.lg,
-    lineHeight: 22,
-  },
-
-  form: {
-    gap: 14,
-  },
-
-  forgot: {
-    fontSize: typography.fontSize.sm,
-    color: colors.primary,
-    textAlign: 'right',
-    fontFamily: typography.fontFamily.medium,
-  },
-
-  btn: {
-    width: '100%',
-  },
-
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginVertical: spacing.xs,
-  },
-
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-
-  dividerText: {
-    fontSize: typography.fontSize.xs,
-    color: colors.textMuted,
-  },
-
-  sanad: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.sm,
-    height: 52,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-  },
-
-  sanadLogo: {
-      width: 55,
-      height: 55,
-    },
-
-
-  sanadText: {
-    fontSize: typography.fontSize.base,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.textPrimary,
-  },
-
-  signupRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: spacing.lg,
-  },
-
-  signupText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-  },
-
-  signupLink: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.primary,
-  },
+  safe:           { flex: 1, backgroundColor: colors.background },
+  scroll:         { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.xl },
+  mascotWrap:     { alignItems: 'center', marginVertical: spacing.lg },
+  title:          { fontSize: typography.fontSize['2xl'], fontFamily: typography.fontFamily.bold, textAlign: 'center', color: colors.textPrimary, marginBottom: spacing.xs },
+  subtitle:       { fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.regular, textAlign: 'center', color: colors.textSecondary, marginBottom: spacing.lg, lineHeight: 22 },
+  form:           { gap: 14 },
+  forgot:         { fontSize: typography.fontSize.sm, color: colors.primary, textAlign: 'right', fontFamily: typography.fontFamily.medium },
+  btn:            { width: '100%' },
+  divider:        { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginVertical: spacing.xs },
+  line:           { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText:    { fontSize: typography.fontSize.xs, color: colors.textMuted },
+  sanad:          { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: spacing.sm, height: 52, borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.lg },
+  sanadLogo:      { width: 55, height: 55 },
+  sanadText:      { fontSize: typography.fontSize.base, fontFamily: typography.fontFamily.medium, color: colors.textPrimary },
+  signupRow:      { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.lg },
+  signupText:     { fontSize: typography.fontSize.sm, color: colors.textSecondary },
+  signupLink:     { fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.semiBold, color: colors.primary },
 });
