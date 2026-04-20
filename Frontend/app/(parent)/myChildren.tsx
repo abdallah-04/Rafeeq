@@ -124,8 +124,6 @@ export default function MyChildrenListScreen() {
           <Button label={t('myChildren.addMore')} onPress={handleAdd} style={styles.btn} />
 
           <Footer
-            currentLanguage={t('language.current')}
-            onLanguagePress={() => {}}
             onPrivacyPress={() => {}}
             onTermsPress={() => {}}
           />
