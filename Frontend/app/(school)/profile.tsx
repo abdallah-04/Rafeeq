@@ -101,9 +101,12 @@ export default function ProfileScreen() {
   const setLanguage  = useAuthStore((s) => s.setLanguage)
 
   function handleLogout() {
-    performLogout(); language is saved and takes effect on next cold start
-      }
-    }
+    performLogout()
+  }
+
+  function handleToggleLanguage() {
+    const newLang = i18n.language === 'ar' ? 'en' : 'ar'
+    setLanguage(newLang)
   }
 
   return (

@@ -81,7 +81,7 @@ export default function StudentQuickAccessScreen() {
             </View>
             <View style={styles.pill}>
               <Text style={styles.pillText}>
-                {t('teacher.studentQuickAccess.age', { age: student.age })}
+                {t('teacher.studentQuickAccess.age', { age: student?.dateOfBirth ? Math.floor((Date.now()-new Date(student.dateOfBirth).getTime())/(1000*60*60*24*365)) : '—' })}
               </Text>
             </View>
             {!isUnplaced && (

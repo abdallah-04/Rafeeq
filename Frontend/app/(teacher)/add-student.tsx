@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { colors, spacing, borderRadius } from '@/constants'
 import { createAddStudentSchema, AddStudentForm } from '@/lib/schemas/studentSchema'
 import { apiCreateStudent } from '@/services/api'
+import { useModal } from '@/components/modal/ModalProvider'
 
 type Gender = 'female' | 'male'
 
@@ -116,6 +117,7 @@ function GenderCard({ gender, selected, onPress, t }: { gender: Gender; selected
 /* ── Main Screen ── */
 export default function AddStudentScreen() {
   const { t } = useTranslation()
+  const { show } = useModal()
   const [loading,         setLoading]         = useState(false)
   const [showDatePicker,  setShowDatePicker]  = useState(false)
   const [gender,          setGender]          = useState<Gender | null>(null)
@@ -146,9 +148,55 @@ export default function AddStudentScreen() {
         gender: gender.toUpperCase(),
         password: ''
       })
-      router.back()
+      show('success', { variant: 'greatJob' })
+      setTimeout(() => router.back(), 1200)
     } catch (err: any) {
-      show('error', { variant: 'invalidInfo' }); setGenderError(false) }} t={t} />
+      show('error', { variant: 'invalidInfo' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+
+          <View style={styles.card}>
+            {/* Full Name */}
+            <Text style={styles.label}>{t('addStudent.fullName')}</Text>
+            <Controller control={control} name="fullName" render={({ field: { onChange, value } }) => (
+              <TextInput style={[styles.input, errors.fullName && styles.inputError]} placeholder={t('addStudent.fullNamePlaceholder')} placeholderTextColor="#9CA3AF" value={value} onChangeText={onChange} />
+            )} />
+            {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
+
+            {/* National ID */}
+            <Text style={styles.label}>{t('addStudent.nationalId')}</Text>
+            <Controller control={control} name="nationalId" render={({ field: { onChange, value } }) => (
+              <TextInput style={[styles.input, errors.nationalId && styles.inputError]} placeholder={t('addStudent.nationalIdPlaceholder')} placeholderTextColor="#9CA3AF" value={value} onChangeText={onChange} keyboardType="numeric" />
+            )} />
+            {errors.nationalId && <Text style={styles.error}>{errors.nationalId.message}</Text>}
+
+            {/* Date of Birth */}
+            <Text style={styles.label}>{t('addStudent.dateOfBirth')}</Text>
+            <TouchableOpacity style={[styles.input, styles.dateInput, errors.dateOfBirth && styles.inputError]} onPress={() => setShowDatePicker(true)}>
+              <Text style={{ color: dateOfBirth ? '#111827' : '#9CA3AF', fontFamily: 'Lexend_400Regular', fontSize: 14 }}>
+                {dateOfBirth || t('addStudent.dateOfBirthPlaceholder')}
+              </Text>
+            </TouchableOpacity>
+            {errors.dateOfBirth && <Text style={styles.error}>{errors.dateOfBirth.message}</Text>}
+
+            {/* Difficulty */}
+            <Text style={styles.label}>{t('addStudent.difficulty')}</Text>
+            <Controller control={control} name="difficulty" render={({ field: { onChange, value } }) => (
+              <DifficultyDropdown value={value} onChange={onChange} error={!!errors.difficulty} t={t} />
+            )} />
+            {errors.difficulty && <Text style={styles.error}>{errors.difficulty.message}</Text>}
+
+            {/* Gender */}
+            <Text style={styles.label}>{t('addStudent.gender')}</Text>
+            <View style={styles.genderRow}>
+              <GenderCard gender="female" selected={gender === 'female'} onPress={() => { setGender('female'); setGenderError(false) }} t={t} />
               <GenderCard gender="male"   selected={gender === 'male'}   onPress={() => { setGender('male');   setGenderError(false) }} t={t} />
             </View>
             {genderError && <Text style={styles.error}>Please select a gender</Text>}
@@ -176,6 +224,7 @@ const styles = StyleSheet.create({
   card: { width: '100%', backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.xl, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 2, marginBottom: spacing.lg },
   label: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#374151', marginBottom: 6, marginTop: 14 },
   input: { borderWidth: 1.5, borderColor: '#E5E7EB', borderRadius: 12, padding: 14, fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#1a1a2e', height: 52 },
+  dateInput: { justifyContent: 'center' },
   inputError: { borderColor: colors.error },
   error: { fontFamily: 'Lexend_400Regular', fontSize: 12, color: colors.error, marginTop: 4 },
   dateRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1.5, borderColor: '#E5E7EB', borderRadius: 12, padding: 14, height: 52 },

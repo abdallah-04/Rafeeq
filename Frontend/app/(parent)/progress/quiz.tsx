@@ -14,7 +14,6 @@
 // import ChildSelector from '@/components/modal/parent/ChildSelector'
 // import TabBar from '@/components/modal/shared/TabBar'
 // import QuizCard from '@/components/modal/parent/quizcard'
-import { useActiveChildStore } from '@/store/activeChildStore'
 // import BottomNav from '@/components/modal/shared/BottomNav'
 // import { BadgeVariant } from '@/components/modal/parent/StatusBadge'
 

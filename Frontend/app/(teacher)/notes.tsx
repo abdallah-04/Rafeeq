@@ -96,7 +96,7 @@ export default function NotesScreen() {
             <Text style={styles.addBtnText}>+ {t('teacher.notes.add', 'Add')}</Text>
           </TouchableOpacity>
         </View>
-        <AnimatedProgressCircle progress={student?.progress ?? 0} size={64} color="#FFB84C" />
+        <AnimatedProgressCircle progress={0} size={64} color="#FFB84C" />
       </View>
 
       {/* Tabs */}

@@ -169,7 +169,7 @@ export default function ArticleDetailScreen() {
   if (!article) return null;
 
   const lang  = isRTL ? 'ar' : 'en';
-  const title  = (isRTL ? title_Ar : title) ?? title ?? '';
+  const title  = (isRTL ? article.titleAr : article.title) ?? article.title ?? article.titleAr ?? '';
   const body   = (isRTL ? article.bodyAr : article.body) ?? article.body ?? '';
   const cat    = article.tags?.[0] ?? 'Learning';
   const color  = CATEGORY_COLORS[cat] ?? '#4A90E2';
