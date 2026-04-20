@@ -1,12 +1,12 @@
 import React from 'react'
 import {
     View,
-    Text,
     Image,
     TouchableOpacity,
     StyleSheet,
     ImageSourcePropType,
 } from 'react-native'
+import { Text } from '@/components/RNText'
 import { theme } from '@/theme'
 import StatusBadge, { BadgeVariant } from '@/components/modal/parent/StatusBadge'
 

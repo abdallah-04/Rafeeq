@@ -4,10 +4,10 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native'
+import { Text } from '@/components/RNText'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'

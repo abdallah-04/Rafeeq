@@ -19,9 +19,10 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
+  View, StyleSheet, TouchableOpacity,
   ScrollView, Modal,
 } from 'react-native';
+import { Text } from '@/components/RNText';
 import { useRouter } from 'expo-router';
 
 // ─── Wire checklist data ───────────────────────────────────────

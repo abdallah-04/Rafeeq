@@ -1,9 +1,10 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
+  View, StyleSheet, TouchableOpacity,
   ScrollView,
 } from 'react-native';
+import { Text } from '@/components/RNText';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
@@ -45,22 +46,22 @@ export default function TeacherProfileScreen() {
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>MA</Text>
           </View>
-          <Text style={styles.name}>{t('teacher.profile.name', 'Mr. Ahmad')}</Text>
-          <Text style={styles.role}>{t('teacher.profile.role', 'Special Education Teacher')}</Text>
+          <Text style={styles.name} numberOfLines={1}>{t('teacher.profile.name', 'Mr. Ahmad')}</Text>
+          <Text style={styles.role} numberOfLines={1}>{t('teacher.profile.role', 'Special Education Teacher')}</Text>
           <View style={styles.statRow}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>3</Text>
-              <Text style={styles.statLabel}>{t('teacher.profile.students', 'Students')}</Text>
+              <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>3</Text>
+              <Text style={styles.statLabel} numberOfLines={1}>{t('teacher.profile.students', 'Students')}</Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>62%</Text>
-              <Text style={styles.statLabel}>{t('teacher.profile.avgProgress', 'Avg Progress')}</Text>
+              <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>62%</Text>
+              <Text style={styles.statLabel} numberOfLines={1}>{t('teacher.profile.avgProgress', 'Avg Progress')}</Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>Grade 2</Text>
-              <Text style={styles.statLabel}>{t('teacher.profile.grade', 'Grade')}</Text>
+              <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>Grade 2</Text>
+              <Text style={styles.statLabel} numberOfLines={1}>{t('teacher.profile.grade', 'Grade')}</Text>
             </View>
           </View>
         </View>
@@ -79,7 +80,7 @@ export default function TeacherProfileScreen() {
               onPress={() => handleMenuPress(item.id)}
             >
               <Text style={styles.menuIcon}>{item.icon}</Text>
-              <Text style={[styles.menuLabel, item.danger && styles.menuLabelDanger]}>
+              <Text style={[styles.menuLabel, item.danger && styles.menuLabelDanger, isRTL && styles.menuLabelRTL]}>
                 {t(item.labelKey, item.label)}
               </Text>
               <Text style={[styles.menuArrow, isRTL && styles.menuArrowRTL]}>
@@ -131,6 +132,7 @@ const styles = StyleSheet.create({
   menuIcon: { fontSize: 20, width: 28 },
   menuLabel: { flex: 1, fontFamily: 'Lexend_500Medium', fontSize: 15, color: '#1a1a2e' },
   menuLabelDanger: { color: '#EF4444' },
+  menuLabelRTL: { textAlign: 'right' },
   menuArrow: { fontSize: 20, color: '#C4C4C4' },
   menuArrowRTL: { transform: [{ scaleX: -1 }] },
 

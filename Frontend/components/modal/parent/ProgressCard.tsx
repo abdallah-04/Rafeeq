@@ -1,11 +1,11 @@
 import React from 'react'
 import {
     View,
-    Text,
     Image,
     StyleSheet,
     ImageSourcePropType,
     } from 'react-native'
+import { Text } from '@/components/RNText'
     import {theme} from '@/theme'
 
 interface ProgressCardProps {

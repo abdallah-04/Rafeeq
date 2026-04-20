@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
@@ -20,8 +20,14 @@ import Footer from '@/components/modal/shared/Footer';
 import { theme } from '@/theme';
 import { Text } from '@/components/modal/shared/Text';
 import { Button } from '@/components/modal/shared/Button';
-import Input from '@/components/modal/shared/TextInput';
 import BackButton from '@/components/modal/shared/BackButton';
+import { 
+    NationalIdInput, 
+    PhoneInput, 
+    PasswordInput, 
+    ConfirmPasswordInput 
+} from '@/components/modal/inputs/formInputs';
+import Card from '@/components/modal/shared/Card';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -41,7 +47,7 @@ const createSignupSchema = (t: TFunction) =>
 
 /* ── Main Screen ── */
 export default function SignUpParentScreen() {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
 
     const signupSchema = useMemo(() => createSignupSchema(t), [t]);
@@ -58,138 +64,99 @@ export default function SignUpParentScreen() {
 
     const onSubmit = async (data: FormData) => {
         setLoading(true);
+        console.log('Form Data:', data);
         // TODO: call API
         setTimeout(() => {
-        setLoading(false);
-        router.push('/(auth)/verify-phone');
+            setLoading(false);
+            router.push('/(auth)/verify-phone');
         }, 1000);
     };
 
     return (
         <SafeAreaView style={styles.safe}>
-        <StatusBar style="dark" />
+            <StatusBar style="dark" />
 
-        <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
-            <ScrollView
-            contentContainerStyle={styles.scroll}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
-            {/* Header */}
-            <BackButton onPress={router.back} />
+                <ScrollView
+                    contentContainerStyle={styles.scroll}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
+                    <BackButton onPress={router.back} />
 
-            <Text style={styles.title}>{t('auth.signup.title')}</Text>
-            <Text style={styles.subtitle}>{t('auth.signup.subtitle')}</Text>
+                    <Text style={styles.title}>{t('auth.signup.title')}</Text>
+                    <Text style={styles.subtitle}>{t('auth.signup.subtitle')}</Text>
+                        <View style={styles.form}>
+                        <Card                       style={{ padding: spacing.lg }}>
+                            {/* National ID */}
+                            <NationalIdInput 
+                                control={control} 
+                                name="nationalId" 
+                            />
 
-            {/* Form */}
-            <View style={styles.form}>
-                {/* National ID */}
-                <Controller
-                control={control}
-                name="nationalId"
-                render={({ field: { onChange, value } }) => (
-                    <Input
-                    label={t('auth.signup.nationalId')}
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder={t('auth.signup.nationalIdPlaceholder')}
-                    keyboardType="numeric"
-                    errorMsg={errors.nationalId?.message}
+                        {/* Phone */}
+                        <PhoneInput 
+                            control={control} 
+                            name="phone" 
+                        />
+
+                        {/* Password*/}
+                        <PasswordInput 
+                            control={control} 
+                            name="password" 
+                        />
+
+                        {/* Confirm Password */}
+                        <ConfirmPasswordInput 
+                            control={control} 
+                            name="confirmPassword" 
+                            passwordName="password"
+                        />
+
+                        {/* Continue button */}
+                        <Button
+                            label={t('common.continue')}
+                            onPress={handleSubmit(onSubmit)}
+                            loading={loading}
+                            style={styles.btn}
+                        />
+                        </Card>
+
+                        {/* Divider */}
+                        <View style={styles.divider}>
+                            <View style={styles.line} />
+                            <Text style={styles.dividerText}>{t('auth.signup.orContinueWith')}</Text>
+                            <View style={styles.line} />
+                        </View>
+
+                        {/* Sanad */}
+                        <TouchableOpacity style={styles.sanad} activeOpacity={0.8}>
+                            <Image 
+                                source={require('@/assets/images/Sanad.png')} 
+                                style={styles.sanadLogo} 
+                                resizeMode="contain" 
+                            />
+                            <Text style={styles.sanadText}>{t('auth.signup.sanad')}</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Login link */}
+                    <View style={styles.loginRow}>
+                        <Text style={styles.loginText}>{t('auth.signup.haveAccount')}</Text>
+                        <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+                            <Text style={styles.loginLink}>{t('common.login')}</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <Footer
+                        onPrivacyPress={() => {}}
+                        onTermsPress={() => {}}
                     />
-                )}
-                />
-
-                {/* Phone */}
-                <Controller
-                control={control}
-                name="phone"
-                render={({ field: { onChange, value } }) => (
-                    <Input
-                    label={t('auth.signup.phone')}
-                    value={value}
-                    onChangeText={(text) => {
-                        // strip +962 if user typed it
-                        onChange(text.replace(/^\+962\s?/, ''));
-                    }}
-                    placeholder={t('auth.signup.phonePlaceholder')}
-                    keyboardType="phone-pad"
-                    errorMsg={errors.phone?.message}
-                    />
-                )}
-                />
-
-                {/* Password */}
-                <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, value } }) => (
-                    <Input
-                    label={t('auth.signup.createPassword')}
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder={t('auth.signup.passwordPlaceholder')}
-                    secureEntry
-                    errorMsg={errors.password?.message}
-                    />
-                )}
-                />
-
-                {/* Confirm Password */}
-                <Controller
-                control={control}
-                name="confirmPassword"
-                render={({ field: { onChange, value } }) => (
-                    <Input
-                    label={t('auth.signup.confirmPassword')}
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder={t('auth.signup.confirmPasswordPlaceholder')}
-                    secureEntry
-                    errorMsg={errors.confirmPassword?.message}
-                    />
-                )}
-                />
-
-                {/* Continue button */}
-                <Button
-                label={t('common.continue')}
-                onPress={handleSubmit(onSubmit)}
-                loading={loading}
-                style={styles.btn}
-                />
-
-                {/* Divider */}
-                <View style={styles.divider}>
-                <View style={styles.line} />
-                <Text style={styles.dividerText}>{t('auth.signup.orContinueWith')}</Text>
-                <View style={styles.line} />
-                </View>
-
-                {/* Sanad */}
-                <TouchableOpacity style={styles.sanad} activeOpacity={0.8}>
-                <Image source={require('@/assets/images/Sanad.png')} style={styles.sanadLogo} resizeMode="contain" />
-                <Text style={styles.sanadText}>{t('auth.signup.sanad')}</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Login link */}
-            <View style={styles.loginRow}>
-                <Text style={styles.loginText}>{t('auth.signup.haveAccount')}</Text>
-                <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-                <Text style={styles.loginLink}>{t('common.login')}</Text>
-                </TouchableOpacity>
-            </View>
-
-            <Footer
-                onPrivacyPress={() => {}}
-                onTermsPress={() => {}}
-            />
-
-            </ScrollView>
-        </KeyboardAvoidingView>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
@@ -267,7 +234,7 @@ const styles = StyleSheet.create({
     sanadLogo: {
         width: 50,
         height: 50,
-        },
+    },
 
     sanadText: {
         fontSize: typography.fontSize.base,
@@ -292,29 +259,5 @@ const styles = StyleSheet.create({
         fontSize: typography.fontSize.sm,
         fontFamily: typography.fontFamily.semiBold,
         color: colors.primary,
-    },
-
-    footer: {
-        alignItems: 'center',
-        gap: spacing.xs,
-    },
-
-    langBtn: {
-        paddingVertical: spacing.xs,
-    },
-
-    footerLinks: {
-        flexDirection: 'row',
-        gap: spacing.sm,
-    },
-
-    footerLink: {
-        fontSize: typography.fontSize.xs,
-        color: colors.textMuted,
-    },
-
-    footerDot: {
-        fontSize: typography.fontSize.xs,
-        color: colors.textMuted,
     },
 });

@@ -1,5 +1,5 @@
-import React from 'react'
-import { Alert, I18nManager, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import React, { useState } from 'react'
+import { Alert, I18nManager, ScrollView, StyleSheet, TouchableOpacity, View, Modal, Pressable } from 'react-native'
 import * as Updates from 'expo-updates'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -8,11 +8,13 @@ import { useTranslation } from 'react-i18next'
 import { Ionicons } from '@expo/vector-icons'
 import { theme } from '@/theme'
 import { useAuthStore } from '@/store/authStore'
+import { useAppStore } from '@/store/Appstore'
+import type { Language } from '@/store/Appstore'
 import { Text } from '@/components/modal/shared/Text'
 import Header from '@/components/modal/shared/Header'
 import Card from '@/components/modal/shared/Card'
 
-const { colors, spacing, radius } = theme
+const { colors, spacing, radius, typography } = theme
 
 const MOCK_SCHOOL = {
   name: 'Al-Noor Academy',
@@ -42,14 +44,16 @@ function InfoRow({
   value: string
   last?: boolean
 }) {
+  const isRTL = I18nManager.isRTL
+  
   return (
     <View style={[styles.infoRow, !last && styles.infoRowDivider]}>
       <View style={[styles.iconTile, { backgroundColor: tileColor }]}>
         <Ionicons name={icon} size={18} color={iconColor} />
       </View>
-      <View style={styles.infoTextCol}>
-        <Text style={styles.infoCaption}>{label}</Text>
-        <Text style={styles.infoValue}>{value}</Text>
+      <View style={[styles.infoTextCol, isRTL && styles.infoTextColRTL]}>
+        <Text style={[styles.infoCaption, isRTL && styles.infoCaptionRTL]}>{label}</Text>
+        <Text style={[styles.infoValue, isRTL && styles.infoValueRTL]} numberOfLines={1}>{value}</Text>
       </View>
     </View>
   )
@@ -72,6 +76,8 @@ function SettingsRow({
   onPress: () => void
   last?: boolean
 }) {
+  const isRTL = I18nManager.isRTL
+  
   return (
     <TouchableOpacity
       style={[styles.infoRow, !last && styles.infoRowDivider]}
@@ -81,11 +87,13 @@ function SettingsRow({
       <View style={[styles.iconTile, { backgroundColor: tileColor }]}>
         <Ionicons name={icon} size={18} color={iconColor} />
       </View>
-      <Text style={[styles.infoValue, styles.settingsLabel]}>{label}</Text>
+      <Text style={[styles.infoValue, styles.settingsLabel, isRTL && styles.settingsLabelRTL]}>
+        {label}
+      </Text>
       {valueLabel ? (
-        <Text style={styles.settingsValue}>{valueLabel}</Text>
+        <Text style={[styles.settingsValue, isRTL && styles.settingsValueRTL]}>{valueLabel}</Text>
       ) : null}
-      <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={14} color={colors.textMuted} />
+      <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={14} color={colors.textMuted} />
     </TouchableOpacity>
   )
 }
@@ -94,7 +102,9 @@ function SettingsRow({
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation()
-  const setLanguage  = useAuthStore((s) => s.setLanguage)
+  const setLanguage = useAppStore((s) => s.setLanguage)
+  const language = useAppStore((s) => s.language)
+  const [langModalVisible, setLangModalVisible] = useState(false)
 
   function handleLogout() {
     Alert.alert(
@@ -111,19 +121,17 @@ export default function ProfileScreen() {
     )
   }
 
-  async function handleToggleLanguage() {
-    const newLang = i18n.language === 'ar' ? 'en' : 'ar'
-    const needsRTLFlip = I18nManager.isRTL !== (newLang === 'ar')
-    setLanguage(newLang as 'en' | 'ar')   // persists to store + calls I18nManager.forceRTL
-    if (needsRTLFlip && Updates.isEnabled) {
-      // Restart required for RTL layout to take effect — only works in production/standalone builds
-      try {
-        await Updates.reloadAsync()
-      } catch {
-        // Expo Go / dev builds don't support reloadAsync; language is saved and takes effect on next cold start
-      }
-    }
+  const handleSelectLanguage = (lang: Language) => {
+    setLanguage(lang)
+    setLangModalVisible(false)
   }
+
+  const LANGUAGES: { code: Language; label: string; native: string }[] = [
+    { code: 'en', label: t('language.english'), native: 'English' },
+    { code: 'ar', label: t('language.arabic'), native: 'العربية' },
+  ]
+
+  const isRTL = I18nManager.isRTL
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -149,7 +157,7 @@ export default function ProfileScreen() {
             <Ionicons name="business" size={32} color={colors.primary} />
           </View>
           <View style={styles.heroInfo}>
-            <Text style={styles.heroName}>{MOCK_SCHOOL.name}</Text>
+            <Text style={styles.heroName} numberOfLines={1}>{MOCK_SCHOOL.name}</Text>
             <View style={styles.verifiedPill}>
               <Ionicons name="checkmark-circle" size={12} color={colors.white} />
               <Text style={styles.verifiedText}>{t('profile.verified')}</Text>
@@ -162,16 +170,15 @@ export default function ProfileScreen() {
         </View>
 
         {/* Stats row */}
-        {/* <View style={styles.statsRow}> */}
-          <View style={[styles.statCard, { backgroundColor: '#EDF4FE' }]}>
-            <Text style={[styles.statNumber, { color: colors.primary }]}>
-              {MOCK_SCHOOL.stats.teachers}
-            </Text>
-            <Text style={styles.statLabel}>{t('profile.stats.teachers')}</Text>
-          </View>
+        <View style={[styles.statCard, { backgroundColor: '#EDF4FE' }]}>
+          <Text style={[styles.statNumber, { color: colors.primary }]}>
+            {MOCK_SCHOOL.stats.teachers}
+          </Text>
+          <Text style={styles.statLabel}>{t('profile.stats.teachers')}</Text>
+        </View>
 
         {/* School information */}
-        <Text variant="label" color="textPrimary" style={styles.sectionTitle}>
+        <Text variant="label" color="textPrimary" style={[styles.sectionTitle, isRTL && styles.sectionTitleRTL]}>
           {t('profile.info')}
         </Text>
         <Card variant="outlined" padded={false}>
@@ -207,7 +214,7 @@ export default function ProfileScreen() {
         </Card>
 
         {/* Settings */}
-        <Text variant="label" color="textPrimary" style={styles.sectionTitle}>
+        <Text variant="label" color="textPrimary" style={[styles.sectionTitle, isRTL && styles.sectionTitleRTL]}>
           {t('profile.settings')}
         </Text>
         <Card variant="outlined" padded={false}>
@@ -217,7 +224,6 @@ export default function ProfileScreen() {
             iconColor={colors.primary}
             label={t('profile.editInfo')}
             onPress={() => {
-              // TODO: create edit-profile screen
               router.push('/(school)/edit-profile' as any)
             }}
           />
@@ -235,8 +241,8 @@ export default function ProfileScreen() {
             tileColor="#F3E7FB"
             iconColor="#BA6DE9"
             label={t('profile.language')}
-            valueLabel={i18n.language === 'ar' ? 'العربية' : 'English'}
-            onPress={handleToggleLanguage}
+            valueLabel={language === 'ar' ? 'العربية' : 'English'}
+            onPress={() => setLangModalVisible(true)}
           />
           <SettingsRow
             icon="help-circle-outline"
@@ -259,6 +265,38 @@ export default function ProfileScreen() {
         {/* Footer */}
         <Text style={styles.footer}>RAFEEQ · v1.0.0</Text>
       </ScrollView>
+
+      {/* Language picker modal */}
+      <Modal
+        visible={langModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLangModalVisible(false)}
+      >
+        <Pressable style={styles.overlay} onPress={() => setLangModalVisible(false)}>
+          <Pressable style={styles.sheet} onPress={() => {}}>
+            <Text style={[styles.sheetTitle, isRTL && styles.sheetTitleRTL]}>
+              {t('language.select')}
+            </Text>
+            {LANGUAGES.map((lang) => {
+              const selected = language === lang.code;
+              return (
+                <TouchableOpacity
+                  key={lang.code}
+                  style={[styles.langRow, selected && styles.langRowSelected, isRTL && styles.langRowRTL]}
+                  onPress={() => handleSelectLanguage(lang.code)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.langLabel, selected && styles.langLabelSelected, isRTL && styles.langLabelRTL]}>
+                    {lang.native}
+                  </Text>
+                  {selected && <Text style={styles.checkmark}>✓</Text>}
+                </TouchableOpacity>
+              );
+            })}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   )
 }
@@ -323,6 +361,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'Lexend-Bold',
     color: colors.white,
+    flexShrink: 1,
   },
   verifiedPill: {
     flexDirection: 'row',
@@ -378,6 +417,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     marginTop: spacing.md,
   },
+  sectionTitleRTL: {
+    textAlign: 'right',
+  },
 
   // Info / Settings rows
   infoRow: {
@@ -402,24 +444,41 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
+  infoTextColRTL: {
+    alignItems: 'flex-end',
+  },
   infoCaption: {
     fontSize: 11,
     color: colors.textMuted,
     fontFamily: 'Lexend-Regular',
   },
+  infoCaptionRTL: {
+    textAlign: 'right',
+  },
   infoValue: {
     fontSize: 13,
     color: colors.textPrimary,
     fontFamily: 'Lexend-SemiBold',
+    flexShrink: 1,
+  },
+  infoValueRTL: {
+    textAlign: 'right',
   },
   settingsLabel: {
     flex: 1,
+  },
+  settingsLabelRTL: {
+    textAlign: 'right',
   },
   settingsValue: {
     fontSize: 12,
     color: colors.textSecondary,
     fontFamily: 'Lexend-Regular',
     marginEnd: spacing.xs,
+  },
+  settingsValueRTL: {
+    marginStart: spacing.xs,
+    marginEnd: 0,
   },
 
   // Logout
@@ -447,5 +506,65 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
     marginTop: spacing.md,
+  },
+
+  // Modal styles
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  sheet: {
+    width: '100%',
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  sheetTitle: {
+    fontSize: typography?.fontSize?.lg || 18,
+    fontFamily: 'Lexend-Bold',
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: spacing.xs,
+  },
+  sheetTitleRTL: {
+    textAlign: 'center',
+  },
+  langRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+  },
+  langRowRTL: {
+    flexDirection: 'row-reverse',
+  },
+  langRowSelected: {
+    borderColor: colors.primary,
+    backgroundColor: colors.backgroundLight,
+  },
+  langLabel: {
+    fontSize: typography?.fontSize?.base || 16,
+    fontFamily: 'Lexend-Medium',
+    color: colors.textPrimary,
+  },
+  langLabelRTL: {
+    textAlign: 'right',
+  },
+  langLabelSelected: {
+    color: colors.primary,
+    fontFamily: 'Lexend-SemiBold',
+  },
+  checkmark: {
+    fontSize: 16,
+    color: colors.primary,
+    fontFamily: 'Lexend-Bold',
   },
 })

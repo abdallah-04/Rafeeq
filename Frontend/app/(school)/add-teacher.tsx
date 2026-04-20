@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Image, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -12,8 +12,15 @@ import { createAddTeacherSchema, AddTeacherForm } from '@/lib/schemas/teacherSch
 import Header from '@/components/modal/shared/Header';
 import { Button } from '@/components/modal/shared/Button';
 import { Text } from '@/components/modal/shared/Text';
-import TextInput from '@/components/modal/shared/TextInput';
 import { theme } from '@/theme';
+
+import { 
+  TeacherNameInput as NameInput,
+  NationalIdInput, 
+  PhoneInput, 
+  PasswordInput, 
+  ConfirmPasswordInput 
+} from '@/components/modal/inputs/formInputs';
 
 const { colors, spacing, radius } = theme;
 
@@ -23,7 +30,7 @@ export default function AddTeacherScreen() {
   const [loading, setLoading] = useState(false);
 
   const schema = useMemo(() => createAddTeacherSchema(t), [t]);
-  const { control, handleSubmit, formState: { errors } } = useForm<AddTeacherForm>({
+  const { control, handleSubmit } = useForm<AddTeacherForm>({
     resolver: zodResolver(schema),
   });
 
@@ -82,78 +89,40 @@ export default function AddTeacherScreen() {
           {/* Form card */}
           <View style={styles.card}>
 
-            <Controller
+            <NameInput
               control={control}
               name="fullName"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  label={t('addTeacher.fullName')}
-                  placeholder={t('addTeacher.fullNamePlaceholder')}
-                  value={value}
-                  onChangeText={onChange}
-                  errorMsg={errors.fullName?.message}
-                />
-              )}
+              label={t('addTeacher.fullName')}
+              placeholder={t('addTeacher.fullNamePlaceholder')}
             />
 
-            <Controller
+            <NationalIdInput
               control={control}
               name="nationalId"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  label={t('addTeacher.nationalId')}
-                  placeholder="0000000000"
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="numeric"
-                  errorMsg={errors.nationalId?.message}
-                />
-              )}
+              label={t('addTeacher.nationalId')}
+              placeholder="0000000000"
             />
 
-            <Controller
+            <PhoneInput
               control={control}
               name="phone"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  label={t('addTeacher.phone')}
-                  placeholder="7X XXX XXXX"
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="phone-pad"
-                  errorMsg={errors.phone?.message}
-                />
-              )}
+              label={t('addTeacher.phone')}
+              placeholder="7X XXX XXXX"
             />
 
-            <Controller
+            <PasswordInput
               control={control}
               name="password"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  label={t('addTeacher.createPassword')}
-                  placeholder="••••••••"
-                  value={value}
-                  onChangeText={onChange}
-                  secureEntry
-                  errorMsg={errors.password?.message}
-                />
-              )}
+              label={t('addTeacher.createPassword')}
+              placeholder="••••••••"
             />
 
-            <Controller
+            <ConfirmPasswordInput
               control={control}
               name="confirmPassword"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  label={t('addTeacher.confirmPassword')}
-                  placeholder="••••••••"
-                  value={value}
-                  onChangeText={onChange}
-                  secureEntry
-                  errorMsg={errors.confirmPassword?.message}
-                />
-              )}
+              passwordName="password"
+              label={t('addTeacher.confirmPassword')}
+              placeholder="••••••••"
             />
 
             <Button

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { View, TextInput, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, TextInput, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, I18nManager } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router } from 'expo-router'
@@ -14,12 +14,19 @@ import Header from '@/components/modal/shared/Header'
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import { theme } from '@/theme'
 import { StatusBar } from 'expo-status-bar'
-
+import { 
+    SchoolNameInput, 
+  SchoolIdInput, 
+  AdvisorNameInput,
+  NationalIdInput 
+} from '@/components/modal/inputs/formInputs';
 const { colors, spacing, typography, radius } = theme
 
 export default function SchoolSignupStep1() {
   const { t, i18n } = useTranslation()
   const setStep1 = useSchoolSignupStore((s) => s.setStep1)
+
+  const isRTL = i18n.language === 'ar' || I18nManager.isRTL
 
   const schema = useMemo(() => createSchoolStep1Schema(t), [t])
   const { control, handleSubmit, formState: { errors } } = useForm<SchoolStep1Form>({
@@ -44,89 +51,42 @@ export default function SchoolSignupStep1() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-
-          <Card variant="elevated" padded style={styles.card}>
-
-            {/* School Name */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.schoolName')}</Text>
-            <Controller
-              control={control}
-              name="schoolName"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  style={[styles.input, errors.schoolName && styles.inputError]}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder={t('schoolSignup.schoolNamePlaceholder')}
-                  placeholderTextColor={colors.textMuted}
-                />
-              )}
+          <Text style={styles.subtitle}>{t('schoolSignup.subtitle')}</Text>
+          <Card style={styles.card}>
+              {/* School Name */}
+            <SchoolNameInput 
+              control={control} 
+              name="schoolName" 
             />
-            {errors.schoolName && <Text style={styles.error}>{errors.schoolName.message}</Text>}
-
             {/* School ID */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.schoolId')}</Text>
-            <Controller
-              control={control}
-              name="schoolId"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  style={[styles.input, errors.schoolId && styles.inputError]}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder={t('schoolSignup.schoolIdPlaceholder')}
-                  placeholderTextColor={colors.textMuted}
-                />
-              )}
+            <SchoolIdInput 
+              control={control} 
+              name="schoolId" 
             />
-            {errors.schoolId && <Text style={styles.error}>{errors.schoolId.message}</Text>}
-
             {/* Advisor Name */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.advisorName')}</Text>
-            <Controller
+            <AdvisorNameInput 
               control={control}
               name="advisorName"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  style={[styles.input, errors.advisorName && styles.inputError]}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder={t('schoolSignup.advisorNamePlaceholder')}
-                  placeholderTextColor={colors.textMuted}
-                />
-              )}
             />
-            {errors.advisorName && <Text style={styles.error}>{errors.advisorName.message}</Text>}
 
             {/* Advisor National ID */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.advisorNationalId')}</Text>
-            <Controller
+            <NationalIdInput 
               control={control}
               name="advisorNationalId"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  style={[styles.input, errors.advisorNationalId && styles.inputError]}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder={t('schoolSignup.advisorNationalIdPlaceholder')}
-                  placeholderTextColor={colors.textMuted}
-                  keyboardType="numeric"
-                  maxLength={10}
-                />
-              )}
             />
-            {errors.advisorNationalId && <Text style={styles.error}>{errors.advisorNationalId.message}</Text>}
-
             <Button label={t('common.continue')} onPress={handleSubmit(onContinue)} style={styles.btn} />
 
             {/* Divider */}
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text variant="caption" color="textMuted" style={styles.dividerText}>{t('common.or')}</Text>
+              <Text variant="caption" color="textMuted" style={styles.dividerText}>
+                {t('common.or')}
+              </Text>
               <View style={styles.dividerLine} />
             </View>
 
-            <Text variant="caption" style={styles.loginText}>
+            {/* Login link*/}
+            <Text style={[styles.loginText, isRTL && styles.loginTextRTL]}>
               {t('auth.signup.haveAccount')}{' '}
               <Text
                 variant="caption"
@@ -161,12 +121,24 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     borderColor: colors.border,
     borderWidth: 1,
-
+  },
+  subtitle: {
+    marginTop: -20,
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.regular,
+    textAlign: 'center',
+    marginLeft: spacing.lg,
+    marginRight: spacing.lg,
+    marginBottom: -9, 
   },
   label: {
     color: colors.textPrimary,
     marginTop: spacing.sm,
     marginBottom: spacing.xs,
+  },
+  labelRTL: {
+    textAlign: 'right',
   },
   input: {
     backgroundColor: colors.surfaceElevated,
@@ -179,6 +151,10 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: 'transparent',
   },
+  inputRTL: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   inputError: {
     borderColor: colors.error,
   },
@@ -187,6 +163,9 @@ const styles = StyleSheet.create({
     color: colors.error,
     marginTop: spacing.xs,
     fontFamily: typography.fontFamily.regular,
+  },
+  errorRTL: {
+    textAlign: 'right',
   },
   btn: {
     marginTop: spacing.md,
@@ -209,6 +188,9 @@ const styles = StyleSheet.create({
   loginText: {
     textAlign: 'center',
     color: colors.textSecondary,
+  },
+  loginTextRTL: {
+    textAlign: 'center',
   },
   loginLink: {
     color: colors.primary,

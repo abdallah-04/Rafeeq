@@ -48,7 +48,11 @@
     "completed": "Completed",
     "inProgress": "In Progress",
     "new": "New",
-    "underReview": "Under Review"
+    "underReview": "Under Review",
+    "email": "Email",
+    "emailPlaceholder": "example@email.com",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter full name"
   },
 
   "language": {
@@ -565,6 +569,7 @@
     },
     "teachers": {
       "title": "My Teachers",
+      "subtitle": "Manage your school's teachers, add new ones, and track their students' progress all in one place.",
       "emptyTitle": "It's a little quiet here!",
       "emptySubtitle": "No teachers added yet",
       "addFirst": "Add your first Teacher",
@@ -891,6 +896,12 @@
 
 "teacherDetail": {
   "students": "Students",
+  "avgProgress": "Avg Progress",
+  "joined": "Joined",
+  "phone": "Phone",
+  "nationalId": "National ID",
+  "grade": "Grade",
+  "section": "Section",
   "dangerZone": "Account Actions",
   "deactivate": "Deactivate Teacher",
   "remove": "Remove Teacher"
@@ -917,20 +928,26 @@
 },
 
 "validation": {
-  "schoolNameRequired": "School name is required",
-  "schoolIdRequired": "School ID is required",
-  "advisorNameRequired": "Advisor name is required",
-  "nationalId10Digits": "National ID must be 10 digits",
-  "numbersOnly": "Numbers only",
-  "phoneRequired": "Phone number is required",
-  "validJordanianNumber": "Enter a valid Jordanian number",
-  "passwordMin8": "Password must be at least 8 characters",
-  "passwordsNoMatch": "Passwords do not match",
-  "fullNameRequired": "Full name is required",
-  "dobRequired": "Date of birth is required",
-  "selectDifficulty": "Please select a difficulty",
-  "selectGender": "Please select a gender"
-},
+    "numbersOnly": "Numbers only",
+    "fullNameRequired": "Full name is required",
+    "dobRequired": "Date of birth is required",
+    "selectDifficulty": "Please select a difficulty",
+    "selectGender": "Please select a gender",
+    "nationalIdRequired": "National ID is required",
+    "nationalId10Digits": "National ID must be 10 digits",
+    "phoneRequired": "Phone number is required",
+    "validJordanianNumber": "Enter a valid Jordanian number",
+    "passwordRequired": "Password is required",
+    "passwordMin8": "Password must be at least 8 characters",
+    "confirmPasswordRequired": "Confirm Password is required",
+    "passwordsNoMatch": "Passwords do not match",
+    "schoolIdRequired": "School ID is required",
+    "schoolIdMinLength": "School ID must be at least 3 characters",
+    "schoolNameRequired": "School name is required",
+    "schoolNameMinLength": "School name must be at least 3 characters",
+    "advisorNameRequired": "Advisor name is required",
+    "nameMinLength": "Name must be at least {{count}} characters"
+  },
 
 "placementExam": {
   "modalTitle": "Placement Required",
@@ -956,5 +973,4 @@
     "retakeBtn": "Retake Exam"
   }
 }
-
 }

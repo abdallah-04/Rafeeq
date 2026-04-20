@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import {
   View,
-  Text,
   TextInput,
   StyleSheet,
   ScrollView,
@@ -11,6 +10,7 @@ import {
   Modal,
   ActivityIndicator,
 } from 'react-native'
+import { Text } from '@/components/RNText'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
