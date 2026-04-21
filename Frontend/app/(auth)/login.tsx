@@ -78,7 +78,7 @@ export default function LoginScreen() {
       // Route to the right dashboard
       if (rawRole === 'parent')  router.replace('/(parent)/' as any);
       else if (rawRole === 'teacher') router.replace('/(teacher)/' as any);
-      else if (rawRole === 'school')  router.replace('/(school)/students' as any);
+      else if (rawRole === 'school')  router.replace('/(school)/teachers' as any);
       else router.replace('/(parent)/' as any);
 
     } catch (err: any) {

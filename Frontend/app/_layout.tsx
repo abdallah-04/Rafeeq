@@ -77,15 +77,21 @@ export default function RootLayout() {
     const inParentGroup  = segments[0] === '(parent)'
     const inTeacherGroup = segments[0] === '(teacher)'
     const inSchoolGroup  = segments[0] === '(school)'
+    const inExploreGroup = segments[0] === 'explore'
+    const authScreen     = inAuthGroup ? segments[1] : null
+    const allowOtpScreen = authScreen === 'verify-phone' || authScreen === 'verify-school-phone'
 
     if (!isAuthenticated) {
       if (!inAuthGroup) router.replace('/(auth)/language' as any)
       return
     }
 
+    if (allowOtpScreen) return
+    if (inExploreGroup) return
+
     if (role === 'parent'  && !inParentGroup)  { router.replace('/(parent)/'          as any); return }
     if (role === 'teacher' && !inTeacherGroup) { router.replace('/(teacher)/'         as any); return }
-    if (role === 'school'  && !inSchoolGroup)  { router.replace('/(school)/students'  as any); return }
+    if (role === 'school'  && !inSchoolGroup)  { router.replace('/(school)/teachers'  as any); return }
   }, [isAuthenticated, role, fontsLoaded, fontError, segments])
 
   if (!fontsLoaded && !fontError) return null

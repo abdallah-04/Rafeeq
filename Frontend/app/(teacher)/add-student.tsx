@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
   View, Text, TextInput, StyleSheet, ScrollView,
   KeyboardAvoidingView, Platform, TouchableOpacity,
   Modal, ActivityIndicator,
 } from 'react-native'
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -18,30 +19,61 @@ type Gender = 'female' | 'male'
 
 const DIFFICULTIES = ['ADD', 'ADHD', 'IFD', 'Autism', 'Down Syndrome', 'Other']
 
+const parseDateValue = (raw: string) => {
+  const [day, month, year] = raw.split('/')
+  if (day && month && year?.length === 4) {
+    const parsed = new Date(Number(year), Number(month) - 1, Number(day))
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed
+    }
+  }
+  return new Date()
+}
+
+const formatDisplayDate = (date: Date) => (
+  `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`
+)
+
 // ─── Date Picker Modal ────────────────────────────────────────
 function DatePickerModal({
   visible, value, onConfirm, onClose,
 }: { visible: boolean; value: string; onConfirm: (date: string) => void; onClose: () => void }) {
-  const [input, setInput] = useState(value)
+  const [selectedDate, setSelectedDate] = useState(() => parseDateValue(value))
+
+  useEffect(() => {
+    if (visible) {
+      setSelectedDate(parseDateValue(value))
+    }
+  }, [value, visible])
+
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={modalStyles.overlay}>
         <View style={modalStyles.card}>
           <Text style={modalStyles.title}>Select Date of Birth</Text>
-          <TextInput
-            style={modalStyles.input}
-            placeholder="MM/DD/YYYY"
-            placeholderTextColor={colors.inputPlaceholder}
-            value={input}
-            onChangeText={setInput}
-            keyboardType="numeric"
-            maxLength={10}
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
+            maximumDate={new Date()}
+            onChange={(_, date) => {
+              if (date) {
+                setSelectedDate(date)
+              }
+            }}
           />
+          <Text style={modalStyles.input}>{formatDisplayDate(selectedDate)}</Text>
           <View style={modalStyles.btnRow}>
             <TouchableOpacity style={modalStyles.cancelBtn} onPress={onClose}>
               <Text style={modalStyles.cancelText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={modalStyles.confirmBtn} onPress={() => { onConfirm(input); onClose() }}>
+            <TouchableOpacity
+              style={modalStyles.confirmBtn}
+              onPress={() => {
+                onConfirm(formatDisplayDate(selectedDate))
+                onClose()
+              }}
+            >
               <Text style={modalStyles.confirmText}>Confirm</Text>
             </TouchableOpacity>
           </View>
@@ -55,7 +87,7 @@ const modalStyles = StyleSheet.create({
   overlay:    { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   card:       { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, gap: 16 },
   title:      { fontSize: 16, fontFamily: 'Lexend_700Bold', color: '#1a1a2e', textAlign: 'center' },
-  input:      { borderWidth: 1.5, borderColor: '#E5E7EB', borderRadius: 12, padding: 14, fontSize: 15, fontFamily: 'Lexend_400Regular', color: '#1a1a2e' },
+  input:      { borderWidth: 1.5, borderColor: '#E5E7EB', borderRadius: 12, padding: 14, fontSize: 15, fontFamily: 'Lexend_400Regular', color: '#1a1a2e', textAlign: 'center' },
   btnRow:     { flexDirection: 'row', gap: 12 },
   cancelBtn:  { flex: 1, padding: 14, borderRadius: 12, borderWidth: 1.5, borderColor: '#E5E7EB', alignItems: 'center' },
   cancelText: { fontFamily: 'Lexend_600SemiBold', color: '#6B7280' },
@@ -124,16 +156,43 @@ export default function AddStudentScreen() {
   const [genderError,     setGenderError]     = useState(false)
 
   const schema = useMemo(() => createAddStudentSchema(t), [t])
-  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<AddStudentForm>({ resolver: zodResolver(schema) })
+  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<AddStudentForm>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      fullName: '',
+      nationalId: '',
+      dateOfBirth: '',
+      difficulty: '',
+      gender: '',
+    },
+  })
 
   const dateOfBirth = watch('dateOfBirth')
 
   const parseDob = (raw: string): string => {
     const parts = raw.split('/')
     if (parts.length === 3 && parts[2].length === 4) {
-      return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`
+      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`
     }
     return raw
+  }
+
+  const openDatePicker = () => {
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        value: parseDateValue(dateOfBirth ?? ''),
+        mode: 'date',
+        display: 'calendar',
+        maximumDate: new Date(),
+        onChange: (_, selectedDate) => {
+          if (selectedDate) {
+            setValue('dateOfBirth', formatDisplayDate(selectedDate), { shouldValidate: true })
+          }
+        },
+      })
+      return
+    }
+    setShowDatePicker(true)
   }
 
   const onSubmit = async (data: AddStudentForm) => {
@@ -146,7 +205,6 @@ export default function AddStudentScreen() {
         dateOfBirth: parseDob(data.dateOfBirth),
         learningDifficulty: data.difficulty,
         gender: gender.toUpperCase(),
-        password: ''
       })
       show('success', { variant: 'greatJob' })
       setTimeout(() => router.back(), 1200)
@@ -179,7 +237,7 @@ export default function AddStudentScreen() {
 
             {/* Date of Birth */}
             <Text style={styles.label}>{t('addStudent.dateOfBirth')}</Text>
-            <TouchableOpacity style={[styles.input, styles.dateInput, errors.dateOfBirth && styles.inputError]} onPress={() => setShowDatePicker(true)}>
+            <TouchableOpacity style={[styles.input, styles.dateInput, errors.dateOfBirth && styles.inputError]} onPress={openDatePicker}>
               <Text style={{ color: dateOfBirth ? '#111827' : '#9CA3AF', fontFamily: 'Lexend_400Regular', fontSize: 14 }}>
                 {dateOfBirth || t('addStudent.dateOfBirthPlaceholder')}
               </Text>
@@ -196,8 +254,26 @@ export default function AddStudentScreen() {
             {/* Gender */}
             <Text style={styles.label}>{t('addStudent.gender')}</Text>
             <View style={styles.genderRow}>
-              <GenderCard gender="female" selected={gender === 'female'} onPress={() => { setGender('female'); setGenderError(false) }} t={t} />
-              <GenderCard gender="male"   selected={gender === 'male'}   onPress={() => { setGender('male');   setGenderError(false) }} t={t} />
+              <GenderCard
+                gender="female"
+                selected={gender === 'female'}
+                onPress={() => {
+                  setGender('female')
+                  setGenderError(false)
+                  setValue('gender', 'female', { shouldValidate: true })
+                }}
+                t={t}
+              />
+              <GenderCard
+                gender="male"
+                selected={gender === 'male'}
+                onPress={() => {
+                  setGender('male')
+                  setGenderError(false)
+                  setValue('gender', 'male', { shouldValidate: true })
+                }}
+                t={t}
+              />
             </View>
             {genderError && <Text style={styles.error}>Please select a gender</Text>}
           </View>
