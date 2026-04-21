@@ -30,7 +30,7 @@ export default function AddNoteScreen() {
         title,
         content: subject,
       });
-      router.replace({ pathname: '/(teacher)/notes', params: { studentId } } as any);
+      router.back();
     } catch {
       show('error', { variant: 'invalidInfo' });
     } finally {

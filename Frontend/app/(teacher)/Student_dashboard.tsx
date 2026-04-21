@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { apiGetStudent, apiGetNotesForTeacher, StudentResponse, NoteResponse } from '@/services/api';
 import { useModal } from '@/components/modal/ModalProvider';
@@ -31,7 +32,7 @@ export default function TeacherStudentDashboard() {
   const [notes,      setNotes]      = React.useState<NoteResponse[]>([]);
   const [isLoading,  setIsLoading]  = React.useState(true);
 
-  React.useEffect(() => {
+  const load = React.useCallback(() => {
     if (!studentId) return;
     Promise.all([
       apiGetStudent(studentId),
@@ -39,7 +40,13 @@ export default function TeacherStudentDashboard() {
     ]).then(([s, n]) => { setStudent(s); setNotes(n); })
       .catch(() => show('error', { variant: 'invalidInfo' }))
       .finally(() => setIsLoading(false));
-  }, [studentId]);
+  }, [studentId, show]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      load();
+    }, [load])
+  );
 
   const ACTION_BUTTONS = [
     { id: 'notes',   label: t('teacher.dashboard.notes',   'Notes'),       icon: '📝', color: '#FFB84C', bg: '#FFF8ED', route: '/(teacher)/notes' },

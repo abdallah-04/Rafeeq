@@ -5,6 +5,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { NotesFeedSkeleton } from '@/components/LoadingSkeleton';
 import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
@@ -72,7 +73,11 @@ export default function NotesScreen() {
     }
   }, [studentId, show]);
 
-  useEffect(() => { load(); }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   if (isLoading) return <NotesFeedSkeleton count={4} />;
 
