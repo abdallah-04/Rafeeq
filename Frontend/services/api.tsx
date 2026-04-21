@@ -205,6 +205,31 @@ export interface ArticleResponse {
   createdAt:   string;
 }
 
+interface BackendArticleResponse {
+  id:          string;
+  titleAr:     string | null;
+  titleEn:     string | null;
+  contentAr:   string | null;
+  contentEn:   string | null;
+  imageUrl:    string | null;
+  tags:        string[] | null;
+  saved:       boolean;
+}
+
+function normalizeArticle(article: BackendArticleResponse): ArticleResponse {
+  return {
+    id:        article.id,
+    title:     article.titleEn ?? article.titleAr ?? '',
+    titleAr:   article.titleAr ?? article.titleEn ?? null,
+    body:      article.contentEn ?? article.contentAr ?? '',
+    bodyAr:    article.contentAr ?? article.contentEn ?? null,
+    imageUrl:  article.imageUrl,
+    tags:      article.tags ?? [],
+    isSaved:   article.saved,
+    createdAt: new Date().toISOString(),
+  };
+}
+
 export interface TeacherResponse {
   id:           string;
   userId:       string;
@@ -606,14 +631,16 @@ export async function apiMarkAllNotificationsRead(): Promise<MessageResponse> {
  * GET /api/articles
  */
 export async function apiGetArticles(): Promise<ArticleResponse[]> {
-  return _get<ArticleResponse[]>('/api/articles');
+  const articles = await _get<BackendArticleResponse[]>('/api/articles');
+  return articles.map(normalizeArticle);
 }
 
 /**
  * GET /api/articles/:id
  */
 export async function apiGetArticle(id: string): Promise<ArticleResponse> {
-  return _get<ArticleResponse>(`/api/articles/${id}`);
+  const article = await _get<BackendArticleResponse>(`/api/articles/${id}`);
+  return normalizeArticle(article);
 }
 
 /**
@@ -715,7 +742,7 @@ export async function apiCreateStudent(data: {
   phone?:              string;
   email?:              string;
   nationalId:          string;
-  password:            string;
+  password?:           string;
 }): Promise<StudentResponse> {
   return _post<StudentResponse>('/teacher/students', data);
 }

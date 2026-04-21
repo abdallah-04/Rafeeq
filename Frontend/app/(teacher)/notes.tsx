@@ -58,18 +58,19 @@ export default function NotesScreen() {
   const load = useCallback(async () => {
     if (!studentId) return;
     try {
-      const [tNotes, pNotes] = await Promise.all([
+      const [tNotes, pNotes] = await Promise.allSettled([
         apiGetNotesForTeacher(studentId),
         apiGetNotesForParent(studentId),
       ]);
-      setTeacherNotes(tNotes);
-      setParentNotes(pNotes);
+      if (tNotes.status !== 'fulfilled') throw tNotes.reason;
+      setTeacherNotes(tNotes.value);
+      setParentNotes(pNotes.status === 'fulfilled' ? pNotes.value : []);
     } catch (err: any) {
       show('error', { variant: 'invalidInfo' });
     } finally {
       setIsLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, show]);
 
   useEffect(() => { load(); }, [load]);
 

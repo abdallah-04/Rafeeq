@@ -117,7 +117,10 @@ function ArticleCard({ article, isRTL, onToggleSave }: {
         </View>
         <TouchableOpacity
           hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
-          onPress={() => onToggleSave(article.id, isSaved)}
+          onPress={(event) => {
+            event.stopPropagation();
+            onToggleSave(article.id, isSaved);
+          }}
         >
           <Ionicons
             name={isSaved ? 'bookmark' : 'bookmark-outline'}

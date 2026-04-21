@@ -7,19 +7,35 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import BackButton from '@/components/BackButton';
+import { apiCreateNote } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 
 export default function AddNoteScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
+  const { show } = useModal();
   const { studentId } = useLocalSearchParams<{ studentId: string }>();
   const isRTL = i18n.language === 'ar';
 
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleAdd = () => {
-    // TODO: connect to service/store
-    router.back();
+  const handleAdd = async () => {
+    if (!title || !subject || !studentId || loading) return;
+    setLoading(true);
+    try {
+      await apiCreateNote({
+        childId: studentId,
+        title,
+        content: subject,
+      });
+      router.replace({ pathname: '/(teacher)/notes', params: { studentId } } as any);
+    } catch {
+      show('error', { variant: 'invalidInfo' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -78,9 +94,11 @@ export default function AddNoteScreen() {
           <TouchableOpacity
             style={[styles.addBtn, (!title || !subject) && styles.addBtnDisabled]}
             onPress={handleAdd}
-            disabled={!title || !subject}
+            disabled={!title || !subject || loading}
           >
-            <Text style={styles.addBtnText}>{t('teacher.addNote.add', 'Add')}</Text>
+            <Text style={styles.addBtnText}>
+              {loading ? '...' : t('teacher.addNote.add', 'Add')}
+            </Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

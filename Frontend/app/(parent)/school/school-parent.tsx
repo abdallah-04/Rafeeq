@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, StyleSheet, ScrollView } from 'react-native'
 import { theme } from '@/theme'
 import { router } from 'expo-router'
@@ -10,12 +10,20 @@ import TabBar from '@/components/modal/shared/TabBar'
 import Card from '@/components/modal/shared/Card'
 import { Text } from '@/components/modal/shared/Text'
 import SchoolCard from '@/components/modal/parent/schoolCard'
+import { useActiveChildStore } from '@/store/activeChildStore'
 
 const TABS = ['Grades', 'HW & Tasks', 'Progress', 'Reports']
 
 export default function SchoolScreen() {
     const { t } = useTranslation()
     const [activeTab, setActiveTab] = useState('Grades')
+    const activeChild = useActiveChildStore((s) => s.activeChild)
+
+    useEffect(() => {
+        if (!activeChild) {
+            router.replace('/(parent)/myChildren' as any)
+        }
+    }, [activeChild])
 
     const handleTabChange = (tab: string) => {
         if (tab === 'Progress') router.replace('/(parent)/school/school-progress')
@@ -24,18 +32,23 @@ export default function SchoolScreen() {
         else setActiveTab(tab)
     }
 
+    if (!activeChild) return null
+
+    const childName = activeChild.fullNameAr ?? activeChild.fullNameEn ?? '—'
+    const childLevel = activeChild.level ?? activeChild.assessedLevel
+
     return (
         <ScreenWrapper scroll={false}>
             <Header
                 title={t('schoolPage.title')}
-                subtitle="Ayoub, grade 4"
+                subtitle={childName}
                 onBack={() => router.back()}
             />
 
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <SchoolCard
                     schoolName={t('school.home.title')}
-                    grade={t('schoolPage.gradeLabel', { grade: '4 - A' })}
+                    grade={childLevel != null ? t('schoolPage.gradeLabel', { grade: childLevel }) : childName}
                     location="Amman"
                 />
 

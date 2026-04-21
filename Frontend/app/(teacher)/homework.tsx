@@ -2,8 +2,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, TextInput, KeyboardAvoidingView, Platform,
+  ScrollView, TextInput, KeyboardAvoidingView, Platform, Modal,
 } from 'react-native';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { HWHistorySkeleton } from '@/components/LoadingSkeleton';
@@ -25,6 +26,31 @@ export default function HomeworkScreen() {
   const [dueDate, setDueDate] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [pickerDate, setPickerDate] = useState(new Date());
+
+  const formatApiDate = (date: Date) => (
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  );
+
+  const formatDisplayDate = (value: string) => {
+    const [year, month, day] = value.split('-');
+    if (year && month && day) {
+      return `${day}/${month}/${year}`;
+    }
+    return value;
+  };
+
+  const parseDateValue = (value: string) => {
+    const [year, month, day] = value.split('-');
+    if (year && month && day) {
+      const parsed = new Date(Number(year), Number(month) - 1, Number(day));
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+    return new Date();
+  };
 
   const load = useCallback(async () => {
     if (!studentId) return;
@@ -36,26 +62,39 @@ export default function HomeworkScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, show]);
 
   useEffect(() => { load(); }, [load]);
+
+  const openDatePicker = () => {
+    const currentDate = parseDateValue(dueDate);
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        value: currentDate,
+        mode: 'date',
+        display: 'calendar',
+        minimumDate: new Date(),
+        onChange: (_, selectedDate) => {
+          if (selectedDate) {
+            setDueDate(formatApiDate(selectedDate));
+          }
+        },
+      });
+      return;
+    }
+    setPickerDate(currentDate);
+    setShowDatePicker(true);
+  };
 
   const handleAddHomework = async () => {
     if (!notes || !dueDate || !studentId || !title) return;
     setSubmitting(true);
     try {
-      // Convert DD/MM/YYYY or MM/DD/YYYY to YYYY-MM-DD
-      const parts = dueDate.split('/');
-      let isoDate = dueDate;
-      if (parts.length === 3) {
-        // Assume MM/DD/YYYY
-        isoDate = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
-      }
       const newHw = await apiCreateHomework({
         childId:     studentId,
         title,
         description: notes,
-        dueDate:     isoDate,
+        dueDate,
       });
       setHwList((prev) => [newHw, ...prev]);
       setNotes('');
@@ -118,14 +157,21 @@ export default function HomeworkScreen() {
               <Text style={[styles.label, isRTL && styles.textRight]}>
                 {t('teacher.hw.dueDate', 'Due Date')}
               </Text>
-              <TextInput
-                style={[styles.inputDate, isRTL && styles.textRight]}
-                placeholder="MM/DD/YYYY"
-                placeholderTextColor="#93C5FD"
-                value={dueDate}
-                onChangeText={setDueDate}
-                textAlign={isRTL ? 'right' : 'left'}
-              />
+              <TouchableOpacity
+                style={[styles.inputDate, styles.dateField]}
+                onPress={openDatePicker}
+                activeOpacity={0.8}
+              >
+                <Text
+                  style={[
+                    styles.dateFieldText,
+                    !dueDate && styles.dateFieldPlaceholder,
+                    isRTL && styles.textRight,
+                  ]}
+                >
+                  {dueDate ? formatDisplayDate(dueDate) : 'DD/MM/YYYY'}
+                </Text>
+              </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.submitBtn, (!notes || !dueDate || !title || submitting) && styles.submitBtnDisabled]}
@@ -171,6 +217,38 @@ export default function HomeworkScreen() {
           ))}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <Modal visible={showDatePicker} transparent animationType="slide">
+        <View style={styles.datePickerOverlay}>
+          <View style={styles.datePickerCard}>
+            <DateTimePicker
+              value={pickerDate}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
+              minimumDate={new Date()}
+              onChange={(_, selectedDate) => {
+                if (selectedDate) {
+                  setPickerDate(selectedDate);
+                }
+              }}
+            />
+            <View style={styles.datePickerActions}>
+              <TouchableOpacity style={styles.datePickerCancel} onPress={() => setShowDatePicker(false)}>
+                <Text style={styles.datePickerCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.datePickerConfirm}
+                onPress={() => {
+                  setDueDate(formatApiDate(pickerDate));
+                  setShowDatePicker(false);
+                }}
+              >
+                <Text style={styles.datePickerConfirmText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -192,9 +270,19 @@ const styles = StyleSheet.create({
   label: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#374151', marginBottom: 8, marginTop: 12 },
   input: { backgroundColor: '#EFF6FF', borderWidth: 1.5, borderColor: '#BFDBFE', borderRadius: 14, padding: 12, fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#1a1a2e', minHeight: 100 },
   inputDate: { backgroundColor: '#EFF6FF', borderWidth: 1.5, borderColor: '#BFDBFE', borderRadius: 14, padding: 12, fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#1a1a2e', height: 52 },
+  dateField: { justifyContent: 'center' },
+  dateFieldText: { fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#1a1a2e' },
+  dateFieldPlaceholder: { color: '#93C5FD' },
   submitBtn: { marginTop: 16, backgroundColor: '#508DF7', borderRadius: 14, padding: 14, alignItems: 'center' },
   submitBtnDisabled: { backgroundColor: '#93C5FD' },
   submitBtnText: { fontFamily: 'Lexend_700Bold', fontSize: 15, color: '#fff' },
+  datePickerOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  datePickerCard: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, gap: 12 },
+  datePickerActions: { flexDirection: 'row', gap: 12 },
+  datePickerCancel: { flex: 1, alignItems: 'center', borderRadius: 12, borderWidth: 1.5, borderColor: '#BFDBFE', padding: 14 },
+  datePickerCancelText: { fontFamily: 'Lexend_600SemiBold', color: '#6B7280' },
+  datePickerConfirm: { flex: 1, alignItems: 'center', borderRadius: 12, backgroundColor: '#508DF7', padding: 14 },
+  datePickerConfirmText: { fontFamily: 'Lexend_600SemiBold', color: '#fff' },
 
   sectionTitle: { fontFamily: 'Lexend_700Bold', fontSize: 15, color: '#1a1a2e', marginBottom: 10 },
   hwCard: { backgroundColor: '#fff', borderRadius: 16, padding: 14, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
