@@ -5,7 +5,7 @@
 
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import {
   Pressable,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { apiGetStudent, StudentResponse } from '@/services/api';
 import BackButton from '@/components/BackButton';
@@ -36,10 +37,23 @@ export default function StudentQuickAccessScreen() {
   const [student,      setStudent]      = useState<StudentResponse | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  useEffect(() => {
+  const loadStudent = useCallback(() => {
     if (!studentId) return;
-    apiGetStudent(studentId).then(setStudent).catch(() => {});
+    apiGetStudent(studentId)
+      .then((data) => {
+        setStudent(data);
+        if (data.assessedLevel != null) {
+          setModalVisible(false);
+        }
+      })
+      .catch(() => {});
   }, [studentId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadStudent();
+    }, [loadStudent])
+  );
 
   const isUnplaced = student ? (student.assessedLevel == null) : false;
 

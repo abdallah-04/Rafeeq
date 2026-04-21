@@ -5,6 +5,7 @@ import {
   FlatList, RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { StudentListSkeleton } from '@/components/LoadingSkeleton';
 import { apiGetStudents, StudentResponse } from '@/services/api';
@@ -36,9 +37,13 @@ export default function StudentsScreen() {
       setIsLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [show]);
 
-  useEffect(() => { load(); }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   const onRefresh = () => { setRefreshing(true); load(); };
 

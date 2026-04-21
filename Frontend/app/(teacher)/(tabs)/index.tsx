@@ -5,6 +5,7 @@ import {
   TouchableOpacity, RefreshControl, ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { apiGetStudents, StudentResponse } from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
@@ -107,7 +108,11 @@ export default function TeacherHomeScreen() {
     finally { setLoading(false); setRefreshing(false); }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   const teacherName = user?.name ?? user?.nameAr ?? t('teacher.profile.name', 'Teacher');
 

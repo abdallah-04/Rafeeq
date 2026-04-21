@@ -259,10 +259,10 @@ export interface PlacementQuestionResponse {
   orderNum:    number;
   level:       number;
   points:      number;
-  questionAr:  string;
-  questionEn:  string;
-  optionsAr:   string[];
-  optionsEn:   string[];
+  questionAr:  string | null;
+  questionEn:  string | null;
+  optionsAr:   Array<string | null>;
+  optionsEn:   Array<string | null>;
 }
 
 export interface PlacementAssessmentResponse {
@@ -274,10 +274,16 @@ export interface PlacementAssessmentResponse {
 }
 
 export interface PlacementSubmissionResponse {
-  childId:       string;
-  assessedLevel: number;
-  score:         number;
-  message:       string;
+  childId:               string;
+  assessmentId:          string;
+  resultLevel:           number;
+  correctAnswers:        number;
+  totalQuestions:        number;
+  confidencePercentage:  number;
+  detectedDifficulty:    string | null;
+  childStatus:           string;
+  active:                boolean;
+  placementCompletedAt:  string | null;
 }
 
 export interface ParentDashboard {
