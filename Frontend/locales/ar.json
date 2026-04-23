@@ -30,6 +30,7 @@
     "loading": "جارٍ التحميل...",
     "error": "حدث خطأ ما",
     "retry": "حاول مجدداً",
+    "repeat": "أعد",
     "or": "أو",
     "orContinueWith": "أو تابع بواسطة",
     "privacyPolicy": "سياسة الخصوصية",
@@ -559,7 +560,7 @@
 
   "school": {
     "home": {
-      "title": "لوحة تحكم المدرسة",
+      "title": "مدرسة النسيم",
       "teachers": "المعلمون",
       "students": "الطلاب"
     },
@@ -668,6 +669,32 @@
       "reports": "التقارير"
     },
     "grades": { "comingUp": "المقبل هذا الأسبوع" },
+    "cards": {
+      "location": "عمّان",
+      "childSubtitle": "{{name}}، الصف {{grade}}",
+      "teacherName": "المعلمة سارة محمود",
+      "teacherWithSubject": "{{name}} - {{subject}}",
+      "teacherAuthor": "{{name}} - {{date}}",
+      "reportDate": "28 مارس",
+      "reportTime": "8:30 ص",
+      "subjects": {
+        "arabic": "العربية",
+        "math": "الرياضيات",
+        "science": "العلوم"
+      },
+      "hw": {
+        "fractionsWorksheet": "ورقة عمل الكسور",
+        "plantDiagram": "مخطط النبات",
+        "chapter": "الفصل {{number}}",
+        "unit": "الوحدة {{number}}",
+        "inDays": "خلال {{count}} أيام",
+        "nextWeek": "الأسبوع القادم"
+      },
+      "tasks": {
+        "oralRecitation": "التسميع الشفهي",
+        "timesTablePractice": "تدريب جدول الضرب"
+      }
+    },
     "progress": {
       "overall": "التقدم الإجمالي",
       "semester": "الفصل الثاني",
@@ -714,6 +741,11 @@
     "questions": "أسئلة",
     "mins": "دقيقة",
     "startQuiz": "ابدأ الاختبار",
+    "cards": {
+      "colors": "اختبار الألوان",
+      "numbers": "الأرقام (1-10)",
+      "animals": "أصوات الحيوانات"
+    },
     "status": { "new": "جديد", "in_progress": "جارٍ", "completed": "مكتمل", "later": "لاحقاً" },
     "detail": { "level": "المستوى", "notTaken": "لم يُؤدَّ بعد", "completedOn": "اكتمل" },
     "keepGoing": "من",
@@ -727,13 +759,18 @@
     "today": "اليوم",
     "dueDate": "الموعد النهائي",
     "keepGoing": "من",
-    "keepGoingUnit": "واجب مكتمل",
+    "keepGoingUnit": "واجب",
     "keepGoingPeriod": "هذا الأسبوع",
     "todo": "للتنفيذ",
     "done": "منتهي",
     "forToday": "لليوم",
     "notFinishedSince": "لم يُنجز منذ الأسبوع الماضي",
     "openHw": "فتح الواجب",
+    "cards": {
+      "counting": "العد من 1 إلى 10",
+      "progressDescription": "تم إنجاز {{completed}} / {{total}} مهام",
+      "mathMeta": "الرياضيات - {{questions}} أسئلة - {{mins}} دقائق"
+    },
     "status": { "not_submitted": "قيد الانتظار", "submitted": "تم التسليم", "graded": "مصحَّح" }
   },
 
@@ -741,7 +778,15 @@
     "title": "الأنشطة",
     "recommendedFor": "موصى به لـ {{name}}",
     "daily": "الأنشطة اليومية",
-    "mins": "{{count}} دقيقة"
+    "mins": "{{count}} دقيقة",
+    "cards": {
+      "freeDrawing": "الرسم الحر",
+      "interactivePuzzle": "أحجية تفاعلية",
+      "breathingExercise": "تمرين التنفس",
+      "socialPlay": "اللعب الاجتماعي",
+      "withParentsMorning": "مع الوالدين - صباحاً",
+      "withFriendsEvening": "مع الأصدقاء - مساءً"
+    }
   },
 
   "tree": {
@@ -754,7 +799,7 @@
   },
 
   "explore": {
-    "title": "استكشاف",
+    "title": "مقالات",
     "saved": "المحفوظات",
     "savedBadge": "محفوظ",
     "readTime": "دقيقة قراءة",
@@ -776,6 +821,56 @@
       "learning": "التعلم",
       "behavioral": "السلوك",
       "motor": "المهارات الحركية"
+    }
+  },
+
+  "specialEducation": {
+    "title": "التربية الخاصة",
+    "pageTitle": "دعم التربية الخاصة",
+    "description": "يساعد هذا القسم أولياء الأمور على العثور بسهولة على مراكز التربية الخاصة الموثوقة، والأخصائيين، وخدمات الدعم. استكشف المراكز القريبة، واطّلع على الخدمات المتاحة، وتواصل مباشرة مع المختصين لدعم احتياجات طفلك.",
+    "sectionTitle": "دعم قريب منك",
+    "sectionHint": "خيارات موثوقة",
+    "actions": {
+      "call": "اتصال",
+      "message": "رسالة",
+      "directions": "الموقع"
+    },
+    "quickCards": {
+      "centers": {
+        "title": "مراكز قريبة منك",
+        "description": "اعثر على مراكز التربية الخاصة القريبة"
+      },
+      "specialists": {
+        "title": "أخصائيون",
+        "description": "تواصل مع معالجين ومربين معتمدين"
+      },
+      "services": {
+        "title": "خدمات الدعم",
+        "description": "اكتشف برامج مناسبة لاحتياجات طفلك"
+      },
+      "contact": {
+        "title": "التواصل والمساعدة",
+        "description": "احصل على الإرشاد والاستشارة"
+      }
+    },
+    "centers": {
+      "items": {
+        "first": {
+          "name": "مركز رفيق للتعلّم",
+          "subtitle": "علاج نطق، دعم سلوكي، وخطط تعلم",
+          "distance": "2.1 كم"
+        },
+        "second": {
+          "name": "د. لينا الحسن",
+          "subtitle": "أخصائية تربية خاصة ومستشارة أسرية معتمدة",
+          "distance": "عن بُعد"
+        },
+        "third": {
+          "name": "برنامج الخطوات المضيئة",
+          "subtitle": "برامج دعم يومية مصممة حسب العمر والاحتياج",
+          "distance": "4.3 كم"
+        }
+      }
     }
   },
 

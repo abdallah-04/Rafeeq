@@ -8,35 +8,46 @@ import {
 } from 'react-native'
 import { Text } from '@/components/RNText'
 import { theme } from '@/theme'
+import { useAppStore } from '@/store/Appstore'
+
+type TabItem = {
+    key: string
+    label: string
+}
 
 interface TabBarProps {
-    tabs: string[]
+    tabs: Array<string | TabItem>
     activeTab: string
     onTabChange: (tab: string) => void
 }
 
 export default function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
+    const isRTL = useAppStore((state) => state.isRTL)
+    const normalizedTabs = tabs.map((tab) =>
+        typeof tab === 'string' ? { key: tab, label: tab } : tab
+    )
+
     return (
         <View style={styles.wrapper}>
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 bounces={false}
-                contentContainerStyle={styles.container}
+                contentContainerStyle={[styles.container, isRTL && styles.containerRTL]}
             >
-                {tabs.map((tab) => {
-                    const isActive = tab === activeTab
+                {normalizedTabs.map((tab) => {
+                    const isActive = tab.key === activeTab
                     return (
                         <TouchableOpacity
-                            key={tab}
-                            onPress={() => onTabChange(tab)}
+                            key={tab.key}
+                            onPress={() => onTabChange(tab.key)}
                             style={[styles.tab, isActive && styles.activeTab]}
                             accessibilityRole="tab"
                             accessibilityState={{ selected: isActive }}
                             activeOpacity={0.7}
                         >
                             <Text style={[styles.tabText, isActive && styles.activeTabText]}>
-                                {tab}
+                                {tab.label}
                             </Text>
                         </TouchableOpacity>
                     )
@@ -57,6 +68,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: theme.spacing.lg,
     },
+    containerRTL: {
+        flexDirection: 'row-reverse',
+    },
     tab: {
         paddingVertical: theme.spacing.sm,
         paddingHorizontal: 6,
@@ -70,6 +84,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontFamily: 'Lexend_500Medium',
         color: theme.colors.textMuted,
+        textAlign: 'center',
     },
     activeTabText: {
         color: theme.colors.primary,

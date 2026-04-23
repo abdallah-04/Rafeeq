@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { Text } from '@/components/RNText'
 
 export type BadgeVariant =
@@ -16,24 +17,25 @@ interface StatusBadgeProps {
 
 const BADGE_CONFIG: Record<
     BadgeVariant,
-    { label: string; bg: string; text: string }
-    > = {
-    repeat:      { label: '⟳ Repeat',    bg: '#D1FAE5', text: '#059669' },
-    start:       { label: '▶ Start',      bg: '#DBEAFE', text: '#2563EB' },
-    completed:   { label: 'Completed',    bg: '#D1FAE5', text: '#059669' },
-    in_progress: { label: 'In progress',  bg: '#DBEAFE', text: '#2563EB' },
-    new:         { label: 'New',          bg: '#FEF3C7', text: '#D97706' },
-    later:       { label: 'Later',        bg: '#FEF3C7', text: '#D97706' },
+    { bg: string; text: string; labelKey: string; fallback: string }
+> = {
+    repeat: { labelKey: 'common.repeat', fallback: 'Repeat', bg: '#D1FAE5', text: '#059669' },
+    start: { labelKey: 'common.start', fallback: 'Start', bg: '#DBEAFE', text: '#2563EB' },
+    completed: { labelKey: 'common.completed', fallback: 'Completed', bg: '#D1FAE5', text: '#059669' },
+    in_progress: { labelKey: 'common.inProgress', fallback: 'In Progress', bg: '#DBEAFE', text: '#2563EB' },
+    new: { labelKey: 'common.new', fallback: 'New', bg: '#FEF3C7', text: '#D97706' },
+    later: { labelKey: 'quizzes.status.later', fallback: 'Later', bg: '#FEF3C7', text: '#D97706' },
 }
 
 export default function StatusBadge({ variant }: StatusBadgeProps) {
+    const { t } = useTranslation()
     const config = BADGE_CONFIG[variant]
 
     return (
         <View style={[styles.badge, { backgroundColor: config.bg }]}>
-        <Text style={[styles.label, { color: config.text }]}>
-            {config.label}
-        </Text>
+            <Text style={[styles.label, { color: config.text }]}>
+                {t(config.labelKey, config.fallback)}
+            </Text>
         </View>
     )
 }
