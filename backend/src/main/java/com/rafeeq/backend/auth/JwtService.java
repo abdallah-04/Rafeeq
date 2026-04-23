@@ -30,6 +30,10 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
     public String generateToken(UserDetails userDetails, String role, String userId) {
         return generateAccessToken(userDetails, role, userId);
     }
@@ -43,8 +47,10 @@ public class JwtService {
         return buildToken(claims, userDetails, jwtExpiration);
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
+    public String generateRefreshToken(UserDetails userDetails, String role, String userId) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        claims.put("userId", userId);
         claims.put("tokenType", "refresh");
 
         return buildToken(claims, userDetails, jwtRefreshExpiration);
@@ -57,6 +63,14 @@ public class JwtService {
 
     public String extractTokenType(String token) {
         return extractClaim(token, claims -> claims.get("tokenType", String.class));
+    }
+
+    public boolean isAccessToken(String token) {
+        return "access".equals(extractTokenType(token));
+    }
+
+    public boolean isRefreshToken(String token) {
+        return "refresh".equals(extractTokenType(token));
     }
 
     private String buildToken(
@@ -75,10 +89,6 @@ public class JwtService {
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

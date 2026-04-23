@@ -3,6 +3,7 @@ package com.rafeeq.backend.controller;
 import com.rafeeq.backend.dto.report.CreateReportRequest;
 import com.rafeeq.backend.dto.report.ReportResponse;
 import com.rafeeq.backend.service.ReportService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,7 +21,7 @@ public class ReportController {
 
     @PostMapping
     public ResponseEntity<ReportResponse> addTeacherReport(
-            @RequestBody CreateReportRequest request,
+            @Valid @RequestBody CreateReportRequest request,
             Authentication auth
     ) {
         return ResponseEntity.ok(reportService.addTeacherReport(request, auth.getName()));

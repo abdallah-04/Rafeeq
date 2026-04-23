@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface NoteRepository extends JpaRepository<Note, UUID> {
     List<Note> findByChildId(UUID childId);
+    List<Note> findByChildIdOrderByCreatedAtDesc(UUID childId);
 }

@@ -1,53 +1,38 @@
 package com.rafeeq.backend.service;
 
+import com.rafeeq.backend.dto.auth.MessageResponse;
+import com.rafeeq.backend.dto.child.ChildResponse;
+import com.rafeeq.backend.dto.child.ChildSummaryResponse;
+import com.rafeeq.backend.dto.child.LinkChildRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ParentChildService {
 
-    public Object getAll(String nationalId) {
-        return List.of(
-                Map.of(
-                        "id", UUID.randomUUID(),
-                        "name", "Ayoub Maher",
-                        "level", "LEVEL_3",
-                        "progress", 62
-                ),
-                Map.of(
-                        "id", UUID.randomUUID(),
-                        "name", "Mona Ramzi",
-                        "level", "LEVEL_5",
-                        "progress", 74
-                )
-        );
+    private final ChildService childService;
+
+    public List<ChildResponse> getAll(String nationalId) {
+        return childService.getMyChildren(nationalId);
     }
 
-    public Object getOne(UUID id, String nationalId) {
-        return Map.of(
-                "id", id,
-                "name", "Ayoub Maher",
-                "age", 8,
-                "level", "LEVEL_3",
-                "progress", 62
-        );
+    public ChildResponse getOne(UUID id, String nationalId) {
+        return childService.getChildById(id, nationalId);
     }
 
-    public Object getSummary(UUID id, String nationalId) {
-        return Map.of(
-                "childId", id,
-                "tasksCompleted", 8,
-                "daysInRow", 14,
-                "achievements", 3,
-                "progress", 62
-        );
+    public ChildSummaryResponse getSummary(UUID id, String nationalId) {
+        return childService.getChildSummary(id, nationalId);
     }
 
-    public void unlink(UUID id, String nationalId) {
+    public MessageResponse link(LinkChildRequest request, String nationalId) {
+        return childService.linkChildByNationalId(request, nationalId);
+    }
+
+    public MessageResponse unlink(UUID id, String nationalId) {
+        return childService.deleteChild(id, nationalId);
     }
 }

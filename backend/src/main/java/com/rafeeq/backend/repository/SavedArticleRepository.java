@@ -9,5 +9,6 @@ import java.util.UUID;
 
 public interface SavedArticleRepository extends JpaRepository<SavedArticle, UUID> {
     List<SavedArticle> findByUserId(UUID userId);
+    List<SavedArticle> findByUserIdOrderByCreatedAtDesc(UUID userId);
     Optional<SavedArticle> findByUserIdAndArticleId(UUID userId, UUID articleId);
 }

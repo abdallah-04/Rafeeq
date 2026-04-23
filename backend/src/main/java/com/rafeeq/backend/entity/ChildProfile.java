@@ -1,5 +1,6 @@
 package com.rafeeq.backend.entity;
 
+import com.rafeeq.backend.entity_enums.ChildStatus;
 import com.rafeeq.backend.entity_enums.Gender;
 import com.rafeeq.backend.entity_enums.LearningDifficulty;
 import jakarta.persistence.*;
@@ -10,6 +11,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -70,6 +72,9 @@ public class ChildProfile {
     @Column(name = "level")
     private Integer level;
 
+    @Column(name = "assessed_level")
+    private Integer assessedLevel;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", length = 20)
     private Gender gender;
@@ -81,10 +86,29 @@ public class ChildProfile {
     @Column(name = "learning_difficulty", length = 100)
     private LearningDifficulty learningDifficulty;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 50)
+    private ChildStatus status;
+
+    @Column(name = "placement_completed_at")
+    private LocalDateTime placementCompletedAt;
+
+    @Column(name = "photo_url", length = 500)
+    private String photoUrl;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
     @PrePersist
     public void prePersist() {
         if (id == null) {
             id = UUID.randomUUID();
+        }
+        if (status == null) {
+            status = ChildStatus.PENDING_PLACEMENT;
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
         }
     }
 }

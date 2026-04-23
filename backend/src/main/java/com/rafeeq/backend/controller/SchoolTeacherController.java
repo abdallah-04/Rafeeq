@@ -6,6 +6,7 @@ import com.rafeeq.backend.dto.school.TeacherResponse;
 import com.rafeeq.backend.dto.school.UpdateTeacherRequest;
 import com.rafeeq.backend.service.SchoolTeacherService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,7 +25,7 @@ public class SchoolTeacherController {
 
     @PostMapping
     public ResponseEntity<TeacherResponse> createTeacher(
-            @RequestBody CreateTeacherRequest request,
+            @Valid @RequestBody CreateTeacherRequest request,
             Authentication authentication
     ) {
         return ResponseEntity.ok(schoolTeacherService.createTeacher(request, authentication.getName()));

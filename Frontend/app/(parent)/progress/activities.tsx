@@ -10,6 +10,7 @@ import ChildSelector from '@/components/modal/parent/ChildSelector'
 import TabBar from '@/components/modal/shared/TabBar'
 import { Text } from '@/components/modal/shared/Text'
 import StatusBadge from '@/components/modal/parent/StatusBadge'
+import { useActiveChildStore } from '@/store/activeChildStore'
 
 interface RecommendedActivity {
     id: string
@@ -82,6 +83,10 @@ const TABS = ['Progress', 'Quizes', 'Activities', 'Homeworks']
 export default function ActivitiesScreen() {
     const { t } = useTranslation()
     const [activeTab, setActiveTab] = useState('Activities')
+    const activeChild = useActiveChildStore((s) => s.activeChild)
+    const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? 'Zaid'
+    const childAge  = activeChild?.dateOfBirth ? Math.floor((Date.now()-new Date(activeChild.dateOfBirth).getTime())/(1000*60*60*24*365)) : 6
+    const childBadges = [...(activeChild?.level ? [{ label: `Level ${activeChild.level}`, color: '#A78BFA' }] : [{ label: 'Level 2', color: '#A78BFA' }]),{ label: `Age ${childAge}`, color: '#60A5FA' }]
 
     const handleTabChange = (tab: string) => {
         if (tab === 'Progress') {
@@ -110,10 +115,10 @@ export default function ActivitiesScreen() {
             />
 
             <ChildSelector
-                name={MOCK_CHILD.name}
-                age={MOCK_CHILD.age}
-                avatar={MOCK_CHILD.avatar}
-                badges={MOCK_CHILD.badges}
+                name={childName}
+                age={childAge}
+                avatar={require('@/assets/images/boy.png')}
+                badges={childBadges}
                 onPress={() => {}}
             />
 
@@ -121,7 +126,7 @@ export default function ActivitiesScreen() {
 
             <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
                 <Text variant="heading" style={styles.sectionTitle}>
-                    ☆ {t('activities.recommendedFor', { name: MOCK_CHILD.name })}
+                    ☆ {t('activities.recommendedFor', { name: childName })}
                 </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendedList}>
                     {RECOMMENDED.map((item) => (

@@ -8,8 +8,10 @@ import {
   ScrollView,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { TEACHER_STUDENTS_MAP } from './_students';
+import { apiGetStudent, apiGetNotesForTeacher, StudentResponse, NoteResponse } from '@/services/api';
+import { useModal } from '@/components/modal/ModalProvider';
 import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
 import BackButton from '@/components/BackButton';
 
@@ -22,67 +24,82 @@ const RECENT_NOTES = [
 export default function TeacherStudentDashboard() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
+  const { show } = useModal();
   const { studentId } = useLocalSearchParams<{ studentId: string }>();
   const isRTL = i18n.language === 'ar';
-  const student = TEACHER_STUDENTS_MAP[studentId ?? '1'] ?? TEACHER_STUDENTS_MAP['1'];
+
+  const [student,    setStudent]    = React.useState<StudentResponse | null>(null);
+  const [notes,      setNotes]      = React.useState<NoteResponse[]>([]);
+  const [isLoading,  setIsLoading]  = React.useState(true);
+
+  const load = React.useCallback(() => {
+    if (!studentId) return;
+    Promise.all([
+      apiGetStudent(studentId),
+      apiGetNotesForTeacher(studentId).catch(() => [] as NoteResponse[]),
+    ]).then(([s, n]) => { setStudent(s); setNotes(n); })
+      .catch(() => show('error', { variant: 'invalidInfo' }))
+      .finally(() => setIsLoading(false));
+  }, [studentId, show]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      load();
+    }, [load])
+  );
 
   const ACTION_BUTTONS = [
-    { id: 'notes',   label: t('teacher.dashboard.notes', 'Notes'),       labelAr: 'ملاحظات', icon: '📝', color: '#FFB84C', bg: '#FFF8ED', route: '/(teacher)/notes' },
-    { id: 'hw',      label: t('teacher.dashboard.addHW', 'Add H.W'),     labelAr: 'واجب',    icon: '📚', color: '#508DF7', bg: '#EEF4FF', route: '/(teacher)/homework' },
-    { id: 'reports', label: t('teacher.dashboard.reports', 'Add Reports'),labelAr: 'تقارير', icon: '📋', color: '#BA6DE9', bg: '#F5EEFF', route: '/(teacher)/reports' },
+    { id: 'notes',   label: t('teacher.dashboard.notes',   'Notes'),       icon: '📝', color: '#FFB84C', bg: '#FFF8ED', route: '/(teacher)/notes' },
+    { id: 'hw',      label: t('teacher.dashboard.addHW',   'Add H.W'),     icon: '📚', color: '#508DF7', bg: '#EEF4FF', route: '/(teacher)/homework' },
+    { id: 'reports', label: t('teacher.dashboard.reports', 'Add Reports'),  icon: '📋', color: '#BA6DE9', bg: '#F5EEFF', route: '/(teacher)/reports' },
   ];
+
+  if (isLoading) return null;
+  if (!student)  return null;
+
+  const displayName = isRTL ? student.fullNameAr : (student.fullNameEn ?? student.fullNameAr);
+  const initials    = (displayName ?? '?').split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
+  const level       = student.assessedLevel ?? student.level ?? 0;
+  const avatarBg    = ['#FFD9B3','#C8E6C9','#BBDEFB','#F8BBD0','#E1BEE7'][(displayName?.charCodeAt(0) ?? 0) % 5];
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Nav bar */}
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
         <BackButton onPress={() => router.back()} />
-        <Text style={styles.navTitle}>{isRTL ? student.nameAr : student.name}</Text>
+        <Text style={styles.navTitle}>{displayName}</Text>
         <View style={{ width: 40 }} />
       </View>
-
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
         <View style={[styles.actionsRow, isRTL && styles.rowReverse]}>
           {ACTION_BUTTONS.map((btn) => (
-            <TouchableOpacity
-              key={btn.id}
-              style={[styles.actionBtn, { backgroundColor: btn.bg }]}
-              onPress={() => router.push({ pathname: btn.route as any, params: { studentId } })}
-              activeOpacity={0.75}
-            >
+            <TouchableOpacity key={btn.id} style={[styles.actionBtn, { backgroundColor: btn.bg }]}
+              onPress={() => router.push({ pathname: btn.route as any, params: { studentId } })} activeOpacity={0.75}>
               <Text style={styles.actionIcon}>{btn.icon}</Text>
               <Text style={[styles.actionLabel, { color: btn.color }]}>{btn.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
-
         <View style={styles.progressCard}>
           <View style={[styles.progressCardInner, isRTL && styles.rowReverse]}>
-            {/* Avatar + name + tags */}
             <View style={styles.progressLeft}>
-              <View style={[styles.avatar, { backgroundColor: student.avatarBg }]}>
-                <Text style={styles.avatarText}>{student.initials}</Text>
+              <View style={[styles.avatar, { backgroundColor: avatarBg }]}>
+                <Text style={styles.avatarText}>{initials}</Text>
               </View>
               <View style={styles.progressInfo}>
-                <Text style={styles.progressName}>
-                  {isRTL ? student.nameAr : student.name} — {t('teacher.dashboard.progressOf', 'Progress')}
-                </Text>
+                <Text style={styles.progressName}>{displayName} — {t('teacher.dashboard.progressOf','Progress')}</Text>
                 <View style={styles.tagsRow}>
-                  <View style={styles.tagBlue}><Text style={styles.tagBlueText}>Age {student.age}</Text></View>
-                  <View style={styles.tagOrange}><Text style={styles.tagOrangeText}>{student.condition}</Text></View>
-                  <View style={styles.tagPurple}><Text style={styles.tagPurpleText}>{student.level}</Text></View>
+                  {student.level != null && <View style={styles.tagBlue}><Text style={styles.tagBlueText}>Level {student.level}</Text></View>}
+                  {student.learningDifficulty && <View style={styles.tagOrange}><Text style={styles.tagOrangeText}>{String(student.learningDifficulty)}</Text></View>}
                 </View>
               </View>
             </View>
-            <AnimatedProgressCircle progress={student.progress} size={88} color="#508DF7" />
+            <AnimatedProgressCircle progress={level ? Math.min(level*20,100) : 0} size={88} color="#508DF7" />
           </View>
-
           <View style={[styles.statsRow, isRTL && styles.rowReverse]}>
             {[
-              { icon: '✅', value: '8', label: t('teacher.dashboard.tasks', 'Task') },
-              { icon: '📅', value: '14', label: t('teacher.dashboard.daysRow', 'Days in Row') },
-              { icon: '⭐', value: '3',  label: t('teacher.dashboard.achievements', 'Achievement') },
+              { icon: '📋', value: String(notes.length), label: t('teacher.dashboard.notes','Notes') },
+              { icon: '🎯', value: level ? `L${level}` : '—', label: t('teacher.dashboard.level','Level') },
+              { icon: '⭐', value: student.status === 'ACTIVE' ? '✓' : '…', label: t('teacher.dashboard.status','Status') },
             ].map((stat, i) => (
               <View key={i} style={styles.statItem}>
                 <Text style={styles.statIcon}>{stat.icon}</Text>
@@ -91,23 +108,21 @@ export default function TeacherStudentDashboard() {
             ))}
           </View>
         </View>
-
-        <Text style={[styles.sectionTitle, isRTL && styles.textRight]}>
-          {t('teacher.dashboard.recentNotes', 'Recent Notes')}
-        </Text>
-
-        {RECENT_NOTES.map((note) => (
+        <Text style={[styles.sectionTitle, isRTL && styles.textRight]}>{t('teacher.dashboard.recentNotes','Recent Notes')}</Text>
+        {notes.length === 0 ? (
+          <Text style={[styles.sectionTitle, { fontSize: 13, color: '#9CA3AF', paddingHorizontal: 20 }]}>{t('teacher.dashboard.noNotes','No notes yet')}</Text>
+        ) : notes.slice(0,3).map((note) => (
           <View key={note.id} style={styles.noteCard}>
             <View style={[styles.noteHeader, isRTL && styles.rowReverse]}>
-              <View style={[styles.noteAvatar, { backgroundColor: note.avatarBg }]}>
-                <Text style={styles.noteAvatarText}>{note.initials}</Text>
-              </View>
+              <View style={[styles.noteAvatar, { backgroundColor: '#BBDEFB' }]}><Text style={styles.noteAvatarText}>T</Text></View>
               <View style={styles.noteAuthorBlock}>
-                <Text style={[styles.noteAuthor, isRTL && styles.textRight]}>{isRTL ? note.authorAr : note.author}</Text>
-                <Text style={[styles.noteTime, isRTL && styles.textRight]}>{isRTL ? note.timeAr : note.time}</Text>
+                <Text style={[styles.noteAuthor, isRTL && styles.textRight]}>{note.title}</Text>
+                <Text style={[styles.noteTime, isRTL && styles.textRight]}>
+                  {note.createdAt ? new Date(note.createdAt).toLocaleDateString(isRTL ? 'ar-JO' : 'en-GB') : ''}
+                </Text>
               </View>
             </View>
-            <Text style={[styles.noteText, isRTL && styles.textRight]}>{note.text}</Text>
+            <Text style={[styles.noteText, isRTL && styles.textRight]}>{note.content}</Text>
           </View>
         ))}
       </ScrollView>

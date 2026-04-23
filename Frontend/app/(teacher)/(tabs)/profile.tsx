@@ -7,6 +7,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
+import { performLogout } from '@/utils/logout';
 
 const MENU_ITEMS = [
   { id: 'account',   icon: '👤', labelKey: 'teacher.profile.account',    label: 'Account Info' },
@@ -23,12 +24,12 @@ export default function TeacherProfileScreen() {
   const isRTL = i18n.language === 'ar';
   const logout = useAuthStore((s) => s.logout);
   const setLanguage = useAuthStore((s) => s.setLanguage);
+  const user = useAuthStore((s) => s.user);
+  const teacherName = user?.name ?? user?.nameAr ?? t('teacher.profile.name', 'Teacher');
+  const initials = teacherName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
 
   const handleMenuPress = (id: string) => {
-    if (id === 'logout') {
-      logout();
-      router.replace('/(auth)/login' as any);
-    }
+    if (id === 'logout') { performLogout(); }
   };
 
   const handleLanguageChange = (lang: 'en' | 'ar') => {
@@ -43,9 +44,9 @@ export default function TeacherProfileScreen() {
         {/* Avatar + name */}
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>MA</Text>
+            <Text style={styles.avatarText}>{initials}</Text>
           </View>
-          <Text style={styles.name}>{t('teacher.profile.name', 'Mr. Ahmad')}</Text>
+          <Text style={styles.name}>{teacherName}</Text>
           <Text style={styles.role}>{t('teacher.profile.role', 'Special Education Teacher')}</Text>
           <View style={styles.statRow}>
             <View style={styles.statItem}>

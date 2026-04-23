@@ -1,9 +1,11 @@
 package com.rafeeq.backend.controller;
 
 import com.rafeeq.backend.dto.auth.MessageResponse;
+import com.rafeeq.backend.dto.teacher.CreateStudentRequest;
 import com.rafeeq.backend.dto.teacher.StudentResponse;
 import com.rafeeq.backend.dto.teacher.UpdateStudentRequest;
 import com.rafeeq.backend.service.TeacherStudentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,16 @@ import java.util.UUID;
 public class TeacherController {
 
     private final TeacherStudentService teacherStudentService;
+
+    @PostMapping("/students")
+    public ResponseEntity<StudentResponse> createStudent(
+            @Valid @RequestBody CreateStudentRequest request,
+            Authentication auth
+    ) {
+        return ResponseEntity.ok(
+                teacherStudentService.createStudent(request, auth.getName())
+        );
+    }
 
     @GetMapping("/students")
     public ResponseEntity<List<StudentResponse>> getStudents(Authentication auth) {

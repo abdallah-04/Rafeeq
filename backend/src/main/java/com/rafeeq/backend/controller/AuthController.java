@@ -17,6 +17,8 @@ import com.rafeeq.backend.dto.auth.VerifyOtpRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,50 +34,50 @@ public class AuthController {
 
     @Operation(summary = "Register parent")
     @PostMapping("/register/parent")
-    public ResponseEntity<AuthResponse> registerParent(@RequestBody RegisterParentRequest request) {
-        return ResponseEntity.ok(authService.registerParent(request));
+    public ResponseEntity<AuthResponse> registerParent(@Valid @RequestBody RegisterParentRequest request, HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(authService.registerParent(request, httpRequest));
     }
 
     @Operation(summary = "Register school")
     @PostMapping("/register/school")
-    public ResponseEntity<AuthResponse> registerSchool(@RequestBody RegisterSchoolRequest request) {
-        return ResponseEntity.ok(authService.registerSchool(request));
+    public ResponseEntity<AuthResponse> registerSchool(@Valid @RequestBody RegisterSchoolRequest request, HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(authService.registerSchool(request, httpRequest));
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<MessageResponse> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+    public ResponseEntity<MessageResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         return ResponseEntity.ok(authService.forgotPassword(request));
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<MessageResponse> verifyOtp(@RequestBody VerifyOtpRequest request) {
+    public ResponseEntity<MessageResponse> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
         return ResponseEntity.ok(authService.verifyOtp(request));
     }
 
     @PostMapping("/resend-otp")
-    public ResponseEntity<MessageResponse> resendOtp(@RequestBody ResendOtpRequest request) {
+    public ResponseEntity<MessageResponse> resendOtp(@Valid @RequestBody ResendOtpRequest request) {
         return ResponseEntity.ok(authService.resendOtp(request));
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<MessageResponse> resetPassword(@RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         return ResponseEntity.ok(authService.resetPassword(request));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshTokenResponse> refresh(@RequestBody RefreshTokenRequest request) {
-        return ResponseEntity.ok(authService.refresh(request));
+    public ResponseEntity<RefreshTokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request, HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(authService.refresh(request, httpRequest));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<MessageResponse> logout(@RequestBody LogoutRequest request) {
+    public ResponseEntity<MessageResponse> logout(@Valid @RequestBody LogoutRequest request) {
         return ResponseEntity.ok(authService.logout(request));
     }
 
     @Operation(summary = "Login")
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(authService.login(request, httpRequest));
     }
 
     @Operation(

@@ -134,10 +134,10 @@
 
 //             {/* ── Child Selector ── */}
 //             <ChildSelector
-//                 name={MOCK_CHILD.name}
-//                 age={MOCK_CHILD.age}
-//                 avatar={MOCK_CHILD.avatar}
-//                 badges={MOCK_CHILD.badges}
+//                 name={childName}
+//                 age={childAge}
+//                 avatar={require('@/assets/images/boy.png')}
+//                 badges={childBadges}
 //                 onPress={() => {
 //                     // TODO: open child switcher modal
 //                 }}
@@ -280,6 +280,7 @@ import Header from '@/components/modal/shared/Header'
 import ChildSelector from '@/components/modal/parent/ChildSelector'
 import TabBar from '@/components/modal/shared/TabBar'
 import QuizCard from '@/components/modal/parent/quizcard'
+import { useActiveChildStore } from '@/store/activeChildStore'
 import { Text } from '@/components/modal/shared/Text'
 
 // ─── Types & Mock Data ────────────────────────────────────────────────────────
@@ -342,6 +343,10 @@ const TABS = ['Progress', 'Quizes', 'Activities', 'Homeworks']
 
 export default function QuizzesScreen() {
     const [activeTab, setActiveTab] = useState('Quizes')
+    const activeChild = useActiveChildStore((s) => s.activeChild)
+    const childName   = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? 'Zaid'
+    const childAge    = activeChild?.dateOfBirth ? Math.floor((Date.now()-new Date(activeChild.dateOfBirth).getTime())/(1000*60*60*24*365)) : 6
+    const childBadges = [...(activeChild?.level ? [{ label: `Level ${activeChild.level}`, color: '#A78BFA' }] : [{ label: 'Level 2', color: '#A78BFA' }]),{ label: `Age ${childAge}`, color: '#60A5FA' }]
 
     const handleTabChange = (tab: string) => {
         if (tab === 'Progress') {
@@ -370,10 +375,10 @@ export default function QuizzesScreen() {
         />
 
         <ChildSelector
-            name={MOCK_CHILD.name}
-            age={MOCK_CHILD.age}
-            avatar={MOCK_CHILD.avatar}
-            badges={MOCK_CHILD.badges}
+            name={childName}
+            age={childAge}
+            avatar={require('@/assets/images/boy.png')}
+            badges={childBadges}
             onPress={() => {}}
         />
 

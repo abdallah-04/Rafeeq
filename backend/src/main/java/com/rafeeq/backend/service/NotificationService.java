@@ -9,12 +9,14 @@ import com.rafeeq.backend.repository.NotificationRepository;
 import com.rafeeq.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -31,9 +33,13 @@ public class NotificationService {
                 .toList();
     }
 
+    @Transactional
     public MessageResponse markAsRead(UUID id, String nationalId) {
 
-        Notification n = notificationRepository.findById(id)
+        User user = userRepository.findByNationalId(nationalId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Notification n = notificationRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new NotFoundException("Notification not found"));
 
         n.setIsRead(true);
@@ -43,6 +49,7 @@ public class NotificationService {
         return new MessageResponse(true, "Notification marked as read");
     }
 
+    @Transactional
     public MessageResponse markAllAsRead(String nationalId) {
 
         User user = userRepository.findByNationalId(nationalId)

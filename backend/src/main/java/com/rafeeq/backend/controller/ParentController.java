@@ -1,6 +1,9 @@
 package com.rafeeq.backend.controller;
 
+import com.rafeeq.backend.dto.auth.MessageResponse;
+import com.rafeeq.backend.dto.child.LinkChildRequest;
 import com.rafeeq.backend.service.ParentChildService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,6 +23,14 @@ public class ParentController {
         return ResponseEntity.ok(
                 parentChildService.getAll(auth.getName())
         );
+    }
+
+    @PostMapping("/children/link")
+    public ResponseEntity<MessageResponse> linkChild(
+            @Valid @RequestBody LinkChildRequest request,
+            Authentication auth
+    ) {
+        return ResponseEntity.ok(parentChildService.link(request, auth.getName()));
     }
 
     @GetMapping("/children/{id}")
@@ -43,17 +54,10 @@ public class ParentController {
     }
 
     @DeleteMapping("/children/{id}")
-    public ResponseEntity<?> unlinkChild(
+    public ResponseEntity<MessageResponse> unlinkChild(
             @PathVariable UUID id,
             Authentication auth
     ) {
-        parentChildService.unlink(id, auth.getName());
-
-        return ResponseEntity.ok(
-                java.util.Map.of(
-                        "success", true,
-                        "message", "Child unlinked successfully"
-                )
-        );
+        return ResponseEntity.ok(parentChildService.unlink(id, auth.getName()));
     }
 }

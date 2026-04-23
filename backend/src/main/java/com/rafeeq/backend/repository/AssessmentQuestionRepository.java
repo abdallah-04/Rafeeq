@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface AssessmentQuestionRepository extends JpaRepository<AssessmentQuestion, UUID> {
     List<AssessmentQuestion> findByLevelOrderByOrderNumAsc(Integer level);
+    List<AssessmentQuestion> findAllByOrderByLevelAscOrderNumAsc();
 }

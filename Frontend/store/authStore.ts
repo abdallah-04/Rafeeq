@@ -2,7 +2,8 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'  // ← ADDED
 import AsyncStorage from '@react-native-async-storage/async-storage' // ← ADDED
 import { I18nManager } from 'react-native'
-import type { AuthState, User, Child, Language, UserRole } from '../types'
+import type { AuthState, User, Language, UserRole } from '../types'
+import type { ChildResponse } from '../services/api'
 import i18n from '@/i18n'
 
 // ─────────────────────────────────────────────
@@ -15,7 +16,7 @@ interface AuthStore extends AuthState {
   // ── Actions ──────────────────────────────
   login:               (user: User, token: string) => void
   logout:              () => void
-  setSelectedChild:    (child: Child | null) => void
+  setSelectedChild:    (child: ChildResponse | null) => void
   setLanguage:         (lang: Language) => void
   setRole:             (role: UserRole) => void
   setLanguageSelected: (value: boolean) => void  // ← ADDED

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +43,9 @@ public class Teacher {
     @Column(name = "specialization", length = 255)
     private String specialization;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
 
     @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY)
     private List<Homework> homeworks = new ArrayList<>();
@@ -53,6 +57,9 @@ public class Teacher {
     public void prePersist() {
         if (id == null) {
             id = UUID.randomUUID();
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
         }
     }
 }

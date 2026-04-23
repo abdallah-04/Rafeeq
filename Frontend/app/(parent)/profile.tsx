@@ -10,8 +10,8 @@ import ScreenWrapper from '@/components/modal/shared/ScreenWap';
 import Avatar from '@/components/modal/shared/Avatar';
 import { theme } from '@/theme';
 import { useAuthStore } from '@/store/authStore';
-import { useAppStore } from '@/store/Appstore';
-import type { Language } from '@/store/Appstore';
+import { performLogout } from '@/utils/logout';
+import type { Language } from '@/types';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -46,16 +46,11 @@ function SettingsRow({ icon, label, onPress, danger }: RowProps) {
 export default function ProfileScreen() {
   const { t } = useTranslation();
   const authLogout = useAuthStore((s) => s.logout);
-  const appLogout = useAppStore((s) => s.logout);
-  const language = useAppStore((s) => s.language);
-  const setLanguage = useAppStore((s) => s.setLanguage);
+  const language    = useAuthStore((s) => s.language);
+  const setLanguage = useAuthStore((s) => s.setLanguage);
   const [langModalVisible, setLangModalVisible] = useState(false);
 
-  const handleLogout = () => {
-    authLogout();
-    appLogout();
-    router.replace('/(auth)/login');
-  };
+  const handleLogout = () => performLogout();
 
   const handleSelectLanguage = (lang: Language) => {
     setLanguage(lang);
