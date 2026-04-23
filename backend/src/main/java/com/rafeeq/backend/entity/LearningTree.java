@@ -32,6 +32,9 @@ public class LearningTree {
 
     @Column(name = "topic", length = 255)
     private String topic;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_id")
+    private Topic topic_ref;
 
     @Column(name = "status", length = 50)
     private String status;
