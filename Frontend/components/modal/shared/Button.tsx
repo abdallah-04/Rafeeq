@@ -1,13 +1,13 @@
 import React from 'react';
 import {
   TouchableOpacity,
-  Text,
   ActivityIndicator,
   StyleSheet,
   ViewStyle,
   TextStyle,
 } from 'react-native';
 import { theme } from '@/theme';
+import { Text } from '@/components/modal/shared/Text';
 
 type Variant = 'primary' | 'secondary' | 'outline' | 'ghost';
 
@@ -69,31 +69,24 @@ export const Button = ({
     },
   };
 
-  const variantTextStyles: Record<Variant, TextStyle> = {
-    primary: {
-      color: theme.colors.textWhite,
-      fontSize: theme.typography.fontSize.base,
-      fontWeight: theme.typography.fontWeight.bold,
-      fontFamily: theme.typography.fontFamily.bold,
-    },
-    secondary: {
-      color: theme.colors.textPrimary,
-      fontSize: theme.typography.fontSize.base,
-      fontWeight: theme.typography.fontWeight.bold,
-      fontFamily: theme.typography.fontFamily.bold,
-    },
-    outline: {
-      color: theme.colors.buttonOutline,
-      fontSize: theme.typography.fontSize.base,
-      fontWeight: theme.typography.fontWeight.bold,
-      fontFamily: theme.typography.fontFamily.bold,
-    },
-    ghost: {
-      color: theme.colors.primary,
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.medium,
-      fontFamily: theme.typography.fontFamily.medium,
-    },
+  const getTextVariant = (): 'heading' | 'body' | 'caption' | 'label' => {
+    if (variant === 'ghost') return 'label';
+    return 'body';
+  };
+
+  const getTextColor = (): keyof typeof theme.colors => {
+    switch (variant) {
+      case 'primary':
+        return 'textWhite';
+      case 'secondary':
+        return 'textPrimary';
+      case 'outline':
+        return 'buttonOutline';
+      case 'ghost':
+        return 'primary';
+      default:
+        return 'textPrimary';
+    }
   };
 
   return (
@@ -109,7 +102,13 @@ export const Button = ({
           size="small"
         />
       ) : (
-        <Text style={[variantTextStyles[variant], textStyle]}>{label}</Text>
+        <Text 
+          variant={getTextVariant()}
+          color={getTextColor()}
+          style={[{ fontSize: variant === 'ghost' ? theme.typography.fontSize.sm : theme.typography.fontSize.base }, textStyle]}
+        >
+          {label}
+        </Text>
       )}
     </TouchableOpacity>
   );

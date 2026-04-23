@@ -30,7 +30,7 @@ interface DailyActivity {
 }
 
 const MOCK_CHILD = {
-    name: 'Zaid',
+    name: 'Ayoub',
     age: 6,
     avatar: require('@/assets/images/boy.png'),
     badges: [
@@ -77,26 +77,46 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
     },
 ]
 
-const TABS = ['Progress', 'Quizes', 'Activities', 'Homeworks']
+// ✅ Tab keys ثابتة — مش مرتبطة بالترجمة
+type TabKey = 'progress' | 'quizzes' | 'activities' | 'homeworks'
+
+const TAB_KEYS: TabKey[] = ['progress', 'quizzes', 'activities', 'homeworks']
 
 export default function ActivitiesScreen() {
     const { t } = useTranslation()
-    const [activeTab, setActiveTab] = useState('Activities')
+
+    // ✅ نحفظ الـ key مش الـ label
+    const [activeTabKey, setActiveTabKey] = useState<TabKey>('activities')
+
+    // ✅ الـ labels المترجمة — بتتغير مع اللغة تلقائياً
+    const TABS = [
+        t('progress.tabs.progress'),
+        t('progress.tabs.quizzes'),
+        t('activities.title'),
+        t('homework.title'),
+    ]
+
+    // ✅ activeTab للـ TabBar component
+    const activeTab = TABS[TAB_KEYS.indexOf(activeTabKey)]
 
     const handleTabChange = (tab: string) => {
-        if (tab === 'Progress') {
+        // ✅ نرجع للـ key عن طريق الـ index
+        const index = TABS.indexOf(tab)
+        const key = TAB_KEYS[index]
+
+        if (key === 'progress') {
             router.replace('/(parent)/progress/progress-page')
             return
         }
-        if (tab === 'Quizes') {
+        if (key === 'quizzes') {
             router.replace('/(parent)/progress/quiz')
             return
         }
-        if (tab === 'Homeworks') {
+        if (key === 'homeworks') {
             router.replace('/(parent)/progress/homeworks')
             return
         }
-        setActiveTab(tab)
+        setActiveTabKey('activities')
     }
 
     return (
@@ -117,6 +137,7 @@ export default function ActivitiesScreen() {
                 onPress={() => {}}
             />
 
+            {/* ✅ بنمرر الـ translated labels + الـ active label */}
             <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
             <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
@@ -135,14 +156,20 @@ export default function ActivitiesScreen() {
                 </ScrollView>
 
                 <View style={styles.sectionHeader}>
-                    <Text variant="heading" style={styles.sectionTitle}>🏃 {t('activities.daily')}</Text>
+                    <Text variant="heading" style={styles.sectionTitle}>
+                        🏃 {t('activities.daily')}
+                    </Text>
                     <TouchableOpacity onPress={() => router.push('/(parent)/activities-all' as any)}>
                         <Text style={styles.seeAll}>{t('common.seeAll')}</Text>
                     </TouchableOpacity>
                 </View>
 
                 {DAILY_ACTIVITIES.map((item) => (
-                    <DailyCard key={item.id} item={item} onPress={() => router.push(`/(parent)/activity/${item.id}` as any)} />
+                    <DailyCard
+                        key={item.id}
+                        item={item}
+                        onPress={() => router.push(`/(parent)/activity/${item.id}` as any)}
+                    />
                 ))}
             </ScrollView>
         </ScreenWrapper>

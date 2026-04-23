@@ -4,6 +4,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Image,
   Animated as RNAnimated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,6 +20,7 @@ import { Button } from '@/components/modal/shared/Button';
 import Input from '@/components/modal/shared/TextInput';
 import BackButton from '@/components/modal/shared/BackButton';
 import { useAuthStore } from '@/store/authStore';
+import Footer from '@/components/modal/shared/Footer';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -61,7 +63,11 @@ function Step1({ onNext }: { onNext: () => void }) {
 
   return (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepIcon}>🔍</Text>
+        <Image
+        source={require('@/assets/images/icons/forgot.png')}
+        style={styles.stepIcon}
+        resizeMode="contain"
+        />
       <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
         {t('forgotPassword.step1.title')}
       </Text>
@@ -95,7 +101,11 @@ function Step2({ onNext }: { onNext: () => void }) {
 
   return (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepIcon}>📱</Text>
+      <Image
+        source={require('@/assets/images/icons/verification.png')}
+        style={styles.stepIcon}
+        resizeMode="contain"
+        />
       <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
         {t('forgotPassword.step2.title')}
       </Text>
@@ -123,7 +133,11 @@ function Step3({ onNext }: { onNext: () => void }) {
 
   return (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepIcon}>🔒</Text>
+      <Image
+        source={require('@/assets/images/icons/password.png')}
+        style={styles.stepIcon}
+        resizeMode="contain"
+        />
       <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
         {t('forgotPassword.step3.title')}
       </Text>
@@ -185,7 +199,11 @@ function Step4() {
 
   return (
     <View style={[styles.stepContainer, styles.successCenter]}>
-      <Text style={styles.stepIcon}>✅</Text>
+      <Image
+        source={require('@/assets/images/icons/change-password.png')}
+        style={styles.stepIcon}
+        resizeMode="contain"
+        />
       <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
         {t('forgotPassword.step4.title')}
       </Text>
@@ -244,6 +262,11 @@ export default function ForgotPasswordScreen() {
           {step === 4 && <Step4 />}
         </RNAnimated.View>
       </KeyboardAvoidingView>
+
+      <Footer
+        onPrivacyPress={() => {}}
+        onTermsPress={() => {}}
+      />
     </SafeAreaView>
   );
 }
@@ -298,6 +321,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
     gap: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    
   },
 
   successCenter: {
@@ -306,9 +332,11 @@ const styles = StyleSheet.create({
   },
 
   stepIcon: {
-    fontSize: 48,
-    textAlign: 'center',
-    marginBottom: spacing.xs,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 82,
+      height: 82,
+      marginBottom: 9,
   },
 
   stepTitle: {

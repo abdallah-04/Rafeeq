@@ -65,7 +65,7 @@
   "onboarding": {
     "slide1": {
       "title": "Helping every child learn and grow",
-      "subtitle": "A personalised learning journey built for children with special needs"
+      "subtitle": "A personalized learning journey for every child with learning difficulties"
     },
     "slide2": {
       "title": "Stay connected with school and family",
@@ -78,7 +78,7 @@
   },
 
   "landing": {
-    "tagline": "Educational platform for children with special needs",
+    "tagline": "Educational platform for children with learning difficulties",
     "subtitle": "Your child's development journey starts here",
     "login": "Login",
     "getStarted": "Get Started"
@@ -632,7 +632,7 @@
 
   "progress": {
     "title": "Progress",
-    "tabs": { "progress": "Progress", "quizzes": "Quizzes", "activities": "Activities" },
+    "tabs": { "progress": "Progress", "quizzes": "Quizzes", "activities": "Activities" , "homeworks": "Homeworks"},
     "thisMonth": "This Month",
     "summary": "Progress Summary",
     "focusAttention": "Focus & Attention",
@@ -749,6 +749,7 @@
     "title": "Profile",
     "editProfile": "Edit Profile",
     "language": "Language",
+    "schoolInfo": "School Information",
     "notifications": "Notifications",
     "privacy": "Privacy",
     "help": "Help & Support",

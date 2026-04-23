@@ -68,17 +68,26 @@ function ChildCard({ t }: { t: (key: string, opts?: any) => string }) {
             {/* Stats row */}
             <View style={cardStyles.statsRow}>
                 <View style={cardStyles.stat}>
-                    <Text style={cardStyles.statIcon}>✓</Text>
+                    <Image
+                        source={require('@/assets/images/icons/check-mark.png')}
+                        style={[cardStyles.stsimg, { tintColor: colors.success }]}
+                    />
                     <Text variant="caption" style={cardStyles.statText}>{CHILD.tasks} {t('parent.home.childCard.tasks')}</Text>
                 </View>
                 <View style={cardStyles.divider} />
                 <View style={cardStyles.stat}>
-                    <Text style={cardStyles.statIcon}>📅</Text>
+                    <Image
+                        source={require('@/assets/images/icons/calendar.png')}
+                        style={[cardStyles.stsimg, { tintColor: colors.textSecondary }]}
+                    />
                     <Text variant="caption" style={cardStyles.statText}>{CHILD.daysInRow} {t('parent.home.childCard.streak')}</Text>
                 </View>
                 <View style={cardStyles.divider} />
                 <View style={cardStyles.stat}>
-                    <Text style={cardStyles.statIcon}>☆</Text>
+                    <Image
+                        source={require('@/assets/images/icons/ribbon.png')}
+                        style={[cardStyles.stsimg, { tintColor: colors.warning }]}
+                    />
                     <Text variant="caption" style={cardStyles.statText}>{CHILD.achievements} {t('parent.home.childCard.achievements')}</Text>
                 </View>
             </View>
@@ -126,6 +135,10 @@ const cardStyles = StyleSheet.create({
         justifyContent: 'space-between',
         margin: spacing.sm,
         marginBottom: 0.00007,
+    },
+    stsimg: {
+        width: 19,
+        height: 19,
     },
     stat: {
         flex: 1,
@@ -182,7 +195,7 @@ const qaStyles = StyleSheet.create({
     },
     title: {
         fontSize: typography.fontSize.lg,
-        fontFamily: typography.fontFamily.bold,
+        fontFamily: typography.fontFamily.semiBold,
         color: colors.textPrimary,
     },
     grid: {

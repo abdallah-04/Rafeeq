@@ -1,8 +1,8 @@
 import React from 'react';
 import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { View, TextInput as RNTextInput, TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
-import TextInput from '@/components/modal/shared/TextInput';
+import { View, TouchableOpacity, StyleSheet, I18nManager, Image, TextInput as RNTextInput } from 'react-native';
+import CustomTextInput from '@/components/modal/shared/TextInput';
 import { theme } from '@/theme';
 import { Text } from '@/components/modal/shared/Text';
 
@@ -40,7 +40,7 @@ export function NationalIdInput<T extends FieldValues>({
         },
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <TextInput
+        <CustomTextInput
           label={label || t('auth.signup.nationalId')}
           value={value || ''}
           onChangeText={(text) => onChange(text.replace(/[^0-9]/g, '').slice(0, 10))}
@@ -92,7 +92,7 @@ export function PhoneInput<T extends FieldValues>({
         validate: validatePhone,
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <TextInput
+        <CustomTextInput
           label={label || t('auth.signup.phone')}
           value={value || ''}
           onChangeText={(text) => {
@@ -129,9 +129,12 @@ export function PasswordInput<T extends FieldValues>({
   required = true,
   minLength = 8,
 }: PasswordInputProps<T>) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showPassword, setShowPassword] = React.useState(false);
   const isRTL = I18nManager.isRTL;
+  const isAr = i18n.language === 'ar';
+
+  const fontFamily = isAr ? typography.fontFamily.regular : typography.fontFamily.regular;
 
   return (
     <Controller
@@ -146,12 +149,20 @@ export function PasswordInput<T extends FieldValues>({
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <View>
-          <Text style={[styles.label, isRTL && styles.labelRTL]}>
+          <Text 
+            variant="label"
+            color={error ? 'error' : 'textPrimary'}
+            style={[styles.label, isRTL && styles.labelRTL]}
+          >
             {label || t('auth.signup.createPassword')}
           </Text>
           <View style={[styles.passwordRow, error && styles.inputError, isRTL && styles.rowReverse]}>
             <RNTextInput
-              style={[styles.passwordInput, isRTL && styles.inputRTL]}
+              style={[
+                styles.passwordInput, 
+                isRTL && styles.inputRTL,
+                { fontFamily }
+              ]}
               onChangeText={onChange}
               value={value || ''}
               placeholder={placeholder || t('auth.signup.createPasswordPlaceholder')}
@@ -160,10 +171,22 @@ export function PasswordInput<T extends FieldValues>({
               textAlign={isRTL ? 'right' : 'left'}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+              <Image 
+                source={showPassword ? require('@/assets/images/icons/eye.png') : require('@/assets/images/icons/hidden.png')}
+                style={styles.eyeIcon}
+                resizeMode="contain"
+              />
             </TouchableOpacity>
           </View>
-          {error && <Text style={[styles.error, isRTL && styles.errorRTL]}>{error.message}</Text>}
+          {error && (
+            <Text 
+              variant="caption"
+              color="error"
+              style={[styles.error, isRTL && styles.errorRTL]}
+            >
+              {error.message}
+            </Text>
+          )}
         </View>
       )}
     />
@@ -190,9 +213,12 @@ export function ConfirmPasswordInput<T extends FieldValues>({
   placeholder,
   required = true,
 }: ConfirmPasswordInputProps<T>) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showPassword, setShowPassword] = React.useState(false);
   const isRTL = I18nManager.isRTL;
+  const isAr = i18n.language === 'ar';
+
+  const fontFamily = isAr ? typography.fontFamily.regular : typography.fontFamily.regular;
 
   return (
     <Controller
@@ -211,12 +237,20 @@ export function ConfirmPasswordInput<T extends FieldValues>({
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <View>
-          <Text style={[styles.label, isRTL && styles.labelRTL]}>
+          <Text 
+            variant="label"
+            color={error ? 'error' : 'textPrimary'}
+            style={[styles.label, isRTL && styles.labelRTL]}
+          >
             {label || t('auth.signup.confirmPassword')}
           </Text>
           <View style={[styles.passwordRow, error && styles.inputError, isRTL && styles.rowReverse]}>
             <RNTextInput
-              style={[styles.passwordInput, isRTL && styles.inputRTL]}
+              style={[
+                styles.passwordInput, 
+                isRTL && styles.inputRTL,
+                { fontFamily }
+              ]}
               onChangeText={onChange}
               value={value || ''}
               placeholder={placeholder || t('auth.signup.confirmPasswordPlaceholder')}
@@ -225,10 +259,22 @@ export function ConfirmPasswordInput<T extends FieldValues>({
               textAlign={isRTL ? 'right' : 'left'}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+              <Image 
+                source={showPassword ? require('@/assets/images/icons/eye.png') : require('@/assets/images/icons/hidden.png')}
+                style={styles.eyeIcon}
+                resizeMode="contain"
+              />
             </TouchableOpacity>
           </View>
-          {error && <Text style={[styles.error, isRTL && styles.errorRTL]}>{error.message}</Text>}
+          {error && (
+            <Text 
+              variant="caption"
+              color="error"
+              style={[styles.error, isRTL && styles.errorRTL]}
+            >
+              {error.message}
+            </Text>
+          )}
         </View>
       )}
     />
@@ -267,7 +313,7 @@ export function SchoolNameInput<T extends FieldValues>({
         },
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <TextInput
+        <CustomTextInput
           label={label || t('schoolSignup.schoolName')}
           value={value || ''}
           onChangeText={onChange}
@@ -311,7 +357,7 @@ export function SchoolIdInput<T extends FieldValues>({
         },
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <TextInput
+        <CustomTextInput
           label={label || t('schoolSignup.schoolId')}
           value={value || ''}
           onChangeText={onChange}
@@ -355,7 +401,7 @@ export function AdvisorNameInput<T extends FieldValues>({
         },
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <TextInput
+        <CustomTextInput
           label={label || t('schoolSignup.advisorName')}
           value={value || ''}
           onChangeText={onChange}
@@ -401,7 +447,7 @@ export function TeacherNameInput<T extends FieldValues>({
         },
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <TextInput
+        <CustomTextInput
           label={label || t('addTeacher.fullName')}
           value={value || ''}
           onChangeText={onChange}
@@ -431,8 +477,9 @@ export function AdvisorPhoneInput<T extends FieldValues>({
   placeholder,
   required = true,
 }: AdvisorPhoneInputProps<T>) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRTL = I18nManager.isRTL;
+  const isAr = i18n.language === 'ar';
 
   const validatePhone = (value: string) => {
     if (!required && !value) return true;
@@ -444,6 +491,9 @@ export function AdvisorPhoneInput<T extends FieldValues>({
     return true;
   };
 
+  const fontFamily = isAr ? typography.fontFamily.regular : typography.fontFamily.regular;
+  const prefixFontFamily = isAr ? typography.fontFamily.semiBold : typography.fontFamily.semiBold;
+
   return (
     <Controller
       control={control}
@@ -454,14 +504,22 @@ export function AdvisorPhoneInput<T extends FieldValues>({
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <View>
-          <Text style={[styles.phoneLabel, isRTL && styles.labelRTL]}>
+          <Text 
+            variant="label"
+            color={error ? 'error' : 'textPrimary'}
+            style={[styles.phoneLabel, isRTL && styles.labelRTL]}
+          >
             {label || t('schoolSignup.advisorPhone')}
           </Text>
           <View style={[styles.phoneRow, error && styles.inputError]}>
-            <Text style={styles.prefix}>+962</Text>
+            <Text style={[styles.prefix, { fontFamily: prefixFontFamily }]}>+962</Text>
             <View style={styles.phoneDivider} />
             <RNTextInput
-              style={[styles.phoneInput, isRTL && styles.inputRTL]}
+              style={[
+                styles.phoneInput, 
+                isRTL && styles.inputRTL,
+                { fontFamily }
+              ]}
               onChangeText={(text) => {
                 let cleaned = text.replace(/[^0-9]/g, '');
                 if (cleaned.length > 9) cleaned = cleaned.slice(0, 9);
@@ -474,7 +532,15 @@ export function AdvisorPhoneInput<T extends FieldValues>({
               textAlign={isRTL ? 'right' : 'left'}
             />
           </View>
-          {error && <Text style={[styles.error, isRTL && styles.errorRTL]}>{error.message}</Text>}
+          {error && (
+            <Text 
+              variant="caption"
+              color="error"
+              style={[styles.error, isRTL && styles.errorRTL]}
+            >
+              {error.message}
+            </Text>
+          )}
         </View>
       )}
     />
@@ -486,11 +552,8 @@ export function AdvisorPhoneInput<T extends FieldValues>({
 // ============================================
 const styles = StyleSheet.create({
   label: {
-    color: colors.textPrimary,
     marginTop: spacing.sm,
     marginBottom: spacing.xs,
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
   },
   labelRTL: {
     textAlign: 'right',
@@ -508,7 +571,6 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 1,
     fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
     color: colors.textPrimary,
     height: '100%',
   },
@@ -517,27 +579,21 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   eyeIcon: {
-    fontSize: 18,
-    paddingStart: spacing.sm,
+    width: 20,
+    height: 20,
   },
   inputError: {
     borderColor: colors.error,
   },
   error: {
-    fontSize: typography.fontSize.xs,
-    color: colors.error,
     marginTop: spacing.xs,
-    fontFamily: typography.fontFamily.regular,
   },
   errorRTL: {
     textAlign: 'right',
   },
   phoneLabel: {
-    color: colors.textPrimary,
     marginTop: spacing.sm,
     marginBottom: spacing.xs,
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
   },
   phoneRow: {
     flexDirection: 'row',
@@ -552,7 +608,6 @@ const styles = StyleSheet.create({
   },
   prefix: {
     fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.semiBold,
     color: colors.primary,
   },
   phoneDivider: {
@@ -563,7 +618,6 @@ const styles = StyleSheet.create({
   phoneInput: {
     flex: 1,
     fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
     color: colors.textPrimary,
     height: '100%',
   },

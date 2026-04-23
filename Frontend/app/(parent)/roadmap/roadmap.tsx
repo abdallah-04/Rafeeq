@@ -1,14 +1,15 @@
 import React, { useRef, useEffect } from 'react'
 import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TouchableOpacity,
-    Image,
-    Animated,
-    Dimensions,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Animated,
+  Dimensions,
 } from 'react-native'
+import Svg, { Path } from 'react-native-svg'
 import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -24,168 +25,235 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window')
 type DayStatus = 'completed' | 'current' | 'locked'
 
 interface DayNode {
-    day: number
-    status: DayStatus
-    /** horizontal offset: 'left' | 'center' | 'right' */
-    align: 'left' | 'center' | 'right'
-    /** show mascot below this node */
-    mascot?: 'reading' | 'waving'
-    /** modal variant to open */
-    modalVariant?: 'whatTodayOkay' | 'day5work' | 'day6work' | 'day7work'
+  day: number
+  status: DayStatus
+  align: 'left' | 'center' | 'right'
+  mascot?: 'reading' | 'waving'
+  modalVariant?: 'whatTodayOkay' | 'day5work' | 'day6work' | 'day7work'
 }
 
-// DAY 7 at top → DAY 1 at bottom (rendered top-to-bottom in ScrollView)
 const DAYS: DayNode[] = [
-    { day: 7, status: 'current',   align: 'center', modalVariant: 'day7work'      },
-    { day: 6, status: 'locked',    align: 'right',  modalVariant: 'day6work'      },
-    { day: 5, status: 'locked',    align: 'left',   mascot: 'reading', modalVariant: 'day5work' },
-    { day: 4, status: 'locked',    align: 'center', modalVariant: 'whatTodayOkay' },
-    { day: 3, status: 'completed', align: 'left'                                   },
-    { day: 2, status: 'completed', align: 'right',  mascot: 'waving'               },
-    { day: 1, status: 'completed', align: 'left'                                   },
-    ]
+  { day: 7, status: 'current',   align: 'center', modalVariant: 'day7work'      },
+  { day: 6, status: 'locked',    align: 'right',  modalVariant: 'day6work'      },
+  { day: 5, status: 'locked',    align: 'left',   mascot: 'reading', modalVariant: 'day5work' },
+  { day: 4, status: 'locked',    align: 'center', modalVariant: 'whatTodayOkay' },
+  { day: 3, status: 'completed', align: 'left'                                  },
+  { day: 2, status: 'completed', align: 'right',  mascot: 'waving'              },
+  { day: 1, status: 'completed', align: 'left'                                  },
+]
 
-    // ─── Constants ────────────────────────────────────────────────────────────────
-    const NODE_SIZE = 52
-    const MASCOT_SIZE = 90
-    const ROW_HEIGHT = 110  // vertical spacing between nodes
-    const PATH_WIDTH = 6
+// ─── Constants ────────────────────────────────────────────────────────────────
+const NODE_SIZE    = 56
+const CURRENT_SIZE = 68
+const MASCOT_SIZE  = 88
+const ROW_HEIGHT   = 120
+const PADDING_TOP  = 20
 
-    const ALIGN_X: Record<DayNode['align'], number> = {
-    left:   SCREEN_WIDTH * 0.22,
-    center: SCREEN_WIDTH * 0.5,
-    right:  SCREEN_WIDTH * 0.72,
-    }
+const ALIGN_X: Record<DayNode['align'], number> = {
+  left:   SCREEN_WIDTH * 0.20,
+  center: SCREEN_WIDTH * 0.50,
+  right:  SCREEN_WIDTH * 0.80,
+}
 
-    // ─── Helper: path segment SVG-like curve as View-based dashed curve
-    // We approximate the winding path with simple straight segments between nodes
-    function PathSegment({ fromX, fromY, toX, toY }: { fromX: number; fromY: number; toX: number; toY: number }) {
-    const dx = toX - fromX
-    const dy = toY - fromY
-    const length = Math.sqrt(dx * dx + dy * dy)
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI)
+// ─── Curved SVG Path between two nodes ───────────────────────────────────────
+function CurvedPath({
+  fromX, fromY, toX, toY,
+  completed,
+}: {
+  fromX: number; fromY: number
+  toX: number;   toY: number
+  completed: boolean
+}) {
+  const cx = (fromX + toX) / 2
+  const cy = fromY + (toY - fromY) * 0.5
+  // control point offset for curve "belly"
+  const cpX = cx + (fromX < toX ? -40 : 40)
 
-    return (
-        <View
-        pointerEvents="none"
-        style={{
-            position: 'absolute',
-            left: fromX,
-            top: fromY,
-            width: length,
-            height: PATH_WIDTH,
-            backgroundColor: '#A8C8F0',
-            borderRadius: PATH_WIDTH / 2,
-            transformOrigin: '0 50%',
-            transform: [{ rotate: `${angle}deg` }],
-            opacity: 0.7,
-        }}
-        />
-    )
-    }
+  const d = `M ${fromX} ${fromY} Q ${cpX} ${cy} ${toX} ${toY}`
 
-    // ─── Day Node ─────────────────────────────────────────────────────────────────
-    function DayNodeView({
-    node,
-    x,
-    y,
-    onPress,
-    animValue,
-    }: {
-    node: DayNode
-    x: number
-    y: number
-    onPress: () => void
-    animValue: Animated.Value
-    }) {
-    const { t } = useTranslation()
-    const isCompleted = node.status === 'completed'
-    const isCurrent   = node.status === 'current'
-    const isLocked    = node.status === 'locked'
+  return (
+    <Svg
+      style={StyleSheet.absoluteFill}
+      pointerEvents="none"
+    >
+      {/* Shadow path */}
+      <Path
+        d={d}
+        stroke="rgba(0,0,0,0.08)"
+        strokeWidth={10}
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* Main path */}
+      <Path
+        d={d}
+        stroke={completed ? '#5BA4E6' : '#A8C8F0'}
+        strokeWidth={6}
+        fill="none"
+        strokeLinecap="round"
+        strokeDasharray={completed ? undefined : '10 8'}
+      />
+    </Svg>
+  )
+}
 
-    const scale = animValue.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0.5, 1],
-    })
+// ─── Pulse ring around current node ──────────────────────────────────────────
+function PulseRing({ anim }: { anim: Animated.Value }) {
+  const scale   = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.6] })
+  const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 0] })
 
-    return (
-        <Animated.View
-        style={{
-            position: 'absolute',
-            left: x - NODE_SIZE / 2,
-            top: y - NODE_SIZE / 2,
-            transform: [{ scale }],
-        }}
+  return (
+    <Animated.View
+      style={{
+        position: 'absolute',
+        width: CURRENT_SIZE + 16,
+        height: CURRENT_SIZE + 16,
+        borderRadius: (CURRENT_SIZE + 16) / 2,
+        borderWidth: 3,
+        borderColor: '#2B6FD4',
+        top: -(16 / 2),
+        left: -(16 / 2),
+        transform: [{ scale }],
+        opacity,
+      }}
+    />
+  )
+}
+
+// ─── Day Node ─────────────────────────────────────────────────────────────────
+function DayNodeView({
+  node, x, y, onPress, enterAnim,
+}: {
+  node: DayNode
+  x: number
+  y: number
+  onPress: () => void
+  enterAnim: Animated.Value
+}) {
+  const { t }        = useTranslation()
+  const pulseAnim    = useRef(new Animated.Value(0)).current
+  const isCompleted  = node.status === 'completed'
+  const isCurrent    = node.status === 'current'
+  const isLocked     = node.status === 'locked'
+  const size         = isCurrent ? CURRENT_SIZE : NODE_SIZE
+
+  // Pulse loop for current node
+  useEffect(() => {
+    if (!isCurrent) return
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 0, duration: 600,  useNativeDriver: true }),
+      ])
+    ).start()
+  }, [])
+
+  const scale = enterAnim.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 1.15, 1] })
+  const opacity = enterAnim
+
+  // Label side: completed nodes on left stay right-of-node, right-align nodes get left label
+  const labelLeft = x < SCREEN_WIDTH / 2
+    ? size + 8          // node on left → label to its right
+    : -(64 + 8)         // node on right → label to its left
+
+  return (
+    <Animated.View
+      style={{
+        position: 'absolute',
+        left: x - size / 2,
+        top:  y - size / 2,
+        width: size,
+        height: size,
+        opacity,
+        transform: [{ scale }],
+      }}
+    >
+      {/* Pulse ring (current only) */}
+      {isCurrent && <PulseRing anim={pulseAnim} />}
+
+      {/* Node circle */}
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={isLocked ? 0.6 : 0.75}
+        style={[
+          styles.node,
+          { width: size, height: size, borderRadius: size / 2 },
+          isCompleted && styles.nodeCompleted,
+          isCurrent   && styles.nodeCurrent,
+          isLocked    && styles.nodeLocked,
+        ]}
+      >
+        {isCompleted && <Text style={styles.checkIcon}>✓</Text>}
+        {isCurrent && (
+          <Image
+            source={require('@/assets/images/icons/crown.png')}
+            style={styles.crownIcon}
+            resizeMode="contain"
+          />
+        )}
+        {isLocked && (
+          <Text style={styles.lockIcon}>🔒</Text>
+        )}
+      </TouchableOpacity>
+
+      {/* Day label */}
+      <View
+        style={[
+          styles.dayLabel,
+          {
+            left: isCurrent ? -(size / 2) : labelLeft,
+            top:  size / 2 - 11,
+            width: isCurrent ? size * 2 : 64,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.dayText,
+            isCurrent   && styles.dayTextCurrent,
+            isCompleted && styles.dayTextCompleted,
+            isLocked    && styles.dayTextLocked,
+            isCurrent   && { textAlign: 'center' },
+          ]}
         >
-        <TouchableOpacity
-            onPress={onPress}
-            activeOpacity={isCurrent ? 0.7 : 0.8}
-            style={[
-            styles.node,
-            isCompleted && styles.nodeCompleted,
-            isCurrent   && styles.nodeCurrent,
-            isLocked    && styles.nodeLocked,
-            ]}
-        >
-            {isCompleted && (
-            <Text style={styles.checkIcon}>✓</Text>
-            )}
-            {isCurrent && (
-            <Image
-                source={require('@/assets/images/icons/crown.png')}
-                style={styles.crownIcon}
-                resizeMode="contain"
-            />
-            )}
-            {isLocked && (
-            <View style={styles.lockedDot} />
-            )}
-        </TouchableOpacity>
-
-        {/* Day label */}
-        <View style={[styles.dayLabel, { left: isCurrent ? -10 : (x < SCREEN_WIDTH / 2 ? NODE_SIZE + 6 : -(56 + 6)) }]}>
-            <Text style={[styles.dayText, isCurrent && styles.dayTextCurrent]}>
-            {t('tree.day')} {node.day}
-            </Text>
-        </View>
-        </Animated.View>
-    )
+          {t('tree.day')} {node.day}
+        </Text>
+      </View>
+    </Animated.View>
+  )
 }
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function TreeScreen() {
   const { show } = useModal()
-  const { t } = useTranslation()
+  const { t }    = useTranslation()
 
-  // Staggered entrance animations
   const anims = useRef(DAYS.map(() => new Animated.Value(0))).current
 
   useEffect(() => {
-    const animations = DAYS.map((_, i) =>
-      Animated.timing(anims[i], {
-        toValue: 1,
-        duration: 400,
-        delay: i * 80,
-        useNativeDriver: true,
-      })
-    )
-    Animated.stagger(80, animations).start()
+    Animated.stagger(
+      100,
+      DAYS.map((_, i) =>
+        Animated.spring(anims[i], {
+          toValue: 1,
+          tension: 60,
+          friction: 7,
+          useNativeDriver: true,
+        })
+      )
+    ).start()
   }, [])
 
   const handleNodePress = (node: DayNode) => {
     if (node.status === 'completed') return
-    if (node.modalVariant) {
-      show('daywork', { variant: node.modalVariant })
-    }
+    if (node.modalVariant) show('daywork', { variant: node.modalVariant })
   }
 
-  // Calculate canvas height
   const canvasHeight = DAYS.length * ROW_HEIGHT + ROW_HEIGHT
 
-  // Node positions (top → bottom = day 7 → day 1)
   const positions = DAYS.map((node, i) => ({
     x: ALIGN_X[node.align],
-    y: ROW_HEIGHT / 2 + i * ROW_HEIGHT,
+    y: PADDING_TOP + ROW_HEIGHT / 2 + i * ROW_HEIGHT,
   }))
 
   return (
@@ -207,25 +275,36 @@ export default function TreeScreen() {
         contentContainerStyle={[styles.canvas, { height: canvasHeight }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Path segments between nodes */}
-        {positions.map((pos, i) => {
-          if (i === positions.length - 1) return null
-          const next = positions[i + 1]
-          return (
-            <PathSegment
-              key={`path-${i}`}
-              fromX={pos.x}
-              fromY={pos.y}
-              toX={next.x}
-              toY={next.y}
-            />
-          )
-        })}
+        {/* Curved paths — rendered BEHIND nodes */}
+        <View style={[StyleSheet.absoluteFill, { height: canvasHeight }]} pointerEvents="none">
+          {positions.map((pos, i) => {
+            if (i === positions.length - 1) return null
+            const next = positions[i + 1]
+            const completed = DAYS[i].status === 'completed' && DAYS[i + 1].status === 'completed'
+            return (
+              <CurvedPath
+                key={`path-${i}`}
+                fromX={pos.x}
+                fromY={pos.y}
+                toX={next.x}
+                toY={next.y}
+                completed={completed}
+              />
+            )
+          })}
+        </View>
 
-        {/* Day nodes */}
+        {/* Nodes + Mascots */}
         {DAYS.map((node, i) => {
           const { x, y } = positions[i]
-          const hasMascot = !!node.mascot
+          const nodeSize  = node.status === 'current' ? CURRENT_SIZE : NODE_SIZE
+
+          // Mascot: always on the opposite side of the node
+          const mascotOnRight = x < SCREEN_WIDTH / 2
+          const mascotX = mascotOnRight
+            ? x + nodeSize / 2 + 8
+            : x - nodeSize / 2 - MASCOT_SIZE - 8
+          const mascotY = y - MASCOT_SIZE / 2
 
           return (
             <React.Fragment key={node.day}>
@@ -234,19 +313,22 @@ export default function TreeScreen() {
                 x={x}
                 y={y}
                 onPress={() => handleNodePress(node)}
-                animValue={anims[i]}
+                enterAnim={anims[i]}
               />
 
-              {/* Mascot image near this node */}
-              {hasMascot && (
+              {node.mascot && (
                 <Animated.View
                   style={{
                     position: 'absolute',
-                    left: node.align === 'left'
-                      ? x + NODE_SIZE / 2 + 4
-                      : x - NODE_SIZE / 2 - MASCOT_SIZE - 4,
-                    top: y - MASCOT_SIZE / 2 + 10,
+                    left: mascotX,
+                    top:  mascotY,
                     opacity: anims[i],
+                    transform: [{
+                      scale: anims[i].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.7, 1],
+                      }),
+                    }],
                   }}
                 >
                   <Image
@@ -264,7 +346,6 @@ export default function TreeScreen() {
           )
         })}
       </ScrollView>
-
     </SafeAreaView>
   )
 }
@@ -311,84 +392,82 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
   },
 
-  // Node styles
+  // ── Nodes ──
   node: {
-    width: NODE_SIZE,
-    height: NODE_SIZE,
-    borderRadius: NODE_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   nodeCompleted: {
-    backgroundColor: '#5BA4E6',
+    backgroundColor: '#4A9FE0',
     borderWidth: 3,
     borderColor: '#FFFFFF',
-    shadowColor: '#3A7BC8',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
+    shadowColor: '#2A6FAF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
     shadowRadius: 8,
     elevation: 6,
   },
 
   nodeCurrent: {
-    backgroundColor: '#2B6FD4',
+    backgroundColor: '#1A5FCC',
     borderWidth: 4,
     borderColor: '#FFFFFF',
-    shadowColor: '#1A4FA0',
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: '#0A3A8A',
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 8,
-    width: NODE_SIZE + 8,
-    height: NODE_SIZE + 8,
-    borderRadius: (NODE_SIZE + 8) / 2,
+    shadowRadius: 12,
+    elevation: 10,
   },
 
   nodeLocked: {
-    backgroundColor: '#7AAEDE',
+    backgroundColor: '#9DC4E8',
     borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.6)',
-    shadowColor: '#5588BB',
+    borderColor: 'rgba(255,255,255,0.5)',
+    shadowColor: '#6A9ABB',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 3,
   },
 
   checkIcon: {
-    fontSize: 22,
+    fontSize: 24,
     color: '#FFFFFF',
     fontFamily: typography.fontFamily.bold,
   },
 
   crownIcon: {
-    width: 26,
-    height: 26,
-    tintColor: '#FFFFFF',
+    width: 30,
+    height: 30,
+    tintColor: '#FFD700',
   },
 
-  lockedDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+  lockIcon: {
+    fontSize: 20,
   },
 
+  // ── Labels ──
   dayLabel: {
     position: 'absolute',
-    top: NODE_SIZE / 2 - 10,
-    width: 60,
   },
 
   dayText: {
     fontSize: typography.fontSize.sm,
     fontFamily: typography.fontFamily.bold,
-    color: '#2B5C99',
+    color: '#3A6A9F',
   },
 
   dayTextCurrent: {
     fontSize: typography.fontSize.base,
     color: '#1A3F6F',
+  },
+
+  dayTextCompleted: {
+    color: '#2A6FAF',
+  },
+
+  dayTextLocked: {
+    color: '#7A9FBF',
   },
 })
