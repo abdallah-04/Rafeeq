@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
         elevation: 8,
     },
     header: { flexDirection: 'row', justifyContent: 'space-between' },
-    title: { fontWeight: 'bold' , color: colors.textPrimary},
+    title: { fontWeight: typography.fontWeight.bold , color: colors.textPrimary},
     streak: { color: colors.primary },
 
     strip: { flexDirection: 'row', gap: 7 },
@@ -209,8 +209,8 @@ const styles = StyleSheet.create({
     dayBoxActive: { backgroundColor: colors.primary },
     dayBoxSelected: { backgroundColor: colors.primaryDark },
 
-    dayLetter: { fontSize: 10 , color: colors.textSecondary, fontWeight: '800' },
-    dayNum: { fontSize: 14, fontWeight: 'bold' , color: colors.textSecondary},
+    dayLetter: { fontSize: typography.fontSize.sm , color: colors.textSecondary, fontWeight: typography.fontWeight.semiBold },
+    dayNum: { fontSize: typography.fontSize.base, fontWeight: typography.fontWeight.bold , color: colors.textSecondary},
     white: { color: colors.textWhite },
 
     monthNav: {
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     arrow: { padding: 6, backgroundColor: colors.backgroundGray, borderRadius: 8 },
-    monthTitle: { fontWeight: 'bold' },
+    monthTitle: { fontWeight: typography.fontWeight.bold },
 
     weekRow: { flexDirection: 'row', justifyContent: 'space-around' },
     weekLabel: { width: 30, textAlign: 'center' },
