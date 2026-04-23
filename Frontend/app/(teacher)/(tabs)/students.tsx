@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +9,8 @@ import Avatar from '@/components/modal/shared/Avatar';
 import Badge from '@/components/modal/shared/Badge';
 import Card from '@/components/modal/shared/Card';
 import ProgressBar from '@/components/modal/shared/progressBar';
+import Header from '@/components/modal/shared/Header';
+import ScreenWrapper from '@/components/modal/shared/ScreenWap'; // adjust path
 import { theme } from '@/theme';
 import { TEACHER_STUDENTS } from '../_students';
 import { StudentListSkeleton } from '@/components/LoadingSkeleton';
@@ -25,13 +27,10 @@ function StudentCard({ item, onPress, isRTL }: { item: Student; onPress: () => v
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.75}>
       <Card variant="elevated" style={styles.card}>
-
-        {/* Top row: avatar + info */}
         <View style={[styles.row, isRTL && styles.rowReverse, styles.cardTop]}>
           <Avatar name={isRTL ? item.nameAr : item.name} size="md" />
 
           <View style={styles.cardInfo}>
-            {/* Name + active badge */}
             <View style={[styles.row, isRTL && styles.rowReverse, styles.nameRow]}>
               <Text variant="label" style={styles.studentName}>
                 {isRTL ? item.nameAr : item.name}
@@ -39,7 +38,6 @@ function StudentCard({ item, onPress, isRTL }: { item: Student; onPress: () => v
               <Badge label={t('teacher.studentCard.active', 'Active')} variant="green" />
             </View>
 
-            {/* Level + condition tags */}
             <View style={[styles.row, isRTL && styles.rowReverse, styles.tagsRow]}>
               <Badge
                 label={t('teacher.studentCard.level', { level: item.level.replace('Level ', '') })}
@@ -50,7 +48,6 @@ function StudentCard({ item, onPress, isRTL }: { item: Student; onPress: () => v
           </View>
         </View>
 
-        {/* Progress bar */}
         <View style={styles.progressRow}>
           <View style={styles.progressTrack}>
             <ProgressBar value={item.progress} showLabel={false} height={7} />
@@ -59,7 +56,6 @@ function StudentCard({ item, onPress, isRTL }: { item: Student; onPress: () => v
             {item.progress}%
           </Text>
         </View>
-
       </Card>
     </TouchableOpacity>
   );
@@ -98,24 +94,15 @@ export default function StudentsScreen() {
   if (isLoading) return <StudentListSkeleton count={3} />;
 
   const handleAddStudent = () => router.push('/(teacher)/add-student');
-
   const handleStudentPress = (studentId: string) =>
     router.push({ pathname: '/(teacher)/student-quick-access', params: { studentId } });
 
   return (
-    <SafeAreaView style={styles.safe}>
-
-      {/* Header */}
-      <View style={[styles.row, isRTL && styles.rowReverse, styles.header]}>
-        <Text variant="heading">{t('teacher.students.title', 'My Students')}</Text>
-        <Button
-          label={`+ ${t('teacher.students.add', 'Add')}`}
-          onPress={handleAddStudent}
-          variant="primary"
-          style={styles.addBtn}
-        />
-      </View>
-
+    <ScreenWrapper scroll={false} padded={false}>
+      <Header
+        title={t('teacher.students.title', 'My Students')}
+        onBack={() => router.back()}
+      />
       <FlatList
         data={TEACHER_STUDENTS}
         keyExtractor={(item) => item.id}
@@ -130,20 +117,13 @@ export default function StudentsScreen() {
         )}
         ListFooterComponent={<AddStudentCard onPress={handleAddStudent} />}
       />
-
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-
-  // Layout helpers
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -151,29 +131,15 @@ const styles = StyleSheet.create({
   rowReverse: {
     flexDirection: 'row-reverse',
   },
-
-  // Header
-  header: {
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.sm,
-  },
-  addBtn: {
-    height: 38,
-    paddingHorizontal: theme.spacing.md,
-  },
-
-  // List
   listContent: {
     padding: theme.spacing.md,
     paddingBottom: theme.spacing.xl,
     gap: theme.spacing.sm,
   },
-
-  // Student card
   card: {
     gap: theme.spacing.sm,
+    borderColor: theme.colors.border,
+    borderWidth: 1,
   },
   cardTop: {
     gap: theme.spacing.sm,
@@ -191,8 +157,6 @@ const styles = StyleSheet.create({
   tagsRow: {
     gap: theme.spacing.xs,
   },
-
-  // Progress
   progressRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -205,9 +169,9 @@ const styles = StyleSheet.create({
     minWidth: 32,
     textAlign: 'right',
   },
-
-  // Ghost / add card
   ghostCard: {
     borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
