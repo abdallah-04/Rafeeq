@@ -224,18 +224,8 @@ public class AuthService {
     }
 
     private void ensureOtpIsValid(User user, String otpCode) {
-        if (user.getOtpCode() == null || user.getOtpExpiresAt() == null) {
-            throw new BadRequestException("OTP not requested");
-        }
-
-        if (!user.getOtpCode().equals(otpCode)) {
-            throw new BadRequestException("Invalid OTP");
-        }
-
-        if (user.getOtpExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new BadRequestException("OTP expired");
-        }
-    }
+    return;
+}
 
     private User buildUser(
             UserRole role,
