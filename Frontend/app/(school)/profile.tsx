@@ -228,30 +228,12 @@ export default function ProfileScreen() {
             }}
           />
           <SettingsRow
-            icon="shield-checkmark-outline"
-            tileColor="#FFF3DF"
-            iconColor="#FFB84C"
-            label={t('profile.account')}
-            onPress={() => {
-              // TODO
-            }}
-          />
-          <SettingsRow
             icon="globe-outline"
             tileColor="#F3E7FB"
             iconColor="#BA6DE9"
             label={t('profile.language')}
             valueLabel={language === 'ar' ? 'العربية' : 'English'}
             onPress={() => setLangModalVisible(true)}
-          />
-          <SettingsRow
-            icon="help-circle-outline"
-            tileColor="#E8F7EE"
-            iconColor="#22A05A"
-            label={t('profile.help')}
-            onPress={() => {
-              // TODO
-            }}
             last
           />
         </Card>

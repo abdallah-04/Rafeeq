@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Text } from '@/components/RNText';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +19,6 @@ const RECENT_NOTES = [
   { id: '2', author: 'Mr. Ahmad',    authorAr: 'الأستاذ أحمد', time: 'Today', timeAr: 'اليوم', text: 'Modify done. Please review the IEP', avatarBg: '#BBDEFB', initials: 'MA' },
 ];
 
-
 export default function TeacherStudentDashboard() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
@@ -27,9 +27,15 @@ export default function TeacherStudentDashboard() {
   const student = TEACHER_STUDENTS_MAP[studentId ?? '1'] ?? TEACHER_STUDENTS_MAP['1'];
 
   const ACTION_BUTTONS = [
-    { id: 'notes',   label: t('teacher.dashboard.notes', 'Notes'),       labelAr: 'ملاحظات', icon: '📝', color: '#FFB84C', bg: '#FFF8ED', route: '/(teacher)/notes' },
-    { id: 'hw',      label: t('teacher.dashboard.addHW', 'Add H.W'),     labelAr: 'واجب',    icon: '📚', color: '#508DF7', bg: '#EEF4FF', route: '/(teacher)/homework' },
-    { id: 'reports', label: t('teacher.dashboard.reports', 'Add Reports'),labelAr: 'تقارير', icon: '📋', color: '#BA6DE9', bg: '#F5EEFF', route: '/(teacher)/reports' },
+    { id: 'notes',   label: t('teacher.dashboard.notes', 'Notes'),       labelAr: 'ملاحظات', iconName: 'create-outline', color: '#FFB84C', bg: '#FFF8ED', route: '/(teacher)/notes' },
+    { id: 'hw',      label: t('teacher.dashboard.addHW', 'Add H.W'),     labelAr: 'واجب',    iconName: 'book-outline', color: '#508DF7', bg: '#EEF4FF', route: '/(teacher)/homework' },
+    { id: 'reports', label: t('teacher.dashboard.reports', 'Add Reports'),labelAr: 'تقارير', iconName: 'document-text-outline', color: '#BA6DE9', bg: '#F5EEFF', route: '/(teacher)/reports' },
+  ];
+
+  const STATS = [
+    { iconName: 'checkmark-circle-outline', value: '8', labelKey: 'tasks', label: 'Task' },
+    { iconName: 'calendar-outline', value: '14', labelKey: 'daysRow', label: 'Days in Row' },
+    { iconName: 'star-outline', value: '3',  labelKey: 'achievements', label: 'Achievement' },
   ];
 
   return (
@@ -51,7 +57,7 @@ export default function TeacherStudentDashboard() {
               onPress={() => router.push({ pathname: btn.route as any, params: { studentId } })}
               activeOpacity={0.75}
             >
-              <Text style={styles.actionIcon}>{btn.icon}</Text>
+              <Ionicons name={btn.iconName as any} size={26} color={btn.color} />
               <Text style={[styles.actionLabel, { color: btn.color }]}>{btn.label}</Text>
             </TouchableOpacity>
           ))}
@@ -79,14 +85,12 @@ export default function TeacherStudentDashboard() {
           </View>
 
           <View style={[styles.statsRow, isRTL && styles.rowReverse]}>
-            {[
-              { icon: '✅', value: '8', label: t('teacher.dashboard.tasks', 'Task') },
-              { icon: '📅', value: '14', label: t('teacher.dashboard.daysRow', 'Days in Row') },
-              { icon: '⭐', value: '3',  label: t('teacher.dashboard.achievements', 'Achievement') },
-            ].map((stat, i) => (
-              <View key={i} style={styles.statItem}>
-                <Text style={styles.statIcon}>{stat.icon}</Text>
-                <Text style={styles.statValue}>{stat.value} {stat.label}</Text>
+            {STATS.map((stat, idx) => (
+              <View key={idx} style={styles.statItem}>
+                <Ionicons name={stat.iconName as any} size={14} color="#374151" />
+                <Text style={styles.statValue}>
+                  {stat.value} {t(`teacher.dashboard.${stat.labelKey}`, stat.label)}
+                </Text>
               </View>
             ))}
           </View>
@@ -126,7 +130,6 @@ const styles = StyleSheet.create({
 
   actionsRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 10, marginBottom: 16 },
   actionBtn: { flex: 1, borderRadius: 16, padding: 14, alignItems: 'center', gap: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 2 },
-  actionIcon: { fontSize: 26 },
   actionLabel: { fontFamily: 'Lexend_600SemiBold', fontSize: 11, textAlign: 'center' },
 
   progressCard: { marginHorizontal: 16, backgroundColor: '#EEF4FF', borderRadius: 24, padding: 16, marginBottom: 20, shadowColor: '#508DF7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 3 },
@@ -146,7 +149,6 @@ const styles = StyleSheet.create({
 
   statsRow: { flexDirection: 'row', justifyContent: 'space-around', borderTopWidth: 1, borderTopColor: 'rgba(80,141,247,0.12)', paddingTop: 12 },
   statItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  statIcon: { fontSize: 14 },
   statValue: { fontFamily: 'Lexend_500Medium', fontSize: 11, color: '#374151' },
 
   sectionTitle: { fontFamily: 'Lexend_700Bold', fontSize: 16, color: '#1a1a2e', paddingHorizontal: 20, marginBottom: 10 },

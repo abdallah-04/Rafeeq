@@ -1,224 +1,473 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
+import React, { useRef, useEffect } from 'react'
 import {
-  View, StyleSheet, TouchableOpacity,
-  ScrollView, Modal, Dimensions,
-} from 'react-native';
-import { Text } from '@/components/RNText';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import BackButton from '@/components/BackButton';
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Animated,
+  Dimensions,
+} from 'react-native'
+import Svg, { Path } from 'react-native-svg'
+import { router } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { theme } from '@/theme'
+import { useTranslation } from 'react-i18next'
+import BackButton from '@/components/modal/shared/BackButton'
+import { useModal } from '@/components/modal/ModalProvider'
 
-// ─── Road map days ─────────────────────────────────────────────
-const DAYS = [
-  { day: 1, status: 'done' },
-  { day: 2, status: 'done' },
-  { day: 3, status: 'done' },
-  { day: 4, status: 'current' },
-  { day: 5, status: 'pending' },
-  { day: 6, status: 'pending' },
-  { day: 7, status: 'crown' },
-];
+const { colors, spacing, typography } = theme
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
-// ─── Day Work Modals config ────────────────────────────────────
-const DAY_MODAL_CONFIGS: Record<number, {
-  titleKey: string; titleDefault: string;
-  contentKey: string; contentDefault: string;
-  ctaKey: string; ctaDefault: string;
-  type: string;
-}> = {
-  4: { titleKey: 'teacher.dayWorkModals.whatToDoToday', titleDefault: 'What to do today',  contentKey: 'teacher.dayWorkModals.task7hw5', contentDefault: 'Task 7 & H.W 5', ctaKey: 'teacher.dayWorkModals.letsGo', ctaDefault: "Let's Go", type: 'info' },
-  5: { titleKey: 'teacher.dayWorkModals.day5Work',      titleDefault: 'Day 5 Work',         contentKey: 'teacher.dayWorkModals.task7hw5', contentDefault: 'Task 7 & H.W 5', ctaKey: 'teacher.dayWorkModals.okay',  ctaDefault: 'Okay',     type: 'info' },
-  6: { titleKey: 'teacher.dayWorkModals.day6Work',      titleDefault: 'Day 6 Work',         contentKey: 'teacher.dayWorkModals.quiz3hw5', contentDefault: 'Quiz 3 & H.W 5', ctaKey: 'teacher.dayWorkModals.okay',  ctaDefault: 'Okay',     type: 'quiz' },
-  7: { titleKey: 'teacher.dayWorkModals.day7Work',      titleDefault: 'Day 7 Work',         contentKey: 'teacher.dayWorkModals.exam1',    contentDefault: 'Exam 1',          ctaKey: 'teacher.dayWorkModals.okay',  ctaDefault: 'Okay',     type: 'exam' },
-};
+// ─── Types ────────────────────────────────────────────────────────────────────
+type DayStatus = 'completed' | 'current' | 'locked'
 
-function DayNode({ day, onPress }: { day: typeof DAYS[0]; onPress: () => void }) {
-  const { t } = useTranslation();
-  const isDone    = day.status === 'done';
-  const isCurrent = day.status === 'current';
-  const isCrown   = day.status === 'crown';
+interface DayNode {
+  day: number
+  status: DayStatus
+  align: 'left' | 'center' | 'right'
+  mascot?: 'reading' | 'waving'
+  modalVariant?: 'whatTodayOkay' | 'day5work' | 'day6work' | 'day7work'
+}
+
+const DAYS: DayNode[] = [
+  { day: 7, status: 'current',   align: 'center', modalVariant: 'day7work'      },
+  { day: 6, status: 'locked',    align: 'right',  modalVariant: 'day6work'      },
+  { day: 5, status: 'locked',    align: 'left',   mascot: 'reading', modalVariant: 'day5work' },
+  { day: 4, status: 'locked',    align: 'center', modalVariant: 'whatTodayOkay' },
+  { day: 3, status: 'completed', align: 'left'                                  },
+  { day: 2, status: 'completed', align: 'right',  mascot: 'waving'              },
+  { day: 1, status: 'completed', align: 'left'                                  },
+]
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const NODE_SIZE    = 56
+const CURRENT_SIZE = 68
+const MASCOT_SIZE  = 88
+const ROW_HEIGHT   = 120
+const PADDING_TOP  = 20
+
+const ALIGN_X: Record<DayNode['align'], number> = {
+  left:   SCREEN_WIDTH * 0.20,
+  center: SCREEN_WIDTH * 0.50,
+  right:  SCREEN_WIDTH * 0.80,
+}
+
+// ─── Curved SVG Path between two nodes ───────────────────────────────────────
+function CurvedPath({
+  fromX, fromY, toX, toY,
+  completed,
+}: {
+  fromX: number; fromY: number
+  toX: number;   toY: number
+  completed: boolean
+}) {
+  const cx = (fromX + toX) / 2
+  const cy = fromY + (toY - fromY) * 0.5
+  // control point offset for curve "belly"
+  const cpX = cx + (fromX < toX ? -40 : 40)
+
+  const d = `M ${fromX} ${fromY} Q ${cpX} ${cy} ${toX} ${toY}`
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.dayNodeWrap}>
-      <View
+    <Svg
+      style={StyleSheet.absoluteFill}
+      pointerEvents="none"
+    >
+      {/* Shadow path */}
+      <Path
+        d={d}
+        stroke="rgba(0,0,0,0.08)"
+        strokeWidth={10}
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* Main path */}
+      <Path
+        d={d}
+        stroke={completed ? '#5BA4E6' : '#A8C8F0'}
+        strokeWidth={6}
+        fill="none"
+        strokeLinecap="round"
+        strokeDasharray={completed ? undefined : '10 8'}
+      />
+    </Svg>
+  )
+}
+
+// ─── Pulse ring around current node ──────────────────────────────────────────
+function PulseRing({ anim }: { anim: Animated.Value }) {
+  const scale   = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.6] })
+  const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 0] })
+
+  return (
+    <Animated.View
+      style={{
+        position: 'absolute',
+        width: CURRENT_SIZE + 16,
+        height: CURRENT_SIZE + 16,
+        borderRadius: (CURRENT_SIZE + 16) / 2,
+        borderWidth: 3,
+        borderColor: '#2B6FD4',
+        top: -(16 / 2),
+        left: -(16 / 2),
+        transform: [{ scale }],
+        opacity,
+      }}
+    />
+  )
+}
+
+// ─── Day Node ─────────────────────────────────────────────────────────────────
+function DayNodeView({
+  node, x, y, onPress, enterAnim,
+}: {
+  node: DayNode
+  x: number
+  y: number
+  onPress: () => void
+  enterAnim: Animated.Value
+}) {
+  const { t }        = useTranslation()
+  const pulseAnim    = useRef(new Animated.Value(0)).current
+  const isCompleted  = node.status === 'completed'
+  const isCurrent    = node.status === 'current'
+  const isLocked     = node.status === 'locked'
+  const size         = isCurrent ? CURRENT_SIZE : NODE_SIZE
+
+  // Pulse loop for current node
+  useEffect(() => {
+    if (!isCurrent) return
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 0, duration: 600,  useNativeDriver: true }),
+      ])
+    ).start()
+  }, [])
+
+  const scale = enterAnim.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 1.15, 1] })
+  const opacity = enterAnim
+
+  // Label side: completed nodes on left stay right-of-node, right-align nodes get left label
+  const labelLeft = x < SCREEN_WIDTH / 2
+    ? size + 8          // node on left → label to its right
+    : -(64 + 8)         // node on right → label to its left
+
+  return (
+    <Animated.View
+      style={{
+        position: 'absolute',
+        left: x - size / 2,
+        top:  y - size / 2,
+        width: size,
+        height: size,
+        opacity,
+        transform: [{ scale }],
+      }}
+    >
+      {/* Pulse ring (current only) */}
+      {isCurrent && <PulseRing anim={pulseAnim} />}
+
+      {/* Node circle */}
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={isLocked ? 0.6 : 0.75}
         style={[
-          styles.dayNode,
-          isDone    && styles.dayNodeDone,
-          isCurrent && styles.dayNodeCurrent,
-          isCrown   && styles.dayNodeCrown,
-          !isDone && !isCurrent && !isCrown && styles.dayNodePending,
+          styles.node,
+          { width: size, height: size, borderRadius: size / 2 },
+          isCompleted && styles.nodeCompleted,
+          isCurrent   && styles.nodeCurrent,
+          isLocked    && styles.nodeLocked,
         ]}
       >
-        {isDone    && <Text style={styles.dayNodeIcon}>✓</Text>}
-        {isCurrent && <Text style={styles.dayNodeIcon}>📖</Text>}
-        {isCrown   && <Text style={styles.dayNodeIcon}>👑</Text>}
-        {day.status === 'pending' && <Text style={styles.dayNodeNumber}>{day.day}</Text>}
+        {isCompleted && <Text style={styles.checkIcon}>✓</Text>}
+        {isCurrent && (
+          <Image
+            source={require('@/assets/images/icons/crown.png')}
+            style={styles.crownIcon}
+            resizeMode="contain"
+          />
+        )}
+        {isLocked && (
+          <Text style={styles.lockIcon}>🔒</Text>
+        )}
+      </TouchableOpacity>
+
+      {/* Day label */}
+      <View
+        style={[
+          styles.dayLabel,
+          {
+            left: isCurrent ? -(size / 2) : labelLeft,
+            top:  size / 2 - 11,
+            width: isCurrent ? size * 2 : 64,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.dayText,
+            isCurrent   && styles.dayTextCurrent,
+            isCompleted && styles.dayTextCompleted,
+            isLocked    && styles.dayTextLocked,
+            isCurrent   && { textAlign: 'center' },
+          ]}
+        >
+          {t('tree.day')} {node.day}
+        </Text>
       </View>
-      <Text style={styles.dayLabel}>{t('teacher.roadMap.day', { number: day.day })}</Text>
-    </TouchableOpacity>
-  );
+    </Animated.View>
+  )
 }
 
-function DayModal({ visible, day, onClose, t }: { visible: boolean; day: number | null; onClose: () => void; t: any }) {
-  const config = day !== null ? DAY_MODAL_CONFIGS[day] : null;
-  if (!config) return null;
+// ─── Main Screen ──────────────────────────────────────────────────────────────
+export default function TreeScreen() {
+  const { show } = useModal()
+  const { t }    = useTranslation()
 
-  const iconMap: Record<string, string> = { info: '📋', quiz: '📝', exam: '🎓' };
+  const anims = useRef(DAYS.map(() => new Animated.Value(0))).current
 
-  return (
-    <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalCard}>
-          <Text style={styles.modalIcon}>{iconMap[config.type]}</Text>
-          <Text style={styles.modalTitle}>{t(config.titleKey, config.titleDefault)}</Text>
-          <Text style={styles.modalContent}>{t(config.contentKey, config.contentDefault)}</Text>
-          <TouchableOpacity style={styles.modalBtn} onPress={onClose}>
-            <Text style={styles.modalBtnText}>{t(config.ctaKey, config.ctaDefault)}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
-}
+  useEffect(() => {
+    Animated.stagger(
+      100,
+      DAYS.map((_, i) =>
+        Animated.spring(anims[i], {
+          toValue: 1,
+          tension: 60,
+          friction: 7,
+          useNativeDriver: true,
+        })
+      )
+    ).start()
+  }, [])
 
-// ─── Today Quiz Modal ─────────────────────────────────────────
-function TodayQuizModal({ visible, onClose, t }: { visible: boolean; onClose: () => void; t: any }) {
-  return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalCard}>
-          <Text style={styles.modalIcon}>📝</Text>
-          <Text style={styles.modalTitle}>{t('teacher.quiz.todayQuiz', 'Today Quiz')}</Text>
-          <Text style={styles.quizMeta}>3 {t('teacher.quiz.questions', 'Questions')}</Text>
-          <Text style={styles.quizMeta}>Quiz 2</Text>
-          <Text style={styles.quizMeta}>10 {t('teacher.quiz.mins', 'mins')}</Text>
-          <TouchableOpacity style={styles.modalBtn} onPress={onClose}>
-            <Text style={styles.modalBtnText}>{t('teacher.quiz.start', 'Start')}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
-}
+  const handleNodePress = (node: DayNode) => {
+    if (node.status === 'completed') return
+    if (node.modalVariant) show('daywork', { variant: node.modalVariant })
+  }
 
-// ─── Great Job Modal ──────────────────────────────────────────
-function GreatJobModal({ visible, onClose, t }: { visible: boolean; onClose: () => void; t: any }) {
-  return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalCard}>
-          <Text style={{ fontSize: 52 }}>✅</Text>
-          <Text style={styles.modalTitle}>{t('teacher.modal.greatJob', 'Great Job')}</Text>
-          <Text style={styles.modalContent}>{t('teacher.modal.wellDone', 'You did a great job, well done!')}</Text>
-          <Text style={styles.quizMeta}>Task 1 & H.W 2</Text>
-          <Text style={styles.quizMeta}>21/10/2026</Text>
-          <TouchableOpacity style={styles.modalBtn} onPress={onClose}>
-            <Text style={styles.modalBtnText}>{t('teacher.modal.okay', 'Okay')}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
-}
+  const canvasHeight = DAYS.length * ROW_HEIGHT + ROW_HEIGHT
 
-// ─── Main Screen ──────────────────────────────────────────────
-export default function TeacherRoadMapScreen() {
-  const router = useRouter();
-  const { t, i18n } = useTranslation();
-  const { studentId } = useLocalSearchParams<{ studentId: string }>();
-  const isRTL = i18n.language === 'ar';
-
-  const [dayModal, setDayModal] = useState<number | null>(null);
-  const [showQuizModal, setShowQuizModal] = useState(false);
-  const [showGreatJob, setShowGreatJob] = useState(false);
-
-  const screenWidth = Dimensions.get('window').width;
-
-  // Winding path positions (alternating left/right)
-  const nodePositions = [
-    screenWidth * 0.5 - 36,        // Day 1 center
-    screenWidth * 0.7,             // Day 2 right
-    screenWidth * 0.5 - 36,        // Day 3 center
-    screenWidth * 0.25,            // Day 4 left (current)
-    screenWidth * 0.5 - 36,        // Day 5 center
-    screenWidth * 0.7,             // Day 6 right
-    screenWidth * 0.5 - 36,        // Day 7 center
-  ];
+  const positions = DAYS.map((node, i) => ({
+    x: ALIGN_X[node.align],
+    y: PADDING_TOP + ROW_HEIGHT / 2 + i * ROW_HEIGHT,
+  }))
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Nav */}
-      <View style={[styles.navBar, isRTL && styles.rowReverse]}>
+      <StatusBar style="dark" />
+
+      {/* Header */}
+      <View style={styles.header}>
         <BackButton onPress={() => router.back()} />
-        <Text style={styles.navTitle}>{t('teacher.roadMap.title', 'Road Map')}</Text>
-        <View style={{ width: 40 }} />
+        <Text style={styles.headerTitle}>{t('tree.title')}</Text>
+        <TouchableOpacity style={styles.settingsBtn}>
+          <Text style={styles.settingsIcon}>⚙️</Text>
+        </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.treeScroll} showsVerticalScrollIndicator={false}>
-        {/* Winding path tree */}
-        <View style={styles.treePath}>
-          {DAYS.map((day, i) => (
-            <View
-              key={day.day}
-              style={[
-                styles.nodePosition,
-                { top: i * 100 + 20, left: nodePositions[i] },
-              ]}
-            >
-              <DayNode
-                day={day}
-                onPress={() => {
-                  if (DAY_MODAL_CONFIGS[day.day]) setDayModal(day.day);
-                }}
+      {/* Scrollable canvas */}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.canvas, { height: canvasHeight }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Curved paths — rendered BEHIND nodes */}
+        <View style={[StyleSheet.absoluteFill, { height: canvasHeight }]} pointerEvents="none">
+          {positions.map((pos, i) => {
+            if (i === positions.length - 1) return null
+            const next = positions[i + 1]
+            const completed = DAYS[i].status === 'completed' && DAYS[i + 1].status === 'completed'
+            return (
+              <CurvedPath
+                key={`path-${i}`}
+                fromX={pos.x}
+                fromY={pos.y}
+                toX={next.x}
+                toY={next.y}
+                completed={completed}
               />
-            </View>
-          ))}
+            )
+          })}
         </View>
-      </ScrollView>
 
-      {/* Day Work Modals */}
-      <DayModal
-        visible={dayModal !== null}
-        day={dayModal}
-        onClose={() => setDayModal(null)}
-        t={t}
-      />
-      <TodayQuizModal visible={showQuizModal} onClose={() => setShowQuizModal(false)} t={t} />
-      <GreatJobModal  visible={showGreatJob}  onClose={() => setShowGreatJob(false)}  t={t} />
+        {/* Nodes + Mascots */}
+        {DAYS.map((node, i) => {
+          const { x, y } = positions[i]
+          const nodeSize  = node.status === 'current' ? CURRENT_SIZE : NODE_SIZE
+
+          // Mascot: always on the opposite side of the node
+          const mascotOnRight = x < SCREEN_WIDTH / 2
+          const mascotX = mascotOnRight
+            ? x + nodeSize / 2 + 8
+            : x - nodeSize / 2 - MASCOT_SIZE - 8
+          const mascotY = y - MASCOT_SIZE / 2
+
+          return (
+            <React.Fragment key={node.day}>
+              <DayNodeView
+                node={node}
+                x={x}
+                y={y}
+                onPress={() => handleNodePress(node)}
+                enterAnim={anims[i]}
+              />
+
+              {node.mascot && (
+                <Animated.View
+                  style={{
+                    position: 'absolute',
+                    left: mascotX,
+                    top:  mascotY,
+                    opacity: anims[i],
+                    transform: [{
+                      scale: anims[i].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.7, 1],
+                      }),
+                    }],
+                  }}
+                >
+                  <Image
+                    source={
+                      node.mascot === 'reading'
+                        ? require('@/assets/images/mascot/rafeeq_reading.png')
+                        : require('@/assets/images/mascot/rafeeq_waving.png')
+                    }
+                    style={{ width: MASCOT_SIZE, height: MASCOT_SIZE }}
+                    resizeMode="contain"
+                  />
+                </Animated.View>
+              )}
+            </React.Fragment>
+          )
+        })}
+      </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
-// ─── Styles ───────────────────────────────────────────────────
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F5F7FF' },
-  navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },
-  rowReverse: { flexDirection: 'row-reverse' },
-  navTitle: { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
+  safe: {
+    flex: 1,
+    backgroundColor: '#D6E8F8',
+  },
 
-  treeScroll: { paddingBottom: 60, paddingHorizontal: 16 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: '#D6E8F8',
+  },
 
-  treePath: { position: 'relative', height: 800 },
-  nodePosition: { position: 'absolute' },
+  headerTitle: {
+    fontSize: typography.fontSize.lg,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+  },
 
-  dayNodeWrap: { alignItems: 'center', gap: 4 },
-  dayNode: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
-  dayNodeDone:    { backgroundColor: '#22C55E' },
-  dayNodeCurrent: { backgroundColor: '#508DF7', borderWidth: 4, borderColor: '#fff' },
-  dayNodePending: { backgroundColor: '#E8EEFF', borderWidth: 2, borderColor: '#C8D9FB' },
-  dayNodeCrown:   { backgroundColor: '#FFB84C' },
-  dayNodeIcon:    { fontSize: 28 },
-  dayNodeNumber:  { fontFamily: 'Lexend_700Bold', fontSize: 20, color: '#93C5FD' },
-  dayLabel: { fontFamily: 'Lexend_600SemiBold', fontSize: 11, color: '#6B7280' },
+  settingsBtn: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
-  // Modals
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' },
-  modalCard: { backgroundColor: '#fff', borderRadius: 28, padding: 32, alignItems: 'center', width: 300, gap: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 8 },
-  modalIcon: { fontSize: 48 },
-  modalTitle: { fontFamily: 'Lexend_700Bold', fontSize: 20, color: '#1a1a2e', textAlign: 'center' },
-  modalContent: { fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#6B7280', textAlign: 'center', lineHeight: 22 },
-  quizMeta: { fontFamily: 'Lexend_600SemiBold', fontSize: 14, color: '#374151' },
-  modalBtn: { marginTop: 8, backgroundColor: '#508DF7', borderRadius: 14, paddingVertical: 14, paddingHorizontal: 48, shadowColor: '#508DF7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 4 },
-  modalBtnText: { fontFamily: 'Lexend_700Bold', fontSize: 16, color: '#fff' },
-});
+  settingsIcon: {
+    fontSize: 20,
+  },
+
+  scroll: {
+    flex: 1,
+  },
+
+  canvas: {
+    position: 'relative',
+    width: SCREEN_WIDTH,
+  },
+
+  // ── Nodes ──
+  node: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  nodeCompleted: {
+    backgroundColor: '#4A9FE0',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+    shadowColor: '#2A6FAF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+
+  nodeCurrent: {
+    backgroundColor: '#1A5FCC',
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
+    shadowColor: '#0A3A8A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+
+  nodeLocked: {
+    backgroundColor: '#9DC4E8',
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.5)',
+    shadowColor: '#6A9ABB',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+
+  checkIcon: {
+    fontSize: 24,
+    color: '#FFFFFF',
+    fontFamily: typography.fontFamily.bold,
+  },
+
+  crownIcon: {
+    width: 30,
+    height: 30,
+    tintColor: '#FFD700',
+  },
+
+  lockIcon: {
+    fontSize: 20,
+  },
+
+  // ── Labels ──
+  dayLabel: {
+    position: 'absolute',
+  },
+
+  dayText: {
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.bold,
+    color: '#3A6A9F',
+  },
+
+  dayTextCurrent: {
+    fontSize: typography.fontSize.base,
+    color: '#1A3F6F',
+  },
+
+  dayTextCompleted: {
+    color: '#2A6FAF',
+  },
+
+  dayTextLocked: {
+    color: '#7A9FBF',
+  },
+})
