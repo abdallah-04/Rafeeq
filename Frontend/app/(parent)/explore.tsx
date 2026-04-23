@@ -18,7 +18,7 @@ import BottomNav from '@/components/modal/shared/BottomNav';
 import BackButton from '@/components/modal/shared/BackButton';
 import { theme } from '@/theme';
 import { useAuthStore } from '@/store/authStore';
-import { mockArticles, CATEGORY_COLORS, CATEGORY_EMOJIS, Article, ArticleCategory } from '@/mock/articles';
+import { mockArticles, CATEGORY_COLORS, Article, ArticleCategory } from '@/mock/articles';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -39,7 +39,6 @@ function FeaturedCard({ article, isRTL }: { article: Article; isRTL: boolean }) 
   const lang = i18n.language as 'en' | 'ar';
   const title = lang === 'ar' ? article.title_ar : article.title_en;
   const color = CATEGORY_COLORS[article.category];
-  const emoji = CATEGORY_EMOJIS[article.category];
 
   return (
     <TouchableOpacity
@@ -52,7 +51,7 @@ function FeaturedCard({ article, isRTL }: { article: Article; isRTL: boolean }) 
     >
       {/* Gradient overlay + emoji bg */}
       <View style={styles.featuredBg}>
-        <Text style={styles.featuredBgEmoji}>{emoji}</Text>
+        <View style={[styles.featuredBgShape, { backgroundColor: color + '33' }]} />
       </View>
       <View style={styles.featuredOverlay} />
 
@@ -83,7 +82,6 @@ function ArticleCard({ article, isRTL }: { article: Article; isRTL: boolean }) {
   const lang = i18n.language as 'en' | 'ar';
   const title = lang === 'ar' ? article.title_ar : article.title_en;
   const color = CATEGORY_COLORS[article.category];
-  const emoji = CATEGORY_EMOJIS[article.category];
 
   return (
     <TouchableOpacity
@@ -95,8 +93,8 @@ function ArticleCard({ article, isRTL }: { article: Article; isRTL: boolean }) {
       accessibilityLabel={title}
     >
       {/* Thumbnail */}
-      <View style={styles.cardThumb}>
-        <Text style={styles.cardThumbEmoji}>{emoji}</Text>
+      <View style={[styles.cardThumb, { backgroundColor: color + '18' }]}>
+        <View style={[styles.cardThumbShape, { backgroundColor: color + '33' }]} />
       </View>
 
       {/* Content */}
@@ -387,9 +385,10 @@ side: {
     justifyContent: 'center',
   },
 
-  featuredBgEmoji: {
-    fontSize: 80,
-    opacity: 0.5,
+  featuredBgShape: {
+    width: 112,
+    height: 112,
+    borderRadius: 32,
   },
 
   featuredOverlay: {
@@ -445,13 +444,14 @@ side: {
 
   cardThumb: {
     height: 120,
-    backgroundColor: '#EEF3FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  cardThumbEmoji: {
-    fontSize: 52,
+  cardThumbShape: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
   },
 
   cardBody: {

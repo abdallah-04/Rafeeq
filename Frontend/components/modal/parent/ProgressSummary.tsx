@@ -2,65 +2,67 @@ import React from 'react'
 import { View, TouchableOpacity, StyleSheet } from 'react-native'
 import { Text } from '@/components/RNText'
 import { theme } from '@/theme'
+import { useAppStore } from '@/store/Appstore'
 
 export interface SkillItem {
     label: string
     percentage: number
     color: string
-    }
+}
 
-    interface ProgressSummaryProps {
+interface ProgressSummaryProps {
     title: string
     items: SkillItem[]
+    viewDetailsLabel?: string
     onViewDetails?: () => void
-    }
+}
 
-    export default function ProgressSummary({
+export default function ProgressSummary({
     title,
     items,
+    viewDetailsLabel,
     onViewDetails,
-    }: ProgressSummaryProps) {
+}: ProgressSummaryProps) {
+    const isRTL = useAppStore((state) => state.isRTL)
+
     return (
         <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-            <Text style={styles.title}>
-            <Text style={styles.icon}>🎯 </Text>
-            {title}
-            </Text>
-            {onViewDetails && (
-            <TouchableOpacity onPress={onViewDetails} accessibilityRole="link">
-                <Text style={styles.viewDetails}>View Details</Text>
-            </TouchableOpacity>
-            )}
-        </View>
+            <View style={[styles.header, isRTL && styles.headerRTL]}>
+                <Text style={[styles.title, isRTL && styles.textRTL]}>{title}</Text>
+                {onViewDetails && viewDetailsLabel ? (
+                    <TouchableOpacity onPress={onViewDetails} accessibilityRole="link">
+                        <Text style={styles.viewDetails}>{viewDetailsLabel}</Text>
+                    </TouchableOpacity>
+                ) : null}
+            </View>
 
-        {/* Skills */}
-        <View style={styles.skills}>
-            {items.map((item, i) => {
-            const clampedPct = Math.min(100, Math.max(0, item.percentage))
-            return (
-                <View key={i} style={styles.skillRow}>
-                    
-                <View style={styles.skillMeta}>
-                    <Text style={styles.skillLabel}>{item.label}</Text>
-                    <Text style={[styles.skillPct, { color: item.color }]}>
-                    {clampedPct}%
-                    </Text>
-                </View>
-                {/* Progress bar */}
-                <View style={styles.trackBg}>
-                    <View
-                    style={[
-                        styles.trackFill,
-                        { width: `${clampedPct}%`, backgroundColor: item.color },
-                    ]}
-                    />
-                </View>
-                </View>
-            )
-            })}
-        </View>
+            <View style={styles.skills}>
+                {items.map((item, index) => {
+                    const clampedPct = Math.min(100, Math.max(0, item.percentage))
+
+                    return (
+                        <View key={index} style={styles.skillRow}>
+                            <View style={[styles.skillMeta, isRTL && styles.skillMetaRTL]}>
+                                <Text style={[styles.skillLabel, isRTL && styles.textRTL]}>
+                                    {item.label}
+                                </Text>
+                                <Text style={[styles.skillPct, { color: item.color }]}>
+                                    {clampedPct}%
+                                </Text>
+                            </View>
+                            <View style={styles.trackBg}>
+                                <View
+                                    style={[
+                                        styles.trackFill,
+                                        { width: `${clampedPct}%`, backgroundColor: item.color },
+                                        isRTL && styles.trackFillRTL,
+                                    ]}
+                                />
+                            </View>
+                        </View>
+                    )
+                })}
+            </View>
         </View>
     )
 }
@@ -87,14 +89,15 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
+    headerRTL: {
+        flexDirection: 'row-reverse',
+    },
     title: {
         fontSize: 16,
         fontFamily: 'Lexend_700Bold',
         fontWeight: '700',
         color: theme.colors.textPrimary,
-    },
-    icon: {
-        fontSize: 16,
+        textAlign: 'left',
     },
     viewDetails: {
         fontSize: 13,
@@ -112,13 +115,19 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
+    skillMetaRTL: {
+        flexDirection: 'row-reverse',
+    },
     skillLabel: {
         fontSize: 12,
         fontFamily: 'Lexend_600SemiBold',
         fontWeight: '600',
         color: theme.colors.textSecondary,
-        letterSpacing: 0.5,
         textTransform: 'uppercase',
+        textAlign: 'left',
+    },
+    textRTL: {
+        textAlign: 'right',
     },
     skillPct: {
         fontSize: 13,
@@ -135,4 +144,7 @@ const styles = StyleSheet.create({
         height: '100%',
         borderRadius: 4,
     },
-    })
+    trackFillRTL: {
+        alignSelf: 'flex-end',
+    },
+})

@@ -4,57 +4,61 @@ import {
     Image,
     StyleSheet,
     ImageSourcePropType,
-    } from 'react-native'
+} from 'react-native'
 import { Text } from '@/components/RNText'
-    import {theme} from '@/theme'
+import { theme } from '@/theme'
+import { useAppStore } from '@/store/Appstore'
 
 interface ProgressCardProps {
-    childName: string
-    monthLabel: string
+    title: string
     description: string
     percentage: number
     mascotImage: ImageSourcePropType
-    }
+}
 
 export default function ProgressCard({
-    childName,
-    monthLabel,
+    title,
     description,
     percentage,
     mascotImage,
-    }: ProgressCardProps) {
+}: ProgressCardProps) {
+    const isRTL = useAppStore((state) => state.isRTL)
     const clampedPct = Math.min(100, Math.max(0, percentage))
 
     return (
         <View style={styles.card}>
-        <View style={styles.row}>
-            <View style={styles.textBlock}>
-            <Text style={styles.title}>
-                {childName}'s Progress {monthLabel}
-            </Text>
-            <Text style={styles.desc} numberOfLines={2}>
-                {description}
-            </Text>
+            <View style={[styles.row, isRTL && styles.rowRTL]}>
+                <View style={styles.textBlock}>
+                    <Text style={[styles.title, isRTL && styles.textRTL]}>
+                        {title}
+                    </Text>
+                    <Text style={[styles.desc, isRTL && styles.textRTL]} numberOfLines={2}>
+                        {description}
+                    </Text>
+                </View>
+                <Image
+                    source={mascotImage}
+                    style={styles.mascot}
+                    resizeMode="contain"
+                />
             </View>
-            <Image
-            source={mascotImage}
-            style={styles.mascot}
-            resizeMode="contain"
-            />
-        </View>
-        <View style={styles.progressRow}>
-            <View style={styles.trackBg}>
-            <View
-                style={[styles.trackFill, { width: `${clampedPct}%` }]}
-            />
+            <View style={[styles.progressRow, isRTL && styles.progressRowRTL]}>
+                <View style={styles.trackBg}>
+                    <View
+                        style={[
+                            styles.trackFill,
+                            { width: `${clampedPct}%` },
+                            isRTL && styles.trackFillRTL,
+                        ]}
+                    />
+                </View>
+                <Text style={[styles.pct, isRTL && styles.pctRTL]}>{clampedPct}%</Text>
             </View>
-            <Text style={styles.pct}>{clampedPct}%</Text>
-        </View>
         </View>
     )
-    }
+}
 
-    const styles = StyleSheet.create({
+const styles = StyleSheet.create({
     card: {
         marginHorizontal: theme.spacing.sm,
         marginTop: theme.spacing.lg,
@@ -75,6 +79,9 @@ export default function ProgressCard({
         alignItems: 'center',
         gap: theme.spacing.md,
     },
+    rowRTL: {
+        flexDirection: 'row-reverse',
+    },
     textBlock: {
         flex: 1,
         gap: 4,
@@ -85,12 +92,17 @@ export default function ProgressCard({
         fontWeight: '700',
         color: theme.colors.textPrimary,
         lineHeight: 22,
+        textAlign: 'left',
     },
     desc: {
         fontSize: 13,
         fontFamily: 'Lexend_400Regular',
         color: theme.colors.textSecondary,
         lineHeight: 19,
+        textAlign: 'left',
+    },
+    textRTL: {
+        textAlign: 'right',
     },
     mascot: {
         width: 72,
@@ -100,6 +112,9 @@ export default function ProgressCard({
         flexDirection: 'row',
         alignItems: 'center',
         gap: theme.spacing.sm,
+    },
+    progressRowRTL: {
+        flexDirection: 'row-reverse',
     },
     trackBg: {
         flex: 1,
@@ -113,6 +128,9 @@ export default function ProgressCard({
         backgroundColor: theme.colors.primary,
         borderRadius: 4,
     },
+    trackFillRTL: {
+        alignSelf: 'flex-end',
+    },
     pct: {
         fontSize: 13,
         fontFamily: 'Lexend_700Bold',
@@ -120,5 +138,8 @@ export default function ProgressCard({
         color: theme.colors.textPrimary,
         minWidth: 36,
         textAlign: 'right',
+    },
+    pctRTL: {
+        textAlign: 'left',
     },
 })

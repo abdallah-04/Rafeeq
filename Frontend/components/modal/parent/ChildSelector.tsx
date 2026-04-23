@@ -5,10 +5,11 @@ import {
     TouchableOpacity,
     StyleSheet,
     ImageSourcePropType,
-    I18nManager,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { Text } from '@/components/RNText'
 import { theme } from '@/theme'
+import { useAppStore } from '@/store/Appstore'
 
 export interface Badge {
     label: string
@@ -21,7 +22,7 @@ interface ChildSelectorProps {
     avatar: ImageSourcePropType
     badges: Badge[]
     onPress?: () => void
-    }
+}
 
 export default function ChildSelector({
     name,
@@ -29,40 +30,39 @@ export default function ChildSelector({
     avatar,
     badges,
     onPress,
-    }: ChildSelectorProps) {
+}: ChildSelectorProps) {
+    const { t } = useTranslation()
+    const isRTL = useAppStore((state) => state.isRTL)
+
     return (
         <TouchableOpacity
-        style={styles.container}
-        onPress={onPress}
-        activeOpacity={onPress ? 0.7 : 1}
-        accessibilityRole={onPress ? 'button' : 'none'}
-        accessibilityLabel={`${name}, ${age} years old`}
+            style={[styles.container, isRTL && styles.containerRTL]}
+            onPress={onPress}
+            activeOpacity={onPress ? 0.7 : 1}
+            accessibilityRole={onPress ? 'button' : 'none'}
+            accessibilityLabel={`${name}, ${t('myChildren.years', { age })}`}
         >
-        {/* Avatar */}
-        <Image source={avatar} style={styles.avatar} />
+            <Image source={avatar} style={styles.avatar} />
 
-        {/* Info */}
-        <View style={styles.info}>
-            <Text style={styles.name}>
-            {name}, {age} years
-            </Text>
-            <View style={styles.badges}>
-            {badges.map((badge, i) => (
-                <View
-                key={i}
-                style={[styles.badge, { backgroundColor: badge.color + '33' }]}
-                >
-                <Text style={[styles.badgeText, { color: badge.color }]}>
-                    {badge.label}
+            <View style={styles.info}>
+                <Text style={[styles.name, isRTL && styles.textRTL]}>
+                    {name}, {t('myChildren.years', { age })}
                 </Text>
+                <View style={[styles.badges, isRTL && styles.badgesRTL]}>
+                    {badges.map((badge, index) => (
+                        <View
+                            key={index}
+                            style={[styles.badge, { backgroundColor: `${badge.color}33` }]}
+                        >
+                            <Text style={[styles.badgeText, { color: badge.color }]}>
+                                {badge.label}
+                            </Text>
+                        </View>
+                    ))}
                 </View>
-            ))}
             </View>
-        </View>
 
-        {onPress && (
-            <Text style={styles.arrow}>{I18nManager.isRTL ? '‹' : '›'}</Text>
-        )}
+            {onPress && <Text style={styles.arrow}>{isRTL ? '<' : '>'}</Text>}
         </TouchableOpacity>
     )
 }
@@ -85,6 +85,9 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         elevation: 2,
     },
+    containerRTL: {
+        flexDirection: 'row-reverse',
+    },
     avatar: {
         width: 48,
         height: 48,
@@ -100,11 +103,18 @@ const styles = StyleSheet.create({
         fontFamily: 'Lexend_600SemiBold',
         fontWeight: '600',
         color: theme.colors.textPrimary,
+        textAlign: 'left',
+    },
+    textRTL: {
+        textAlign: 'right',
     },
     badges: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 6,
+    },
+    badgesRTL: {
+        flexDirection: 'row-reverse',
     },
     badge: {
         paddingHorizontal: 8,

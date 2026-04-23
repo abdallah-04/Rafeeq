@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { View, Image, StyleSheet, StatusBar, ScrollView, TouchableOpacity } from 'react-native'
 import { router } from 'expo-router'
 import { theme } from '@/theme'
 import { useTranslation } from 'react-i18next'
-
+import { useAppStore } from '@/store/Appstore'
 import ScreenWrapper from '@/components/modal/shared/ScreenWap'
 import Header from '@/components/modal/shared/Header'
 import ChildSelector from '@/components/modal/parent/ChildSelector'
@@ -13,7 +13,7 @@ import StatusBadge from '@/components/modal/parent/StatusBadge'
 
 interface RecommendedActivity {
     id: string
-    title: string
+    titleKey: string
     icon: any
     iconTintColor: string
     durationMinutes: number
@@ -21,35 +21,33 @@ interface RecommendedActivity {
 
 interface DailyActivity {
     id: string
-    title: string
-    subtitle: string
+    titleKey: string
+    subtitleKey: string
     icon: any
     iconBgColor: string
     iconTintColor: string
     status: 'completed' | 'later' | 'new' | 'in_progress'
 }
 
+type TabKey = 'progress' | 'quizzes' | 'activities' | 'homeworks'
+
 const MOCK_CHILD = {
     name: 'Ayoub',
     age: 6,
     avatar: require('@/assets/images/boy.png'),
-    badges: [
-        { label: 'Level 2', color: '#A78BFA' },
-        { label: 'Age 8',   color: '#60A5FA' },
-    ],
 }
 
 const RECOMMENDED: RecommendedActivity[] = [
     {
         id: '1',
-        title: 'Free drawing',
+        titleKey: 'activities.cards.freeDrawing',
         icon: require('@/assets/images/icons/color.png'),
         iconTintColor: '#7C3AED',
         durationMinutes: 10,
     },
     {
         id: '2',
-        title: 'Interactive puzzle',
+        titleKey: 'activities.cards.interactivePuzzle',
         icon: require('@/assets/images/icons/shapes.png'),
         iconTintColor: '#7C3AED',
         durationMinutes: 23,
@@ -59,8 +57,8 @@ const RECOMMENDED: RecommendedActivity[] = [
 const DAILY_ACTIVITIES: DailyActivity[] = [
     {
         id: '1',
-        title: 'Breathing exercise',
-        subtitle: 'With parents · Morning',
+        titleKey: 'activities.cards.breathingExercise',
+        subtitleKey: 'activities.cards.withParentsMorning',
         icon: require('@/assets/images/icons/growth.png'),
         iconBgColor: '#BBF7D0',
         iconTintColor: '#00C688',
@@ -68,8 +66,8 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
     },
     {
         id: '2',
-        title: 'Social play',
-        subtitle: 'With friends · Evening',
+        titleKey: 'activities.cards.socialPlay',
+        subtitleKey: 'activities.cards.withFriendsEvening',
         icon: require('@/assets/images/icons/influencer.png'),
         iconBgColor: '#FDE68A',
         iconTintColor: '#D97706',
@@ -77,89 +75,85 @@ const DAILY_ACTIVITIES: DailyActivity[] = [
     },
 ]
 
-// ✅ Tab keys ثابتة — مش مرتبطة بالترجمة
-type TabKey = 'progress' | 'quizzes' | 'activities' | 'homeworks'
-
-const TAB_KEYS: TabKey[] = ['progress', 'quizzes', 'activities', 'homeworks']
-
 export default function ActivitiesScreen() {
     const { t } = useTranslation()
+    const isRTL = useAppStore((state) => state.isRTL)
+    const [activeTab, setActiveTab] = useState<TabKey>('activities')
 
-    // ✅ نحفظ الـ key مش الـ label
-    const [activeTabKey, setActiveTabKey] = useState<TabKey>('activities')
+    const tabs = useMemo(
+        () => [
+            { key: 'progress', label: t('progress.tabs.progress') },
+            { key: 'quizzes', label: t('progress.tabs.quizzes') },
+            { key: 'activities', label: t('activities.title') },
+            { key: 'homeworks', label: t('homework.title') },
+        ],
+        [t]
+    )
 
-    // ✅ الـ labels المترجمة — بتتغير مع اللغة تلقائياً
-    const TABS = [
-        t('progress.tabs.progress'),
-        t('progress.tabs.quizzes'),
-        t('activities.title'),
-        t('homework.title'),
-    ]
-
-    // ✅ activeTab للـ TabBar component
-    const activeTab = TABS[TAB_KEYS.indexOf(activeTabKey)]
+    const childBadges = useMemo(
+        () => [
+            { label: `${t('common.level')} 2`, color: '#A78BFA' },
+            { label: t('myChildren.years', { age: MOCK_CHILD.age }), color: '#60A5FA' },
+        ],
+        [t]
+    )
 
     const handleTabChange = (tab: string) => {
-        // ✅ نرجع للـ key عن طريق الـ index
-        const index = TABS.indexOf(tab)
-        const key = TAB_KEYS[index]
+        const nextTab = tab as TabKey
 
-        if (key === 'progress') {
+        if (nextTab === 'progress') {
             router.replace('/(parent)/progress/progress-page')
             return
         }
-        if (key === 'quizzes') {
+        if (nextTab === 'quizzes') {
             router.replace('/(parent)/progress/quiz')
             return
         }
-        if (key === 'homeworks') {
+        if (nextTab === 'homeworks') {
             router.replace('/(parent)/progress/homeworks')
             return
         }
-        setActiveTabKey('activities')
+
+        setActiveTab('activities')
     }
 
     return (
-        <ScreenWrapper scroll={false}>
+        <ScreenWrapper padded={false} scroll={false}>
             <StatusBar barStyle="dark-content" backgroundColor={theme.colors.white} />
 
-            <Header
-                title={t('activities.title')}
-                onBack={() => router.back()}
-                rightElement={<HeaderRightButton onPress={() => router.push('/(parent)/settings' as any)} />}
-            />
+            <Header title={t('activities.title')} onBack={() => router.back()} />
 
             <ChildSelector
                 name={MOCK_CHILD.name}
                 age={MOCK_CHILD.age}
                 avatar={MOCK_CHILD.avatar}
-                badges={MOCK_CHILD.badges}
+                badges={childBadges}
                 onPress={() => {}}
             />
 
-            {/* ✅ بنمرر الـ translated labels + الـ active label */}
-            <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
+            <TabBar tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
 
             <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-                <Text variant="heading" style={styles.sectionTitle}>
-                    ☆ {t('activities.recommendedFor', { name: MOCK_CHILD.name })}
+                <Text variant="heading" style={[styles.sectionTitle, isRTL && styles.textRTL]}>
+                    {t('activities.recommendedFor', { name: MOCK_CHILD.name })}
                 </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendedList}>
                     {RECOMMENDED.map((item) => (
                         <RecommendedCard
                             key={item.id}
                             item={item}
+                            title={t(item.titleKey)}
                             minsLabel={t('activities.mins', { count: item.durationMinutes })}
-                            onPress={() => router.push(`/(parent)/activity/${item.id}` as any)}
+                            isRTL={isRTL}
                         />
                     ))}
                 </ScrollView>
 
-                <View style={styles.sectionHeader}>
-                    <Text variant="heading" style={styles.sectionTitle}>
-                        🏃 {t('activities.daily')}
+                <View style={[styles.sectionHeader, isRTL && styles.sectionHeaderRTL]}>
+                    <Text variant="heading" style={[styles.sectionTitle, isRTL && styles.textRTL]}>
+                        {t('activities.daily')}
                     </Text>
-                    <TouchableOpacity onPress={() => router.push('/(parent)/activities-all' as any)}>
+                    <TouchableOpacity activeOpacity={0.7}>
                         <Text style={styles.seeAll}>{t('common.seeAll')}</Text>
                     </TouchableOpacity>
                 </View>
@@ -168,7 +162,9 @@ export default function ActivitiesScreen() {
                     <DailyCard
                         key={item.id}
                         item={item}
-                        onPress={() => router.push(`/(parent)/activity/${item.id}` as any)}
+                        title={t(item.titleKey)}
+                        subtitle={t(item.subtitleKey)}
+                        isRTL={isRTL}
                     />
                 ))}
             </ScrollView>
@@ -176,35 +172,47 @@ export default function ActivitiesScreen() {
     )
 }
 
-function RecommendedCard({ item, minsLabel, onPress }: { item: RecommendedActivity; minsLabel: string; onPress: () => void }) {
+function RecommendedCard({
+    item,
+    title,
+    minsLabel,
+    isRTL,
+}: {
+    item: RecommendedActivity
+    title: string
+    minsLabel: string
+    isRTL: boolean
+}) {
     return (
-        <TouchableOpacity style={styles.recommendedCard} onPress={onPress} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.recommendedCard} activeOpacity={0.7}>
             <Image source={item.icon} style={[styles.recommendedIcon, { tintColor: item.iconTintColor }]} resizeMode="contain" />
-            <Text style={styles.recommendedTitle}>{item.title}</Text>
-            <Text style={styles.recommendedMeta}>· {minsLabel}</Text>
+            <Text style={[styles.recommendedTitle, isRTL && styles.textRTL]}>{title}</Text>
+            <Text style={[styles.recommendedMeta, isRTL && styles.textRTL]}>{minsLabel}</Text>
         </TouchableOpacity>
     )
 }
 
-function DailyCard({ item, onPress }: { item: DailyActivity; onPress: () => void }) {
+function DailyCard({
+    item,
+    title,
+    subtitle,
+    isRTL,
+}: {
+    item: DailyActivity
+    title: string
+    subtitle: string
+    isRTL: boolean
+}) {
     return (
-        <TouchableOpacity style={styles.dailyCard} onPress={onPress} activeOpacity={0.7}>
+        <TouchableOpacity style={[styles.dailyCard, isRTL && styles.dailyCardRTL]} activeOpacity={0.7}>
             <View style={[styles.dailyIconBox, { backgroundColor: item.iconBgColor }]}>
                 <Image source={item.icon} style={[styles.dailyIcon, { tintColor: item.iconTintColor }]} resizeMode="contain" />
             </View>
             <View style={styles.dailyInfo}>
-                <Text style={styles.dailyTitle}>{item.title}</Text>
-                <Text style={styles.dailySubtitle}>{item.subtitle}</Text>
+                <Text style={[styles.dailyTitle, isRTL && styles.textRTL]}>{title}</Text>
+                <Text style={[styles.dailySubtitle, isRTL && styles.textRTL]}>{subtitle}</Text>
             </View>
             <StatusBadge variant={item.status} />
-        </TouchableOpacity>
-    )
-}
-
-function HeaderRightButton({ onPress }: { onPress: () => void }) {
-    return (
-        <TouchableOpacity onPress={onPress} style={styles.settingsBtn}>
-            <Text style={styles.settingsIcon}>⚙️</Text>
         </TouchableOpacity>
     )
 }
@@ -212,19 +220,27 @@ function HeaderRightButton({ onPress }: { onPress: () => void }) {
 const styles = StyleSheet.create({
     scroll: { flex: 1 },
     scrollContent: {
+        paddingHorizontal: theme.spacing.lg,
         paddingTop: theme.spacing.lg,
-        paddingBottom: theme.spacing.xl,
+        paddingBottom: 120,
         gap: theme.spacing.lg,
     },
     sectionTitle: {
         fontSize: 16,
         fontFamily: 'Lexend_700Bold',
         color: theme.colors.textPrimary,
+        textAlign: 'left',
+    },
+    textRTL: {
+        textAlign: 'right',
     },
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+    },
+    sectionHeaderRTL: {
+        flexDirection: 'row-reverse',
     },
     seeAll: {
         fontSize: 13,
@@ -253,11 +269,13 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontFamily: 'Lexend_700Bold',
         color: theme.colors.textPrimary,
+        textAlign: 'left',
     },
     recommendedMeta: {
         fontSize: 12,
         fontFamily: 'Lexend_400Regular',
         color: theme.colors.textMuted,
+        textAlign: 'left',
     },
     dailyCard: {
         flexDirection: 'row',
@@ -273,6 +291,9 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
         elevation: 2,
+    },
+    dailyCardRTL: {
+        flexDirection: 'row-reverse',
     },
     dailyIconBox: {
         width: 52,
@@ -293,17 +314,12 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontFamily: 'Lexend_700Bold',
         color: theme.colors.textPrimary,
+        textAlign: 'left',
     },
     dailySubtitle: {
         fontSize: 12,
         fontFamily: 'Lexend_400Regular',
         color: theme.colors.textMuted,
+        textAlign: 'left',
     },
-    settingsBtn: {
-        width: 36,
-        height: 36,
-        justifyContent: 'center',
-        alignItems: 'flex-end',
-    },
-    settingsIcon: { fontSize: 20 },
 })

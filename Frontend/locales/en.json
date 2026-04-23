@@ -17,6 +17,7 @@
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Try again",
+    "repeat": "Repeat",
     "close": "Close",
     "search": "Search",
     "seeAll": "See all",
@@ -563,7 +564,7 @@
 
   "school": {
     "home": {
-      "title": "School Dashboard",
+      "title": "Al naseem School",
       "teachers": "Teachers",
       "students": "Students"
     },
@@ -602,6 +603,32 @@
       "reports": "Reports"
     },
     "grades": { "comingUp": "Coming Up This Week" },
+    "cards": {
+      "location": "Amman",
+      "childSubtitle": "{{name}}, grade {{grade}}",
+      "teacherName": "Ms. Sara Mahmoud",
+      "teacherWithSubject": "{{name}} - {{subject}}",
+      "teacherAuthor": "{{name}} - {{date}}",
+      "reportDate": "Mar 28",
+      "reportTime": "8:30 AM",
+      "subjects": {
+        "arabic": "Arabic",
+        "math": "Math",
+        "science": "Science"
+      },
+      "hw": {
+        "fractionsWorksheet": "Fractions Worksheet",
+        "plantDiagram": "Plant Diagram",
+        "chapter": "Chapter {{number}}",
+        "unit": "Unit {{number}}",
+        "inDays": "In {{count}} days",
+        "nextWeek": "Next week"
+      },
+      "tasks": {
+        "oralRecitation": "Oral Recitation",
+        "timesTablePractice": "Times Table Practice"
+      }
+    },
     "progress": {
       "overall": "Overall Progress",
       "semester": "Second Semester",
@@ -648,6 +675,11 @@
     "questions": "questions",
     "mins": "mins",
     "startQuiz": "Start Quiz",
+    "cards": {
+      "colors": "Color's Quiz",
+      "numbers": "Numbers (1-10)",
+      "animals": "Animal Sounds"
+    },
     "status": { "new": "New", "in_progress": "In progress", "completed": "Completed", "later": "Later" },
     "detail": { "level": "Level", "notTaken": "Not taken yet", "completedOn": "Completed" },
     "keepGoing": "of",
@@ -668,6 +700,11 @@
     "forToday": "For today",
     "notFinishedSince": "Not finished since last week",
     "openHw": "Open H.W",
+    "cards": {
+      "counting": "Counting 1 to 10",
+      "progressDescription": "{{completed}} / {{total}} tasks completed",
+      "mathMeta": "Mathematics - {{questions}} questions - {{mins}} mins"
+    },
     "status": { "not_submitted": "Pending", "submitted": "Submitted", "graded": "Graded" }
   },
 
@@ -675,7 +712,15 @@
     "title": "Activities",
     "recommendedFor": "Recommended for {{name}}",
     "daily": "Daily activities",
-    "mins": "{{count}} mins"
+    "mins": "{{count}} mins",
+    "cards": {
+      "freeDrawing": "Free Drawing",
+      "interactivePuzzle": "Interactive Puzzle",
+      "breathingExercise": "Breathing Exercise",
+      "socialPlay": "Social Play",
+      "withParentsMorning": "With parents - Morning",
+      "withFriendsEvening": "With friends - Evening"
+    }
   },
 
   "tree": {
@@ -710,6 +755,56 @@
       "learning": "Learning",
       "behavioral": "Behavior",
       "motor": "Motor Skills"
+    }
+  },
+
+  "specialEducation": {
+    "title": "Special Education",
+    "pageTitle": "Special Education Support",
+    "description": "This section helps parents easily find trusted special education centers, specialists, and support services. Explore nearby centers, view available services, and connect directly with professionals to support your child's needs.",
+    "sectionTitle": "Nearby Support",
+    "sectionHint": "Trusted options",
+    "actions": {
+      "call": "Call",
+      "message": "Message",
+      "directions": "Directions"
+    },
+    "quickCards": {
+      "centers": {
+        "title": "Centers Near You",
+        "description": "Find nearby special education centers"
+      },
+      "specialists": {
+        "title": "Specialists",
+        "description": "Contact certified therapists and educators"
+      },
+      "services": {
+        "title": "Support Services",
+        "description": "Discover programs tailored for your child"
+      },
+      "contact": {
+        "title": "Contact & Help",
+        "description": "Get guidance and consultation"
+      }
+    },
+    "centers": {
+      "items": {
+        "first": {
+          "name": "Rafeeq Learning Center",
+          "subtitle": "Speech therapy, behavior support, learning plans",
+          "distance": "2.1 km"
+        },
+        "second": {
+          "name": "Dr. Lina Al-Hassan",
+          "subtitle": "Certified special educator and family consultant",
+          "distance": "Online"
+        },
+        "third": {
+          "name": "Bright Steps Program",
+          "subtitle": "Daily support programs tailored by age and need",
+          "distance": "4.3 km"
+        }
+      }
     }
   },
 

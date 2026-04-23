@@ -3,6 +3,8 @@ import { View, Image, StyleSheet } from 'react-native'
 import { theme } from '@/theme'
 import Card from '@/components/modal/shared/Card'
 import { Text } from '@/components/modal/shared/Text'
+import { useAppStore } from '@/store/Appstore'
+
 interface SchoolCardProps {
     schoolName: string
     grade: string
@@ -10,8 +12,10 @@ interface SchoolCardProps {
 }
 
 export default function SchoolCard({ schoolName, grade, location }: SchoolCardProps) {
+    const isRTL = useAppStore((state) => state.isRTL)
+
     return (
-        <Card variant="elevated" style={styles.card}>
+        <Card variant="elevated" style={[styles.card, isRTL && styles.cardRTL]}>
             <View style={styles.iconBox}>
                 <Image
                     source={require('@/assets/images/icons/school-icon.png')}
@@ -19,9 +23,9 @@ export default function SchoolCard({ schoolName, grade, location }: SchoolCardPr
                 />
             </View>
             <View style={styles.textBlock}>
-                <Text variant="heading" style={styles.name}>{schoolName}</Text>
-                <Text style={styles.grade}>{grade}</Text>
-                <Text style={styles.location}>📍 {location}</Text>
+                <Text variant="heading" style={[styles.name, isRTL && styles.textRTL]}>{schoolName}</Text>
+                <Text style={[styles.grade, isRTL && styles.textRTL]}>{grade}</Text>
+                <Text style={[styles.location, isRTL && styles.textRTL]}>{location}</Text>
             </View>
         </Card>
     )
@@ -35,6 +39,9 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.primary,
         borderWidth: 0,
     },
+    cardRTL: {
+        flexDirection: 'row-reverse',
+    },
     iconBox: {
         width: 60,
         height: 60,
@@ -47,7 +54,10 @@ const styles = StyleSheet.create({
         borderRadius: theme.radius.lg,
     },
     textBlock: { flex: 1 },
-    name: { color: theme.colors.textWhite },
-    grade: { color: theme.colors.textWhite, opacity: 0.9 },
-    location: { color: theme.colors.textWhite, fontSize: 12, marginTop: 4 },
+    name: { color: theme.colors.textWhite, textAlign: 'left' },
+    grade: { color: theme.colors.textWhite, opacity: 0.9, textAlign: 'left' },
+    location: { color: theme.colors.textWhite, fontSize: 12, marginTop: 4, textAlign: 'left' },
+    textRTL: {
+        textAlign: 'right',
+    },
 })
