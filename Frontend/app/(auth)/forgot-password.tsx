@@ -5,7 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated as RNAnimated,
-  Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -28,25 +28,21 @@ const { colors, spacing, typography, radius } = theme;
 
 type Step = 1 | 2 | 3 | 4;
 
+const RESEND_SECONDS = 60;
+
 const step1Schema = z.object({
   nationalId: z.string().length(10, 'forgotPassword.errors.nationalIdLength'),
 });
 
-const step2Schema = z.object({
-  otpCode: z.string().length(4, 'forgotPassword.errors.otpRequired'),
-});
-
 const step3Schema = z
   .object({
-    newPassword:     z.string().min(8, 'forgotPassword.errors.passwordTooShort'),
+    newPassword: z.string().min(8, 'forgotPassword.errors.passwordTooShort'),
     confirmPassword: z.string().min(1, 'forgotPassword.errors.confirmRequired'),
   })
   .refine((d) => d.newPassword === d.confirmPassword, {
     message: 'forgotPassword.errors.passwordMismatch',
     path: ['confirmPassword'],
   });
-
-// ─── Step dots ────────────────────────────────────────────────────────────────
 
 function StepDots({ current }: { current: Step }) {
   return (
@@ -58,7 +54,39 @@ function StepDots({ current }: { current: Step }) {
   );
 }
 
-// ─── Step 1: National ID → triggers OTP ──────────────────────────────────────
+function ResendTimer({ onResend }: { onResend: () => void }) {
+  const { t } = useTranslation();
+  const [seconds, setSeconds] = useState(RESEND_SECONDS);
+
+  useEffect(() => {
+    if (seconds <= 0) return;
+    const timer = setTimeout(() => setSeconds((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [seconds]);
+
+  const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const ss = String(seconds % 60).padStart(2, '0');
+
+  return (
+    <View style={styles.resendRow}>
+      <Text style={styles.resendText}>{t('auth.otp.didntReceive')} </Text>
+      {seconds > 0 ? (
+        <Text style={styles.resendLink}>
+          {t('auth.otp.resendIn')} {mm}:{ss}
+        </Text>
+      ) : (
+        <TouchableOpacity
+          onPress={() => {
+            setSeconds(RESEND_SECONDS);
+            onResend();
+          }}
+        >
+          <Text style={styles.resendLink}>{t('auth.otp.resend')}</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
 
 function Step1({
   onNext,
@@ -71,7 +99,11 @@ function Step1({
   const { t } = useTranslation();
   const isRTL = useAuthStore((s) => s.isRTL);
   const [loading, setLoading] = useState(false);
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(step1Schema),
     defaultValues: { nationalId: '' },
   });
@@ -90,14 +122,12 @@ function Step1({
   };
 
   return (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepIcon}>🔍</Text>
-      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
-        {t('forgotPassword.step1.title')}
-      </Text>
-      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>
-        {t('forgotPassword.step1.subtitle')}
-      </Text>
+    <View style={styles.stepCard}>
+      <View style={styles.iconBadge}>
+        <Text style={styles.iconText}>🔍</Text>
+      </View>
+      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>{t('forgotPassword.step1.title')}</Text>
+      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>{t('forgotPassword.step1.subtitle')}</Text>
       <Controller
         control={control}
         name="nationalId"
@@ -112,23 +142,28 @@ function Step1({
           />
         )}
       />
-      <Button label={t('common.continue')} onPress={handleSubmit(onSubmit)} loading={loading} style={styles.btn} />
+      <Button
+        label={t('common.continue')}
+        onPress={handleSubmit(onSubmit)}
+        loading={loading}
+        style={styles.btn}
+      />
     </View>
   );
 }
 
-// ─── Step 2: Enter OTP ────────────────────────────────────────────────────────
-
 function Step2({
   onNext,
   nationalId,
+  setOtpCode,
 }: {
   onNext: () => void;
   nationalId: string;
+  setOtpCode: (code: string) => void;
 }) {
   const { t } = useTranslation();
   const isRTL = useAuthStore((s) => s.isRTL);
-  const [otp, setOtp]         = useState<string[]>(Array(4).fill(''));
+  const [otp, setOtp] = useState<string[]>(Array(4).fill(''));
   const [loading, setLoading] = useState(false);
   const [otpError, setOtpError] = useState('');
 
@@ -139,7 +174,9 @@ function Step2({
     setOtpError('');
     setLoading(true);
     try {
-      await apiVerifyOTP(nationalId, otp.join(''));
+      const code = otp.join('');
+      await apiVerifyOTP(nationalId, code);
+      setOtpCode(code);
       onNext();
     } catch (err: any) {
       setOtpError(err?.message ?? t('auth.otp.invalidCode', 'Invalid or expired code'));
@@ -157,14 +194,12 @@ function Step2({
   };
 
   return (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepIcon}>📱</Text>
-      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
-        {t('forgotPassword.step2.title')}
-      </Text>
-      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>
-        {t('forgotPassword.step2.subtitle')}
-      </Text>
+    <View style={styles.stepCard}>
+      <View style={styles.iconBadge}>
+        <Text style={styles.iconText}>📱</Text>
+      </View>
+      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>{t('forgotPassword.step2.title')}</Text>
+      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>{t('forgotPassword.step2.subtitle')}</Text>
 
       <OTPInput
         length={4}
@@ -174,6 +209,8 @@ function Step2({
         error={!!otpError}
       />
       {otpError ? <Text style={styles.errorText}>{otpError}</Text> : null}
+
+      <ResendTimer onResend={handleResend} />
 
       <Button
         label={t('forgotPassword.step2.sendCode', 'Verify Code')}
@@ -186,8 +223,6 @@ function Step2({
   );
 }
 
-// ─── Step 3: New password ─────────────────────────────────────────────────────
-
 function Step3({
   onNext,
   nationalId,
@@ -197,10 +232,15 @@ function Step3({
   nationalId: string;
   otpCode: string;
 }) {
+  const { show } = useModal();
   const { t } = useTranslation();
   const isRTL = useAuthStore((s) => s.isRTL);
   const [loading, setLoading] = useState(false);
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(step3Schema),
     defaultValues: { newPassword: '', confirmPassword: '' },
   });
@@ -211,7 +251,7 @@ function Step3({
       await apiResetPassword({
         nationalId,
         otpCode,
-        newPassword:     data.newPassword,
+        newPassword: data.newPassword,
         confirmPassword: data.confirmPassword,
       });
       onNext();
@@ -223,14 +263,13 @@ function Step3({
   };
 
   return (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepIcon}>🔒</Text>
-      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
-        {t('forgotPassword.step3.title')}
-      </Text>
-      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>
-        {t('forgotPassword.step3.subtitle')}
-      </Text>
+    <View style={styles.stepCard}>
+      <View style={styles.iconBadge}>
+        <Text style={styles.iconText}>🔒</Text>
+      </View>
+      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>{t('forgotPassword.step3.title')}</Text>
+      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>{t('forgotPassword.step3.subtitle')}</Text>
+
       <Controller
         control={control}
         name="newPassword"
@@ -259,12 +298,15 @@ function Step3({
           />
         )}
       />
-      <Button label={t('forgotPassword.step3.saveBtn')} onPress={handleSubmit(onSubmit)} loading={loading} style={styles.btn} />
+      <Button
+        label={t('forgotPassword.step3.saveBtn')}
+        onPress={handleSubmit(onSubmit)}
+        loading={loading}
+        style={styles.btn}
+      />
     </View>
   );
 }
-
-// ─── Step 4: Success + countdown ─────────────────────────────────────────────
 
 function Step4() {
   const { t } = useTranslation();
@@ -285,14 +327,12 @@ function Step4() {
   }, []);
 
   return (
-    <View style={[styles.stepContainer, styles.successCenter]}>
-      <Text style={styles.stepIcon}>✅</Text>
-      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>
-        {t('forgotPassword.step4.title')}
-      </Text>
-      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>
-        {t('forgotPassword.step4.subtitle')}
-      </Text>
+    <View style={[styles.stepCard, styles.successCard]}>
+      <View style={styles.iconBadge}>
+        <Text style={styles.iconText}>✅</Text>
+      </View>
+      <Text style={[styles.stepTitle, isRTL && styles.textRight]}>{t('forgotPassword.step4.title')}</Text>
+      <Text style={[styles.stepDesc, isRTL && styles.textRight]}>{t('forgotPassword.step4.subtitle')}</Text>
       <Text style={styles.countdownText}>
         {t('forgotPassword.step4.returning')} {countdown}s
       </Text>
@@ -305,88 +345,191 @@ function Step4() {
   );
 }
 
-// ─── Main Screen ──────────────────────────────────────────────────────────────
-
 export default function ForgotPasswordScreen() {
   const { t } = useTranslation();
   const isRTL = useAuthStore((s) => s.isRTL);
-  const [step, setStep]           = useState<Step>(1);
+  const [step, setStep] = useState<Step>(1);
   const [nationalId, setNationalId] = useState('');
-  const [otpCode, setOtpCode]     = useState('');
-  const slideAnim                 = useRef(new RNAnimated.Value(0)).current;
+  const [otpCode, setOtpCode] = useState('');
+  const slideAnim = useRef(new RNAnimated.Value(0)).current;
 
   const animateStep = (next: Step) => {
     RNAnimated.sequence([
       RNAnimated.timing(slideAnim, { toValue: -20, duration: 120, useNativeDriver: true }),
-      RNAnimated.timing(slideAnim, { toValue: 0,   duration: 180, useNativeDriver: true }),
+      RNAnimated.timing(slideAnim, { toValue: 0, duration: 180, useNativeDriver: true }),
     ]).start();
     setStep(next);
   };
 
+  const handleBack = () => {
+    if (step === 1) {
+      if (router.canGoBack()) {
+        router.back();
+        return;
+      }
+      router.replace('/(auth)/login' as any);
+      return;
+    }
+    animateStep((step - 1) as Step);
+  };
+
   return (
     <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <View style={[styles.header, isRTL && styles.rowReverse]}>
-          <BackButton
-            onPress={() => {
-              if (step === 1) router.back();
-              else animateStep((step - 1) as Step);
-            }}
-          />
+          <BackButton onPress={handleBack} />
           <Text style={styles.headerTitle}>{t('forgotPassword.screenTitle')}</Text>
           <View style={{ width: 36 }} />
         </View>
 
-        {step < 4 && <StepDots current={step} />}
+        <View style={styles.body}>
+          {step < 4 && <StepDots current={step} />}
 
-        <RNAnimated.View style={{ flex: 1, transform: [{ translateY: slideAnim }] }}>
-          {step === 1 && (
-            <Step1
-              onNext={() => animateStep(2)}
-              setNationalId={setNationalId}
-            />
-          )}
-          {step === 2 && (
-            <Step2
-              onNext={() => animateStep(3)}
-              nationalId={nationalId}
-            />
-          )}
-          {step === 3 && (
-            <Step3
-              onNext={() => animateStep(4)}
-              nationalId={nationalId}
-              otpCode={otpCode}
-            />
-          )}
-          {step === 4 && <Step4 />}
-        </RNAnimated.View>
+          <RNAnimated.View style={[styles.content, { transform: [{ translateY: slideAnim }] }]}>
+            {step === 1 && <Step1 onNext={() => animateStep(2)} setNationalId={setNationalId} />}
+            {step === 2 && (
+              <Step2
+                onNext={() => animateStep(3)}
+                nationalId={nationalId}
+                setOtpCode={setOtpCode}
+              />
+            )}
+            {step === 3 && (
+              <Step3
+                onNext={() => animateStep(4)}
+                nationalId={nationalId}
+                otpCode={otpCode}
+              />
+            )}
+            {step === 4 && <Step4 />}
+          </RNAnimated.View>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe:           { flex: 1, backgroundColor: colors.background },
-  rowReverse:     { flexDirection: 'row-reverse' },
-  textRight:      { textAlign: 'right' },
-  header:         { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  headerTitle:    { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.textPrimary },
-  dotsRow:        { flexDirection: 'row', justifyContent: 'center', gap: 8, paddingVertical: spacing.sm },
-  dot:            { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
-  dotActive:      { backgroundColor: colors.primary, width: 20 },
-  stepContainer:  { flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, gap: spacing.md },
-  stepIcon:       { fontSize: 48, textAlign: 'center' },
-  stepTitle:      { fontSize: typography.fontSize.xl, fontFamily: typography.fontFamily.bold, color: colors.textPrimary, textAlign: 'center' },
-  stepDesc:       { fontSize: typography.fontSize.sm, color: colors.textSecondary, textAlign: 'center', lineHeight: 22 },
-  errorText:      { fontSize: typography.fontSize.xs, color: colors.error, textAlign: 'center' },
-  maskedPhoneCard:{ backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
-  maskedPhone:    { fontSize: typography.fontSize.xl, fontFamily: typography.fontFamily.bold, color: colors.textPrimary, letterSpacing: 4 },
-  btn:            { width: '100%', marginTop: spacing.xs },
-  successCenter:  { alignItems: 'center' },
-  countdownText:  { fontSize: typography.fontSize.sm, color: colors.textMuted, textAlign: 'center' },
+  safe: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  rowReverse: {
+    flexDirection: 'row-reverse',
+  },
+  textRight: {
+    textAlign: 'right',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  headerTitle: {
+    fontSize: typography.fontSize.lg,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+  },
+  body: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
+  },
+  dotsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: spacing.sm,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.border,
+  },
+  dotActive: {
+    backgroundColor: colors.primary,
+    width: 20,
+  },
+  content: {
+    flex: 1,
+    paddingTop: spacing.sm,
+  },
+  stepCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    gap: spacing.md,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+  },
+  successCard: {
+    alignItems: 'center',
+  },
+  iconBadge: {
+    alignSelf: 'center',
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: colors.surfaceElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  iconText: {
+    fontSize: 34,
+  },
+  stepTitle: {
+    fontSize: typography.fontSize.xl,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+    textAlign: 'center',
+  },
+  stepDesc: {
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  errorText: {
+    fontSize: typography.fontSize.xs,
+    color: colors.error,
+    textAlign: 'center',
+  },
+  resendRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  resendText: {
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
+  },
+  resendLink: {
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.semiBold,
+    color: colors.primary,
+  },
+  btn: {
+    width: '100%',
+    marginTop: spacing.xs,
+  },
+  countdownText: {
+    fontSize: typography.fontSize.sm,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
 });
-
-function show(arg0: string, arg1: { variant: string; }) {
-  throw new Error('Function not implemented.');
-}

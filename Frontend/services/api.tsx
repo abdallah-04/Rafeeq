@@ -249,9 +249,14 @@ export interface StudentResponse {
   gender:             string | null;
   dateOfBirth:        string | null;
   learningDifficulty: string | null;
+  parentId?:          string | null;
+  teacherId?:         string | null;
+  phone?:             string | null;
   nationalId:         string;
   status:             string;
   assessedLevel:      number | null;
+  placementCompletedAt?: string | null;
+  active?:            boolean | null;
 }
 
 export interface PlacementQuestionResponse {
@@ -532,6 +537,13 @@ export async function apiGetHomeworkForTeacher(childId: string): Promise<Homewor
 }
 
 /**
+ * GET /api/homework/school/:childId
+ */
+export async function apiGetHomeworkForSchool(childId: string): Promise<HomeworkResponse[]> {
+  return _get<HomeworkResponse[]>(`/api/homework/school/${childId}`);
+}
+
+/**
  * POST /api/homework
  * Teacher creates homework for a child
  */
@@ -560,6 +572,13 @@ export async function apiGetReportsForParent(childId: string): Promise<ReportRes
  */
 export async function apiGetReportsForTeacher(childId: string): Promise<ReportResponse[]> {
   return _get<ReportResponse[]>(`/api/reports/teacher/${childId}`);
+}
+
+/**
+ * GET /api/reports/school/:childId
+ */
+export async function apiGetReportsForSchool(childId: string): Promise<ReportResponse[]> {
+  return _get<ReportResponse[]>(`/api/reports/school/${childId}`);
 }
 
 /**
@@ -681,6 +700,20 @@ export async function apiGetTeachers(): Promise<TeacherResponse[]> {
  */
 export async function apiGetTeacher(id: string): Promise<TeacherResponse> {
   return _get<TeacherResponse>(`/school/teachers/${id}`);
+}
+
+/**
+ * GET /school/teachers/:id/students
+ */
+export async function apiGetSchoolTeacherStudents(id: string): Promise<StudentResponse[]> {
+  return _get<StudentResponse[]>(`/school/teachers/${id}/students`);
+}
+
+/**
+ * GET /school/students/:id
+ */
+export async function apiGetSchoolStudent(id: string): Promise<ChildResponse> {
+  return _get<ChildResponse>(`/school/students/${id}`);
 }
 
 /**

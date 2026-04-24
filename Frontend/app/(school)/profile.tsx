@@ -1,9 +1,7 @@
-import React from 'react'
-import { I18nManager, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
-import * as Updates from 'expo-updates'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Modal, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
-import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { Ionicons } from '@expo/vector-icons'
 import { theme } from '@/theme'
@@ -12,24 +10,10 @@ import { performLogout } from '@/utils/logout'
 import { Text } from '@/components/modal/shared/Text'
 import Header from '@/components/modal/shared/Header'
 import Card from '@/components/modal/shared/Card'
-import { effect } from 'zod/v3'
-import { is } from 'zod/v4/locales'
-import language from '../(auth)/language'
+import { apiGetMe, apiGetSchoolDashboard, MeResponse, SchoolDashboard } from '@/services/api'
+import type { Language } from '@/types'
 
-const { colors, spacing, radius } = theme
-
-const MOCK_SCHOOL = {
-  name: 'Al-Noor Academy',
-  schoolId: 'SCH-2024-0318',
-  advisorName: 'Dr. Rana Al-Kharabsheh',
-  phone: '+962 6 553 2180',
-  email: 'info@alnoor.edu.jo',
-  city: 'Amman',
-  verified: true,
-  stats: { teachers: 24, students: 186, avgProgress: 78 },
-}
-
-// ---- Sub-components ----
+const { colors, spacing, radius, typography } = theme
 
 function InfoRow({
   icon,
@@ -38,6 +22,7 @@ function InfoRow({
   label,
   value,
   last = false,
+  isRTL,
 }: {
   icon: React.ComponentProps<typeof Ionicons>['name']
   tileColor: string
@@ -45,15 +30,18 @@ function InfoRow({
   label: string
   value: string
   last?: boolean
+  isRTL: boolean
 }) {
   return (
-    <View style={[styles.infoRow, !last && styles.infoRowDivider]}>
+    <View style={[styles.infoRow, !last && styles.infoRowDivider, isRTL && styles.infoRowRTL]}>
       <View style={[styles.iconTile, { backgroundColor: tileColor }]}>
         <Ionicons name={icon} size={18} color={iconColor} />
       </View>
       <View style={styles.infoTextCol}>
-        <Text style={styles.infoCaption}>{label}</Text>
-        <Text style={styles.infoValue}>{value}</Text>
+        <Text style={[styles.infoCaption, isRTL && styles.textRight]}>{label}</Text>
+        <Text style={[styles.infoValue, isRTL && styles.textRight]} numberOfLines={1}>
+          {value}
+        </Text>
       </View>
     </View>
   )
@@ -66,6 +54,7 @@ function SettingsRow({
   label,
   valueLabel,
   onPress,
+  isRTL,
   last = false,
 }: {
   icon: React.ComponentProps<typeof Ionicons>['name']
@@ -74,40 +63,81 @@ function SettingsRow({
   label: string
   valueLabel?: string
   onPress: () => void
+  isRTL: boolean
   last?: boolean
 }) {
   return (
     <TouchableOpacity
-      style={[styles.infoRow, !last && styles.infoRowDivider]}
+      style={[styles.infoRow, !last && styles.infoRowDivider, isRTL && styles.infoRowRTL]}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={[styles.iconTile, { backgroundColor: tileColor }]}>
         <Ionicons name={icon} size={18} color={iconColor} />
       </View>
-      <Text style={[styles.infoValue, styles.settingsLabel]}>{label}</Text>
-      {valueLabel ? (
-        <Text style={styles.settingsValue}>{valueLabel}</Text>
-      ) : null}
-      <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={14} color={colors.textMuted} />
+      <Text style={[styles.infoValue, styles.settingsLabel, isRTL && styles.textRight]}>
+        {label}
+      </Text>
+      {valueLabel ? <Text style={styles.settingsValue}>{valueLabel}</Text> : null}
+      <Ionicons
+        name={isRTL ? 'chevron-back' : 'chevron-forward'}
+        size={14}
+        color={colors.textMuted}
+      />
     </TouchableOpacity>
   )
 }
 
-// ---- Main screen ----
-
 export default function ProfileScreen() {
-  const { t, i18n } = useTranslation()
-  const setLanguage  = useAuthStore((s) => s.setLanguage)
+  const { t } = useTranslation()
+  const user = useAuthStore((s) => s.user)
+  const setLanguage = useAuthStore((s) => s.setLanguage)
+  const language = useAuthStore((s) => s.language)
+  const isRTL = useAuthStore((s) => s.isRTL)
 
-  function handleLogout() {
-    performLogout()
-  }
+  const [me, setMe] = useState<MeResponse | null>(null)
+  const [dashboard, setDashboard] = useState<SchoolDashboard | null>(null)
+  const [langModalVisible, setLangModalVisible] = useState(false)
 
-  function handleToggleLanguage() {
-    const newLang = i18n.language === 'ar' ? 'en' : 'ar'
-    setLanguage(newLang)
-  }
+  useEffect(() => {
+    let active = true
+
+    ;(async () => {
+      try {
+        const [meResponse, dashboardResponse] = await Promise.all([
+          apiGetMe(),
+          apiGetSchoolDashboard(),
+        ])
+
+        if (!active) return
+        setMe(meResponse)
+        setDashboard(dashboardResponse)
+      } catch {
+        if (!active) return
+      }
+    })()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const displayName = useMemo(() => {
+    const candidates = [user?.nameAr, user?.name, me?.email, me?.phone, user?.phone, user?.nationalId]
+    return candidates.find((value) => typeof value === 'string' && value.trim().length > 0)?.trim()
+      ?? t('roleSelect.schoolTitle')
+  }, [me?.email, me?.phone, t, user?.name, user?.nameAr, user?.nationalId, user?.phone])
+
+  const phoneValue = me?.phone || user?.phone || '—'
+  const emailValue = me?.email || '—'
+  const schoolIdValue = user?.nationalId || me?.userId || '—'
+  const teachersCount = dashboard?.teachersCount != null ? String(dashboard.teachersCount) : '—'
+  const studentsCount = dashboard?.studentsCount != null ? String(dashboard.studentsCount) : '—'
+
+  const languages: { code: Language; native: string }[] = [
+    { code: 'en', native: t('language.english') },
+    { code: 'ar', native: t('language.arabic') },
+  ]
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -123,39 +153,38 @@ export default function ProfileScreen() {
         }
       />
 
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Hero card */}
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.heroCard}>
           <View style={styles.logoSlot}>
             <Ionicons name="business" size={32} color={colors.primary} />
           </View>
           <View style={styles.heroInfo}>
-            <Text style={styles.heroName}>{MOCK_SCHOOL.name}</Text>
-            <View style={styles.verifiedPill}>
-              <Ionicons name="checkmark-circle" size={12} color={colors.white} />
-              <Text style={styles.verifiedText}>{t('profile.verified')}</Text>
+            <Text style={[styles.heroName, isRTL && styles.textRight]} numberOfLines={1}>
+              {displayName}
+            </Text>
+            <View style={styles.rolePill}>
+              <Ionicons name="school-outline" size={12} color={colors.white} />
+              <Text style={styles.rolePillText}>{t('roleSelect.schoolTitle')}</Text>
             </View>
-            <View style={styles.locationRow}>
-              <Ionicons name="location-outline" size={12} color="rgba(255,255,255,0.9)" />
-              <Text style={styles.locationText}>{MOCK_SCHOOL.city}</Text>
+            <View style={[styles.locationRow, isRTL && styles.locationRowRTL]}>
+              <Ionicons name="call-outline" size={12} color="rgba(255,255,255,0.9)" />
+              <Text style={styles.locationText}>{phoneValue}</Text>
             </View>
           </View>
         </View>
 
-        {/* Stats row */}
-        {/* <View style={styles.statsRow}> */}
+        <View style={styles.statsRow}>
           <View style={[styles.statCard, { backgroundColor: '#EDF4FE' }]}>
-            <Text style={[styles.statNumber, { color: colors.primary }]}>
-              {MOCK_SCHOOL.stats.teachers}
-            </Text>
+            <Text style={[styles.statNumber, { color: colors.primary }]}>{teachersCount}</Text>
             <Text style={styles.statLabel}>{t('profile.stats.teachers')}</Text>
           </View>
+          <View style={[styles.statCard, { backgroundColor: '#E8F7EE' }]}>
+            <Text style={[styles.statNumber, { color: '#22A05A' }]}>{studentsCount}</Text>
+            <Text style={styles.statLabel}>{t('profile.stats.students', 'Students')}</Text>
+          </View>
+        </View>
 
-        {/* School information */}
-        <Text variant="label" color="textPrimary" style={styles.sectionTitle}>
+        <Text variant="label" color="textPrimary" style={[styles.sectionTitle, isRTL && styles.textRight]}>
           {t('profile.info')}
         </Text>
         <Card variant="outlined" padded={false}>
@@ -164,85 +193,97 @@ export default function ProfileScreen() {
             tileColor="#EDF4FE"
             iconColor={colors.primary}
             label={t('profile.schoolId')}
-            value={MOCK_SCHOOL.schoolId}
+            value={schoolIdValue}
+            isRTL={isRTL}
           />
           <InfoRow
             icon="person-outline"
             tileColor="#FFF3DF"
             iconColor="#FFB84C"
             label={t('profile.advisor')}
-            value={MOCK_SCHOOL.advisorName}
+            value={displayName}
+            isRTL={isRTL}
           />
           <InfoRow
             icon="call-outline"
             tileColor="#F3E7FB"
             iconColor="#BA6DE9"
             label={t('profile.phone')}
-            value={MOCK_SCHOOL.phone}
+            value={phoneValue}
+            isRTL={isRTL}
           />
           <InfoRow
             icon="mail-outline"
             tileColor="#E8F7EE"
             iconColor="#22A05A"
             label={t('profile.email')}
-            value={MOCK_SCHOOL.email}
+            value={emailValue}
+            isRTL={isRTL}
             last
           />
         </Card>
 
-        {/* Settings */}
-        <Text variant="label" color="textPrimary" style={styles.sectionTitle}>
+        <Text variant="label" color="textPrimary" style={[styles.sectionTitle, isRTL && styles.textRight]}>
           {t('profile.settings')}
         </Text>
         <Card variant="outlined" padded={false}>
-          <SettingsRow
-            icon="settings-outline"
-            tileColor="#EDF4FE"
-            iconColor={colors.primary}
-            label={t('profile.editInfo')}
-            onPress={() => {
-              // TODO: create edit-profile screen
-              router.push('/(school)/edit-profile' as any)
-            }}
-          />
-          <SettingsRow
-            icon="shield-checkmark-outline"
-            tileColor="#FFF3DF"
-            iconColor="#FFB84C"
-            label={t('profile.account')}
-            onPress={() => {
-              // TODO
-            }}
-          />
           <SettingsRow
             icon="globe-outline"
             tileColor="#F3E7FB"
             iconColor="#BA6DE9"
             label={t('profile.language')}
-            valueLabel={i18n.language === 'ar' ? 'العربية' : 'English'}
-            onPress={handleToggleLanguage}
-          />
-          <SettingsRow
-            icon="help-circle-outline"
-            tileColor="#E8F7EE"
-            iconColor="#22A05A"
-            label={t('profile.help')}
-            onPress={() => {
-              // TODO
-            }}
+            valueLabel={language === 'ar' ? 'العربية' : 'English'}
+            onPress={() => setLangModalVisible(true)}
+            isRTL={isRTL}
             last
           />
         </Card>
 
-        {/* Logout */}
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.logoutBtn} onPress={performLogout} activeOpacity={0.8}>
           <Ionicons name="log-out-outline" size={20} color="#EF4444" />
           <Text style={styles.logoutText}>{t('profile.logout')}</Text>
         </TouchableOpacity>
 
-        {/* Footer */}
         <Text style={styles.footer}>RAFEEQ · v1.0.0</Text>
       </ScrollView>
+
+      <Modal
+        visible={langModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLangModalVisible(false)}
+      >
+        <Pressable style={styles.overlay} onPress={() => setLangModalVisible(false)}>
+          <Pressable style={styles.sheet} onPress={() => {}}>
+            <Text style={styles.sheetTitle}>{t('language.select')}</Text>
+            {languages.map((lang) => {
+              const selected = language === lang.code
+              return (
+                <TouchableOpacity
+                  key={lang.code}
+                  style={[styles.langRow, isRTL && styles.langRowRTL, selected && styles.langRowSelected]}
+                  onPress={() => {
+                    setLanguage(lang.code)
+                    setLangModalVisible(false)
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      styles.langLabel,
+                      selected && styles.langLabelSelected,
+                      isRTL && styles.textRight,
+                    ]}
+                  >
+                    {lang.native}
+                  </Text>
+                  {selected && <Text style={styles.checkmark}>✓</Text>}
+                </TouchableOpacity>
+              )
+            })}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   )
 }
@@ -258,8 +299,6 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
     paddingBottom: spacing.xl,
   },
-
-  // Bell
   bellBtn: {
     width: 36,
     height: 36,
@@ -275,8 +314,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: colors.error,
   },
-
-  // Hero card
   heroCard: {
     backgroundColor: colors.primary,
     borderRadius: radius['2xl'],
@@ -304,11 +341,14 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   heroName: {
-    fontSize: 18,
-    fontFamily: 'Lexend-Bold',
+    fontSize: typography.fontSize.lg,
+    fontFamily: typography.fontFamily.bold,
     color: colors.white,
   },
-  verifiedPill: {
+  textRight: {
+    textAlign: 'right',
+  },
+  rolePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -318,23 +358,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
   },
-  verifiedText: {
-    fontSize: 11,
+  rolePillText: {
+    fontSize: typography.fontSize.xs,
     color: colors.white,
-    fontFamily: 'Lexend-SemiBold',
+    fontFamily: typography.fontFamily.semiBold,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  locationText: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.9)',
-    fontFamily: 'Lexend-Regular',
+  locationRowRTL: {
+    flexDirection: 'row-reverse',
   },
-
-  // Stats
+  locationText: {
+    fontSize: typography.fontSize.xs,
+    color: 'rgba(255,255,255,0.9)',
+  },
   statsRow: {
     flexDirection: 'row',
     gap: spacing.sm,
@@ -347,29 +387,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statNumber: {
-    fontSize: 20,
-    fontFamily: 'Lexend-Bold',
+    fontSize: typography.fontSize.xl,
+    fontFamily: typography.fontFamily.bold,
   },
   statLabel: {
-    fontSize: 10,
-    fontFamily: 'Lexend-SemiBold',
+    fontSize: typography.fontSize.xs,
+    fontFamily: typography.fontFamily.semiBold,
     color: colors.textSecondary,
     textAlign: 'center',
   },
-
-  // Section title
   sectionTitle: {
     marginBottom: spacing.sm,
     marginTop: spacing.md,
   },
-
-  // Info / Settings rows
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
+  },
+  infoRowRTL: {
+    flexDirection: 'row-reverse',
   },
   infoRowDivider: {
     borderBottomWidth: 1,
@@ -387,26 +426,23 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   infoCaption: {
-    fontSize: 11,
+    fontSize: typography.fontSize.xs,
     color: colors.textMuted,
-    fontFamily: 'Lexend-Regular',
   },
   infoValue: {
-    fontSize: 13,
+    fontSize: typography.fontSize.sm,
     color: colors.textPrimary,
-    fontFamily: 'Lexend-SemiBold',
+    fontFamily: typography.fontFamily.semiBold,
+    flexShrink: 1,
   },
   settingsLabel: {
     flex: 1,
   },
   settingsValue: {
-    fontSize: 12,
+    fontSize: typography.fontSize.xs,
     color: colors.textSecondary,
-    fontFamily: 'Lexend-Regular',
     marginEnd: spacing.xs,
   },
-
-  // Logout
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -420,16 +456,66 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   logoutText: {
-    fontSize: 15,
-    fontFamily: 'Lexend-Bold',
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.bold,
     color: '#EF4444',
   },
-
-  // Footer
   footer: {
-    fontSize: 10,
+    fontSize: typography.fontSize.xs,
     color: colors.textMuted,
     textAlign: 'center',
     marginTop: spacing.md,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  sheet: {
+    width: '100%',
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  sheetTitle: {
+    fontSize: typography.fontSize.lg,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: spacing.xs,
+  },
+  langRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+  },
+  langRowRTL: {
+    flexDirection: 'row-reverse',
+  },
+  langRowSelected: {
+    borderColor: colors.primary,
+    backgroundColor: colors.backgroundLight,
+  },
+  langLabel: {
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.medium,
+    color: colors.textPrimary,
+  },
+  langLabelSelected: {
+    color: colors.primary,
+    fontFamily: typography.fontFamily.semiBold,
+  },
+  checkmark: {
+    fontSize: 16,
+    color: colors.primary,
+    fontFamily: typography.fontFamily.bold,
   },
 })

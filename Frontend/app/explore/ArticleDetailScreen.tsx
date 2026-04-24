@@ -168,6 +168,14 @@ export default function ArticleDetailScreen() {
 
   if (!article) return null;
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(parent)/explore' as any);
+  };
+
   const lang  = isRTL ? 'ar' : 'en';
   const title  = (isRTL ? article.titleAr : article.title) ?? article.title ?? article.titleAr ?? '';
   const body   = (isRTL ? article.bodyAr : article.body) ?? article.body ?? '';
@@ -182,7 +190,7 @@ export default function ArticleDetailScreen() {
 
       {/* Top nav: back | title | bookmark */}
       <View style={[styles.topNav, isRTL && styles.rowReverse]}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton onPress={handleBack} />
 
         <Text style={styles.navTitle}>{t('explore.title')}</Text>
 

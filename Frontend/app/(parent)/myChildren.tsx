@@ -91,13 +91,20 @@ export default function MyChildrenListScreen() {
   useEffect(() => { load(); }, [load]);
 
   const handleAdd = () => show('addChild');
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(parent)/Home-parent' as any);
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
 
       <View style={styles.header}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton onPress={handleBack} />
         <Text style={styles.headerTitle}>{t('myChildren.title')}</Text>
         <View style={styles.headerSpacer} />
       </View>

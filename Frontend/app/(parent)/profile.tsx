@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, Image, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
@@ -15,7 +15,6 @@ import type { Language } from '@/types';
 
 const { colors, spacing, typography, radius } = theme;
 
-const PARENT_NAME = 'Ayoub';
 
 /* ─── Generic tappable row ─────────────────────────────────────────────────── */
 
@@ -45,10 +44,33 @@ function SettingsRow({ icon, label, onPress, danger }: RowProps) {
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
-  const authLogout = useAuthStore((s) => s.logout);
+  const user = useAuthStore((s) => s.user);
+  const selectedChild = useAuthStore((s) => s.selectedChild);
   const language    = useAuthStore((s) => s.language);
   const setLanguage = useAuthStore((s) => s.setLanguage);
   const [langModalVisible, setLangModalVisible] = useState(false);
+
+  const displayName = useMemo(() => {
+    const nameCandidates = language === 'ar'
+      ? [selectedChild?.fullNameAr, selectedChild?.fullNameEn]
+      : [selectedChild?.fullNameEn, selectedChild?.fullNameAr];
+    const candidates = [
+      ...nameCandidates,
+      user?.nameAr,
+      user?.name,
+      user?.nationalId,
+    ];
+    return candidates.find((value) => typeof value === 'string' && value.trim().length > 0)?.trim()
+      ?? t('roleSelect.parentTitle');
+  }, [
+    t,
+    language,
+    selectedChild?.fullNameAr,
+    selectedChild?.fullNameEn,
+    user?.nameAr,
+    user?.name,
+    user?.nationalId,
+  ]);
 
   const handleLogout = () => performLogout();
 
@@ -75,8 +97,8 @@ export default function ProfileScreen() {
 
       {/* Avatar + name */}
       <View style={styles.hero}>
-        <Avatar name={PARENT_NAME} size="lg" />
-        <Text variant="body" style={styles.name}>{PARENT_NAME}</Text>
+        <Avatar name={displayName} size="lg" />
+        <Text variant="body" style={styles.name}>{displayName}</Text>
         <Text variant="caption" style={styles.role}>{t('roleSelect.parentTitle')}</Text>
       </View>
 

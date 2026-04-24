@@ -39,3 +39,21 @@ src/main/resources/application-prod.properties
 # Env
 .env
 .env.*
+!.env.example
+
+# Audit / reference artifacts
+.audit/
+.audit_*/
+RafeeqV0.zip
+RaveeqV0.zip
+RafeeqV0/
+RaveeqV0/
+RafeeqV0_extracted/
+RaveeqV0_extracted/
+
+# IDE / temp files
+*.suo
+*.user
+*.swp
+*.swo
+Thumbs.db

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class LearningTree {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "child_id", nullable = false)
     private ChildProfile child;
@@ -32,6 +35,8 @@ public class LearningTree {
 
     @Column(name = "topic", length = 255)
     private String topic;
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id")
     private Topic topic_ref;
@@ -54,21 +59,27 @@ public class LearningTree {
     @Column(name = "prompt_version", length = 50)
     private String promptVersion;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<Quiz> quizzes = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<Homework> homeworks = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<Activity> activities = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<TreeItem> treeItems = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<ChildScore> childScores = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<ChildScoreLog> childScoreLogs = new ArrayList<>();
 

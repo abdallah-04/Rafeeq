@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,10 +22,12 @@ public class TreeItem {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "tree_id", nullable = false)
     private LearningTree tree;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_type_id")
     private ContentType contentType;
@@ -53,8 +56,8 @@ public class TreeItem {
     @Column(name = "max_points")
     private Integer maxPoints;
 
-    @Column(name = "earned_points")
-    private Integer earnedPoints;
+    @Column(name = "earned_points", nullable = false)
+private Integer earnedPoints = 0;
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;

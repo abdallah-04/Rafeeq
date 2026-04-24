@@ -42,4 +42,12 @@ public class ReportController {
     ) {
         return ResponseEntity.ok(reportService.getParentReports(childId, auth.getName()));
     }
+
+    @GetMapping("/school/{childId}")
+    public ResponseEntity<List<ReportResponse>> getSchoolReports(
+            @PathVariable UUID childId,
+            Authentication auth
+    ) {
+        return ResponseEntity.ok(reportService.getSchoolReports(childId, auth.getName()));
+    }
 }

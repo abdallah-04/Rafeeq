@@ -7,12 +7,14 @@ import com.rafeeq.backend.dto.homework.HomeworkResponse;
 import com.rafeeq.backend.entity.ChildProfile;
 import com.rafeeq.backend.entity.Homework;
 import com.rafeeq.backend.entity.Parent;
+import com.rafeeq.backend.entity.School;
 import com.rafeeq.backend.entity.Teacher;
 import com.rafeeq.backend.entity.User;
 import com.rafeeq.backend.entity_enums.ChildStatus;
 import com.rafeeq.backend.repository.ChildProfileRepository;
 import com.rafeeq.backend.repository.HomeworkRepository;
 import com.rafeeq.backend.repository.ParentRepository;
+import com.rafeeq.backend.repository.SchoolRepository;
 import com.rafeeq.backend.repository.TeacherRepository;
 import com.rafeeq.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class HomeworkService {
     private final UserRepository userRepository;
     private final TeacherRepository teacherRepository;
     private final ParentRepository parentRepository;
+    private final SchoolRepository schoolRepository;
     private final ChildProfileRepository childProfileRepository;
 
     @Transactional
@@ -81,6 +84,17 @@ public class HomeworkService {
                 .toList();
     }
 
+    public List<HomeworkResponse> getSchoolHomework(UUID childId, String nationalId) {
+        School school = getCurrentSchool(nationalId);
+        childProfileRepository.findByIdAndTeacherSchoolId(childId, school.getId())
+                .orElseThrow(() -> new NotFoundException("Child not found"));
+
+        return homeworkRepository.findByChildIdOrderByDueDateAsc(childId)
+                .stream()
+                .map(this::map)
+                .toList();
+    }
+
     private Teacher getCurrentTeacher(String nationalId) {
         User user = userRepository.findByNationalId(nationalId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -95,6 +109,14 @@ public class HomeworkService {
 
         return parentRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new NotFoundException("Parent not found"));
+    }
+
+    private School getCurrentSchool(String nationalId) {
+        User user = userRepository.findByNationalId(nationalId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        return schoolRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NotFoundException("School not found"));
     }
 
     private void ensureChildReadyForHomework(ChildProfile child) {

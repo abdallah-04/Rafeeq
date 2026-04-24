@@ -564,6 +564,8 @@
       "students": "Students"
     },
     "teachers": {
+      "headerTitle": "Teachers",
+      "subtitle": "Manage teachers and track their details",
       "title": "My Teachers",
       "emptyTitle": "It's a little quiet here!",
       "emptySubtitle": "No teachers added yet",

@@ -38,22 +38,25 @@ public class LearningTreeService {
         ChildProfile child = childProfileRepository.findById(java.util.UUID.fromString(childId))
                 .orElseThrow(() -> new RuntimeException("Child not found"));
 
-            String childName = child.getFullNameAr() != null ? child.getFullNameAr() : "طفل";
+        String childName = child.getFullNameAr() != null ? child.getFullNameAr() : "طفل";
 
         int age = 5; // default
         if (child.getDateOfBirth() != null) {
             age = java.time.Period.between(child.getDateOfBirth(), java.time.LocalDate.now()).getYears();
         }
 
-int level = child.getLevel() != null ? child.getLevel() : 1;
+        int level = child.getLevel() != null ? child.getLevel() : 1;
+
         // موضوع مؤقت — رح يجي من DB لاحقاً
         String topicAr = "الأرقام ١-١٠";
         String topicEn = "Numbers 1-10";
 
         // 2. بعث لـ OpenAI
-        String jsonResponse = openAiService.generateLearningTree(
-            childName, age, topicAr, topicEn, level
-        );
+        // TODO: شيل الـ Mock لما كل شي يشتغل صح ✅
+        String jsonResponse = getMockResponse();
+        // String jsonResponse = openAiService.generateLearningTree(
+        //     childName, age, topicAr, topicEn, level
+        // );
 
         // 3. احفظ الشجرة
         LearningTree tree = new LearningTree();
@@ -61,12 +64,20 @@ int level = child.getLevel() != null ? child.getLevel() : 1;
         tree.setLevel(level);
         tree.setTopic(topicAr);
         tree.setStatus("active");
-        tree.setModelUsed("gpt-4o");
-        tree.setPromptVersion("v1");
-        learningTreeRepository.save(tree);
+        tree.setModelUsed("gpt-4o-mini");
+        tree.setPromptVersion("v2");
 
-        // 4. حلل الـ JSON واحفظ كل شي
+        // حلل الـ JSON أولاً
         JsonNode root = objectMapper.readTree(jsonResponse);
+
+        // احفظ الـ summary من الـ AI
+        tree.setAiSummaryAr(root.has("summary_ar") ?
+            root.get("summary_ar").asText() : "");
+        tree.setAiSummaryEn(root.has("summary_en") ?
+            root.get("summary_en").asText() : "");
+
+        // احفظ الشجرة
+        learningTreeRepository.save(tree);
         JsonNode groups = root.get("groups");
 
         int orderNum = 1;
@@ -107,6 +118,7 @@ int level = child.getLevel() != null ? child.getLevel() : 1;
             actItem.setIsCompleted(false);
             actItem.setStatus("pending");
             actItem.setMaxPoints(10);
+            actItem.setEarnedPoints(0);
             treeItemRepository.save(actItem);
             orderNum++;
 
@@ -121,7 +133,10 @@ int level = child.getLevel() != null ? child.getLevel() : 1;
             homework.setDescriptionEn(hwNode.get("description_en").asText());
             homework.setGroupNumber(groupNumber);
             homework.setOrderNum(orderNum);
+             homework.setStartDate(java.time.LocalDate.now());
+            homework.setDueDate(java.time.LocalDate.now().plusDays(7));
             homework.setStatus("pending");
+            
             homeworkRepository.save(homework);
 
             // TreeItem للـ Homework
@@ -136,6 +151,7 @@ int level = child.getLevel() != null ? child.getLevel() : 1;
             hwItem.setIsCompleted(false);
             hwItem.setStatus("pending");
             hwItem.setMaxPoints(10);
+            hwItem.setEarnedPoints(0); 
             treeItemRepository.save(hwItem);
             orderNum++;
 
@@ -184,6 +200,7 @@ int level = child.getLevel() != null ? child.getLevel() : 1;
             quizItem.setIsCompleted(false);
             quizItem.setStatus("pending");
             quizItem.setMaxPoints(50);
+            quizItem.setEarnedPoints(0);
             treeItemRepository.save(quizItem);
             orderNum++;
         }
@@ -234,8 +251,24 @@ int level = child.getLevel() != null ? child.getLevel() : 1;
         finalItem.setIsCompleted(false);
         finalItem.setStatus("pending");
         finalItem.setMaxPoints(100);
+        finalItem.setEarnedPoints(0);
         treeItemRepository.save(finalItem);
 
         return tree;
     }
+
+    // ═══════════════════════════════════════════
+    // Mock Response للتست — بدون OpenAI
+    // TODO: احذف هذه الدالة لما كل شي يشتغل صح
+    // ═══════════════════════════════════════════
+    private String getMockResponse() throws Exception {
+    org.springframework.core.io.ClassPathResource resource =
+        new org.springframework.core.io.ClassPathResource(
+            "mock/mock_tree_response.json"
+        );
+    return new String(
+        resource.getInputStream().readAllBytes(),
+        java.nio.charset.StandardCharsets.UTF_8
+    );
+}
 }

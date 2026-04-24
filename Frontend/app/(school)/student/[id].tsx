@@ -1,397 +1,699 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, ActivityIndicator, RefreshControl,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import BackButton from '@/components/BackButton';
-import { apiGetChild, ChildResponse } from '@/services/api';
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useRouter, useLocalSearchParams } from 'expo-router'
+import { useTranslation } from 'react-i18next'
+import BackButton from '@/components/BackButton'
+import {
+  apiGetHomeworkForSchool,
+  apiGetReportsForSchool,
+  apiGetSchoolStudent,
+  ChildResponse,
+  HomeworkResponse,
+  ReportResponse,
+} from '@/services/api'
 
-// ─── Static tab content (UI design preserved from original) ──
-const GRADES = [
-  { subject: 'Arabic',  score: 92, color: '#508DF7' },
-  { subject: 'Math',    score: 88, color: '#FFB84C' },
-  { subject: 'Science', score: 79, color: '#BA6DE9' },
-  { subject: 'English', score: 84, color: '#22C55E' },
-  { subject: 'Art',     score: 55, color: '#FF6B6B' },
-  { subject: 'PE',      score: 97, color: '#06B6D4' },
-];
-const HW_TASKS = [
-  { id: '1', title: 'Reading Homework – Lesson 7', subject: 'Arabic language',  due: 'Tomorrow', status: 'pending',  statusColor: '#FFB84C' },
-  { id: '2', title: 'Math Worksheet – Chapter 4',  subject: 'Mathematics',      due: 'Today',    status: 'done',     statusColor: '#22C55E' },
-  { id: '3', title: 'Science Quiz Prep',            subject: 'Science',          due: 'Oct 28',   status: 'pending',  statusColor: '#FFB84C' },
-];
-const PROGRESS_SUBJECTS = [
-  { subject: 'Arabic',  percent: 79, color: '#508DF7' },
-  { subject: 'Math',    percent: 59, color: '#FFB84C' },
-  { subject: 'Science', percent: 85, color: '#BA6DE9' },
-];
-const REPORTS = [
-  { id: '1', author: 'Ms. Sara Mahmoud – Math', text: 'Zaid did well on the term test overall, but we notice difficulty with fractions.', time: 'Today, 8:30 AM', read: false },
-  { id: '2', author: 'Ms. Sara Mahmoud – Math', text: 'Extra practice this week is advised.', time: 'Yesterday, 9:00 AM', read: false },
-  { id: '3', author: 'Mr. Ahmad – Science',     text: 'Good progress in lab activities.', time: 'Oct 18, 10:00 AM', read: true },
-];
+type Tab = 'grades' | 'hw' | 'progress' | 'reports'
 
-// ─── Tab Components ───────────────────────────────────────────
+function formatDate(value: string | null | undefined, locale: string) {
+  if (!value) return '—'
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+
+  return date.toLocaleDateString(locale === 'ar' ? 'ar-JO' : 'en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+function InlineEmpty({
+  title,
+  description,
+  isRTL,
+}: {
+  title: string
+  description: string
+  isRTL: boolean
+}) {
+  return (
+    <View style={tabStyles.emptyCard}>
+      <Text style={[tabStyles.emptyTitle, isRTL && tabStyles.textRight]}>{title}</Text>
+      <Text style={[tabStyles.emptyText, isRTL && tabStyles.textRight]}>{description}</Text>
+    </View>
+  )
+}
+
 function GradesTab({ isRTL }: { isRTL: boolean }) {
   return (
     <ScrollView contentContainerStyle={tabStyles.content} showsVerticalScrollIndicator={false}>
-      <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight]}>Current Term Grades</Text>
-      <View style={tabStyles.gradesGrid}>
-        {GRADES.map((g) => {
-          const scoreColor = g.score >= 90 ? '#22C55E' : g.score >= 70 ? '#508DF7' : g.score >= 50 ? '#FFB84C' : '#FF6B6B';
-          return (
-            <View key={g.subject} style={tabStyles.gradeCard}>
-              <Text style={tabStyles.gradeSubject}>{g.subject}</Text>
-              <Text style={[tabStyles.gradeScore, { color: scoreColor }]}>{g.score}</Text>
-              <Text style={tabStyles.gradeOutOf}>/100</Text>
-            </View>
-          );
-        })}
-      </View>
-      <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight, { marginTop: 20 }]}>Coming Up This Week</Text>
-      {HW_TASKS.slice(0, 2).map((hw) => (
-        <View key={hw.id} style={tabStyles.hwCard}>
-          <View style={tabStyles.hwIcon}><Text style={{ fontSize: 20 }}>📚</Text></View>
-          <View style={tabStyles.hwInfo}>
-            <Text style={[tabStyles.hwTitle, isRTL && tabStyles.textRight]}>{hw.title}</Text>
-            <Text style={[tabStyles.hwSubject, isRTL && tabStyles.textRight]}>{hw.subject}</Text>
-          </View>
-          <View style={[tabStyles.dueBadge, { backgroundColor: hw.statusColor + '22' }]}>
-            <Text style={[tabStyles.dueText, { color: hw.statusColor }]}>{hw.due}</Text>
-          </View>
-        </View>
-      ))}
+      <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight]}>
+        {isRTL ? 'الدرجات' : 'Grades'}
+      </Text>
+      <InlineEmpty
+        isRTL={isRTL}
+        title={isRTL ? 'لا توجد درجات متاحة' : 'No grades available yet'}
+        description={
+          isRTL
+            ? 'ستظهر الدرجات هنا عند توفر بيانات تقييم حقيقية لهذا الطالب.'
+            : 'Grades will appear here when real assessment data becomes available for this student.'
+        }
+      />
     </ScrollView>
-  );
+  )
 }
 
-function HWTasksTab({ isRTL }: { isRTL: boolean }) {
+function HomeworkTab({
+  homework,
+  isRTL,
+  locale,
+}: {
+  homework: HomeworkResponse[]
+  isRTL: boolean
+  locale: string
+}) {
   return (
     <ScrollView contentContainerStyle={tabStyles.content} showsVerticalScrollIndicator={false}>
-      <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight]}>All Homework & Tasks</Text>
-      {HW_TASKS.map((hw) => (
-        <View key={hw.id} style={tabStyles.hwCard}>
-          <View style={tabStyles.hwIcon}><Text style={{ fontSize: 20 }}>📖</Text></View>
-          <View style={tabStyles.hwInfo}>
-            <Text style={[tabStyles.hwTitle, isRTL && tabStyles.textRight]}>{hw.title}</Text>
-            <Text style={[tabStyles.hwSubject, isRTL && tabStyles.textRight]}>{hw.subject}</Text>
+      <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight]}>
+        {isRTL ? 'الواجبات والمهام' : 'Homework & Tasks'}
+      </Text>
+
+      {homework.length === 0 ? (
+        <InlineEmpty
+          isRTL={isRTL}
+          title={isRTL ? 'لا توجد واجبات حالياً' : 'No homework yet'}
+          description={
+            isRTL
+              ? 'سيتم عرض الواجبات والمهام الحقيقية هنا عند توفرها.'
+              : 'Real homework and tasks will appear here when they are available.'
+          }
+        />
+      ) : (
+        homework.map((item) => (
+          <View key={item.id} style={tabStyles.hwCard}>
+            <View style={tabStyles.hwIcon}>
+              <Text style={{ fontSize: 18 }}>📚</Text>
+            </View>
+            <View style={tabStyles.hwInfo}>
+              <Text style={[tabStyles.hwTitle, isRTL && tabStyles.textRight]}>{item.title}</Text>
+              <Text style={[tabStyles.hwSubject, isRTL && tabStyles.textRight]} numberOfLines={2}>
+                {item.description || (isRTL ? 'بدون وصف' : 'No description')}
+              </Text>
+              <Text style={[tabStyles.hwMeta, isRTL && tabStyles.textRight]}>
+                {isRTL ? 'تاريخ الاستحقاق:' : 'Due:'} {formatDate(item.dueDate, locale)}
+              </Text>
+            </View>
+            <View
+              style={[
+                tabStyles.statusBadge,
+                item.status === 'COMPLETED' ? tabStyles.badgeDone : tabStyles.badgePending,
+              ]}
+            >
+              <Text
+                style={[
+                  tabStyles.statusText,
+                  item.status === 'COMPLETED' ? tabStyles.textDone : tabStyles.textPending,
+                ]}
+              >
+                {item.status}
+              </Text>
+            </View>
           </View>
-          <View style={[tabStyles.dueBadge, { backgroundColor: hw.statusColor + '22' }]}>
-            <Text style={[tabStyles.dueText, { color: hw.statusColor }]}>{hw.status}</Text>
-          </View>
-        </View>
-      ))}
+        ))
+      )}
     </ScrollView>
-  );
+  )
 }
 
 function ProgressTab({ student, isRTL }: { student: ChildResponse; isRTL: boolean }) {
-  const progress = 0;
-  const name = student.fullNameEn ?? student.fullNameAr ?? '—';
+  const level = student.assessedLevel ?? student.level ?? 0
+  const progress = Math.min(Math.max(level * 20, 0), 100)
+
   return (
     <ScrollView contentContainerStyle={tabStyles.content} showsVerticalScrollIndicator={false}>
       <View style={tabStyles.overallCard}>
-        <Text style={tabStyles.overallTitle}>Overall progress</Text>
-        <Text style={tabStyles.overallSub}>Second semester</Text>
+        <Text style={[tabStyles.overallTitle, isRTL && tabStyles.textRight]}>
+          {isRTL ? 'التقدم العام' : 'Overall progress'}
+        </Text>
+        <Text style={[tabStyles.overallSub, isRTL && tabStyles.textRight]}>
+          {isRTL ? 'بناءً على المستوى الحالي' : 'Based on the current level'}
+        </Text>
         <View style={[tabStyles.overallRow, isRTL && tabStyles.rowReverse]}>
           <View style={tabStyles.overallTrack}>
             <View style={[tabStyles.overallFill, { width: `${progress}%` }]} />
           </View>
-          <Text style={tabStyles.overallPct}>{progress}%</Text>
+          <Text style={tabStyles.overallPct}>{`${progress}%`}</Text>
         </View>
       </View>
-      <View style={tabStyles.subjectCard}>
-        <Text style={{ fontSize: 16, marginBottom: 14 }}>✏️</Text>
-        {PROGRESS_SUBJECTS.map((s) => (
-          <View key={s.subject} style={tabStyles.subjectRow}>
-            <Text style={[tabStyles.subjectName, isRTL && tabStyles.textRight]}>{s.subject}</Text>
-            <View style={tabStyles.subjectTrack}>
-              <View style={[tabStyles.subjectFill, { width: `${s.percent}%`, backgroundColor: s.color }]} />
-            </View>
-            <Text style={[tabStyles.subjectPct, { color: s.color }]}>{s.percent}%</Text>
-          </View>
-        ))}
-      </View>
-      <View style={tabStyles.noteCard}>
-        <Text style={{ fontSize: 20, marginBottom: 8 }}>💬</Text>
-        <Text style={[tabStyles.noteTitle, isRTL && tabStyles.textRight]}>Note – Last Week</Text>
-        <Text style={[tabStyles.noteText, isRTL && tabStyles.textRight]}>
-          {name} needs extra support in Math, especially fractions. A short daily review is highly recommended.
-        </Text>
-        <Text style={[tabStyles.noteAuthor, isRTL && tabStyles.textRight]}>Ms. Sara Mahmoud · Mar 20</Text>
+
+      <View style={tabStyles.progressInfoGrid}>
+        <View style={tabStyles.progressInfoCard}>
+          <Text style={[tabStyles.progressInfoLabel, isRTL && tabStyles.textRight]}>
+            {isRTL ? 'المستوى الحالي' : 'Current level'}
+          </Text>
+          <Text style={[tabStyles.progressInfoValue, isRTL && tabStyles.textRight]}>
+            {student.level ?? '—'}
+          </Text>
+        </View>
+        <View style={tabStyles.progressInfoCard}>
+          <Text style={[tabStyles.progressInfoLabel, isRTL && tabStyles.textRight]}>
+            {isRTL ? 'المستوى المقيم' : 'Assessed level'}
+          </Text>
+          <Text style={[tabStyles.progressInfoValue, isRTL && tabStyles.textRight]}>
+            {student.assessedLevel ?? '—'}
+          </Text>
+        </View>
       </View>
     </ScrollView>
-  );
+  )
 }
 
-function ReportsTab({ isRTL }: { isRTL: boolean }) {
-  const [filter, setFilter] = useState<'unread' | 'read'>('unread');
-  const filtered = REPORTS.filter((r) => filter === 'unread' ? !r.read : r.read);
+function ReportsTab({
+  reports,
+  isRTL,
+  locale,
+}: {
+  reports: ReportResponse[]
+  isRTL: boolean
+  locale: string
+}) {
   return (
     <ScrollView contentContainerStyle={tabStyles.content} showsVerticalScrollIndicator={false}>
-      <View style={tabStyles.toggle}>
-        {(['unread', 'read'] as const).map((f) => (
-          <TouchableOpacity key={f} style={[tabStyles.toggleBtn, filter === f && tabStyles.toggleBtnActive]} onPress={() => setFilter(f)}>
-            <Text style={[tabStyles.toggleText, filter === f && tabStyles.toggleTextActive]}>
-              {f === 'unread' ? `Unread (${REPORTS.filter(r => !r.read).length})` : 'Read'}
+      <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight]}>
+        {isRTL ? 'التقارير' : 'Reports'}
+      </Text>
+
+      {reports.length === 0 ? (
+        <InlineEmpty
+          isRTL={isRTL}
+          title={isRTL ? 'لا توجد تقارير حالياً' : 'No reports yet'}
+          description={
+            isRTL
+              ? 'ستظهر التقارير الحقيقية هنا عند إضافتها لهذا الطالب.'
+              : 'Real reports will appear here when they are created for this student.'
+          }
+        />
+      ) : (
+        reports.map((report) => (
+          <View key={report.id} style={tabStyles.reportCard}>
+            <Text style={[tabStyles.reportTitle, isRTL && tabStyles.textRight]}>{report.title}</Text>
+            <Text style={[tabStyles.reportText, isRTL && tabStyles.textRight]}>{report.content}</Text>
+            <Text style={[tabStyles.reportTime, isRTL && tabStyles.textRight]}>
+              {formatDate(report.createdAt, locale)}
             </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      {filtered.length > 0 && <Text style={[tabStyles.sectionTitle, isRTL && tabStyles.textRight]}>New</Text>}
-      {filtered.map((r) => (
-        <View key={r.id} style={tabStyles.reportCard}>
-          <View style={[tabStyles.reportRow, isRTL && tabStyles.rowReverse]}>
-            <View style={tabStyles.reportAvatar}><Text style={{ fontSize: 18 }}>👤</Text></View>
-            <View style={tabStyles.reportInfo}>
-              <Text style={[tabStyles.reportAuthor, isRTL && tabStyles.textRight]}>{r.author}</Text>
-              <Text style={[tabStyles.reportText, isRTL && tabStyles.textRight]}>{r.text}</Text>
-              <Text style={[tabStyles.reportTime, isRTL && tabStyles.textRight]}>{r.time}</Text>
-            </View>
           </View>
-        </View>
-      ))}
-      {filtered.length === 0 && (
-        <View style={tabStyles.emptyState}>
-          <Text style={tabStyles.emptyIcon}>📭</Text>
-          <Text style={tabStyles.emptyText}>No {filter} reports</Text>
-        </View>
+        ))
       )}
     </ScrollView>
-  );
+  )
 }
 
-// ─── Main Screen ──────────────────────────────────────────────
-type Tab = 'grades' | 'hw' | 'progress' | 'reports';
-
 export default function SchoolStudentDetailScreen() {
-  const router = useRouter();
-  const { t, i18n } = useTranslation();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const isRTL = i18n.language === 'ar';
+  const router = useRouter()
+  const { t, i18n } = useTranslation()
+  const { id, teacherId } = useLocalSearchParams<{ id: string; teacherId?: string }>()
+  const isRTL = i18n.language === 'ar'
 
-  const [student,    setStudent]    = useState<ChildResponse | null>(null);
-  const [loading,    setLoading]    = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [activeTab,  setActiveTab]  = useState<Tab>('grades');
+  const [student, setStudent] = useState<ChildResponse | null>(null)
+  const [homework, setHomework] = useState<HomeworkResponse[]>([])
+  const [reports, setReports] = useState<ReportResponse[]>([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [activeTab, setActiveTab] = useState<Tab>('grades')
+
+  const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back()
+      return
+    }
+
+    if (teacherId) {
+      router.replace(`/(school)/teacher/${teacherId}` as any)
+      return
+    }
+
+    router.replace('/(school)/teachers' as any)
+  }, [router, teacherId])
 
   const load = useCallback(async () => {
-    try { setStudent(await apiGetChild(id ?? '')) }
-    catch { }
-    finally { setLoading(false); setRefreshing(false); }
-  }, [id]);
+    try {
+      const child = await apiGetSchoolStudent(id ?? '')
+      setStudent(child)
 
-  useEffect(() => { load(); }, [load]);
+      const [homeworkData, reportsData] = await Promise.all([
+        apiGetHomeworkForSchool(id ?? '').catch(() => []),
+        apiGetReportsForSchool(id ?? '').catch(() => []),
+      ])
 
-  const TABS: { key: Tab; label: string; labelAr: string }[] = [
-    { key: 'grades',   label: 'Grades',     labelAr: 'الدرجات' },
-    { key: 'hw',       label: 'HW & Tasks', labelAr: 'الواجبات' },
-    { key: 'progress', label: 'Progress',   labelAr: 'التقدم' },
-    { key: 'reports',  label: 'Reports',    labelAr: 'التقارير' },
-  ];
+      setHomework(homeworkData)
+      setReports(reportsData)
+    } catch {
+      setStudent(null)
+      setHomework([])
+      setReports([])
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }, [id])
 
-  if (loading) return (
-    <SafeAreaView style={styles.safe}>
-      <ActivityIndicator style={{ marginTop: 60 }} color="#508DF7" />
-    </SafeAreaView>
-  );
+  useEffect(() => {
+    load()
+  }, [load])
 
-  if (!student) return (
-    <SafeAreaView style={styles.safe}>
-      <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-        <BackButton onPress={() => router.back()} />
-        <View style={styles.navCenter}><Text style={styles.navTitle}>Student</Text></View>
-        <View style={{ width: 40 }} />
-      </View>
-      <Text style={{ textAlign: 'center', marginTop: 60, color: '#9CA3AF' }}>Student not found</Text>
-    </SafeAreaView>
-  );
+  const tabs: { key: Tab; label: string; labelAr: string }[] = [
+    { key: 'grades', label: 'Grades', labelAr: 'الدرجات' },
+    { key: 'hw', label: 'Homework', labelAr: 'الواجبات' },
+    { key: 'progress', label: 'Progress', labelAr: 'التقدم' },
+    { key: 'reports', label: 'Reports', labelAr: 'التقارير' },
+  ]
 
-  const displayName = student.fullNameEn ?? student.fullNameAr ?? '—';
-  const age = student.dateOfBirth
-    ? Math.floor((Date.now() - new Date(student.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365))
-    : null;
-  const level = student.level ?? student.assessedLevel;
-  const AVATAR_COLORS = ['#FFD9B3','#C8E6C9','#BBDEFB','#F8BBD0'];
-  const avatarBg = AVATAR_COLORS[displayName.charCodeAt(0) % AVATAR_COLORS.length];
-  const initials = displayName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const displayName = useMemo(() => {
+    if (!student) return '—'
+    return student.fullNameEn ?? student.fullNameAr ?? '—'
+  }, [student])
+
+  const age = useMemo(() => {
+    if (!student?.dateOfBirth) return null
+
+    const birthDate = new Date(student.dateOfBirth)
+    if (Number.isNaN(birthDate.getTime())) return null
+
+    return Math.floor((Date.now() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365))
+  }, [student?.dateOfBirth])
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <ActivityIndicator style={{ marginTop: 60 }} color="#508DF7" />
+      </SafeAreaView>
+    )
+  }
+
+  if (!student) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={[styles.navBar, isRTL && styles.rowReverse]}>
+          <BackButton onPress={handleBack} />
+          <View style={styles.navCenter}>
+            <Text style={styles.navTitle}>{t('students.title', 'Student')}</Text>
+          </View>
+          <View style={{ width: 40 }} />
+        </View>
+        <Text style={styles.notFoundText}>{t('students.emptyTitle', 'Student not found')}</Text>
+      </SafeAreaView>
+    )
+  }
+
+  const level = student.level ?? student.assessedLevel
+  const progress = Math.min(Math.max((student.assessedLevel ?? student.level ?? 0) * 20, 0), 100)
+  const avatarColors = ['#FFD9B3', '#C8E6C9', '#BBDEFB', '#F8BBD0']
+  const avatarBg = avatarColors[displayName.charCodeAt(0) % avatarColors.length]
+  const initials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Nav Bar */}
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton onPress={handleBack} />
         <View style={styles.navCenter}>
           <Text style={styles.navTitle}>{displayName}</Text>
-          {student.learningDifficulty && <Text style={styles.navSub}>{student.learningDifficulty}</Text>}
+          {student.learningDifficulty ? (
+            <Text style={styles.navSub}>{student.learningDifficulty.replace(/_/g, ' ')}</Text>
+          ) : null}
         </View>
-        <TouchableOpacity style={styles.bellBtn}>
-          <Text style={styles.bellIcon}>🔔</Text>
-          <View style={styles.bellBadge} />
-        </TouchableOpacity>
+        <View style={{ width: 40 }} />
       </View>
 
-      {/* Student Header Card */}
-      <View style={styles.headerCard}>
-        <View style={[styles.headerInner, isRTL && styles.rowReverse]}>
-          <View style={[styles.avatar, { backgroundColor: avatarBg }]}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
-          <View style={styles.headerInfo}>
-            <Text style={[styles.studentName, isRTL && styles.textRight]}>{displayName}</Text>
-            <View style={styles.progressRow}>
-              <View style={styles.progressTrack}>
-                <View style={[styles.progressFill, { width: '0%' }]} />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true)
+              load()
+            }}
+          />
+        }
+      >
+        <View style={styles.headerCard}>
+          <View style={[styles.headerInner, isRTL && styles.rowReverse]}>
+            <View style={[styles.avatar, { backgroundColor: avatarBg }]}>
+              <Text style={styles.avatarText}>{initials || '?'}</Text>
+            </View>
+            <View style={styles.headerInfo}>
+              <Text style={[styles.studentName, isRTL && styles.textRight]}>{displayName}</Text>
+              <View style={styles.progressRow}>
+                <View style={styles.progressTrack}>
+                  <View style={[styles.progressFill, { width: `${progress}%` }]} />
+                </View>
+                <Text style={styles.progressPct}>{`${progress}%`}</Text>
               </View>
-              <Text style={styles.progressPct}>—</Text>
-            </View>
-            <View style={[styles.tagsRow, isRTL && styles.rowReverse]}>
-              {student.learningDifficulty && (
-                <View style={styles.tagOrange}>
-                  <Text style={styles.tagOrangeText}>{student.learningDifficulty}</Text>
-                </View>
-              )}
-              {age != null && (
-                <View style={styles.tagBlue}>
-                  <Text style={styles.tagBlueText}>{age} Years</Text>
-                </View>
-              )}
-              {level != null && (
-                <View style={styles.tagPurple}>
-                  <Text style={styles.tagPurpleText}>Level {level}</Text>
-                </View>
-              )}
+              <View style={[styles.tagsRow, isRTL && styles.rowReverse]}>
+                {student.learningDifficulty ? (
+                  <View style={styles.tagOrange}>
+                    <Text style={styles.tagOrangeText}>
+                      {student.learningDifficulty.replace(/_/g, ' ')}
+                    </Text>
+                  </View>
+                ) : null}
+                {age != null ? (
+                  <View style={styles.tagBlue}>
+                    <Text style={styles.tagBlueText}>
+                      {isRTL ? `${age} سنة` : `${age} Years`}
+                    </Text>
+                  </View>
+                ) : null}
+                {level != null ? (
+                  <View style={styles.tagPurple}>
+                    <Text style={styles.tagPurpleText}>
+                      {isRTL ? `Level ${level}`.replace('Level', 'المستوى') : `Level ${level}`}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
             </View>
           </View>
+          <View style={[styles.metaRow, isRTL && styles.rowReverse]}>
+            <Text style={styles.metaText}>
+              {student.teacherId
+                ? isRTL
+                  ? 'المعلم مُعيَّن'
+                  : 'Teacher assigned'
+                : isRTL
+                  ? 'لا يوجد معلم بعد'
+                  : 'No teacher yet'}
+            </Text>
+            <Text style={styles.metaDot}>·</Text>
+            <Text style={styles.metaText}>
+              {student.status === 'ACTIVE'
+                ? isRTL
+                  ? 'نشط'
+                  : 'Active'
+                : isRTL
+                  ? 'قيد الانتظار'
+                  : 'Pending'}
+            </Text>
+          </View>
         </View>
-        <View style={[styles.metaRow, isRTL && styles.rowReverse]}>
-          <Text style={styles.metaText}>
-            {student.teacherId ? '👨‍🏫 Teacher assigned' : '👨‍🏫 No teacher yet'}
-          </Text>
-          <Text style={styles.metaDot}>·</Text>
-          <Text style={styles.metaText}>
-            {student.status === 'ACTIVE' ? '✅ Active' : '⏳ Pending'}
-          </Text>
+
+        <View style={styles.tabBar}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tabBarContent}
+          >
+            {tabs.map((tab) => (
+              <TouchableOpacity
+                key={tab.key}
+                style={[styles.tabBtn, activeTab === tab.key && styles.tabBtnActive]}
+                onPress={() => setActiveTab(tab.key)}
+              >
+                <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
+                  {isRTL ? tab.labelAr : tab.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
-      </View>
 
-      {/* Tab Bar */}
-      <View style={styles.tabBar}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabBarContent}>
-          {TABS.map((tab) => (
-            <TouchableOpacity
-              key={tab.key}
-              style={[styles.tabBtn, activeTab === tab.key && styles.tabBtnActive]}
-              onPress={() => setActiveTab(tab.key)}
-            >
-              <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
-                {isRTL ? tab.labelAr : tab.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Tab Content */}
-      <View style={{ flex: 1 }}>
-        {activeTab === 'grades'   && <GradesTab isRTL={isRTL} />}
-        {activeTab === 'hw'       && <HWTasksTab isRTL={isRTL} />}
-        {activeTab === 'progress' && <ProgressTab student={student} isRTL={isRTL} />}
-        {activeTab === 'reports'  && <ReportsTab isRTL={isRTL} />}
-      </View>
+        <View style={{ flex: 1 }}>
+          {activeTab === 'grades' && <GradesTab isRTL={isRTL} />}
+          {activeTab === 'hw' && (
+            <HomeworkTab homework={homework} isRTL={isRTL} locale={i18n.language} />
+          )}
+          {activeTab === 'progress' && <ProgressTab student={student} isRTL={isRTL} />}
+          {activeTab === 'reports' && (
+            <ReportsTab reports={reports} isRTL={isRTL} locale={i18n.language} />
+          )}
+        </View>
+      </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
-  safe:         { flex: 1, backgroundColor: '#F5F7FF' },
-  rowReverse:   { flexDirection: 'row-reverse' },
-  textRight:    { textAlign: 'right' },
-  navBar:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },
-  navCenter:    { alignItems: 'center' },
-  navTitle:     { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
-  navSub:       { fontFamily: 'Lexend_400Regular', fontSize: 12, color: '#9CA3AF', marginTop: 1 },
-  bellBtn:      { width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  bellIcon:     { fontSize: 18 },
-  bellBadge:    { position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FF6B6B', borderWidth: 1.5, borderColor: '#fff' },
-  headerCard:   { marginHorizontal: 16, backgroundColor: '#fff', borderRadius: 24, padding: 16, shadowColor: '#508DF7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 3, marginBottom: 12 },
-  headerInner:  { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 10 },
-  avatar:       { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'rgba(80,141,247,0.15)', flexShrink: 0 },
-  avatarText:   { fontFamily: 'Lexend_700Bold', fontSize: 20, color: '#1a1a2e' },
-  headerInfo:   { flex: 1 },
-  studentName:  { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e', marginBottom: 6 },
-  progressRow:  { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
-  progressTrack:{ flex: 1, height: 7, backgroundColor: '#EEF2FF', borderRadius: 99, overflow: 'hidden' },
+  safe: { flex: 1, backgroundColor: '#F5F7FF' },
+  rowReverse: { flexDirection: 'row-reverse' },
+  textRight: { textAlign: 'right' },
+  navBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+  },
+  navCenter: { alignItems: 'center' },
+  navTitle: { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
+  navSub: { fontFamily: 'Lexend_400Regular', fontSize: 12, color: '#9CA3AF', marginTop: 1 },
+  notFoundText: { textAlign: 'center', marginTop: 60, color: '#9CA3AF' },
+  headerCard: {
+    marginHorizontal: 16,
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 16,
+    shadowColor: '#508DF7',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 3,
+    marginBottom: 12,
+  },
+  headerInner: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 10 },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: 'rgba(80,141,247,0.15)',
+    flexShrink: 0,
+  },
+  avatarText: { fontFamily: 'Lexend_700Bold', fontSize: 20, color: '#1a1a2e' },
+  headerInfo: { flex: 1 },
+  studentName: { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e', marginBottom: 6 },
+  progressRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  progressTrack: {
+    flex: 1,
+    height: 7,
+    backgroundColor: '#EEF2FF',
+    borderRadius: 99,
+    overflow: 'hidden',
+  },
   progressFill: { height: '100%', backgroundColor: '#508DF7', borderRadius: 99 },
-  progressPct:  { fontFamily: 'Lexend_700Bold', fontSize: 12, color: '#508DF7', minWidth: 32, textAlign: 'right' },
-  tagsRow:      { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  tagOrange:    { backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
-  tagOrangeText:{ fontFamily: 'Lexend_600SemiBold', fontSize: 10, color: '#D97706' },
-  tagBlue:      { backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
-  tagBlueText:  { fontFamily: 'Lexend_600SemiBold', fontSize: 10, color: '#1D4ED8' },
-  tagPurple:    { backgroundColor: '#EDE9FE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
-  tagPurpleText:{ fontFamily: 'Lexend_600SemiBold', fontSize: 10, color: '#7C3AED' },
-  metaRow:      { flexDirection: 'row', alignItems: 'center', gap: 6, borderTopWidth: 0.5, borderTopColor: '#F0F0F0', paddingTop: 10 },
-  metaText:     { fontFamily: 'Lexend_400Regular', fontSize: 12, color: '#6B7280' },
-  metaDot:      { color: '#D1D5DB', fontSize: 12 },
-  tabBar:       { backgroundColor: '#fff', borderBottomWidth: 0.5, borderBottomColor: '#E8EEFF' },
-  tabBarContent:{ paddingHorizontal: 16, paddingVertical: 4, gap: 4 },
-  tabBtn:       { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 99 },
+  progressPct: {
+    fontFamily: 'Lexend_700Bold',
+    fontSize: 12,
+    color: '#508DF7',
+    minWidth: 32,
+    textAlign: 'right',
+  },
+  tagsRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  tagOrange: { backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
+  tagOrangeText: { fontFamily: 'Lexend_600SemiBold', fontSize: 10, color: '#D97706' },
+  tagBlue: { backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
+  tagBlueText: { fontFamily: 'Lexend_600SemiBold', fontSize: 10, color: '#1D4ED8' },
+  tagPurple: { backgroundColor: '#EDE9FE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
+  tagPurpleText: { fontFamily: 'Lexend_600SemiBold', fontSize: 10, color: '#7C3AED' },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderTopWidth: 0.5,
+    borderTopColor: '#F0F0F0',
+    paddingTop: 10,
+  },
+  metaText: { fontFamily: 'Lexend_400Regular', fontSize: 12, color: '#6B7280' },
+  metaDot: { color: '#D1D5DB', fontSize: 12 },
+  tabBar: { backgroundColor: '#fff', borderBottomWidth: 0.5, borderBottomColor: '#E8EEFF' },
+  tabBarContent: { paddingHorizontal: 16, paddingVertical: 4, gap: 4 },
+  tabBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 99 },
   tabBtnActive: { backgroundColor: '#508DF7' },
-  tabText:      { fontFamily: 'Lexend_500Medium', fontSize: 13, color: '#9CA3AF' },
-  tabTextActive:{ color: '#fff', fontFamily: 'Lexend_700Bold' },
-});
+  tabText: { fontFamily: 'Lexend_500Medium', fontSize: 13, color: '#9CA3AF' },
+  tabTextActive: { color: '#fff', fontFamily: 'Lexend_700Bold' },
+})
 
 const tabStyles = StyleSheet.create({
-  content:        { padding: 16, paddingBottom: 32 },
-  rowReverse:     { flexDirection: 'row-reverse' },
-  textRight:      { textAlign: 'right' },
-  sectionTitle:   { fontFamily: 'Lexend_700Bold', fontSize: 15, color: '#1a1a2e', marginBottom: 12 },
-  gradesGrid:     { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  gradeCard:      { width: '30%', backgroundColor: '#fff', borderRadius: 16, padding: 12, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 2 },
-  gradeSubject:   { fontFamily: 'Lexend_400Regular', fontSize: 11, color: '#9CA3AF', marginBottom: 4 },
-  gradeScore:     { fontFamily: 'Lexend_700Bold', fontSize: 22 },
-  gradeOutOf:     { fontFamily: 'Lexend_400Regular', fontSize: 10, color: '#D1D5DB' },
-  hwCard:         { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#fff', borderRadius: 16, padding: 14, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 2 },
-  hwIcon:         { width: 44, height: 44, borderRadius: 12, backgroundColor: '#EEF4FF', alignItems: 'center', justifyContent: 'center' },
-  hwInfo:         { flex: 1 },
-  hwTitle:        { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#1a1a2e' },
-  hwSubject:      { fontFamily: 'Lexend_400Regular', fontSize: 11, color: '#9CA3AF', marginTop: 2 },
-  dueBadge:       { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99 },
-  dueText:        { fontFamily: 'Lexend_600SemiBold', fontSize: 11 },
-  overallCard:    { backgroundColor: '#508DF7', borderRadius: 20, padding: 18, marginBottom: 14 },
-  overallTitle:   { fontFamily: 'Lexend_700Bold', fontSize: 16, color: '#fff', marginBottom: 2 },
-  overallSub:     { fontFamily: 'Lexend_400Regular', fontSize: 12, color: 'rgba(255,255,255,0.75)', marginBottom: 10 },
-  overallRow:     { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  overallTrack:   { flex: 1, height: 8, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 99, overflow: 'hidden' },
-  overallFill:    { height: '100%', backgroundColor: '#FFB84C', borderRadius: 99 },
-  overallPct:     { fontFamily: 'Lexend_700Bold', fontSize: 15, color: '#FFB84C' },
-  subjectCard:    { backgroundColor: '#fff', borderRadius: 20, padding: 16, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
-  subjectRow:     { marginBottom: 12 },
-  subjectName:    { fontFamily: 'Lexend_500Medium', fontSize: 13, color: '#374151', marginBottom: 5 },
-  subjectTrack:   { height: 7, backgroundColor: '#F3F4F6', borderRadius: 99, overflow: 'hidden', marginBottom: 2 },
-  subjectFill:    { height: '100%', borderRadius: 99 },
-  subjectPct:     { fontFamily: 'Lexend_700Bold', fontSize: 12, textAlign: 'right' },
-  noteCard:       { backgroundColor: '#fff', borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
-  noteTitle:      { fontFamily: 'Lexend_600SemiBold', fontSize: 14, color: '#1a1a2e', marginBottom: 6 },
-  noteText:       { fontFamily: 'Lexend_400Regular', fontSize: 13, color: '#6B7280', lineHeight: 20, marginBottom: 8 },
-  noteAuthor:     { fontFamily: 'Lexend_400Regular', fontSize: 11, color: '#9CA3AF' },
-  toggle:         { flexDirection: 'row', backgroundColor: '#F3F4F6', borderRadius: 12, padding: 4, marginBottom: 16 },
-  toggleBtn:      { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 10 },
-  toggleBtnActive:{ backgroundColor: '#508DF7' },
-  toggleText:     { fontFamily: 'Lexend_500Medium', fontSize: 13, color: '#9CA3AF' },
-  toggleTextActive:{ color: '#fff', fontFamily: 'Lexend_700Bold' },
-  reportCard:     { backgroundColor: '#EEF4FF', borderRadius: 16, padding: 14, marginBottom: 10 },
-  reportRow:      { flexDirection: 'row', gap: 12 },
-  reportAvatar:   { width: 44, height: 44, borderRadius: 22, backgroundColor: '#DBEAFE', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  reportInfo:     { flex: 1 },
-  reportAuthor:   { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#1a1a2e', marginBottom: 4 },
-  reportText:     { fontFamily: 'Lexend_400Regular', fontSize: 12, color: '#374151', lineHeight: 18, marginBottom: 4 },
-  reportTime:     { fontFamily: 'Lexend_400Regular', fontSize: 11, color: '#9CA3AF' },
-  emptyState:     { alignItems: 'center', paddingVertical: 40, gap: 8 },
-  emptyIcon:      { fontSize: 40 },
-  emptyText:      { fontFamily: 'Lexend_500Medium', fontSize: 14, color: '#9CA3AF' },
-});
+  content: { padding: 16, paddingBottom: 32 },
+  rowReverse: { flexDirection: 'row-reverse' },
+  textRight: { textAlign: 'right' },
+  sectionTitle: {
+    fontFamily: 'Lexend_700Bold',
+    fontSize: 15,
+    color: '#1a1a2e',
+    marginBottom: 12,
+  },
+  emptyCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+    gap: 6,
+  },
+  emptyTitle: {
+    fontFamily: 'Lexend_600SemiBold',
+    fontSize: 14,
+    color: '#1a1a2e',
+  },
+  emptyText: {
+    fontFamily: 'Lexend_400Regular',
+    fontSize: 12,
+    color: '#6B7280',
+    lineHeight: 20,
+  },
+  hwCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  hwIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#EEF4FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hwInfo: { flex: 1 },
+  hwTitle: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#1a1a2e' },
+  hwSubject: {
+    fontFamily: 'Lexend_400Regular',
+    fontSize: 11,
+    color: '#9CA3AF',
+    marginTop: 2,
+  },
+  hwMeta: {
+    fontFamily: 'Lexend_400Regular',
+    fontSize: 11,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 99,
+  },
+  badgeDone: {
+    backgroundColor: '#E6F9F0',
+  },
+  badgePending: {
+    backgroundColor: '#FFF3E0',
+  },
+  statusText: {
+    fontFamily: 'Lexend_600SemiBold',
+    fontSize: 11,
+  },
+  textDone: {
+    color: '#22C55E',
+  },
+  textPending: {
+    color: '#E65100',
+  },
+  overallCard: {
+    backgroundColor: '#508DF7',
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 14,
+  },
+  overallTitle: {
+    fontFamily: 'Lexend_700Bold',
+    fontSize: 16,
+    color: '#fff',
+    marginBottom: 2,
+  },
+  overallSub: {
+    fontFamily: 'Lexend_400Regular',
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.75)',
+    marginBottom: 10,
+  },
+  overallRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  overallTrack: {
+    flex: 1,
+    height: 8,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 99,
+    overflow: 'hidden',
+  },
+  overallFill: { height: '100%', backgroundColor: '#FFB84C', borderRadius: 99 },
+  overallPct: { fontFamily: 'Lexend_700Bold', fontSize: 15, color: '#FFB84C' },
+  progressInfoGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  progressInfoCard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  progressInfoLabel: {
+    fontFamily: 'Lexend_400Regular',
+    fontSize: 11,
+    color: '#9CA3AF',
+    marginBottom: 6,
+  },
+  progressInfoValue: {
+    fontFamily: 'Lexend_700Bold',
+    fontSize: 18,
+    color: '#1a1a2e',
+  },
+  reportCard: {
+    backgroundColor: '#EEF4FF',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 10,
+  },
+  reportTitle: {
+    fontFamily: 'Lexend_600SemiBold',
+    fontSize: 13,
+    color: '#1a1a2e',
+    marginBottom: 6,
+  },
+  reportText: {
+    fontFamily: 'Lexend_400Regular',
+    fontSize: 12,
+    color: '#374151',
+    lineHeight: 18,
+    marginBottom: 6,
+  },
+  reportTime: {
+    fontFamily: 'Lexend_400Regular',
+    fontSize: 11,
+    color: '#9CA3AF',
+  },
+})

@@ -21,6 +21,12 @@ function getInitials(name: string) {
   return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 }
 
+function getProgress(student: StudentResponse) {
+  const baseLevel = student.assessedLevel ?? student.level;
+  if (baseLevel == null) return null;
+  return Math.max(0, Math.min(baseLevel * 20, 100));
+}
+
 function StudentCard({ student, index, onPress }: {
   student: StudentResponse; index: number; onPress: () => void;
 }) {
@@ -30,6 +36,7 @@ function StudentCard({ student, index, onPress }: {
   const diffColor = DIFF_COLORS[student.learningDifficulty ?? 'OTHER'] ?? '#6B7280';
   const avatarBg  = AVATAR_COLORS[index % AVATAR_COLORS.length];
   const initials  = getInitials(student.fullNameAr || student.fullNameEn || '?');
+  const progress = getProgress(student);
 
   return (
     <TouchableOpacity style={styles.studentCard} onPress={onPress} activeOpacity={0.75}>
@@ -68,9 +75,9 @@ function StudentCard({ student, index, onPress }: {
       </View>
       <View style={styles.progressRow}>
         <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: '0%' }]} />
+          <View style={[styles.progressFill, { width: `${progress ?? 0}%` }]} />
         </View>
-        <Text style={styles.progressLabel}>—</Text>
+        <Text style={styles.progressLabel}>{progress != null ? `${progress}%` : '--'}</Text>
       </View>
     </TouchableOpacity>
   );

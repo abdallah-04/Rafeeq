@@ -21,6 +21,18 @@ export default function AddNoteScreen() {
   const [subject, setSubject] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    if (studentId) {
+      router.replace({ pathname: '/(teacher)/Student_dashboard', params: { studentId } } as any);
+      return;
+    }
+    router.replace('/(teacher)/(tabs)/students');
+  };
+
   const handleAdd = async () => {
     if (!title || !subject || !studentId || loading) return;
     setLoading(true);
@@ -30,7 +42,7 @@ export default function AddNoteScreen() {
         title,
         content: subject,
       });
-      router.back();
+      handleBack();
     } catch {
       show('error', { variant: 'invalidInfo' });
     } finally {
@@ -46,7 +58,7 @@ export default function AddNoteScreen() {
       >
         {/* Nav */}
         <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-          <BackButton onPress={() => router.back()} />
+          <BackButton onPress={handleBack} />
           <Text style={styles.navTitle}>{t('teacher.addNote.title', 'Add Note')}</Text>
           <View style={{ width: 40 }} />
         </View>

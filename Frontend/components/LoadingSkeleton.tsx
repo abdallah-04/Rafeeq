@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
+import { View, Animated, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 
-function SkeletonBox({ style }: { style?: ViewStyle }) {
+function SkeletonBox({ style }: { style?: StyleProp<ViewStyle> }) {
   const opacity = useRef(new Animated.Value(0.4)).current;
 
   useEffect(() => {

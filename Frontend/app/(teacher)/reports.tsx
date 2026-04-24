@@ -25,6 +25,18 @@ export default function ReportsScreen() {
   const [isLoading,     setIsLoading]     = useState(true);
   const [submitting,    setSubmitting]    = useState(false);
 
+  const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    if (studentId) {
+      router.replace({ pathname: '/(teacher)/Student_dashboard', params: { studentId } } as any);
+      return;
+    }
+    router.replace('/(teacher)/(tabs)/students');
+  }, [router, studentId]);
+
   const load = useCallback(async () => {
     if (!studentId) return;
     try {
@@ -74,7 +86,7 @@ export default function ReportsScreen() {
       {/* Purple header */}
       <View style={styles.header}>
         <View style={[styles.headerRow, isRTL && styles.rowReverse]}>
-          <BackButton onPress={() => router.back()} />
+          <BackButton onPress={handleBack} />
           <Text style={styles.headerTitle}>{t('teacher.reports.title', 'Reports')}</Text>
           <TouchableOpacity onPress={() => setShowForm(!showForm)} style={styles.addBtn}>
             <Text style={styles.addBtnText}>+ {t('teacher.reports.add', 'Add')}</Text>

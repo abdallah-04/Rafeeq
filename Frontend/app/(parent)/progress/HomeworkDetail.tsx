@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { View, StyleSheet, Image, ScrollView } from 'react-native'
+import { router } from 'expo-router'
 import { theme } from '@/theme'
 import { useTranslation } from 'react-i18next'
 import { Text } from '@/components/modal/shared/Text'
@@ -28,7 +29,7 @@ export default function HomeworkDetail() {
 
   return (
     <View style={styles.container}>
-      <Header title={t('homework.title')} rightElement={settingsIcon} />
+      <Header title={t('homework.title')} onBack={handleBack} rightElement={settingsIcon} />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Card variant="outlined" style={styles.mainCard}>
@@ -126,3 +127,10 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
 })
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back()
+      return
+    }
+    router.replace('/(parent)/progress/homeworks' as any)
+  }

@@ -42,4 +42,12 @@ public class HomeworkController {
     ) {
         return ResponseEntity.ok(homeworkService.getParentHomework(childId, auth.getName()));
     }
+
+    @GetMapping("/school/{childId}")
+    public ResponseEntity<List<HomeworkResponse>> getSchoolHomework(
+            @PathVariable UUID childId,
+            Authentication auth
+    ) {
+        return ResponseEntity.ok(homeworkService.getSchoolHomework(childId, auth.getName()));
+    }
 }

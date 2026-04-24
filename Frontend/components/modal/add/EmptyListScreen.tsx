@@ -39,13 +39,14 @@ export function EmptyListScreen({
     onContinue,
     onBack,
 }: EmptyListScreenProps) {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
+
     return (
         <SafeAreaView style={styles.safe}>
             <StatusBar style="dark" />
 
             <View style={styles.header}>
-                <BackButton onPress={router.back} />
+                <BackButton onPress={onBack ?? router.back} />
                 <Text style={styles.headerTitle}>{title}</Text>
                 <View style={{ width: 36 }} />
             </View>
@@ -76,13 +77,16 @@ export function EmptyListScreen({
                 </View>
 
                 <Button label={addLabel} onPress={onAdd} style={styles.btn} />
-                <Button label={t('common.continue')} onPress={onContinue} variant="outline" style={styles.btn} />
+                <Button
+                    label={t('common.continue')}
+                    onPress={onContinue}
+                    variant="outline"
+                    style={styles.btn}
+                />
 
                 <Footer
-                    onLanguagePress={() => {}}
                     onPrivacyPress={() => {}}
                     onTermsPress={() => {}}
-                    currentLanguage={i18n.language === 'ar' ? 'العربية' : 'English (US)'}
                 />
             </View>
         </SafeAreaView>

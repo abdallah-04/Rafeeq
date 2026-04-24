@@ -7,7 +7,6 @@ import {
   Platform,
   ScrollView,
   Image,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -41,6 +40,14 @@ export default function LoginScreen() {
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(auth)/welcome' as any);
+  };
 
   const { control, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(loginSchema),
@@ -92,9 +99,9 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
-          <BackButton onPress={() => router.back()} />
+          <BackButton onPress={handleBack} />
 
           {/* Mascot */}
           <View style={styles.mascotWrap}>

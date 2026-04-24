@@ -31,7 +31,29 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
+.env.*
+!.env.example
 .env*.local
+
+# audit / reference artifacts
+.audit/
+.audit_*/
+RafeeqV0.zip
+RaveeqV0.zip
+RafeeqV0/
+RaveeqV0/
+RafeeqV0_extracted/
+RaveeqV0_extracted/
+
+# IDE / temp files
+.idea/
+.vscode/
+*.suo
+*.user
+*.swp
+*.swo
+Thumbs.db
 
 # typescript
 *.tsbuildinfo

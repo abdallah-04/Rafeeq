@@ -1,0 +1,289 @@
+{
+  "summary_ar": "سيتعلم الطفل الأرقام من 1 إلى 10",
+  "summary_en": "The child will learn numbers from 1 to 10",
+  "groups": [
+    {
+      "group_number": 1,
+      "activity": {
+        "title_ar": "نشاط العد",
+        "title_en": "Counting Activity",
+        "description_ar": "تعلم العد بالأصابع",
+        "description_en": "Learn counting with fingers",
+        "activity_task_ar": "عد من 1 إلى 3",
+        "activity_task_en": "Count from 1 to 3",
+        "parent_guide_ar": "ساعد طفلك بالعد",
+        "parent_guide_en": "Help your child count"
+      },
+      "homework": {
+        "title_ar": "واجب الأرقام",
+        "title_en": "Numbers Homework",
+        "description_ar": "اكتب الأرقام من 1 إلى 3",
+        "description_en": "Write numbers from 1 to 3"
+      },
+      "quiz": {
+        "questions": [
+          {
+            "question_ar": "كم عدد التفاحات؟",
+            "question_en": "How many apples?",
+            "option_1_ar": "1",
+            "option_1": "1",
+            "option_2_ar": "2",
+            "option_2": "2",
+            "option_3_ar": "3",
+            "option_3": "3",
+            "option_4_ar": "4",
+            "option_4": "4",
+            "correct_option": 2,
+            "explanation_ar": "هناك تفاحتان",
+            "explanation_en": "There are 2 apples"
+          },
+          {
+            "question_ar": "ما هو الرقم الاول؟",
+            "question_en": "What is the first number?",
+            "option_1_ar": "1",
+            "option_1": "1",
+            "option_2_ar": "2",
+            "option_2": "2",
+            "option_3_ar": "3",
+            "option_3": "3",
+            "option_4_ar": "4",
+            "option_4": "4",
+            "correct_option": 1,
+            "explanation_ar": "الرقم الاول هو 1",
+            "explanation_en": "The first number is 1"
+          },
+          {
+            "question_ar": "كم نجمة؟",
+            "question_en": "How many stars?",
+            "option_1_ar": "1",
+            "option_1": "1",
+            "option_2_ar": "2",
+            "option_2": "2",
+            "option_3_ar": "3",
+            "option_3": "3",
+            "option_4_ar": "4",
+            "option_4": "4",
+            "correct_option": 3,
+            "explanation_ar": "هناك 3 نجوم",
+            "explanation_en": "There are 3 stars"
+          }
+        ]
+      }
+    },
+    {
+      "group_number": 2,
+      "activity": {
+        "title_ar": "نشاط التلوين",
+        "title_en": "Coloring Activity",
+        "description_ar": "لون الأرقام بالألوان",
+        "description_en": "Color the numbers",
+        "activity_task_ar": "لون الأرقام",
+        "activity_task_en": "Color the numbers",
+        "parent_guide_ar": "اجلس مع طفلك",
+        "parent_guide_en": "Sit with your child"
+      },
+      "homework": {
+        "title_ar": "واجب التلوين",
+        "title_en": "Coloring Homework",
+        "description_ar": "لون الأرقام من 1 إلى 5",
+        "description_en": "Color numbers from 1 to 5"
+      },
+      "quiz": {
+        "questions": [
+          {
+            "question_ar": "كم كلب؟",
+            "question_en": "How many dogs?",
+            "option_1_ar": "2",
+            "option_1": "2",
+            "option_2_ar": "3",
+            "option_2": "3",
+            "option_3_ar": "4",
+            "option_3": "4",
+            "option_4_ar": "5",
+            "option_4": "5",
+            "correct_option": 3,
+            "explanation_ar": "هناك 4 كلاب",
+            "explanation_en": "There are 4 dogs"
+          },
+          {
+            "question_ar": "ما بعد الرقم 4؟",
+            "question_en": "What comes after 4?",
+            "option_1_ar": "3",
+            "option_1": "3",
+            "option_2_ar": "5",
+            "option_2": "5",
+            "option_3_ar": "6",
+            "option_3": "6",
+            "option_4_ar": "7",
+            "option_4": "7",
+            "correct_option": 2,
+            "explanation_ar": "بعد 4 يأتي 5",
+            "explanation_en": "After 4 comes 5"
+          },
+          {
+            "question_ar": "كم قطة؟",
+            "question_en": "How many cats?",
+            "option_1_ar": "1",
+            "option_1": "1",
+            "option_2_ar": "2",
+            "option_2": "2",
+            "option_3_ar": "3",
+            "option_3": "3",
+            "option_4_ar": "4",
+            "option_4": "4",
+            "correct_option": 2,
+            "explanation_ar": "هناك قطتان",
+            "explanation_en": "There are 2 cats"
+          }
+        ]
+      }
+    },
+    {
+      "group_number": 3,
+      "activity": {
+        "title_ar": "نشاط القفز",
+        "title_en": "Jumping Activity",
+        "description_ar": "تعلم العد بالقفز",
+        "description_en": "Learn counting by jumping",
+        "activity_task_ar": "اقفز وعد 1 2 3",
+        "activity_task_en": "Jump and count 1 2 3",
+        "parent_guide_ar": "العب مع طفلك",
+        "parent_guide_en": "Play with your child"
+      },
+      "homework": {
+        "title_ar": "واجب العد",
+        "title_en": "Counting Homework",
+        "description_ar": "عد الأشياء في البيت",
+        "description_en": "Count objects at home"
+      },
+      "quiz": {
+        "questions": [
+          {
+            "question_ar": "كم سمكة؟",
+            "question_en": "How many fish?",
+            "option_1_ar": "3",
+            "option_1": "3",
+            "option_2_ar": "4",
+            "option_2": "4",
+            "option_3_ar": "5",
+            "option_3": "5",
+            "option_4_ar": "6",
+            "option_4": "6",
+            "correct_option": 3,
+            "explanation_ar": "هناك 5 أسماك",
+            "explanation_en": "There are 5 fish"
+          },
+          {
+            "question_ar": "أي رقم أكبر؟",
+            "question_en": "Which is bigger?",
+            "option_1_ar": "3",
+            "option_1": "3",
+            "option_2_ar": "7",
+            "option_2": "7",
+            "option_3_ar": "2",
+            "option_3": "2",
+            "option_4_ar": "1",
+            "option_4": "1",
+            "correct_option": 2,
+            "explanation_ar": "7 هو الأكبر",
+            "explanation_en": "7 is the biggest"
+          },
+          {
+            "question_ar": "كم بالون؟",
+            "question_en": "How many balloons?",
+            "option_1_ar": "4",
+            "option_1": "4",
+            "option_2_ar": "5",
+            "option_2": "5",
+            "option_3_ar": "6",
+            "option_3": "6",
+            "option_4_ar": "7",
+            "option_4": "7",
+            "correct_option": 3,
+            "explanation_ar": "هناك 6 بالونات",
+            "explanation_en": "There are 6 balloons"
+          }
+        ]
+      }
+    }
+  ],
+  "final_exam": {
+    "questions": [
+      {
+        "question_ar": "كم تفاحة؟",
+        "question_en": "How many apples?",
+        "option_1_ar": "5",
+        "option_1": "5",
+        "option_2_ar": "6",
+        "option_2": "6",
+        "option_3_ar": "7",
+        "option_3": "7",
+        "option_4_ar": "8",
+        "option_4": "8",
+        "correct_option": 3,
+        "explanation_ar": "هناك 7 تفاحات",
+        "explanation_en": "There are 7 apples"
+      },
+      {
+        "question_ar": "ما قبل الرقم 5؟",
+        "question_en": "What comes before 5?",
+        "option_1_ar": "3",
+        "option_1": "3",
+        "option_2_ar": "4",
+        "option_2": "4",
+        "option_3_ar": "6",
+        "option_3": "6",
+        "option_4_ar": "7",
+        "option_4": "7",
+        "correct_option": 2,
+        "explanation_ar": "قبل 5 يأتي 4",
+        "explanation_en": "Before 5 comes 4"
+      },
+      {
+        "question_ar": "كم نجمة؟",
+        "question_en": "How many stars?",
+        "option_1_ar": "6",
+        "option_1": "6",
+        "option_2_ar": "7",
+        "option_2": "7",
+        "option_3_ar": "8",
+        "option_3": "8",
+        "option_4_ar": "9",
+        "option_4": "9",
+        "correct_option": 3,
+        "explanation_ar": "هناك 8 نجوم",
+        "explanation_en": "There are 8 stars"
+      },
+      {
+        "question_ar": "أي رقم أصغر؟",
+        "question_en": "Which is smaller?",
+        "option_1_ar": "9",
+        "option_1": "9",
+        "option_2_ar": "7",
+        "option_2": "7",
+        "option_3_ar": "5",
+        "option_3": "5",
+        "option_4_ar": "2",
+        "option_4": "2",
+        "correct_option": 4,
+        "explanation_ar": "2 هو الأصغر",
+        "explanation_en": "2 is the smallest"
+      },
+      {
+        "question_ar": "كم كرة؟",
+        "question_en": "How many balls?",
+        "option_1_ar": "8",
+        "option_1": "8",
+        "option_2_ar": "9",
+        "option_2": "9",
+        "option_3_ar": "10",
+        "option_3": "10",
+        "option_4_ar": "11",
+        "option_4": "11",
+        "correct_option": 3,
+        "explanation_ar": "هناك 10 كرات",
+        "explanation_en": "There are 10 balls"
+      }
+    ]
+  }
+}
