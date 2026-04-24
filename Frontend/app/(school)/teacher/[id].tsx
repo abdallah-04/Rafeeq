@@ -17,10 +17,19 @@ import Card from '@/components/modal/shared/Card'
 import Avatar from '@/components/modal/shared/Avatar'
 import { Text } from '@/components/modal/shared/Text'
 import { theme } from '@/theme'
-import { apiGetTeacher, TeacherResponse } from '@/services/api'
+import {
+  apiGetStudents,
+  apiGetTeacher,
+  StudentResponse,
+  TeacherResponse,
+} from '@/services/api'
 import { useAuthStore } from '@/store/authStore'
 
 const { colors, spacing, radius, typography } = theme
+
+type AssignedStudent = StudentResponse & {
+  teacherId?: string | null
+}
 
 function StatCard({
   icon,
@@ -76,12 +85,83 @@ function InfoRow({
   )
 }
 
+function StudentCard({
+  student,
+  teacherId,
+  isRTL,
+  chevron,
+}: {
+  student: AssignedStudent
+  teacherId: string
+  isRTL: boolean
+  chevron: React.ComponentProps<typeof Ionicons>['name']
+}) {
+  const displayName = isRTL
+    ? student.fullNameAr ?? student.fullNameEn ?? '—'
+    : student.fullNameEn ?? student.fullNameAr ?? '—'
+  const level = student.assessedLevel ?? student.level
+  const progress = Math.min(Math.max((level ?? 0) * 20, 0), 100)
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        router.push({
+          pathname: '/(school)/student/[id]',
+          params: { id: student.id, teacherId },
+        } as any)
+      }
+    >
+      <Card variant="outlined" style={styles.studentCard}>
+        <View style={[styles.studentRow, isRTL && styles.studentRowRTL]}>
+          <Avatar name={displayName} size="md" />
+
+          <View style={styles.studentInfo}>
+            <Text style={[styles.studentName, isRTL && styles.textRight]} numberOfLines={1}>
+              {displayName}
+            </Text>
+
+            <View style={[styles.studentPills, isRTL && styles.studentPillsRTL]}>
+              {level != null ? (
+                <View style={[styles.studentPill, styles.studentPillPrimary]}>
+                  <Text style={styles.studentPillPrimaryText}>
+                    {isRTL ? `المستوى ${level}` : `Level ${level}`}
+                  </Text>
+                </View>
+              ) : null}
+
+              {student.learningDifficulty ? (
+                <View style={[styles.studentPill, styles.studentPillAccent]}>
+                  <Text style={styles.studentPillAccentText}>
+                    {student.learningDifficulty.replace(/_/g, ' ')}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+
+            <View style={[styles.studentProgressRow, isRTL && styles.studentProgressRowRTL]}>
+              <View style={styles.studentProgressTrack}>
+                <View style={[styles.studentProgressFill, { width: `${progress}%` }]} />
+              </View>
+              <Text style={styles.studentProgressText}>{`${progress}%`}</Text>
+            </View>
+          </View>
+
+          <Ionicons name={chevron} size={18} color={colors.textMuted} />
+        </View>
+      </Card>
+    </TouchableOpacity>
+  )
+}
+
 export default function TeacherDetailScreen() {
   const { t } = useTranslation()
   const { id } = useLocalSearchParams<{ id: string }>()
   const isRTL = useAuthStore((s) => s.isRTL)
+  const chevron = isRTL ? 'chevron-back' : 'chevron-forward'
 
   const [teacher, setTeacher] = useState<TeacherResponse | null>(null)
+  const [students, setStudents] = useState<AssignedStudent[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
@@ -93,16 +173,43 @@ export default function TeacherDetailScreen() {
     router.replace('/(school)/teachers' as any)
   }, [])
 
+  const loadStudents = useCallback(async (teacherData: TeacherResponse) => {
+    const embeddedStudents = Array.isArray((teacherData as any).students)
+      ? ((teacherData as any).students as AssignedStudent[])
+      : []
+
+    if (embeddedStudents.length > 0) {
+      setStudents(
+        embeddedStudents.filter((student) => student.teacherId === teacherData.id)
+      )
+      return
+    }
+
+    try {
+      const studentList = (await apiGetStudents()) as AssignedStudent[]
+      const assignedStudents = studentList.filter(
+        (student) => student.teacherId === teacherData.id
+      )
+
+      setStudents(assignedStudents)
+    } catch {
+      setStudents([])
+    }
+  }, [])
+
   const load = useCallback(async () => {
     try {
-      setTeacher(await apiGetTeacher(id ?? ''))
+      const teacherData = await apiGetTeacher(id ?? '')
+      setTeacher(teacherData)
+      await loadStudents(teacherData)
     } catch {
       setTeacher(null)
+      setStudents([])
     } finally {
       setLoading(false)
       setRefreshing(false)
     }
-  }, [id])
+  }, [id, loadStudents])
 
   useEffect(() => {
     load()
@@ -200,7 +307,11 @@ export default function TeacherDetailScreen() {
           />
         </View>
 
-        <Text variant="label" color="textPrimary" style={[styles.sectionTitle, isRTL && styles.textRight]}>
+        <Text
+          variant="label"
+          color="textPrimary"
+          style={[styles.sectionTitle, isRTL && styles.textRight]}
+        >
           {t('profile.info')}
         </Text>
         <Card variant="outlined" padded={false}>
@@ -239,6 +350,68 @@ export default function TeacherDetailScreen() {
             isRTL={isRTL}
             last
           />
+        </Card>
+
+        <View>
+          <View style={styles.studentsHeader}>
+            <Text
+              variant="label"
+              color="textPrimary"
+              style={[styles.sectionTitle, isRTL && styles.textRight]}
+            >
+              {t('teacherDetail.assignedStudents', 'Students assigned to this teacher')}
+            </Text>
+            <View style={styles.studentsCountPill}>
+              <Text style={styles.studentsCountText}>{students.length}</Text>
+            </View>
+          </View>
+
+          {students.length > 0 ? (
+            <View style={styles.studentList}>
+              {students.map((student) => (
+                <StudentCard
+                  key={student.id}
+                  student={student}
+                  teacherId={teacher.id}
+                  isRTL={isRTL}
+                  chevron={chevron}
+                />
+              ))}
+            </View>
+          ) : (
+            <Card variant="outlined" style={styles.emptyStudentsCard}>
+              <Ionicons name="people-outline" size={20} color={colors.textMuted} />
+              <View style={styles.emptyStudentsCopy}>
+                <Text style={[styles.emptyStudentsTitle, isRTL && styles.textRight]}>
+                  {t('teacherDetail.noStudentsTitle', 'No assigned students yet')}
+                </Text>
+                <Text style={[styles.emptyStudentsText, isRTL && styles.textRight]}>
+                  {t(
+                    'teacherDetail.noStudentsSubtitle',
+                    'Students linked to this teacher will appear here.'
+                  )}
+                </Text>
+              </View>
+            </Card>
+          )}
+        </View>
+
+        <Card variant="outlined" style={styles.actionsCard}>
+          <Text style={[styles.actionsTitle, isRTL && styles.textRight]}>
+            {t('teacherDetail.accountActions', 'Account Actions')}
+          </Text>
+
+          <TouchableOpacity activeOpacity={1} style={styles.deactivateBtn}>
+            <Text style={styles.deactivateText}>
+              {t('teacherDetail.deactivate', 'Deactivate Teacher')}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity activeOpacity={1} style={styles.removeBtn}>
+            <Text style={styles.removeText}>
+              {t('teacherDetail.remove', 'Remove Teacher')}
+            </Text>
+          </TouchableOpacity>
         </Card>
       </ScrollView>
     </SafeAreaView>
@@ -314,6 +487,104 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginBottom: spacing.sm,
   },
+  studentsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  studentsCountPill: {
+    minWidth: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.primaryLighter,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+  },
+  studentsCountText: {
+    fontSize: typography.fontSize.xs,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.primary,
+  },
+  studentList: {
+    gap: spacing.sm,
+  },
+  studentCard: {
+    padding: spacing.md,
+  },
+  studentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  studentRowRTL: {
+    flexDirection: 'row-reverse',
+  },
+  studentInfo: {
+    flex: 1,
+    gap: spacing.sm,
+  },
+  studentName: {
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+  },
+  studentPills: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+  },
+  studentPillsRTL: {
+    flexDirection: 'row-reverse',
+  },
+  studentPill: {
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+  },
+  studentPillPrimary: {
+    backgroundColor: colors.primaryLighter,
+  },
+  studentPillPrimaryText: {
+    fontSize: typography.fontSize.xs,
+    fontFamily: typography.fontFamily.semiBold,
+    color: colors.primary,
+  },
+  studentPillAccent: {
+    backgroundColor: '#FFF3DF',
+  },
+  studentPillAccentText: {
+    fontSize: typography.fontSize.xs,
+    fontFamily: typography.fontFamily.semiBold,
+    color: '#FFB84C',
+  },
+  studentProgressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  studentProgressRowRTL: {
+    flexDirection: 'row-reverse',
+  },
+  studentProgressTrack: {
+    flex: 1,
+    height: 7,
+    borderRadius: radius.full,
+    backgroundColor: colors.border,
+    overflow: 'hidden',
+  },
+  studentProgressFill: {
+    height: '100%',
+    backgroundColor: colors.primary,
+    borderRadius: radius.full,
+  },
+  studentProgressText: {
+    minWidth: 38,
+    textAlign: 'right',
+    fontSize: typography.fontSize.xs,
+    fontFamily: typography.fontFamily.semiBold,
+    color: colors.primary,
+  },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -347,6 +618,61 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.sm,
     fontFamily: typography.fontFamily.semiBold,
     color: colors.textPrimary,
+  },
+  emptyStudentsCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+  },
+  emptyStudentsCopy: {
+    flex: 1,
+    gap: 4,
+  },
+  emptyStudentsTitle: {
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+  },
+  emptyStudentsText: {
+    fontSize: typography.fontSize.xs,
+    lineHeight: 20,
+    color: colors.textSecondary,
+  },
+  actionsCard: {
+    gap: spacing.md,
+    borderColor: '#FEE2E2',
+  },
+  actionsTitle: {
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+  },
+  deactivateBtn: {
+    height: 48,
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+    borderColor: '#F97316',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deactivateText: {
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.semiBold,
+    color: '#F97316',
+  },
+  removeBtn: {
+    height: 48,
+    borderRadius: radius.lg,
+    backgroundColor: '#FEE2E2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  removeText: {
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.bold,
+    color: '#EF4444',
   },
   notFound: {
     flex: 1,

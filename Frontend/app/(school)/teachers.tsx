@@ -157,7 +157,7 @@ export default function TeachersScreen() {
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
 
-      <Header title={t('teachers.title')} onBack={handleBack} />
+      <Header title={t('school.teachers.headerTitle')} onBack={handleBack} />
 
       <Text style={styles.subtitle}>{t('school.teachers.subtitle')}</Text>
 
