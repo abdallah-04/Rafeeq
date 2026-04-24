@@ -18,7 +18,7 @@ import Avatar from '@/components/modal/shared/Avatar'
 import { Text } from '@/components/modal/shared/Text'
 import { theme } from '@/theme'
 import {
-  apiGetStudents,
+  apiGetSchoolTeacherStudents,
   apiGetTeacher,
   StudentResponse,
   TeacherResponse,
@@ -174,24 +174,9 @@ export default function TeacherDetailScreen() {
   }, [])
 
   const loadStudents = useCallback(async (teacherData: TeacherResponse) => {
-    const embeddedStudents = Array.isArray((teacherData as any).students)
-      ? ((teacherData as any).students as AssignedStudent[])
-      : []
-
-    if (embeddedStudents.length > 0) {
-      setStudents(
-        embeddedStudents.filter((student) => student.teacherId === teacherData.id)
-      )
-      return
-    }
-
     try {
-      const studentList = (await apiGetStudents()) as AssignedStudent[]
-      const assignedStudents = studentList.filter(
-        (student) => student.teacherId === teacherData.id
-      )
-
-      setStudents(assignedStudents)
+      const studentList = (await apiGetSchoolTeacherStudents(teacherData.id)) as AssignedStudent[]
+      setStudents(studentList)
     } catch {
       setStudents([])
     }

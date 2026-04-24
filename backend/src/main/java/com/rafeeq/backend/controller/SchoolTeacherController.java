@@ -4,6 +4,7 @@ import com.rafeeq.backend.dto.auth.MessageResponse;
 import com.rafeeq.backend.dto.school.CreateTeacherRequest;
 import com.rafeeq.backend.dto.school.TeacherResponse;
 import com.rafeeq.backend.dto.school.UpdateTeacherRequest;
+import com.rafeeq.backend.dto.teacher.StudentResponse;
 import com.rafeeq.backend.service.SchoolTeacherService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -42,6 +43,14 @@ public class SchoolTeacherController {
             Authentication authentication
     ) {
         return ResponseEntity.ok(schoolTeacherService.getTeacherById(id, authentication.getName()));
+    }
+
+    @GetMapping("/{id}/students")
+    public ResponseEntity<List<StudentResponse>> getTeacherStudents(
+            @PathVariable UUID id,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(schoolTeacherService.getTeacherStudents(id, authentication.getName()));
     }
 
     @PutMapping("/{id}")

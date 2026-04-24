@@ -6,11 +6,13 @@ import com.rafeeq.backend.dto.report.ReportResponse;
 import com.rafeeq.backend.entity.ChildProfile;
 import com.rafeeq.backend.entity.Parent;
 import com.rafeeq.backend.entity.Report;
+import com.rafeeq.backend.entity.School;
 import com.rafeeq.backend.entity.Teacher;
 import com.rafeeq.backend.entity.User;
 import com.rafeeq.backend.repository.ChildProfileRepository;
 import com.rafeeq.backend.repository.ParentRepository;
 import com.rafeeq.backend.repository.ReportRepository;
+import com.rafeeq.backend.repository.SchoolRepository;
 import com.rafeeq.backend.repository.TeacherRepository;
 import com.rafeeq.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final TeacherRepository teacherRepository;
     private final ParentRepository parentRepository;
+    private final SchoolRepository schoolRepository;
     private final UserRepository userRepository;
     private final ChildProfileRepository childProfileRepository;
 
@@ -72,6 +75,17 @@ public class ReportService {
                 .toList();
     }
 
+    public List<ReportResponse> getSchoolReports(UUID childId, String nationalId) {
+        School school = getCurrentSchool(nationalId);
+        childProfileRepository.findByIdAndTeacherSchoolId(childId, school.getId())
+                .orElseThrow(() -> new NotFoundException("Child not found"));
+
+        return reportRepository.findByChildIdOrderByCreatedAtDesc(childId)
+                .stream()
+                .map(this::map)
+                .toList();
+    }
+
     private Teacher getCurrentTeacher(String nationalId) {
         User user = userRepository.findByNationalId(nationalId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -86,6 +100,14 @@ public class ReportService {
 
         return parentRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new NotFoundException("Parent not found"));
+    }
+
+    private School getCurrentSchool(String nationalId) {
+        User user = userRepository.findByNationalId(nationalId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        return schoolRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NotFoundException("School not found"));
     }
 
     private ReportResponse map(Report report) {

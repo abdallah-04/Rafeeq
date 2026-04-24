@@ -13,11 +13,9 @@ import { useRouter, useLocalSearchParams } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import BackButton from '@/components/BackButton'
 import {
-  apiGetChild,
-  apiGetHomeworkForParent,
-  apiGetHomeworkForTeacher,
-  apiGetReportsForParent,
-  apiGetReportsForTeacher,
+  apiGetHomeworkForSchool,
+  apiGetReportsForSchool,
+  apiGetSchoolStudent,
   ChildResponse,
   HomeworkResponse,
   ReportResponse,
@@ -219,30 +217,6 @@ function ReportsTab({
   )
 }
 
-async function loadHomework(childId: string) {
-  try {
-    return await apiGetHomeworkForTeacher(childId)
-  } catch {
-    try {
-      return await apiGetHomeworkForParent(childId)
-    } catch {
-      return []
-    }
-  }
-}
-
-async function loadReports(childId: string) {
-  try {
-    return await apiGetReportsForTeacher(childId)
-  } catch {
-    try {
-      return await apiGetReportsForParent(childId)
-    } catch {
-      return []
-    }
-  }
-}
-
 export default function SchoolStudentDetailScreen() {
   const router = useRouter()
   const { t, i18n } = useTranslation()
@@ -272,12 +246,12 @@ export default function SchoolStudentDetailScreen() {
 
   const load = useCallback(async () => {
     try {
-      const child = await apiGetChild(id ?? '')
+      const child = await apiGetSchoolStudent(id ?? '')
       setStudent(child)
 
       const [homeworkData, reportsData] = await Promise.all([
-        loadHomework(id ?? ''),
-        loadReports(id ?? ''),
+        apiGetHomeworkForSchool(id ?? '').catch(() => []),
+        apiGetReportsForSchool(id ?? '').catch(() => []),
       ])
 
       setHomework(homeworkData)

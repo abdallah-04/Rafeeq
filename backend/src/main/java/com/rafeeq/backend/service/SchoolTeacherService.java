@@ -4,14 +4,18 @@ import com.rafeeq.backend.common.BadRequestException;
 import com.rafeeq.backend.common.ConflictException;
 import com.rafeeq.backend.common.NotFoundException;
 import com.rafeeq.backend.dto.auth.MessageResponse;
+import com.rafeeq.backend.dto.child.ChildResponse;
 import com.rafeeq.backend.dto.school.CreateTeacherRequest;
 import com.rafeeq.backend.dto.school.TeacherResponse;
 import com.rafeeq.backend.dto.school.UpdateTeacherRequest;
+import com.rafeeq.backend.dto.teacher.StudentResponse;
+import com.rafeeq.backend.entity.ChildProfile;
 import com.rafeeq.backend.entity.School;
 import com.rafeeq.backend.entity.Teacher;
 import com.rafeeq.backend.entity.User;
 import com.rafeeq.backend.entity_enums.AppLanguage;
 import com.rafeeq.backend.entity_enums.UserRole;
+import com.rafeeq.backend.repository.ChildProfileRepository;
 import com.rafeeq.backend.repository.SchoolRepository;
 import com.rafeeq.backend.repository.TeacherRepository;
 import com.rafeeq.backend.repository.UserRepository;
@@ -30,6 +34,7 @@ public class SchoolTeacherService {
 
     private static final String GENERATED_EMAIL_DOMAIN = "@teachers.rafeeq.local";
 
+    private final ChildProfileRepository childProfileRepository;
     private final SchoolRepository schoolRepository;
     private final TeacherRepository teacherRepository;
     private final UserRepository userRepository;
@@ -92,12 +97,7 @@ public class SchoolTeacherService {
     }
 
     public TeacherResponse getTeacherById(UUID teacherId, String nationalId) {
-        School school = getCurrentSchool(nationalId);
-
-        Teacher teacher = teacherRepository.findByIdAndSchoolId(teacherId, school.getId())
-                .orElseThrow(() -> new NotFoundException("Teacher not found"));
-
-        return mapToResponse(teacher);
+        return mapToResponse(getTeacherEntity(teacherId, nationalId));
     }
 
     @Transactional
@@ -116,10 +116,7 @@ public class SchoolTeacherService {
 
     @Transactional
     public MessageResponse deleteTeacher(UUID teacherId, String nationalId) {
-        School school = getCurrentSchool(nationalId);
-
-        Teacher teacher = teacherRepository.findByIdAndSchoolId(teacherId, school.getId())
-                .orElseThrow(() -> new NotFoundException("Teacher not found"));
+        Teacher teacher = getTeacherEntity(teacherId, nationalId);
 
         User teacherUser = teacher.getUser();
         teacherRepository.delete(teacher);
@@ -131,12 +128,42 @@ public class SchoolTeacherService {
         return new MessageResponse(true, "Teacher deleted successfully");
     }
 
+    public List<StudentResponse> getTeacherStudents(UUID teacherId, String nationalId) {
+        Teacher teacher = getTeacherEntity(teacherId, nationalId);
+        UUID schoolId = teacher.getSchool() != null ? teacher.getSchool().getId() : null;
+
+        if (schoolId == null) {
+            throw new NotFoundException("School not found");
+        }
+
+        return childProfileRepository.findByTeacherIdAndTeacherSchoolId(teacher.getId(), schoolId)
+                .stream()
+                .map(this::mapStudentResponse)
+                .toList();
+    }
+
+    public ChildResponse getSchoolStudentById(UUID studentId, String nationalId) {
+        School school = getCurrentSchool(nationalId);
+
+        ChildProfile child = childProfileRepository.findByIdAndTeacherSchoolId(studentId, school.getId())
+                .orElseThrow(() -> new NotFoundException("Student not found"));
+
+        return mapChildResponse(child);
+    }
+
     private School getCurrentSchool(String nationalId) {
         User currentUser = userRepository.findByNationalId(nationalId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         return schoolRepository.findByUserId(currentUser.getId())
                 .orElseThrow(() -> new NotFoundException("School profile not found"));
+    }
+
+    private Teacher getTeacherEntity(UUID teacherId, String nationalId) {
+        School school = getCurrentSchool(nationalId);
+
+        return teacherRepository.findByIdAndSchoolId(teacherId, school.getId())
+                .orElseThrow(() -> new NotFoundException("Teacher not found"));
     }
 
     private void validateTeacherCreationRequest(CreateTeacherRequest request, String normalizedEmail) {
@@ -195,6 +222,50 @@ public class SchoolTeacherService {
                 teacher.getUser() != null ? teacher.getUser().getPhone() : null,
                 teacher.getUser() != null ? teacher.getUser().getEmail() : null,
                 teacher.getUser() != null ? teacher.getUser().getNationalId() : null
+        );
+    }
+
+    private StudentResponse mapStudentResponse(ChildProfile child) {
+        return new StudentResponse(
+                child.getId(),
+                child.getUser() != null ? child.getUser().getId() : null,
+                child.getFullNameAr(),
+                child.getFullNameEn(),
+                child.getClassName(),
+                child.getLevel(),
+                child.getGender(),
+                child.getDateOfBirth(),
+                child.getLearningDifficulty(),
+                child.getParent() != null ? child.getParent().getId() : null,
+                child.getTeacher() != null ? child.getTeacher().getId() : null,
+                child.getUser() != null ? child.getUser().getPhone() : null,
+                child.getUser() != null ? child.getUser().getNationalId() : null,
+                child.getStatus() != null ? child.getStatus().name() : null,
+                child.getAssessedLevel(),
+                child.getPlacementCompletedAt(),
+                child.getUser() != null ? child.getUser().getIsActive() : null
+        );
+    }
+
+    private ChildResponse mapChildResponse(ChildProfile child) {
+        return new ChildResponse(
+                child.getId(),
+                child.getUser() != null ? child.getUser().getId() : null,
+                child.getFullNameAr(),
+                child.getFullNameEn(),
+                child.getClassName(),
+                child.getLevel(),
+                child.getGender(),
+                child.getDateOfBirth(),
+                child.getLearningDifficulty(),
+                child.getParent() != null ? child.getParent().getId() : null,
+                child.getTeacher() != null ? child.getTeacher().getId() : null,
+                child.getUser() != null ? child.getUser().getPhone() : null,
+                child.getUser() != null ? child.getUser().getNationalId() : null,
+                child.getStatus() != null ? child.getStatus().name() : null,
+                child.getAssessedLevel(),
+                child.getPlacementCompletedAt(),
+                child.getUser() != null ? child.getUser().getIsActive() : null
         );
     }
 }
