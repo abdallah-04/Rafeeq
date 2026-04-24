@@ -1,0 +1,38 @@
+# Environment files
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Dependencies / build output
+node_modules/
+**/node_modules/
+.expo/
+dist/
+web-build/
+target/
+**/target/
+
+# Audit / reference artifacts
+.audit/
+.audit_*/
+RafeeqV0.zip
+RaveeqV0.zip
+RafeeqV0/
+RaveeqV0/
+RafeeqV0_extracted/
+RaveeqV0_extracted/
+
+# IDE / temp files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.suo
+*.user
+*.swp
+*.swo
+*.tmp
+.DS_Store
+Thumbs.db
