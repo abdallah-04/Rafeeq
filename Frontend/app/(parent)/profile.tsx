@@ -45,15 +45,32 @@ function SettingsRow({ icon, label, onPress, danger }: RowProps) {
 export default function ProfileScreen() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
+  const selectedChild = useAuthStore((s) => s.selectedChild);
   const language    = useAuthStore((s) => s.language);
   const setLanguage = useAuthStore((s) => s.setLanguage);
   const [langModalVisible, setLangModalVisible] = useState(false);
 
   const displayName = useMemo(() => {
-    const candidates = [user?.nameAr, user?.name, user?.phone, user?.nationalId];
+    const nameCandidates = language === 'ar'
+      ? [selectedChild?.fullNameAr, selectedChild?.fullNameEn]
+      : [selectedChild?.fullNameEn, selectedChild?.fullNameAr];
+    const candidates = [
+      ...nameCandidates,
+      user?.nameAr,
+      user?.name,
+      user?.nationalId,
+    ];
     return candidates.find((value) => typeof value === 'string' && value.trim().length > 0)?.trim()
       ?? t('roleSelect.parentTitle');
-  }, [t, user?.nameAr, user?.name, user?.phone, user?.nationalId]);
+  }, [
+    t,
+    language,
+    selectedChild?.fullNameAr,
+    selectedChild?.fullNameEn,
+    user?.nameAr,
+    user?.name,
+    user?.nationalId,
+  ]);
 
   const handleLogout = () => performLogout();
 
