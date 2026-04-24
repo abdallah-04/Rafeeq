@@ -560,7 +560,9 @@
       "students": "الطلاب"
     },
     "teachers": {
-      "title": "معلموي",
+      "headerTitle": "المعلمين",
+      "subtitle": "إدارة المعلمين ومتابعة بياناتهم",
+      "title": "المعلمين",
       "emptyTitle": "يبدو الأمر هادئاً هنا!",
       "emptySubtitle": "لم يُضف أي معلم بعد",
       "addFirst": "أضف معلمك الأول",
