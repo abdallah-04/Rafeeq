@@ -1,35 +1,50 @@
-import React, { useState } from 'react'
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
-import { router } from 'expo-router'
-import { theme } from '@/theme'
-import { useTranslation } from 'react-i18next'
+import React, { useMemo, useState } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
+import { theme } from '@/theme';
+import { useTranslation } from 'react-i18next';
 
-import ScreenWrapper from '@/components/modal/shared/ScreenWap'
-import Header from '@/components/modal/shared/Header'
-import ProgressCard from '@/components/modal/parent/ProgressCard'
-import TabBar from '@/components/modal/shared/TabBar'
-import { Text } from '@/components/modal/shared/Text'
-import QuizCard from '@/components/modal/parent/quizcard'
-
-const TABS = ['Progress', 'Quizes', 'Activities', 'Homeworks']
+import ScreenWrapper from '@/components/modal/shared/ScreenWap';
+import Header from '@/components/modal/shared/Header';
+import ProgressCard from '@/components/modal/parent/ProgressCard';
+import TabBar from '@/components/modal/shared/TabBar';
+import { Text } from '@/components/modal/shared/Text';
+import QuizCard from '@/components/modal/parent/quizcard';
 
 export default function HomeworksMain() {
-  const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState('Homeworks')
-  const [filter, setFilter] = useState<'todo' | 'done'>('todo')
+  const { t } = useTranslation();
+  const tabs = useMemo(
+    () => [
+      t('progress.tabs.progress', 'Progress'),
+      t('progress.tabs.quizzes', 'Quizzes'),
+      t('activities.title', 'Activities'),
+      t('homework.title', 'Homeworks'),
+    ],
+    [t]
+  );
+  const [activeTab, setActiveTab] = useState(tabs[3]);
+  const [filter, setFilter] = useState<'todo' | 'done'>('todo');
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(parent)/progress/progress-page' as any);
+  };
 
   const handleTabChange = (tab: string) => {
-    if (tab === 'Progress') router.replace('/(parent)/progress/progress-page')
-    else if (tab === 'Quizes') router.replace('/(parent)/progress/quiz')
-    else if (tab === 'Activities') router.replace('/(parent)/progress/activities')
-    else setActiveTab(tab)
-  }
+    if (tab === tabs[0]) router.replace('/(parent)/progress/progress-page' as any);
+    else if (tab === tabs[1]) router.replace('/(parent)/progress/quiz' as any);
+    else if (tab === tabs[2]) router.replace('/(parent)/progress/activities' as any);
+    else setActiveTab(tabs[3]);
+  };
 
   return (
-    <ScreenWrapper scroll={false}>
-      <Header title={t('homework.title')} onBack={() => router.back()} />
+    <ScreenWrapper padded={false} scroll={false}>
+      <Header title={t('homework.title')} onBack={handleBack} />
 
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ProgressCard
           childName="Zaid"
           monthLabel={t('homework.today')}
@@ -38,9 +53,7 @@ export default function HomeworksMain() {
           mascotImage={require('@/assets/images/mascot/rafeeq_reading.png')}
         />
 
-        <View style={{ marginTop: theme.spacing.lg }}>
-          <TabBar tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
-        </View>
+        <TabBar tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
 
         <View style={styles.toggleContainer}>
           <TouchableOpacity
@@ -71,10 +84,10 @@ export default function HomeworksMain() {
             icon={require('@/assets/images/icons/math.png')}
             iconBgColor="#D1FAE5"
             iconTintColor="#059669"
-            onPress={() => router.push('/(parent)/progress/HomeworkDetail')}
+            onPress={() => router.push('/(parent)/progress/HomeworkDetail' as any)}
           />
 
-          {filter === 'todo' && (
+          {filter === 'todo' ? (
             <>
               <Text variant="heading" style={styles.sectionTitle}>{t('homework.notFinishedSince')}</Text>
               <QuizCard
@@ -87,15 +100,19 @@ export default function HomeworksMain() {
                 onPress={() => {}}
               />
             </>
-          )}
+          ) : null}
         </View>
       </ScrollView>
     </ScreenWrapper>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
+  content: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: 100,
+  },
   toggleContainer: {
     flexDirection: 'row',
     backgroundColor: theme.colors.backgroundLight,
@@ -115,10 +132,10 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
   },
   activeText: { color: theme.colors.white },
-  listSection: { paddingBottom: 100 },
+  listSection: { paddingBottom: 24, marginTop: theme.spacing.md },
   sectionTitle: {
     fontSize: 14,
     marginVertical: theme.spacing.md,
     color: theme.colors.textPrimary,
   },
-})
+});

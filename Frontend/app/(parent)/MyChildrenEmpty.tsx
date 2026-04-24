@@ -133,8 +133,6 @@ export default function MyChildrenEmptyScreen() {
 
         {/* Footer */}
         <Footer
-          currentLanguage={t('language.current')}
-          onLanguagePress={() => {}}
           onPrivacyPress={() => {}}
           onTermsPress={() => {}}
         />

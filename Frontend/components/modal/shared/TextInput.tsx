@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, TextInput as RNTextInput, Text, TouchableOpacity, StyleSheet, I18nManager, KeyboardTypeOptions } from 'react-native';
+import {
+  View,
+  TextInput as RNTextInput,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  I18nManager,
+  KeyboardTypeOptions,
+  Image,
+} from 'react-native';
 import { theme } from '@/theme';
 
 type Props = {
@@ -9,10 +18,18 @@ type Props = {
   onChangeText: (text: string) => void;
   errorMsg?: string;
   secureEntry?: boolean;
-  keyboardType?: KeyboardTypeOptions; 
+  keyboardType?: KeyboardTypeOptions;
 };
 
-export default function TextInput({ label, placeholder, value, onChangeText, errorMsg, secureEntry = false, keyboardType }: Props) {
+export default function TextInput({
+  label,
+  placeholder,
+  value,
+  onChangeText,
+  errorMsg,
+  secureEntry = false,
+  keyboardType,
+}: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const isRTL = I18nManager.isRTL;
 
@@ -21,16 +38,31 @@ export default function TextInput({ label, placeholder, value, onChangeText, err
       {label && <Text style={styles.label}>{label}</Text>}
       <View style={[styles.inputRow, errorMsg && { borderColor: theme.colors.error }]}>
         <RNTextInput
-          style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+          style={[
+            styles.input,
+            {
+              textAlign: isRTL ? 'right' : 'left',
+              writingDirection: isRTL ? 'rtl' : 'ltr',
+            },
+          ]}
           placeholder={placeholder}
           placeholderTextColor={theme.colors.textMuted}
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureEntry && !showPassword}
+          keyboardType={keyboardType}
         />
         {secureEntry && (
-          <TouchableOpacity onPress={() => setShowPassword((p) => !p)}>
-            <Text>{showPassword ? '🙈' : '👁'}</Text>
+          <TouchableOpacity onPress={() => setShowPassword((p) => !p)} style={styles.iconButton}>
+            <Image
+              source={
+                showPassword
+                  ? require('@/assets/images/icons/hidden.png')
+                  : require('@/assets/images/icons/eye.png')
+              }
+              style={styles.icon}
+              resizeMode="contain"
+            />
           </TouchableOpacity>
         )}
       </View>
@@ -61,6 +93,14 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.base,
     color: theme.colors.textPrimary,
     fontFamily: theme.typography.fontFamily.regular,
+  },
+  iconButton: {
+    marginStart: theme.spacing.sm,
+  },
+  icon: {
+    width: 20,
+    height: 20,
+    tintColor: theme.colors.textMuted,
   },
   error: {
     fontSize: theme.typography.fontSize.xs,

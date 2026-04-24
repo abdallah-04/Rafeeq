@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import BackButton from '@/components/modal/shared/BackButton';
@@ -38,6 +38,19 @@ export default function SavedArticlesScreen() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(parent)/explore' as any);
+  };
 
   const handleRemove = async (id: string) => {
     setRemoving(id);
@@ -52,7 +65,7 @@ export default function SavedArticlesScreen() {
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
       <View style={[styles.header, isRTL && styles.rowReverse]}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton onPress={handleBack} />
         <View style={[styles.headerCenter, isRTL && styles.rowReverse]}>
           <Ionicons name="bookmark" size={20} color={colors.primary} />
           <Text style={styles.headerTitle}>{t('explore.saved_title')}</Text>
@@ -71,7 +84,7 @@ export default function SavedArticlesScreen() {
         <View style={styles.emptyState}>
           <Text style={styles.emptyEmoji}>📭</Text>
           <Text style={[styles.emptyTitle, isRTL && styles.textRight]}>{t('explore.empty')}</Text>
-          <TouchableOpacity style={styles.exploreBtn} onPress={() => router.back()}><Text style={styles.exploreBtnText}>{t('explore.explore_btn')}</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.exploreBtn} onPress={() => router.replace('/(parent)/explore' as any)}><Text style={styles.exploreBtnText}>{t('explore.explore_btn')}</Text></TouchableOpacity>
         </View>
       ) : (
         <FlatList data={filtered} keyExtractor={(item) => item.id} contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}
