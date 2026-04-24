@@ -16,10 +16,11 @@ import {
   ScrollView,
   StyleSheet,
   Image,
-  TouchableOpacity,
+  BackHandler,
+  Platform,
+  ToastAndroid,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StatusBar } from 'expo-status-bar';
 
@@ -29,6 +30,7 @@ import { Button } from '@/components/modal/shared/Button';
 import BackButton from '@/components/modal/shared/BackButton';
 import Footer from '@/components/modal/shared/Footer';
 import { useModal } from '@/components/modal/ModalProvider';
+import { performLogout } from '@/utils/logout';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -56,8 +58,36 @@ function GhostSlot({ faded }: { faded?: boolean }) {
 export default function MyChildrenEmptyScreen() {
   const { t } = useTranslation();
   const { show } = useModal();
+  const lastBackPressRef = React.useRef(0);
+  const isLoggingOutRef = React.useRef(false);
 
   const handleAdd = () => show('addChild');
+
+  const handleLogoutBackPress = React.useCallback(() => {
+    if (isLoggingOutRef.current) return true;
+
+    const now = Date.now();
+    if (now - lastBackPressRef.current < 2000) {
+      isLoggingOutRef.current = true;
+      void performLogout();
+      return true;
+    }
+
+    lastBackPressRef.current = now;
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('Press again to logout', ToastAndroid.SHORT);
+    }
+    return true;
+  }, []);
+
+  React.useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      handleLogoutBackPress();
+      return true;
+    });
+
+    return () => subscription.remove();
+  }, [handleLogoutBackPress]);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -65,7 +95,7 @@ export default function MyChildrenEmptyScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton onPress={handleLogoutBackPress} />
         <Text style={styles.headerTitle}>{t('myChildren.title')}</Text>
         <View style={styles.headerSpacer} />
       </View>
