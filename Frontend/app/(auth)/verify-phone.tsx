@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -62,7 +61,7 @@ const resendStyles = StyleSheet.create({
 
 export default function VerifyPhoneScreen() {
   const { show } = useModal();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [otp, setOtp]             = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState('');
@@ -74,6 +73,14 @@ export default function VerifyPhoneScreen() {
   const nationalId = (user as any)?.nationalId ?? '';
 
   const isComplete = otp.every((d) => d !== '');
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(auth)/signUp-parent' as any);
+  };
 
   const handleConfirm = async () => {
     if (!isComplete) return;
@@ -106,7 +113,7 @@ export default function VerifyPhoneScreen() {
       <StatusBar style="dark" />
 
       <View style={styles.header}>
-        <BackButton />
+        <BackButton onPress={handleBack} />
         <Text style={styles.headerTitle}>{t('auth.otp.title')}</Text>
         <View style={{ width: 36 }} />
       </View>

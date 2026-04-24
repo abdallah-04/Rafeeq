@@ -20,6 +20,15 @@ const { colors, spacing, typography, radius } = theme
 export default function SchoolSignupStep1() {
   const { t, i18n } = useTranslation()
   const setStep1 = useSchoolSignupStore((s) => s.setStep1)
+  const isRTL = i18n.language === 'ar'
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back()
+      return
+    }
+    router.replace('/(auth)/role-select' as any)
+  }
 
   const schema = useMemo(() => createSchoolStep1Schema(t), [t])
   const { control, handleSubmit, formState: { errors } } = useForm<SchoolStep1Form>({
@@ -36,7 +45,7 @@ export default function SchoolSignupStep1() {
       <StatusBar style="dark" />
       <Header
         title={t('schoolSignup.title')}
-        onBack={() => router.back()}
+        onBack={handleBack}
       />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
@@ -44,78 +53,85 @@ export default function SchoolSignupStep1() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          <Text variant="caption" color="textSecondary" style={styles.subtitle}>
+            {t('schoolSignup.subtitle')}
+          </Text>
 
           <Card variant="elevated" padded style={styles.card}>
 
             {/* School Name */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.schoolName')}</Text>
+            <Text variant="label" style={[styles.label, isRTL && styles.textRight]}>{t('schoolSignup.schoolName')}</Text>
             <Controller
               control={control}
               name="schoolName"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  style={[styles.input, errors.schoolName && styles.inputError]}
+                  style={[styles.input, isRTL && styles.inputRTL, errors.schoolName && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
                   placeholder={t('schoolSignup.schoolNamePlaceholder')}
                   placeholderTextColor={colors.textMuted}
+                  textAlign={isRTL ? 'right' : 'left'}
                 />
               )}
             />
-            {errors.schoolName && <Text style={styles.error}>{errors.schoolName.message}</Text>}
+            {errors.schoolName && <Text style={[styles.error, isRTL && styles.textRight]}>{errors.schoolName.message}</Text>}
 
             {/* School ID */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.schoolId')}</Text>
+            <Text variant="label" style={[styles.label, isRTL && styles.textRight]}>{t('schoolSignup.schoolId')}</Text>
             <Controller
               control={control}
               name="schoolId"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  style={[styles.input, errors.schoolId && styles.inputError]}
+                  style={[styles.input, isRTL && styles.inputRTL, errors.schoolId && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
                   placeholder={t('schoolSignup.schoolIdPlaceholder')}
                   placeholderTextColor={colors.textMuted}
+                  textAlign={isRTL ? 'right' : 'left'}
                 />
               )}
             />
-            {errors.schoolId && <Text style={styles.error}>{errors.schoolId.message}</Text>}
+            {errors.schoolId && <Text style={[styles.error, isRTL && styles.textRight]}>{errors.schoolId.message}</Text>}
 
             {/* Advisor Name */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.advisorName')}</Text>
+            <Text variant="label" style={[styles.label, isRTL && styles.textRight]}>{t('schoolSignup.advisorName')}</Text>
             <Controller
               control={control}
               name="advisorName"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  style={[styles.input, errors.advisorName && styles.inputError]}
+                  style={[styles.input, isRTL && styles.inputRTL, errors.advisorName && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
                   placeholder={t('schoolSignup.advisorNamePlaceholder')}
                   placeholderTextColor={colors.textMuted}
+                  textAlign={isRTL ? 'right' : 'left'}
                 />
               )}
             />
-            {errors.advisorName && <Text style={styles.error}>{errors.advisorName.message}</Text>}
+            {errors.advisorName && <Text style={[styles.error, isRTL && styles.textRight]}>{errors.advisorName.message}</Text>}
 
             {/* Advisor National ID */}
-            <Text variant="label" style={styles.label}>{t('schoolSignup.advisorNationalId')}</Text>
+            <Text variant="label" style={[styles.label, isRTL && styles.textRight]}>{t('schoolSignup.advisorNationalId')}</Text>
             <Controller
               control={control}
               name="advisorNationalId"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  style={[styles.input, errors.advisorNationalId && styles.inputError]}
+                  style={[styles.input, isRTL && styles.inputRTL, errors.advisorNationalId && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
                   placeholder={t('schoolSignup.advisorNationalIdPlaceholder')}
                   placeholderTextColor={colors.textMuted}
                   keyboardType="numeric"
                   maxLength={10}
+                  textAlign={isRTL ? 'right' : 'left'}
                 />
               )}
             />
-            {errors.advisorNationalId && <Text style={styles.error}>{errors.advisorNationalId.message}</Text>}
+            {errors.advisorNationalId && <Text style={[styles.error, isRTL && styles.textRight]}>{errors.advisorNationalId.message}</Text>}
 
             <Button label={t('common.continue')} onPress={handleSubmit(onContinue)} style={styles.btn} />
 
@@ -153,9 +169,14 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.md,
     paddingBottom: spacing.lg,
-    gap: spacing.lg,
+    gap: spacing.md,
+  },
+  subtitle: {
+    textAlign: 'center',
+    lineHeight: 20,
+    paddingHorizontal: spacing.md,
   },
   card: {
     gap: spacing.md,
@@ -168,6 +189,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     marginBottom: spacing.xs,
   },
+  textRight: {
+    textAlign: 'right',
+  },
   input: {
     backgroundColor: colors.surfaceElevated,
     borderRadius: radius.md,
@@ -178,6 +202,9 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     borderWidth: 1.5,
     borderColor: 'transparent',
+  },
+  inputRTL: {
+    writingDirection: 'rtl',
   },
   inputError: {
     borderColor: colors.error,

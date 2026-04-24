@@ -13,7 +13,7 @@ import { theme } from '@/theme';
 
 const { colors, spacing, typography, radius } = theme;
 
-type Role = 'parent' | 'school' | 'teacher';
+type Role = 'parent' | 'school';
 
 interface RoleOption {
   key: Role;
@@ -37,13 +37,6 @@ const ROLES: RoleOption[] = [
     titleKey: 'roleSelect.schoolTitle',
     descKey: 'roleSelect.schoolDesc',
     route: '/(auth)/signup-school',
-  },
-  {
-    key: 'teacher',
-    icon: require('@/assets/images/icons/influencer.png'),
-    titleKey: 'roleSelect.teacherTitle',
-    descKey: 'roleSelect.teacherDesc',
-    route: '/(teacher)/students',
   },
 ];
 

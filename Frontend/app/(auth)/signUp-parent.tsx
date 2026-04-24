@@ -7,7 +7,6 @@ import {
   Platform,
   ScrollView,
   Image,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -51,6 +50,14 @@ export default function SignUpParentScreen() {
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(auth)/role-select' as any);
+  };
 
   const signupSchema = useMemo(() => createSignupSchema(t), [t]);
   type FormData = z.infer<typeof signupSchema>;
@@ -106,96 +113,101 @@ export default function SignUpParentScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <BackButton onPress={router.back} />
-          <Text style={styles.title}>{t('auth.signup.title')}</Text>
-          <Text style={styles.subtitle}>{t('auth.signup.subtitle')}</Text>
+          <BackButton onPress={handleBack} />
+
+          <View style={styles.headerBlock}>
+            <Text style={styles.title}>{t('auth.signup.title')}</Text>
+            <Text style={styles.subtitle}>{t('auth.signup.subtitle')}</Text>
+          </View>
 
           <View style={styles.form}>
-            {/* Full Name (Arabic) */}
-            <Controller
-              control={control}
-              name="fullNameAr"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  label={t('auth.signup.fullName', 'Full Name')}
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={t('auth.signup.fullNamePlaceholder', 'Your full name')}
-                  errorMsg={errors.fullNameAr?.message}
-                />
-              )}
-            />
+            <View style={styles.formCard}>
+              {/* Full Name (Arabic) */}
+              <Controller
+                control={control}
+                name="fullNameAr"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    label={t('auth.signup.fullName', 'Full Name')}
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder={t('auth.signup.fullNamePlaceholder', 'Your full name')}
+                    errorMsg={errors.fullNameAr?.message}
+                  />
+                )}
+              />
 
-            {/* National ID */}
-            <Controller
-              control={control}
-              name="nationalId"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  label={t('auth.signup.nationalId')}
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={t('auth.signup.nationalIdPlaceholder')}
-                  keyboardType="numeric"
-                  errorMsg={errors.nationalId?.message}
-                />
-              )}
-            />
+              {/* National ID */}
+              <Controller
+                control={control}
+                name="nationalId"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    label={t('auth.signup.nationalId')}
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder={t('auth.signup.nationalIdPlaceholder')}
+                    keyboardType="numeric"
+                    errorMsg={errors.nationalId?.message}
+                  />
+                )}
+              />
 
-            {/* Phone */}
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  label={t('auth.signup.phone')}
-                  value={value}
-                  onChangeText={(text) => onChange(text.replace(/^\+962\s?/, ''))}
-                  placeholder={t('auth.signup.phonePlaceholder')}
-                  keyboardType="phone-pad"
-                  errorMsg={errors.phone?.message}
-                />
-              )}
-            />
+              {/* Phone */}
+              <Controller
+                control={control}
+                name="phone"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    label={t('auth.signup.phone')}
+                    value={value}
+                    onChangeText={(text) => onChange(text.replace(/^\+962\s?/, ''))}
+                    placeholder={t('auth.signup.phonePlaceholder')}
+                    keyboardType="phone-pad"
+                    errorMsg={errors.phone?.message}
+                  />
+                )}
+              />
 
-            {/* Password */}
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  label={t('auth.signup.createPassword')}
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={t('auth.signup.passwordPlaceholder')}
-                  secureEntry
-                  errorMsg={errors.password?.message}
-                />
-              )}
-            />
+              {/* Password */}
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    label={t('auth.signup.createPassword')}
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder={t('auth.signup.passwordPlaceholder')}
+                    secureEntry
+                    errorMsg={errors.password?.message}
+                  />
+                )}
+              />
 
-            {/* Confirm Password */}
-            <Controller
-              control={control}
-              name="confirmPassword"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  label={t('auth.signup.confirmPassword')}
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={t('auth.signup.confirmPasswordPlaceholder')}
-                  secureEntry
-                  errorMsg={errors.confirmPassword?.message}
-                />
-              )}
-            />
+              {/* Confirm Password */}
+              <Controller
+                control={control}
+                name="confirmPassword"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    label={t('auth.signup.confirmPassword')}
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder={t('auth.signup.confirmPasswordPlaceholder')}
+                    secureEntry
+                    errorMsg={errors.confirmPassword?.message}
+                  />
+                )}
+              />
 
-            <Button
-              label={t('common.continue')}
-              onPress={handleSubmit(onSubmit)}
-              loading={loading}
-              style={styles.btn}
-            />
+              <Button
+                label={t('common.continue')}
+                onPress={handleSubmit(onSubmit)}
+                loading={loading}
+                style={styles.btn}
+              />
+            </View>
 
             <View style={styles.divider}>
               <View style={styles.line} />
@@ -226,9 +238,11 @@ export default function SignUpParentScreen() {
 const styles = StyleSheet.create({
   safe:         { flex: 1, backgroundColor: colors.background },
   scroll:       { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.xl },
-  title:        { fontSize: typography.fontSize['2xl'], fontFamily: typography.fontFamily.bold, color: colors.textPrimary, textAlign: 'center', marginTop: spacing.lg, marginBottom: spacing.sm },
-  subtitle:     { fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.regular, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: spacing.lg, paddingHorizontal: spacing.sm },
-  form:         { gap: spacing.sm },
+  headerBlock:  { marginTop: spacing.lg, marginBottom: spacing.md },
+  title:        { fontSize: typography.fontSize['2xl'], fontFamily: typography.fontFamily.bold, color: colors.textPrimary, textAlign: 'center', marginBottom: spacing.sm },
+  subtitle:     { fontSize: typography.fontSize.sm, fontFamily: typography.fontFamily.regular, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, paddingHorizontal: spacing.sm },
+  form:         { gap: spacing.md },
+  formCard:     { backgroundColor: colors.surface, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.border, padding: spacing.lg, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
   btn:          { width: '100%', marginTop: spacing.xs },
   divider:      { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginVertical: spacing.xs },
   line:         { flex: 1, height: 1, backgroundColor: colors.border },

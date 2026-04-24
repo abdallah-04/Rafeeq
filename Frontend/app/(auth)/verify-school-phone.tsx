@@ -73,6 +73,14 @@ export default function VerifySchoolPhoneScreen() {
   const { step1, step2, clearSignup } = useSchoolSignupStore();
   const isComplete = otp.every((d) => d !== '');
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(auth)/signup-school-2' as any);
+  };
+
   useEffect(() => {
     (async () => {
       // Read nationalId from store first, fall back to AsyncStorage
@@ -155,7 +163,7 @@ export default function VerifySchoolPhoneScreen() {
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
       <View style={styles.header}>
-        <BackButton />
+        <BackButton onPress={handleBack} />
         <Text style={styles.headerTitle}>{t('roleSelect.title')}</Text>
         <View style={{ width: 36 }} />
       </View>
