@@ -37,6 +37,14 @@ export default function StudentQuickAccessScreen() {
   const [student,      setStudent]      = useState<StudentResponse | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
+  const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(teacher)/(tabs)/students');
+  }, [router]);
+
   const loadStudent = useCallback(() => {
     if (!studentId) return;
     apiGetStudent(studentId)
@@ -69,7 +77,7 @@ export default function StudentQuickAccessScreen() {
     <SafeAreaView style={styles.safe}>
       {/* ── Header ── */}
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton onPress={handleBack} />
         <Text style={styles.navTitle}>
           {t('teacher.quickAccess.title', 'Student Profile')}
         </Text>
@@ -101,7 +109,7 @@ export default function StudentQuickAccessScreen() {
             {!isUnplaced && (
               <View style={styles.pill}>
                 <Text style={styles.pillText}>
-                  {t('teacher.studentCard.level', { level: student?.assessedLevel ? `Level ${student.assessedLevel}` : '—'.replace('Level ', '') })}
+                  {t('teacher.studentCard.level', { level: student?.assessedLevel ?? student?.level ?? '--' })}
                 </Text>
               </View>
             )}
@@ -195,7 +203,10 @@ export default function StudentQuickAccessScreen() {
                 setModalVisible(false);
                 router.push({
                   pathname: '/(teacher)/placement-exam' as any,
-                  params: { studentId: studentId ?? '' },
+                  params: {
+                    studentId: studentId ?? '',
+                    studentName: student?.fullNameAr ?? student?.fullNameEn ?? '',
+                  },
                 });
               }}
             >

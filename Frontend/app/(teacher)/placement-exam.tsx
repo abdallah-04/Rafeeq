@@ -62,6 +62,18 @@ export default function PlacementExamScreen() {
     confidence: number;
   } | null>(null);
 
+  const handleExit = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    if (studentId) {
+      router.replace({ pathname: '/(teacher)/Student_dashboard', params: { studentId } } as any);
+      return;
+    }
+    router.replace('/(teacher)/(tabs)/students');
+  };
+
   const currentQuestion = assessment?.questions[questionIndex] ?? null;
   const localizedQuestion = currentQuestion
     ? getLocalizedText(isRTL, currentQuestion.questionAr, currentQuestion.questionEn)
@@ -79,7 +91,7 @@ export default function PlacementExamScreen() {
       const data = await apiStartPlacementAssessment(studentId);
       if (data.placementCompleted) {
         show('error', { variant: 'invalidInfo' });
-        router.back();
+        handleExit();
         return;
       }
       setAssessment(data);
@@ -227,7 +239,7 @@ export default function PlacementExamScreen() {
 
         <ScrollView contentContainerStyle={styles.resultContent}>
           <View style={styles.trophyWrap}>
-            <Text style={styles.trophyIcon}>OK</Text>
+            <Text style={styles.trophyIcon}>✓</Text>
           </View>
           <Text style={styles.resultTitle}>
             {t('teacher.placementExam.resultTitle', 'Student Account Activated')}
@@ -269,7 +281,7 @@ export default function PlacementExamScreen() {
         </ScrollView>
 
         <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.startBtn} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.startBtn} onPress={handleExit}>
             <Text style={styles.startBtnText}>
               {t('teacher.placementExam.backToStudents', 'Back to Students')}
             </Text>
@@ -282,7 +294,7 @@ export default function PlacementExamScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton onPress={handleExit} />
         <Text style={styles.navTitle}>{t('teacher.placementExam.examTitle', 'Initial Exam')}</Text>
         <View style={{ width: 40 }} />
       </View>

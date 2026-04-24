@@ -228,11 +228,24 @@ function ScoreModal({ visible, score, total, onClose, t }: { visible: boolean; s
 export default function MonthlyExamScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
+  const { studentId } = useLocalSearchParams<{ studentId?: string }>();
   const isRTL = i18n.language === 'ar';
   const [phase, setPhase] = useState<'info' | 'quiz' | 'done'>('info');
   const [qIndex, setQIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [showScore, setShowScore] = useState(false);
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    if (studentId) {
+      router.replace({ pathname: '/(teacher)/Student_dashboard', params: { studentId } } as any);
+      return;
+    }
+    router.replace('/(teacher)/(tabs)/students');
+  };
 
   const handleStart = () => {
     setQIndex(0);
@@ -255,7 +268,7 @@ export default function MonthlyExamScreen() {
     <SafeAreaView style={styles.safe}>
       {/* Nav */}
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton onPress={handleBack} />
         <Text style={styles.navTitle}>{t('teacher.exam.monthlyExam', 'Monthly Exam')}</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -280,7 +293,7 @@ export default function MonthlyExamScreen() {
         visible={showScore}
         score={score}
         total={QUESTIONS.length}
-        onClose={() => { setShowScore(false); router.back(); }}
+        onClose={() => { setShowScore(false); handleBack(); }}
         t={t}
       />
     </SafeAreaView>

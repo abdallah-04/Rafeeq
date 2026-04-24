@@ -29,6 +29,18 @@ export default function HomeworkScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickerDate, setPickerDate] = useState(new Date());
 
+  const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    if (studentId) {
+      router.replace({ pathname: '/(teacher)/Student_dashboard', params: { studentId } } as any);
+      return;
+    }
+    router.replace('/(teacher)/(tabs)/students');
+  }, [router, studentId]);
+
   const formatApiDate = (date: Date) => (
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   );
@@ -114,7 +126,7 @@ export default function HomeworkScreen() {
     <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
         <View style={[styles.headerRow, isRTL && styles.rowReverse]}>
-          <BackButton onPress={() => router.back()} />
+          <BackButton onPress={handleBack} />
           <Text style={styles.headerTitle}>{t('teacher.hw.title', 'H.W')}</Text>
           <TouchableOpacity onPress={() => setShowForm(!showForm)} style={styles.addBtn}>
             <Text style={styles.addBtnText}>+ {t('teacher.hw.add', 'Add')}</Text>

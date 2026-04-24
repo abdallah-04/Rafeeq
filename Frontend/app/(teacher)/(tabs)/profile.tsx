@@ -1,143 +1,424 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
-  ScrollView,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Modal,
+  Pressable,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { StatusBar } from 'expo-status-bar';
+
+import { Text } from '@/components/modal/shared/Text';
+import ScreenWrapper from '@/components/modal/shared/ScreenWap';
+import Avatar from '@/components/modal/shared/Avatar';
+import { theme } from '@/theme';
 import { useAuthStore } from '@/store/authStore';
 import { performLogout } from '@/utils/logout';
+import {
+  apiGetStudents,
+  apiGetTeacherDashboard,
+  StudentResponse,
+  TeacherDashboard,
+} from '@/services/api';
 
-const MENU_ITEMS = [
-  { id: 'account',   icon: '👤', labelKey: 'teacher.profile.account',    label: 'Account Info' },
-  { id: 'class',     icon: '🏫', labelKey: 'teacher.profile.class',      label: 'Class Settings' },
-  { id: 'notifs',    icon: '🔔', labelKey: 'teacher.profile.notifs',     label: 'Notifications' },
-  { id: 'language',  icon: '🌐', labelKey: 'teacher.profile.language',   label: 'Language' },
-  { id: 'privacy',   icon: '🔒', labelKey: 'teacher.profile.privacy',    label: 'Privacy Policy' },
-  { id: 'logout',    icon: '🚪', labelKey: 'teacher.profile.logout',     label: 'Log Out', danger: true },
-];
+const { colors, spacing, typography, radius } = theme;
+
+interface SettingsRowProps {
+  icon: React.ReactNode;
+  label: string;
+  onPress: () => void;
+  danger?: boolean;
+  isRTL: boolean;
+}
+
+function SettingsRow({ icon, label, onPress, danger, isRTL }: SettingsRowProps) {
+  return (
+    <TouchableOpacity
+      style={[styles.row, isRTL && styles.rowRTL]}
+      onPress={onPress}
+      activeOpacity={0.7}
+      accessibilityRole="button"
+    >
+      <View style={[styles.rowIcon, danger && styles.rowIconDanger]}>{icon}</View>
+      <Text
+        style={[
+          styles.rowLabel,
+          danger && styles.rowLabelDanger,
+          isRTL && styles.rowLabelRTL,
+        ]}
+        numberOfLines={1}
+      >
+        {label}
+      </Text>
+      <Ionicons
+        name={isRTL ? 'chevron-back' : 'chevron-forward'}
+        size={18}
+        color={colors.textMuted}
+      />
+    </TouchableOpacity>
+  );
+}
 
 export default function TeacherProfileScreen() {
-  const router = useRouter();
   const { t, i18n } = useTranslation();
-  const isRTL = i18n.language === 'ar';
-  const logout = useAuthStore((s) => s.logout);
-  const setLanguage = useAuthStore((s) => s.setLanguage);
   const user = useAuthStore((s) => s.user);
-  const teacherName = user?.name ?? user?.nameAr ?? t('teacher.profile.name', 'Teacher');
-  const initials = teacherName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
+  const language = useAuthStore((s) => s.language);
+  const isRTL = useAuthStore((s) => s.isRTL);
+  const setLanguage = useAuthStore((s) => s.setLanguage);
+  const [langModalVisible, setLangModalVisible] = useState(false);
+  const [dashboard, setDashboard] = useState<TeacherDashboard | null>(null);
+  const [students, setStudents] = useState<StudentResponse[]>([]);
 
-  const handleMenuPress = (id: string) => {
-    if (id === 'logout') { performLogout(); }
+  useFocusEffect(
+    React.useCallback(() => {
+      let active = true;
+
+      Promise.allSettled([apiGetTeacherDashboard(), apiGetStudents()]).then(([dashboardResult, studentsResult]) => {
+        if (!active) return;
+
+        if (dashboardResult.status === 'fulfilled') {
+          setDashboard(dashboardResult.value);
+        }
+
+        if (studentsResult.status === 'fulfilled') {
+          setStudents(studentsResult.value);
+        }
+      });
+
+      return () => {
+        active = false;
+      };
+    }, [])
+  );
+
+  const teacherName = isRTL
+    ? (user?.nameAr ?? user?.name ?? t('teacher.profile.name', 'Teacher'))
+    : (user?.name ?? user?.nameAr ?? t('teacher.profile.name', 'Teacher'));
+
+  const avgProgress = useMemo(() => {
+    const levels = students
+      .map((student) => student.assessedLevel ?? student.level)
+      .filter((value): value is number => value != null);
+
+    if (levels.length === 0) return 0;
+
+    const total = levels.reduce((sum, value) => sum + Math.max(0, Math.min(value * 20, 100)), 0);
+    return Math.round(total / levels.length);
+  }, [students]);
+
+  const studentCount = dashboard?.studentsCount ?? students.length;
+  const activeCount = dashboard?.activeStudentsCount ?? students.filter((student) => student.status === 'ACTIVE').length;
+
+  const handleLogout = () => {
+    void performLogout();
   };
 
-  const handleLanguageChange = (lang: 'en' | 'ar') => {
+  const handleSelectLanguage = (lang: 'en' | 'ar') => {
     i18n.changeLanguage(lang);
     setLanguage(lang);
+    setLangModalVisible(false);
   };
 
+  const languages: Array<{ code: 'en' | 'ar'; native: string }> = [
+    { code: 'en', native: t('language.english', 'English') },
+    { code: 'ar', native: t('language.arabic', 'العربية') },
+  ];
+
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+    <ScreenWrapper padded={false}>
+      <StatusBar style="dark" />
 
-        {/* Avatar + name */}
-        <View style={styles.profileHeader}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
+      <View style={styles.topBar}>
+        <View style={styles.side} />
+        <Text style={styles.topTitle}>{t('teacher.profile.title', 'Profile')}</Text>
+        <View style={styles.side} />
+      </View>
+
+      <View style={styles.hero}>
+        <Avatar name={teacherName} size="lg" />
+        <Text variant="body" style={styles.name} numberOfLines={1}>
+          {teacherName}
+        </Text>
+        <Text variant="caption" style={styles.role} numberOfLines={1}>
+          {t('teacher.profile.role', 'Special Education Teacher')}
+        </Text>
+
+        <View style={styles.statRow}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{studentCount}</Text>
+            <Text style={styles.statLabel}>{t('teacher.profile.students', 'Students')}</Text>
           </View>
-          <Text style={styles.name}>{teacherName}</Text>
-          <Text style={styles.role}>{t('teacher.profile.role', 'Special Education Teacher')}</Text>
-          <View style={styles.statRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>3</Text>
-              <Text style={styles.statLabel}>{t('teacher.profile.students', 'Students')}</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>62%</Text>
-              <Text style={styles.statLabel}>{t('teacher.profile.avgProgress', 'Avg Progress')}</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>Grade 2</Text>
-              <Text style={styles.statLabel}>{t('teacher.profile.grade', 'Grade')}</Text>
-            </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{avgProgress}%</Text>
+            <Text style={styles.statLabel}>{t('teacher.profile.avgProgress', 'Avg Progress')}</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{activeCount}</Text>
+            <Text style={styles.statLabel}>{t('teacher.profile.activeStudents', 'Active')}</Text>
           </View>
         </View>
+      </View>
 
-        {/* Menu items */}
-        <View style={styles.menuCard}>
-          {MENU_ITEMS.map((item, i) => (
-            <TouchableOpacity
-              key={item.id}
-              style={[
-                styles.menuItem,
-                isRTL && styles.rowReverse,
-                i < MENU_ITEMS.length - 1 && styles.menuItemBorder,
-              ]}
-              activeOpacity={0.7}
-              onPress={() => handleMenuPress(item.id)}
-            >
-              <Text style={styles.menuIcon}>{item.icon}</Text>
-              <Text style={[styles.menuLabel, item.danger && styles.menuLabelDanger]}>
-                {t(item.labelKey, item.label)}
-              </Text>
-              <Text style={[styles.menuArrow, isRTL && styles.menuArrowRTL]}>
-                {isRTL ? '‹' : '›'}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      <View style={styles.divider} />
 
-        {/* Language toggle */}
-        <View style={styles.langRow}>
-          {(['en', 'ar'] as const).map((lang) => (
-            <TouchableOpacity
-              key={lang}
-              style={[styles.langBtn, i18n.language === lang && styles.langBtnActive]}
-              onPress={() => handleLanguageChange(lang)}
-            >
-              <Text style={[styles.langBtnText, i18n.language === lang && styles.langBtnTextActive]}>
-                {lang === 'en' ? 'English' : 'العربية'}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      <View style={styles.list}>
+        <SettingsRow
+          isRTL={isRTL}
+          icon={
+            <Image
+              source={require('@/assets/images/icons/account.png')}
+              style={styles.rowIconImg}
+            />
+          }
+          label={t('teacher.profile.account', 'Account Info')}
+          onPress={() => {}}
+        />
+        <SettingsRow
+          isRTL={isRTL}
+          icon={
+            <Image
+              source={require('@/assets/images/icons/settings.png')}
+              style={styles.rowIconImg}
+            />
+          }
+          label={t('teacher.profile.language', 'Language')}
+          onPress={() => setLangModalVisible(true)}
+        />
+        <SettingsRow
+          isRTL={isRTL}
+          icon={<Ionicons name="lock-closed-outline" size={18} color={colors.primary} />}
+          label={t('teacher.profile.privacy', 'Privacy Policy')}
+          onPress={() => {}}
+        />
+        <SettingsRow
+          isRTL={isRTL}
+          icon={<Ionicons name="log-out-outline" size={18} color={colors.error} />}
+          label={t('teacher.profile.logout', 'Log Out')}
+          onPress={handleLogout}
+          danger
+        />
+      </View>
 
-      </ScrollView>
-    </SafeAreaView>
+      <Modal
+        visible={langModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLangModalVisible(false)}
+      >
+        <Pressable style={styles.overlay} onPress={() => setLangModalVisible(false)}>
+          <Pressable style={styles.sheet} onPress={() => {}}>
+            <Text style={styles.sheetTitle}>{t('language.select', 'Select Language')}</Text>
+            {languages.map((lang) => {
+              const selected = language === lang.code;
+              return (
+                <TouchableOpacity
+                  key={lang.code}
+                  style={[
+                    styles.langRow,
+                    isRTL && styles.langRowRTL,
+                    selected && styles.langRowSelected,
+                  ]}
+                  onPress={() => handleSelectLanguage(lang.code)}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      styles.langLabel,
+                      selected && styles.langLabelSelected,
+                      isRTL && styles.rowLabelRTL,
+                    ]}
+                  >
+                    {lang.native}
+                  </Text>
+                  {selected ? (
+                    <Ionicons name="checkmark" size={18} color={colors.primary} />
+                  ) : null}
+                </TouchableOpacity>
+              );
+            })}
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F5F7FF' },
-  scrollContent: { paddingBottom: 40 },
-  rowReverse: { flexDirection: 'row-reverse' },
-
-  profileHeader: { alignItems: 'center', paddingVertical: 28, paddingHorizontal: 24 },
-  avatar: { width: 88, height: 88, borderRadius: 44, backgroundColor: '#BBDEFB', alignItems: 'center', justifyContent: 'center', marginBottom: 12, borderWidth: 4, borderColor: '#fff', shadowColor: '#508DF7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 4 },
-  avatarText: { fontFamily: 'Lexend_700Bold', fontSize: 28, color: '#1a1a2e' },
-  name: { fontFamily: 'Lexend_700Bold', fontSize: 22, color: '#1a1a2e', marginBottom: 4 },
-  role: { fontFamily: 'Lexend_400Regular', fontSize: 14, color: '#6B7280', marginBottom: 16 },
-  statRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 16, paddingVertical: 14, paddingHorizontal: 20, gap: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
-  statItem: { alignItems: 'center', flex: 1 },
-  statValue: { fontFamily: 'Lexend_700Bold', fontSize: 16, color: '#508DF7' },
-  statLabel: { fontFamily: 'Lexend_400Regular', fontSize: 11, color: '#9CA3AF', marginTop: 2 },
-  divider: { width: 1, height: 32, backgroundColor: '#E8EEFF' },
-
-  menuCard: { marginHorizontal: 16, backgroundColor: '#fff', borderRadius: 20, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 12, elevation: 2 },
-  menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16, gap: 14 },
-  menuItemBorder: { borderBottomWidth: 0.5, borderBottomColor: '#F0F0F0' },
-  menuIcon: { fontSize: 20, width: 28 },
-  menuLabel: { flex: 1, fontFamily: 'Lexend_500Medium', fontSize: 15, color: '#1a1a2e' },
-  menuLabelDanger: { color: '#EF4444' },
-  menuArrow: { fontSize: 20, color: '#C4C4C4' },
-  menuArrowRTL: { transform: [{ scaleX: -1 }] },
-
-  langRow: { flexDirection: 'row', marginHorizontal: 16, marginTop: 16, gap: 10 },
-  langBtn: { flex: 1, paddingVertical: 12, borderRadius: 14, backgroundColor: '#fff', alignItems: 'center', borderWidth: 1.5, borderColor: '#E8EEFF' },
-  langBtnActive: { backgroundColor: '#508DF7', borderColor: '#508DF7' },
-  langBtnText: { fontFamily: 'Lexend_600SemiBold', fontSize: 14, color: '#9CA3AF' },
-  langBtnTextActive: { color: '#fff' },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  topTitle: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: typography.fontSize.lg,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+  },
+  side: {
+    width: 44,
+    height: 44,
+  },
+  hero: {
+    alignItems: 'center',
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    gap: spacing.xs,
+  },
+  name: {
+    fontSize: typography.fontSize.lg,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+    marginTop: spacing.sm,
+  },
+  role: {
+    color: colors.textSecondary,
+    fontSize: typography.fontSize.sm,
+    marginBottom: spacing.md,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    gap: spacing.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statValue: {
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.primary,
+  },
+  statLabel: {
+    fontSize: typography.fontSize.xs,
+    fontFamily: typography.fontFamily.regular,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+  },
+  statDivider: {
+    width: 1,
+    height: 32,
+    backgroundColor: colors.borderLight,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  list: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    gap: spacing.xs,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
+    gap: spacing.md,
+  },
+  rowRTL: {
+    flexDirection: 'row-reverse',
+  },
+  rowIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.lg,
+    backgroundColor: colors.backgroundLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rowIconDanger: {
+    backgroundColor: colors.errorLight,
+  },
+  rowIconImg: {
+    width: 20,
+    height: 20,
+    tintColor: colors.primary,
+  },
+  rowLabel: {
+    flex: 1,
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.medium,
+    color: colors.textPrimary,
+  },
+  rowLabelDanger: {
+    color: colors.error,
+  },
+  rowLabelRTL: {
+    textAlign: 'right',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  sheet: {
+    width: '100%',
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  sheetTitle: {
+    fontSize: typography.fontSize.lg,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: spacing.xs,
+  },
+  langRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+  },
+  langRowRTL: {
+    flexDirection: 'row-reverse',
+  },
+  langRowSelected: {
+    borderColor: colors.primary,
+    backgroundColor: colors.backgroundLight,
+  },
+  langLabel: {
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.medium,
+    color: colors.textPrimary,
+  },
+  langLabelSelected: {
+    color: colors.primary,
+    fontFamily: typography.fontFamily.semiBold,
+  },
 });

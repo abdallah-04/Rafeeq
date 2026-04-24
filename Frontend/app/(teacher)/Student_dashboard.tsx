@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -14,11 +15,6 @@ import { apiGetStudent, apiGetNotesForTeacher, StudentResponse, NoteResponse } f
 import { useModal } from '@/components/modal/ModalProvider';
 import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
 import BackButton from '@/components/BackButton';
-
-const RECENT_NOTES = [
-  { id: '1', author: 'Ayoub Parent', authorAr: 'والد أيوب', time: 'Today', timeAr: 'اليوم', text: 'Reviewed last Exam. Please focus more on new TASKS!', avatarBg: '#FFD9B3', initials: 'AP' },
-  { id: '2', author: 'Mr. Ahmad',    authorAr: 'الأستاذ أحمد', time: 'Today', timeAr: 'اليوم', text: 'Modify done. Please review the IEP', avatarBg: '#BBDEFB', initials: 'MA' },
-];
 
 
 export default function TeacherStudentDashboard() {
@@ -48,14 +44,37 @@ export default function TeacherStudentDashboard() {
     }, [load])
   );
 
+  const handleBack = React.useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(teacher)/(tabs)/students');
+  }, [router]);
+
   const ACTION_BUTTONS = [
     { id: 'notes',   label: t('teacher.dashboard.notes',   'Notes'),       icon: '📝', color: '#FFB84C', bg: '#FFF8ED', route: '/(teacher)/notes' },
     { id: 'hw',      label: t('teacher.dashboard.addHW',   'Add H.W'),     icon: '📚', color: '#508DF7', bg: '#EEF4FF', route: '/(teacher)/homework' },
     { id: 'reports', label: t('teacher.dashboard.reports', 'Add Reports'),  icon: '📋', color: '#BA6DE9', bg: '#F5EEFF', route: '/(teacher)/reports' },
   ];
 
-  if (isLoading) return null;
-  if (!student)  return null;
+  if (isLoading) {
+    return (
+      <SafeAreaView style={[styles.safe, styles.centered]}>
+        <ActivityIndicator size="large" color="#508DF7" />
+      </SafeAreaView>
+    );
+  }
+
+  if (!student) {
+    return (
+      <SafeAreaView style={[styles.safe, styles.centered]}>
+        <TouchableOpacity style={styles.fallbackBtn} onPress={handleBack}>
+          <Text style={styles.fallbackBtnText}>{t('teacher.dashboard.backToStudents', 'Back to Students')}</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   const displayName = isRTL ? student.fullNameAr : (student.fullNameEn ?? student.fullNameAr);
   const initials    = (displayName ?? '?').split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
@@ -65,7 +84,7 @@ export default function TeacherStudentDashboard() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={[styles.navBar, isRTL && styles.rowReverse]}>
-        <BackButton onPress={() => router.back()} />
+        <BackButton onPress={handleBack} />
         <Text style={styles.navTitle}>{displayName}</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -86,7 +105,7 @@ export default function TeacherStudentDashboard() {
                 <Text style={styles.avatarText}>{initials}</Text>
               </View>
               <View style={styles.progressInfo}>
-                <Text style={styles.progressName}>{displayName} — {t('teacher.dashboard.progressOf','Progress')}</Text>
+                <Text style={styles.progressName}>{displayName} - {t('teacher.dashboard.progressOf','Progress')}</Text>
                 <View style={styles.tagsRow}>
                   {student.level != null && <View style={styles.tagBlue}><Text style={styles.tagBlueText}>Level {student.level}</Text></View>}
                   {student.learningDifficulty && <View style={styles.tagOrange}><Text style={styles.tagOrangeText}>{String(student.learningDifficulty)}</Text></View>}
@@ -132,12 +151,15 @@ export default function TeacherStudentDashboard() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F5F7FF' },
+  centered: { alignItems: 'center', justifyContent: 'center' },
   scrollContent: { paddingBottom: 32 },
   rowReverse: { flexDirection: 'row-reverse' },
   textRight: { textAlign: 'right' },
 
   navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },
   navTitle: { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
+  fallbackBtn: { backgroundColor: '#508DF7', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 14 },
+  fallbackBtnText: { fontFamily: 'Lexend_700Bold', fontSize: 15, color: '#fff' },
 
   actionsRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 10, marginBottom: 16 },
   actionBtn: { flex: 1, borderRadius: 16, padding: 14, alignItems: 'center', gap: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 2 },
