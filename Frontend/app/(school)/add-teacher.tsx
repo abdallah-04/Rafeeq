@@ -16,14 +16,24 @@ import TextInput from '@/components/modal/shared/TextInput';
 import { theme } from '@/theme';
 import { apiCreateTeacher } from '@/services/api';
 import { useModal } from '@/components/modal/ModalProvider';
+import { useAuthStore } from '@/store/authStore';
 
-const { colors, spacing, radius } = theme;
+const { colors, spacing, radius, typography } = theme;
 
 export default function AddTeacherScreen() {
   const { show } = useModal();
   const { t } = useTranslation();
+  const isRTL = useAuthStore((s) => s.isRTL);
   const [photo,   setPhoto]   = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(school)/teachers' as any);
+  };
 
   const schema = useMemo(() => createAddTeacherSchema(t), [t]);
   const { control, handleSubmit, formState: { errors } } = useForm<AddTeacherForm>({
@@ -65,7 +75,7 @@ export default function AddTeacherScreen() {
 
       <Header
         title={t('addTeacher.title')}
-        onBack={() => router.back()}
+        onBack={handleBack}
       />
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -74,6 +84,10 @@ export default function AddTeacherScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          <Text style={[styles.subtitle, isRTL && styles.textRight]}>
+            {t('addTeacher.subtitle', 'Create a teacher account and connect it to your school.')}
+          </Text>
+
           {/* Photo picker */}
           <TouchableOpacity style={styles.photoCircle} onPress={pickPhoto} activeOpacity={0.7}>
             {photo ? (
@@ -182,10 +196,12 @@ export default function AddTeacherScreen() {
 const styles = StyleSheet.create({
   safe:             { flex: 1, backgroundColor: colors.background },
   container:        { flexGrow: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.xl, alignItems: 'center', gap: spacing.lg },
+  subtitle:         { width: '100%', textAlign: 'center', fontSize: typography.fontSize.sm, color: colors.textSecondary, lineHeight: 20 },
+  textRight:        { textAlign: 'right' },
   photoCircle:      { width: 100, height: 100, borderRadius: 50, backgroundColor: colors.surfaceElevated, borderWidth: 1.5, borderColor: colors.primaryLighter, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   photoImage:       { width: '100%', height: '100%' },
   photoPlaceholder: { alignItems: 'center', gap: 4 },
   photoLabel:       { fontSize: 11, textAlign: 'center' },
-  card:             { width: '100%', backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.md, borderWidth: 1, borderColor: colors.border },
+  card:             { width: '100%', backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.xl, gap: spacing.md, borderWidth: 1, borderColor: colors.border, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 16, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   btn:              { marginTop: spacing.sm },
 });
