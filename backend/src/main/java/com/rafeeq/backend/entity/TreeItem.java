@@ -37,6 +37,18 @@ public class TreeItem {
 
     @Column(name = "order_num")
     private Integer orderNum;
+    
+    @Column(name = "is_locked")
+    private Boolean isLocked = true;
+
+    @Column(name = "is_completed")
+    private Boolean isCompleted = false;
+
+    @Column(name = "group_number")
+    private Integer groupNumber;
+
+    @Column(name = "item_type", length = 20)
+    private String itemType;
 
     @Column(name = "max_points")
     private Integer maxPoints;

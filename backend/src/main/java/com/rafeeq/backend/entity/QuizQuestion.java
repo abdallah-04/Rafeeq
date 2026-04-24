@@ -29,6 +29,21 @@ public class QuizQuestion {
     @Column(name = "question", columnDefinition = "TEXT")
     private String question;
 
+    @Column(name = "question_ar", columnDefinition = "TEXT")
+    private String questionAr;
+
+    @Column(name = "option_1_ar", length = 255)
+    private String option1Ar;
+
+    @Column(name = "option_2_ar", length = 255)
+    private String option2Ar;
+
+    @Column(name = "option_3_ar", length = 255)
+    private String option3Ar;
+
+    @Column(name = "option_4_ar", length = 255)
+    private String option4Ar;
+
     @Column(name = "option_1", columnDefinition = "TEXT")
     private String option1;
 

@@ -35,6 +35,18 @@ public class Homework {
 
     @Column(name = "title_en", length = 255)
     private String titleEn;
+    
+    @Column(name = "description_ar", columnDefinition = "TEXT")
+    private String descriptionAr;
+
+    @Column(name = "description_en", columnDefinition = "TEXT")
+    private String descriptionEn;
+
+    @Column(name = "order_num")
+    private Integer orderNum;
+
+    @Column(name = "group_number")
+private Integer groupNumber;
 
     @Column(name = "start_date")
     private LocalDate startDate;
