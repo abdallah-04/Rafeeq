@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(mkdir -p \"d:/Rafeeq/Frontend/app/\\(school\\)/student\")",
-      "Bash(mkdir -p \"d:/Rafeeq/Frontend/app/\\(school\\)/teacher\")"
-    ]
-  }
-}
