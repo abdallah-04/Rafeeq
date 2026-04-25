@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface HomeworkRepository extends JpaRepository<Homework, UUID> {
+    long countByChildId(UUID childId);
     List<Homework> findByChildId(UUID childId);
     List<Homework> findByChildIdOrderByDueDateAsc(UUID childId);
     List<Homework> findByTeacherId(UUID teacherId);

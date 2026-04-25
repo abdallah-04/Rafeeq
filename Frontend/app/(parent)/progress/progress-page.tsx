@@ -14,11 +14,16 @@ import TabBar from '@/components/modal/shared/TabBar';
 import ProgressCard from '@/components/modal/parent/ProgressCard';
 import ProgressSummary, { SkillItem } from '@/components/modal/parent/ProgressSummary';
 
+type SummaryLevelResponse = {
+  assessedLevel?: number | null;
+  level?: number | null;
+};
+
 export default function ProgressScreen() {
   const { t } = useTranslation();
   const activeChild = useActiveChildStore((s) => s.activeChild);
   const [activeTab, setActiveTab] = useState('');
-  const [assessedLevel, setAssessedLevel] = useState<number | null>(null);
+  const [summaryLevel, setSummaryLevel] = useState<number | null>(null);
 
   const tabs = useMemo(
     () => [
@@ -34,18 +39,47 @@ export default function ProgressScreen() {
     setActiveTab(tabs[0]);
   }, [tabs]);
 
+  const childLevel = activeChild?.assessedLevel ?? activeChild?.level ?? null;
+
   useEffect(() => {
-    if (!activeChild) return;
+    if (!activeChild) {
+      setSummaryLevel(null);
+      return;
+    }
+
+    if (childLevel !== null) {
+      setSummaryLevel(null);
+      return;
+    }
+
+    let cancelled = false;
+
     apiGetChildSummary(activeChild.id)
-      .then((s) => setAssessedLevel(s.assessedLevel))
-      .catch(() => {});
-  }, [activeChild?.id]);
+      .then((s) => {
+        if (!cancelled) {
+          const fetchedLevel =
+            (s as SummaryLevelResponse).assessedLevel ??
+            (s as SummaryLevelResponse).level ??
+            null;
+          setSummaryLevel(fetchedLevel);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSummaryLevel(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeChild?.id, childLevel]);
 
   const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? '—';
   const childAge = activeChild?.dateOfBirth
     ? Math.floor((Date.now() - new Date(activeChild.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365))
     : 0;
-  const level = assessedLevel ?? activeChild?.level ?? activeChild?.assessedLevel ?? null;
+  const level = childLevel ?? summaryLevel;
   const levelPct = level ? Math.min(level * 20, 100) : 0;
   const skills: SkillItem[] = level
     ? [{ label: t('progress.assessedLevel', 'Assessed Level'), percentage: levelPct, color: '#5B8DEF' }]

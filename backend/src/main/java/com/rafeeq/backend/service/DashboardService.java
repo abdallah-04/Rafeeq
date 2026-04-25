@@ -5,9 +5,12 @@ import com.rafeeq.backend.entity.ChildProfile;
 import com.rafeeq.backend.entity.Parent;
 import com.rafeeq.backend.entity.Teacher;
 import com.rafeeq.backend.entity_enums.ChildStatus;
+import com.rafeeq.backend.repository.ActivityRepository;
 import com.rafeeq.backend.repository.ChildProfileRepository;
+import com.rafeeq.backend.repository.HomeworkRepository;
 import com.rafeeq.backend.repository.NotificationRepository;
 import com.rafeeq.backend.repository.ParentRepository;
+import com.rafeeq.backend.repository.QuizRepository;
 import com.rafeeq.backend.repository.SchoolRepository;
 import com.rafeeq.backend.repository.TeacherRepository;
 import com.rafeeq.backend.repository.UserRepository;
@@ -30,6 +33,9 @@ public class DashboardService {
     private final SchoolRepository schoolRepository;
     private final ChildProfileRepository childProfileRepository;
     private final NotificationRepository notificationRepository;
+    private final QuizRepository quizRepository;
+    private final HomeworkRepository homeworkRepository;
+    private final ActivityRepository activityRepository;
 
     public Map<String, Object> teacher(String nationalId) {
 
@@ -113,9 +119,9 @@ public class DashboardService {
     }
 
     private int estimateProgress(ChildProfile child) {
-        int quizzesCount = child.getQuizzes() != null ? child.getQuizzes().size() : 0;
-        int homeworksCount = child.getHomeworks() != null ? child.getHomeworks().size() : 0;
-        int activitiesCount = child.getActivities() != null ? child.getActivities().size() : 0;
+        int quizzesCount = Math.toIntExact(quizRepository.countByChildId(child.getId()));
+        int homeworksCount = Math.toIntExact(homeworkRepository.countByChildId(child.getId()));
+        int activitiesCount = Math.toIntExact(activityRepository.countByChildId(child.getId()));
         int total = quizzesCount + homeworksCount + activitiesCount;
         return total > 0 ? Math.min(100, total * 10) : 0;
     }

@@ -8,6 +8,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '@/i18n';
+import { useAuthStore } from '@/store/authStore';
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const API_BASE_URL =
@@ -24,18 +25,6 @@ function getApiBaseUrl(): string {
 }
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
-
-/** Read the persisted Zustand auth store from AsyncStorage and return the token */
-async function getToken(): Promise<string | null> {
-  try {
-    const raw = await AsyncStorage.getItem('rafeeq-auth-storage');
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return parsed?.state?.token ?? null;
-  } catch {
-    return null;
-  }
-}
 
 /** Read the persisted Zustand auth store and return the refreshToken */
 async function getRefreshToken(): Promise<string | null> {
@@ -73,7 +62,7 @@ async function request<T>(
   };
 
   if (auth) {
-    const token = await getToken();
+    const token = useAuthStore.getState().token;
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }

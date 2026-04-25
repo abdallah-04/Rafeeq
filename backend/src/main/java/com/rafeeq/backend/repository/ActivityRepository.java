@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ActivityRepository extends JpaRepository<Activity, UUID> {
+    long countByChildId(UUID childId);
     List<Activity> findByChildId(UUID childId);
     List<Activity> findByTreeId(UUID treeId);
     List<Activity> findByChildIdAndStatus(UUID childId, String status);

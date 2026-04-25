@@ -13,8 +13,11 @@ import com.rafeeq.backend.entity.Parent;
 import com.rafeeq.backend.entity.User;
 import com.rafeeq.backend.entity_enums.ChildStatus;
 import com.rafeeq.backend.entity_enums.UserRole;
+import com.rafeeq.backend.repository.ActivityRepository;
 import com.rafeeq.backend.repository.ChildProfileRepository;
+import com.rafeeq.backend.repository.HomeworkRepository;
 import com.rafeeq.backend.repository.ParentRepository;
+import com.rafeeq.backend.repository.QuizRepository;
 import com.rafeeq.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,9 @@ public class ChildService {
     private final ChildProfileRepository childProfileRepository;
     private final ParentRepository parentRepository;
     private final UserRepository userRepository;
+    private final QuizRepository quizRepository;
+    private final HomeworkRepository homeworkRepository;
+    private final ActivityRepository activityRepository;
 
     public List<ChildResponse> getMyChildren(String nationalId) {
         Parent parent = getCurrentParent(nationalId);
@@ -106,9 +112,9 @@ public class ChildService {
     public ChildSummaryResponse getChildSummary(UUID childId, String nationalId) {
         ChildProfile child = getLinkedChild(childId, nationalId);
 
-        int quizzesCount = child.getQuizzes() != null ? child.getQuizzes().size() : 0;
-        int homeworksCount = child.getHomeworks() != null ? child.getHomeworks().size() : 0;
-        int activitiesCount = child.getActivities() != null ? child.getActivities().size() : 0;
+        int quizzesCount = Math.toIntExact(quizRepository.countByChildId(child.getId()));
+        int homeworksCount = Math.toIntExact(homeworkRepository.countByChildId(child.getId()));
+        int activitiesCount = Math.toIntExact(activityRepository.countByChildId(child.getId()));
 
         int progressPercentage = 0;
         int total = quizzesCount + homeworksCount + activitiesCount;
