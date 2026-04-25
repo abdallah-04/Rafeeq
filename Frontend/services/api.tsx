@@ -1,7 +1,8 @@
 // services/api.tsx
 // ─────────────────────────────────────────────────────────────────────────────
 //  FULLY WIRED — all functions call the real Spring Boot backend.
-//  Set EXPO_PUBLIC_API_BASE_URL in your .env (e.g. http://192.168.x.x:8080)
+//  Set EXPO_PUBLIC_API_BASE_URL in your .env for local dev and in EAS build envs
+//  for standalone APK/AAB builds.
 //  Auth token is read from the Zustand authStore via AsyncStorage.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -10,7 +11,17 @@ import i18n from '@/i18n';
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const API_BASE_URL =
-  (process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '');
+  process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/$/, '') ?? '';
+
+function getApiBaseUrl(): string {
+  if (!API_BASE_URL) {
+    throw new Error(
+      'Missing EXPO_PUBLIC_API_BASE_URL. Configure it in local .env and EAS build envs before building the app.'
+    );
+  }
+
+  return API_BASE_URL;
+}
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
 
@@ -68,7 +79,7 @@ async function request<T>(
     }
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(`${getApiBaseUrl()}${path}`, {
     method,
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,

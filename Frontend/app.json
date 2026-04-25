@@ -4,7 +4,7 @@
     "slug": "rafeeq",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+   
     "scheme": "borrowbooks",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -16,10 +16,7 @@
       "supportsTablet": true
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#E6F4FE"
-      },
+      
       "predictiveBackGestureEnabled": false,
       "package": "com.abdallah.ammanlibrary"
     },
@@ -41,8 +38,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "bcc9754a-427f-4689-959b-b68e8f8d4ff1"
+        "projectId": "4c7b6c51-8e1d-4397-83c4-ab12f99696a8"
       }
-    }
+    },
+    "owner": "gumball04"
   }
 }

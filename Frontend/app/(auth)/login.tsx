@@ -89,6 +89,7 @@ export default function LoginScreen() {
       else router.replace('/(parent)/' as any);
 
     } catch (err: any) {
+      console.error('Login failed', err);
       show('error', { variant: 'invalidInfo' });
     } finally {
       setIsLoading(false);
