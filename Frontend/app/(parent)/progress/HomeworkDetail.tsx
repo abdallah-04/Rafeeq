@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { theme } from '@/theme'
 import { useTranslation } from 'react-i18next'
 import { Text } from '@/components/modal/shared/Text'
@@ -12,6 +13,7 @@ import { apiGetHomeworkDetail, HomeworkResponse } from '@/services/api'
 
 export default function HomeworkDetail() {
   const { t, i18n } = useTranslation()
+  const insets = useSafeAreaInsets()
   const params = useLocalSearchParams<{ homeworkId?: string }>()
   const homeworkId = Array.isArray(params.homeworkId) ? params.homeworkId[0] : params.homeworkId
   const [homework, setHomework] = useState<HomeworkResponse | null>(null)
@@ -60,10 +62,13 @@ export default function HomeworkDetail() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <Header title={t('homework.title')} onBack={handleBack} />
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}
+        showsVerticalScrollIndicator={false}
+      >
         {loading ? <ActivityIndicator color={theme.colors.primary} /> : null}
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -93,7 +98,7 @@ export default function HomeworkDetail() {
       </ScrollView>
 
       <BottomNav />
-    </View>
+    </SafeAreaView>
   )
 }
 

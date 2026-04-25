@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { theme } from '@/theme'
 import { useTranslation } from 'react-i18next'
 import BackButton from '@/components/modal/shared/BackButton'
@@ -38,6 +38,7 @@ function statusLabel(status: string, t: ReturnType<typeof useTranslation>['t']) 
 
 export default function TreeScreen() {
   const { t } = useTranslation()
+  const insets = useSafeAreaInsets()
   const activeChild = useActiveChildStore((s) => s.activeChild)
   const [tree, setTree] = useState<LearningTreeResponse | null>(null)
   const [items, setItems] = useState<TreeItemResponse[]>([])
@@ -106,7 +107,7 @@ export default function TreeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar style="dark" />
 
       <View style={styles.header}>
@@ -117,7 +118,11 @@ export default function TreeScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.content, { paddingBottom: spacing['2xl'] + insets.bottom }]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>
             {tree?.topic ?? t('tree.noTopic', 'Learning Tree')}
@@ -221,7 +226,6 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   content: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing['2xl'],
     gap: spacing.md,
   },
   summaryCard: {

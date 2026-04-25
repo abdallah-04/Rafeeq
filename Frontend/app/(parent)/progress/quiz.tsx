@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, TouchableOpacity, ScrollView, StatusBar, StyleSheet, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '@/theme';
 
 import ScreenWrapper from '@/components/modal/shared/ScreenWap';
@@ -23,6 +24,7 @@ function toBadgeVariant(status: string): BadgeVariant {
 
 export default function QuizzesScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const tabs = useMemo(
     () => [
       t('progress.tabs.progress', 'Progress'),
@@ -124,7 +126,10 @@ export default function QuizzesScreen() {
 
       <TabBar tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: theme.spacing.xl + insets.bottom }]}
+      >
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>✏️ {t('progress.tabs.quizzes', "This week's quizzes")}</Text>
         </View>

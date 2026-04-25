@@ -11,7 +11,7 @@ import {
   Modal,
   Pressable,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -184,6 +184,7 @@ export default function ChatbotScreen() {
   const { t } = useTranslation();
   const isRTL = useAuthStore((s) => s.isRTL);
   const { messages, isTyping, sendMessage } = useChatStore();
+  const insets = useSafeAreaInsets();
 
   const [inputText, setInputText] = useState('');
   const [showAttach, setShowAttach] = useState(false);
@@ -191,6 +192,14 @@ export default function ChatbotScreen() {
   const listRef = useRef<FlatList>(null);
 
   const isEmpty = messages.length === 0 && !isTyping;
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(parent)/Home-parent' as any);
+  };
 
   const handleSend = () => {
     const text = inputText.trim();
@@ -214,20 +223,22 @@ export default function ChatbotScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar style="dark" />
 
       <View style={styles.topBar}>
-      <BackButton onPress={() => router.back()} />
-      <Text style={styles.topTitle}>
-        {t('chatbot.title').replace(' Assistant', '')}
-      </Text>
-      <View style={styles.side} />
-    </View>
+        <BackButton onPress={handleBack} />
+        <View style={styles.titleWrap}>
+          <Text style={styles.topTitle}>
+            {t('chatbot.title').replace(' Assistant', '')}
+          </Text>
+        </View>
+        <View style={styles.side} />
+      </View>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
       >
         {isEmpty ? (
           <View style={styles.emptyState}>
@@ -351,10 +362,13 @@ topBar: {
   borderBottomColor: colors.border,
 },
 
+titleWrap: {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
 topTitle: {
-  position: 'absolute',
-  left: 0,
-  right: 0,
   textAlign: 'center',
   fontSize: typography.fontSize.lg,
   fontFamily: typography.fontFamily.bold,

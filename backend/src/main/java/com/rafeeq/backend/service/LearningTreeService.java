@@ -459,9 +459,6 @@ public class LearningTreeService {
             quizRepository.findById(item.getItemId()).ifPresent(quiz -> {
                 quiz.setStatus(ITEM_STATUS_COMPLETED);
                 quiz.setCompletedAt(completedAt);
-                if (quiz.getScore() == null) {
-                    quiz.setScore(item.getEarnedPoints());
-                }
                 quizRepository.save(quiz);
             });
         }

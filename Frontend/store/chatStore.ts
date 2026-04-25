@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import i18n from '@/i18n';
 import { apiSendChatMessage } from '@/services/api';
 import { useActiveChildStore } from '@/store/activeChildStore';
 
@@ -16,6 +15,17 @@ interface ChatStore {
   isTyping: boolean;
   sendMessage: (text: string, attachment?: ChatMessage['attachment']) => Promise<void>;
   clearChat: () => void;
+}
+
+function detectMessageLanguage(text: string): 'ar' | 'en' {
+  const arabicMatches = text.match(/[\u0600-\u06FF]/g)?.length ?? 0;
+  const latinMatches = text.match(/[A-Za-z]/g)?.length ?? 0;
+
+  if (arabicMatches > latinMatches) {
+    return 'ar';
+  }
+
+  return 'en';
 }
 
 function formatTimestamp(): string {
@@ -61,8 +71,9 @@ export const useChatStore = create<ChatStore>((set) => ({
         isTyping: false,
       }));
     } catch (error) {
+      const fallbackLanguage = detectMessageLanguage(text);
       const fallback =
-        i18n.language === 'ar'
+        fallbackLanguage === 'ar'
           ? 'تعذر الوصول إلى المساعد الآن. يرجى المحاولة مرة أخرى بعد قليل.'
           : 'I could not reach the assistant right now. Please try again in a moment.';
 

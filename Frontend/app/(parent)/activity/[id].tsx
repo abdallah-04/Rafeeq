@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 
 import Header from '@/components/modal/shared/Header'
@@ -12,6 +13,7 @@ import { theme } from '@/theme'
 
 export default function ActivityDetailScreen() {
   const { t } = useTranslation()
+  const insets = useSafeAreaInsets()
   const params = useLocalSearchParams<{ id?: string }>()
   const activityId = Array.isArray(params.id) ? params.id[0] : params.id
   const [activity, setActivity] = useState<ActivityResponse | null>(null)
@@ -60,10 +62,13 @@ export default function ActivityDetailScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <Header title={t('activities.title', 'Activities')} onBack={handleBack} />
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}
+        showsVerticalScrollIndicator={false}
+      >
         {loading ? <ActivityIndicator color={theme.colors.primary} /> : null}
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -94,7 +99,7 @@ export default function ActivityDetailScreen() {
       </ScrollView>
 
       <BottomNav />
-    </View>
+    </SafeAreaView>
   )
 }
 
