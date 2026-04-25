@@ -7,6 +7,7 @@ import {
     StyleSheet,
     ImageSourcePropType,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { theme } from '@/theme'
 import StatusBadge, { BadgeVariant } from '@/components/modal/parent/StatusBadge'
 
@@ -17,6 +18,7 @@ interface QuizCardProps {
     title: string
     questionsCount: number
     durationMinutes: number
+    metaText?: string
     status: BadgeVariant
     onPress: () => void
 }
@@ -28,9 +30,12 @@ export default function QuizCard({
     title,
     questionsCount,
     durationMinutes,
+    metaText,
     status,
     onPress,
     }: QuizCardProps) {
+    const { t } = useTranslation()
+
     return (
         <TouchableOpacity
         style={styles.card}
@@ -48,10 +53,13 @@ export default function QuizCard({
             {title}
             </Text>
             <Text style={styles.meta}>
-            {questionsCount} questions · {durationMinutes} mins
+            {metaText ?? t('quiz.meta', {
+                count: questionsCount,
+                minutes: durationMinutes,
+                defaultValue: `${questionsCount} questions · ${durationMinutes} mins`,
+            })}
             </Text>
         </View>
-
 
         <StatusBadge variant={status} />
         </TouchableOpacity>
@@ -95,7 +103,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Lexend_700Bold',
         fontWeight: '700',
         color: theme.colors.textPrimary,
-    },  
+    },
     meta: {
         fontSize: 12,
         fontFamily: 'Lexend_400Regular',

@@ -30,24 +30,36 @@ public class HomeworkController {
     @GetMapping("/teacher/{childId}")
     public ResponseEntity<List<HomeworkResponse>> getTeacherHomework(
             @PathVariable UUID childId,
+            @RequestHeader(value = "Accept-Language", required = false) String acceptLanguage,
             Authentication auth
     ) {
-        return ResponseEntity.ok(homeworkService.getTeacherHomework(childId, auth.getName()));
+        return ResponseEntity.ok(homeworkService.getTeacherHomework(childId, auth.getName(), acceptLanguage));
     }
 
     @GetMapping("/parent/{childId}")
     public ResponseEntity<List<HomeworkResponse>> getParentHomework(
             @PathVariable UUID childId,
+            @RequestHeader(value = "Accept-Language", required = false) String acceptLanguage,
             Authentication auth
     ) {
-        return ResponseEntity.ok(homeworkService.getParentHomework(childId, auth.getName()));
+        return ResponseEntity.ok(homeworkService.getParentHomework(childId, auth.getName(), acceptLanguage));
     }
 
     @GetMapping("/school/{childId}")
     public ResponseEntity<List<HomeworkResponse>> getSchoolHomework(
             @PathVariable UUID childId,
+            @RequestHeader(value = "Accept-Language", required = false) String acceptLanguage,
             Authentication auth
     ) {
-        return ResponseEntity.ok(homeworkService.getSchoolHomework(childId, auth.getName()));
+        return ResponseEntity.ok(homeworkService.getSchoolHomework(childId, auth.getName(), acceptLanguage));
+    }
+
+    @GetMapping("/details/{homeworkId}")
+    public ResponseEntity<HomeworkResponse> getHomeworkDetail(
+            @PathVariable UUID homeworkId,
+            @RequestHeader(value = "Accept-Language", required = false) String acceptLanguage,
+            Authentication auth
+    ) {
+        return ResponseEntity.ok(homeworkService.getHomeworkDetail(homeworkId, auth.getName(), acceptLanguage));
     }
 }

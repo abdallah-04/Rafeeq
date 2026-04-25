@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
+import { useTranslation } from 'react-i18next'
 
 export type BadgeVariant =
     | 'repeat'
@@ -17,8 +18,8 @@ const BADGE_CONFIG: Record<
     BadgeVariant,
     { label: string; bg: string; text: string }
     > = {
-    repeat:      { label: '⟳ Repeat',    bg: '#D1FAE5', text: '#059669' },
-    start:       { label: '▶ Start',      bg: '#DBEAFE', text: '#2563EB' },
+    repeat:      { label: 'Repeat',       bg: '#D1FAE5', text: '#059669' },
+    start:       { label: 'Start',        bg: '#DBEAFE', text: '#2563EB' },
     completed:   { label: 'Completed',    bg: '#D1FAE5', text: '#059669' },
     in_progress: { label: 'In progress',  bg: '#DBEAFE', text: '#2563EB' },
     new:         { label: 'New',          bg: '#FEF3C7', text: '#D97706' },
@@ -26,12 +27,13 @@ const BADGE_CONFIG: Record<
 }
 
 export default function StatusBadge({ variant }: StatusBadgeProps) {
+    const { t } = useTranslation()
     const config = BADGE_CONFIG[variant]
 
     return (
         <View style={[styles.badge, { backgroundColor: config.bg }]}>
         <Text style={[styles.label, { color: config.text }]}>
-            {config.label}
+            {t(`statusBadge.${variant}`, config.label)}
         </Text>
         </View>
     )

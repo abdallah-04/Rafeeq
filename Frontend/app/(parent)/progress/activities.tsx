@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, Image, StyleSheet, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, StyleSheet, StatusBar, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { theme } from '@/theme';
 import { useTranslation } from 'react-i18next';
@@ -9,64 +9,15 @@ import Header from '@/components/modal/shared/Header';
 import ChildSelector from '@/components/modal/parent/ChildSelector';
 import TabBar from '@/components/modal/shared/TabBar';
 import { Text } from '@/components/modal/shared/Text';
-import StatusBadge from '@/components/modal/parent/StatusBadge';
+import StatusBadge, { BadgeVariant } from '@/components/modal/parent/StatusBadge';
 import { useActiveChildStore } from '@/store/activeChildStore';
+import { ActivityResponse, apiGetActivities } from '@/services/api';
 
-interface RecommendedActivity {
-  id: string;
-  title: string;
-  icon: any;
-  iconTintColor: string;
-  durationMinutes: number;
+function toBadgeVariant(status: string): BadgeVariant {
+  if (status?.toLowerCase() === 'completed') return 'completed';
+  if (status?.toLowerCase() === 'in_progress') return 'in_progress';
+  return 'later';
 }
-
-interface DailyActivity {
-  id: string;
-  title: string;
-  subtitle: string;
-  icon: any;
-  iconBgColor: string;
-  iconTintColor: string;
-  status: 'completed' | 'later' | 'new' | 'in_progress';
-}
-
-const RECOMMENDED: RecommendedActivity[] = [
-  {
-    id: '1',
-    title: 'Free drawing',
-    icon: require('@/assets/images/icons/color.png'),
-    iconTintColor: '#7C3AED',
-    durationMinutes: 10,
-  },
-  {
-    id: '2',
-    title: 'Interactive puzzle',
-    icon: require('@/assets/images/icons/shapes.png'),
-    iconTintColor: '#7C3AED',
-    durationMinutes: 23,
-  },
-];
-
-const DAILY_ACTIVITIES: DailyActivity[] = [
-  {
-    id: '1',
-    title: 'Breathing exercise',
-    subtitle: 'With parents · Morning',
-    icon: require('@/assets/images/icons/growth.png'),
-    iconBgColor: '#BBF7D0',
-    iconTintColor: '#00C688',
-    status: 'completed',
-  },
-  {
-    id: '2',
-    title: 'Social play',
-    subtitle: 'With friends · Evening',
-    icon: require('@/assets/images/icons/influencer.png'),
-    iconBgColor: '#FDE68A',
-    iconTintColor: '#D97706',
-    status: 'later',
-  },
-];
 
 export default function ActivitiesScreen() {
   const { t, i18n } = useTranslation();
@@ -91,6 +42,44 @@ export default function ActivitiesScreen() {
     [t]
   );
   const [activeTab, setActiveTab] = useState(tabs[2]);
+  const [activities, setActivities] = useState<ActivityResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!activeChild?.id) {
+      setActivities([]);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    apiGetActivities(activeChild.id)
+      .then((data) => {
+        if (!cancelled) {
+          setActivities(data);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : t('common.error', 'Something went wrong'));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeChild?.id, t]);
+
+  const recommended = activities.filter((item) => item.status?.toLowerCase() !== 'completed').slice(0, 2);
 
   const handleBack = () => {
     if (router.canGoBack()) {
@@ -140,12 +129,13 @@ export default function ActivitiesScreen() {
         <Text variant="heading" style={[styles.sectionTitle, isRTL && styles.textRight]}>
           ☆ {t('activities.recommendedFor', { name: childName })}
         </Text>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendedList}>
-          {RECOMMENDED.map((item) => (
+          {recommended.map((item) => (
             <RecommendedCard
               key={item.id}
-              item={item}
-              minsLabel={t('activities.mins', { count: item.durationMinutes })}
+              title={item.title}
+              description={item.description ?? t('activities.title')}
               onPress={() => router.push(`/(parent)/activity/${item.id}` as any)}
             />
           ))}
@@ -153,15 +143,27 @@ export default function ActivitiesScreen() {
 
         <View style={[styles.sectionHeader, isRTL && styles.sectionHeaderRTL]}>
           <Text variant="heading" style={[styles.sectionTitle, isRTL && styles.textRight]}>
-            🏃 {t('activities.daily')}
+            🏃 {t('activities.daily', 'Daily activities')}
           </Text>
-          <TouchableOpacity onPress={() => router.push('/(parent)/activities-all' as any)}>
-            <Text style={styles.seeAll}>{t('common.seeAll')}</Text>
-          </TouchableOpacity>
         </View>
 
-        {DAILY_ACTIVITIES.map((item) => (
-          <DailyCard key={item.id} item={item} isRTL={isRTL} onPress={() => router.push(`/(parent)/activity/${item.id}` as any)} />
+        {isLoading ? <ActivityIndicator color={theme.colors.primary} style={styles.centered} /> : null}
+        {error ? <Text style={styles.messageText}>{error}</Text> : null}
+        {!isLoading && !error && activities.length === 0 ? (
+          <Text style={styles.messageText}>
+            {t('activities.emptyState', 'No activities available for this child yet.')}
+          </Text>
+        ) : null}
+
+        {activities.map((item) => (
+          <DailyCard
+            key={item.id}
+            title={item.title}
+            subtitle={item.instructions ?? item.description ?? t('activities.title')}
+            status={toBadgeVariant(item.status)}
+            isRTL={isRTL}
+            onPress={() => router.push(`/(parent)/activity/${item.id}` as any)}
+          />
         ))}
       </ScrollView>
     </ScreenWrapper>
@@ -169,34 +171,46 @@ export default function ActivitiesScreen() {
 }
 
 function RecommendedCard({
-  item,
-  minsLabel,
+  title,
+  description,
   onPress,
 }: {
-  item: RecommendedActivity;
-  minsLabel: string;
+  title: string;
+  description: string;
   onPress: () => void;
 }) {
   return (
     <TouchableOpacity style={styles.recommendedCard} onPress={onPress} activeOpacity={0.7}>
-      <Image source={item.icon} style={[styles.recommendedIcon, { tintColor: item.iconTintColor }]} resizeMode="contain" />
-      <Text style={styles.recommendedTitle}>{item.title}</Text>
-      <Text style={styles.recommendedMeta}>· {minsLabel}</Text>
+      <Text style={styles.recommendedEmoji}>🎨</Text>
+      <Text style={styles.recommendedTitle}>{title}</Text>
+      <Text style={styles.recommendedMeta} numberOfLines={3}>{description}</Text>
     </TouchableOpacity>
   );
 }
 
-function DailyCard({ item, onPress, isRTL }: { item: DailyActivity; onPress: () => void; isRTL: boolean }) {
+function DailyCard({
+  title,
+  subtitle,
+  status,
+  onPress,
+  isRTL,
+}: {
+  title: string;
+  subtitle: string;
+  status: BadgeVariant;
+  onPress: () => void;
+  isRTL: boolean;
+}) {
   return (
     <TouchableOpacity style={[styles.dailyCard, isRTL && styles.dailyCardRTL]} onPress={onPress} activeOpacity={0.7}>
-      <View style={[styles.dailyIconBox, { backgroundColor: item.iconBgColor }]}>
-        <Image source={item.icon} style={[styles.dailyIcon, { tintColor: item.iconTintColor }]} resizeMode="contain" />
+      <View style={styles.dailyIconBox}>
+        <Text style={styles.dailyIcon}>🧩</Text>
       </View>
       <View style={styles.dailyInfo}>
-        <Text style={[styles.dailyTitle, isRTL && styles.textRight]}>{item.title}</Text>
-        <Text style={[styles.dailySubtitle, isRTL && styles.textRight]}>{item.subtitle}</Text>
+        <Text style={[styles.dailyTitle, isRTL && styles.textRight]}>{title}</Text>
+        <Text style={[styles.dailySubtitle, isRTL && styles.textRight]} numberOfLines={2}>{subtitle}</Text>
       </View>
-      <StatusBadge variant={item.status} />
+      <StatusBadge variant={status} />
     </TouchableOpacity>
   );
 }
@@ -233,38 +247,31 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_700Bold',
     color: theme.colors.textPrimary,
   },
-  seeAll: {
-    fontSize: 13,
-    fontFamily: 'Lexend_400Regular',
-    color: theme.colors.primary,
-  },
   recommendedList: {
     gap: theme.spacing.md,
     paddingBottom: theme.spacing.sm,
   },
   recommendedCard: {
-    width: 140,
+    width: 180,
     backgroundColor: '#EDE9FE',
     borderRadius: theme.radius.lg,
     padding: theme.spacing.md,
     gap: theme.spacing.sm,
-    justifyContent: 'flex-end',
-    minHeight: 130,
+    minHeight: 160,
   },
-  recommendedIcon: {
-    width: 40,
-    height: 40,
-    marginBottom: 'auto',
+  recommendedEmoji: {
+    fontSize: 28,
   },
   recommendedTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: 'Lexend_700Bold',
     color: theme.colors.textPrimary,
   },
   recommendedMeta: {
     fontSize: 12,
     fontFamily: 'Lexend_400Regular',
-    color: theme.colors.textMuted,
+    color: theme.colors.textSecondary,
+    lineHeight: 18,
   },
   dailyCard: {
     flexDirection: 'row',
@@ -272,14 +279,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.white,
     borderRadius: theme.radius.lg,
     padding: theme.spacing.md,
+    gap: theme.spacing.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    gap: theme.spacing.md,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
   },
   dailyCardRTL: {
     flexDirection: 'row-reverse',
@@ -290,10 +292,10 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.md,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#EEF4FF',
   },
   dailyIcon: {
-    width: 30,
-    height: 30,
+    fontSize: 24,
   },
   dailyInfo: {
     flex: 1,
@@ -307,7 +309,8 @@ const styles = StyleSheet.create({
   dailySubtitle: {
     fontSize: 12,
     fontFamily: 'Lexend_400Regular',
-    color: theme.colors.textMuted,
+    color: theme.colors.textSecondary,
+    lineHeight: 18,
   },
   settingsBtn: {
     width: 36,
@@ -316,4 +319,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   settingsIcon: { fontSize: 20 },
+  centered: { marginVertical: theme.spacing.md },
+  messageText: {
+    textAlign: 'center',
+    color: theme.colors.textSecondary,
+    marginVertical: theme.spacing.md,
+    fontFamily: theme.typography.fontFamily.medium,
+  },
 });

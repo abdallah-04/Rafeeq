@@ -74,11 +74,14 @@ export default function ProgressReport() {
   };
 
   const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? '—';
-  const level = summary?.assessedLevel ?? activeChild?.level ?? null;
+  const level = activeChild?.assessedLevel ?? summary?.level ?? activeChild?.level ?? null;
   const levelPct = level ? Math.min(level * 20, 100) : 0;
   const skills = level
     ? [{ label: t('schoolPage.progress.assessedLevel', 'Assessed Level'), percentage: levelPct, color: '#3B82F6' }]
     : [];
+  const bannerSubtitle = summary
+    ? t('schoolPage.progress.progressValue', { defaultValue: 'Progress {{value}}%', value: summary.progressPercentage })
+    : t('schoolPage.progress.semester');
 
   return (
     <ScreenWrapper padded={false} scroll={false}>
@@ -108,7 +111,7 @@ export default function ProgressReport() {
               <View style={styles.bannerBody}>
                 <Text style={[styles.bannerTitle, isRTL && styles.textRTL]}>{t('schoolPage.progress.overall')}</Text>
                 <Text style={[styles.bannerSub, isRTL && styles.textRTL]}>
-                  {summary?.status ?? t('schoolPage.progress.semester')}
+                  {bannerSubtitle}
                 </Text>
               </View>
               <Text style={styles.percentageText}>{level ? `L${level}` : '—'}</Text>

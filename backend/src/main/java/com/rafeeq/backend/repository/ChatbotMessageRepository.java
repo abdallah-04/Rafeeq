@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface ChatbotMessageRepository extends JpaRepository<ChatbotMessage, UUID> {
     List<ChatbotMessage> findBySessionIdOrderByCreatedAtAsc(UUID sessionId);
+    List<ChatbotMessage> findTop12BySessionIdOrderByCreatedAtDesc(UUID sessionId);
 }

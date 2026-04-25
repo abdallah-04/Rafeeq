@@ -1,5 +1,6 @@
 package com.rafeeq.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,10 +22,12 @@ public class TreeItem {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "tree_id", nullable = false)
     private LearningTree tree;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_type_id")
     private ContentType contentType;
@@ -37,6 +40,18 @@ public class TreeItem {
 
     @Column(name = "order_num")
     private Integer orderNum;
+
+    @Column(name = "is_locked")
+    private Boolean isLocked;
+
+    @Column(name = "is_completed")
+    private Boolean isCompleted;
+
+    @Column(name = "group_number")
+    private Integer groupNumber;
+
+    @Column(name = "item_type", length = 50)
+    private String itemType;
 
     @Column(name = "max_points")
     private Integer maxPoints;
@@ -51,6 +66,15 @@ public class TreeItem {
     public void prePersist() {
         if (id == null) {
             id = UUID.randomUUID();
+        }
+        if (isLocked == null) {
+            isLocked = Boolean.TRUE;
+        }
+        if (isCompleted == null) {
+            isCompleted = Boolean.FALSE;
+        }
+        if (earnedPoints == null) {
+            earnedPoints = 0;
         }
     }
 }

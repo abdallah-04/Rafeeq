@@ -20,6 +20,8 @@ import com.rafeeq.backend.repository.ChildProfileRepository;
 import com.rafeeq.backend.repository.TeacherRepository;
 import com.rafeeq.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,12 +33,15 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class PlacementAssessmentService {
 
+    private static final Logger log = LoggerFactory.getLogger(PlacementAssessmentService.class);
+
     private final UserRepository userRepository;
     private final TeacherRepository teacherRepository;
     private final ChildProfileRepository childProfileRepository;
     private final AssessmentQuestionRepository assessmentQuestionRepository;
     private final ChildAssessmentRepository childAssessmentRepository;
     private final ChildAssessmentAnswerRepository childAssessmentAnswerRepository;
+    private final LearningTreeService learningTreeService;
 
     public PlacementAssessmentResponse getPlacementAssessment(UUID childId, String nationalId) {
         Teacher teacher = getCurrentTeacher(nationalId);
@@ -121,6 +126,12 @@ public class PlacementAssessmentService {
         child.setPlacementCompletedAt(LocalDateTime.now());
         if (child.getUser() != null) {
             child.getUser().setIsActive(true);
+        }
+
+        try {
+            learningTreeService.generateTreeAfterPlacement(child);
+        } catch (RuntimeException ex) {
+            log.warn("Learning tree generation was not completed after placement for child {}", child.getId(), ex);
         }
 
         int confidencePercentage = (int) Math.round((correctAnswers * 100.0) / questions.size());

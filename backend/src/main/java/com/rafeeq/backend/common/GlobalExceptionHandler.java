@@ -1,5 +1,7 @@
 package com.rafeeq.backend.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiErrorResponse> handleBadRequest(BadRequestException ex) {
@@ -39,6 +43,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleConflict(ConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new ApiErrorResponse(false, ex.getMessage(), "CONFLICT", LocalDateTime.now())
+        );
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ApiErrorResponse> handleServiceUnavailable(ServiceUnavailableException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
+                new ApiErrorResponse(false, ex.getMessage(), "SERVICE_UNAVAILABLE", LocalDateTime.now())
         );
     }
 
@@ -73,6 +84,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiErrorResponse> handleRuntime(RuntimeException ex) {
+        log.warn("Runtime exception handled", ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new ApiErrorResponse(false, ex.getMessage(), "RUNTIME_ERROR", LocalDateTime.now())
         );
@@ -80,6 +92,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGeneral(Exception ex) {
+        log.error("Unhandled exception", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 new ApiErrorResponse(false, "Something went wrong", "INTERNAL_SERVER_ERROR", LocalDateTime.now())
         );

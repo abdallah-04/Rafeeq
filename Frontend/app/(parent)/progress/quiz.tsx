@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, TouchableOpacity, ScrollView, StatusBar, StyleSheet } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, TouchableOpacity, ScrollView, StatusBar, StyleSheet, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { theme } from '@/theme';
 
@@ -11,50 +11,15 @@ import QuizCard from '@/components/modal/parent/quizcard';
 import { useActiveChildStore } from '@/store/activeChildStore';
 import { Text } from '@/components/modal/shared/Text';
 import { useTranslation } from 'react-i18next';
+import { apiGetQuizzes, QuizResponse } from '@/services/api';
+import type { BadgeVariant } from '@/components/modal/parent/StatusBadge';
 
-interface Quiz {
-  id: string;
-  title: string;
-  icon: any;
-  iconBgColor: string;
-  iconTintColor?: string;
-  questionsCount: number;
-  durationMinutes: number;
-  status: 'completed' | 'in_progress' | 'new';
+function toBadgeVariant(status: string): BadgeVariant {
+  const normalized = status?.toLowerCase();
+  if (normalized === 'completed') return 'completed';
+  if (normalized === 'in_progress') return 'in_progress';
+  return 'new';
 }
-
-const MOCK_QUIZZES: Quiz[] = [
-  {
-    id: '1',
-    title: "Color's quiz",
-    icon: require('@/assets/images/icons/color.png'),
-    iconBgColor: '#BBF7D0',
-    iconTintColor: '#00C688',
-    questionsCount: 10,
-    durationMinutes: 5,
-    status: 'completed',
-  },
-  {
-    id: '2',
-    title: 'Numbers (1-10)',
-    icon: require('@/assets/images/icons/math.png'),
-    iconBgColor: '#FDE68A',
-    iconTintColor: '#D97706',
-    questionsCount: 10,
-    durationMinutes: 5,
-    status: 'in_progress',
-  },
-  {
-    id: '3',
-    title: 'Animals sounds',
-    icon: require('@/assets/images/icons/animal.png'),
-    iconBgColor: '#DDD6FE',
-    iconTintColor: '#7C3AED',
-    questionsCount: 10,
-    durationMinutes: 5,
-    status: 'new',
-  },
-];
 
 export default function QuizzesScreen() {
   const { t } = useTranslation();
@@ -69,6 +34,10 @@ export default function QuizzesScreen() {
   );
   const [activeTab, setActiveTab] = useState(tabs[1]);
   const activeChild = useActiveChildStore((s) => s.activeChild);
+  const [quizzes, setQuizzes] = useState<QuizResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? 'Zaid';
   const childAge = activeChild?.dateOfBirth
     ? Math.floor((Date.now() - new Date(activeChild.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365))
@@ -77,6 +46,39 @@ export default function QuizzesScreen() {
     ...(activeChild?.level ? [{ label: `${t('common.level', 'Level')} ${activeChild.level}`, color: '#A78BFA' }] : []),
     { label: t('myChildren.years', { age: childAge }), color: '#60A5FA' },
   ];
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!activeChild?.id) {
+      setQuizzes([]);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    apiGetQuizzes(activeChild.id)
+      .then((data) => {
+        if (!cancelled) {
+          setQuizzes(data);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : t('common.error', 'Something went wrong'));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeChild?.id, t]);
 
   const handleBack = () => {
     if (router.canGoBack()) {
@@ -125,15 +127,35 @@ export default function QuizzesScreen() {
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>✏️ {t('progress.tabs.quizzes', "This week's quizzes")}</Text>
-          <TouchableOpacity onPress={() => router.push('/(parent)/quizes-all' as any)}>
-            <Text style={styles.seeAll}>{t('common.seeAll')}</Text>
-          </TouchableOpacity>
         </View>
 
-        {MOCK_QUIZZES.map((quiz) => (
+        {isLoading ? <ActivityIndicator color={theme.colors.primary} style={styles.centered} /> : null}
+        {error ? <Text style={styles.messageText}>{error}</Text> : null}
+        {!isLoading && !error && quizzes.length === 0 ? (
+          <Text style={styles.messageText}>
+            {t('quiz.emptyState', 'No quizzes available for this child yet.')}
+          </Text>
+        ) : null}
+
+        {quizzes.map((quiz) => (
           <QuizCard
             key={quiz.id}
-            {...quiz}
+            title={quiz.title}
+            questionsCount={quiz.totalQuestions ?? quiz.questions.length}
+            durationMinutes={5}
+            metaText={
+              quiz.level != null
+                ? t('quiz.levelMeta', {
+                    level: quiz.level,
+                    count: quiz.totalQuestions ?? quiz.questions.length,
+                    defaultValue: `Level ${quiz.level} · ${quiz.totalQuestions ?? quiz.questions.length} questions`,
+                  })
+                : undefined
+            }
+            status={toBadgeVariant(quiz.status)}
+            icon={require('@/assets/images/icons/math.png')}
+            iconBgColor="#FDE68A"
+            iconTintColor="#D97706"
             onPress={() => router.push(`/(parent)/progress/quiz/${quiz.id}` as any)}
           />
         ))}
@@ -168,11 +190,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_700Bold',
     color: theme.colors.textPrimary,
   },
-  seeAll: {
-    fontSize: 13,
-    fontFamily: 'Lexend_400Regular',
-    color: theme.colors.primary,
-  },
   settingsBtn: {
     width: 36,
     height: 36,
@@ -180,4 +197,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   settingsIcon: { fontSize: 20 },
+  centered: { marginVertical: theme.spacing.md },
+  messageText: {
+    textAlign: 'center',
+    color: theme.colors.textSecondary,
+    marginVertical: theme.spacing.md,
+    fontFamily: theme.typography.fontFamily.medium,
+  },
 });

@@ -1,5 +1,6 @@
 package com.rafeeq.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,6 +34,11 @@ public class LearningTree {
     @Column(name = "topic", length = 255)
     private String topic;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_id")
+    private Topic topicRef;
+
     @Column(name = "status", length = 50)
     private String status;
 
@@ -51,21 +57,27 @@ public class LearningTree {
     @Column(name = "prompt_version", length = 50)
     private String promptVersion;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<Quiz> quizzes = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<Homework> homeworks = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<Activity> activities = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<TreeItem> treeItems = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<ChildScore> childScores = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tree", fetch = FetchType.LAZY)
     private List<ChildScoreLog> childScoreLogs = new ArrayList<>();
 

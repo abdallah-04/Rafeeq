@@ -1,132 +1,56 @@
-import React, { useState } from 'react'
-import { View, StyleSheet, Image, ScrollView } from 'react-native'
-import { router } from 'expo-router'
+import React, { useEffect, useState } from 'react'
+import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native'
+import { router, useLocalSearchParams } from 'expo-router'
 import { theme } from '@/theme'
 import { useTranslation } from 'react-i18next'
 import { Text } from '@/components/modal/shared/Text'
 import Header from '@/components/modal/shared/Header'
 import Card from '@/components/modal/shared/Card'
 import Badge from '@/components/modal/shared/Badge'
-import { Button } from '@/components/modal/shared/Button'
-import KeepGoingBanner from '@/components/modal/shared/KeepGoingBanner'
 import BottomNav from '@/components/modal/shared/BottomNav'
-import SubmitHWModal from '@/components/variants/SubmitHWModal'
-import SubmitSuccessModal from '@/components/variants/SubmitSuccessModal'
-import DownloadDoneModal from '@/components/variants/DownloadDoneModal'
+import { apiGetHomeworkDetail, HomeworkResponse } from '@/services/api'
 
 export default function HomeworkDetail() {
-  const { t } = useTranslation()
-  const [showSubmitModal, setShowSubmitModal] = useState(false)
-  const [showSuccessModal, setShowSuccessModal] = useState(false)
-  const [showDownloadModal, setShowDownloadModal] = useState(false)
+  const { t, i18n } = useTranslation()
+  const params = useLocalSearchParams<{ homeworkId?: string }>()
+  const homeworkId = Array.isArray(params.homeworkId) ? params.homeworkId[0] : params.homeworkId
+  const [homework, setHomework] = useState<HomeworkResponse | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const settingsIcon = (
-    <Image
-      source={require('@/assets/images/icons/school-icon.png')}
-      style={styles.settingsIcon}
-    />
-  )
+  useEffect(() => {
+    let cancelled = false
 
-  return (
-    <View style={styles.container}>
-      <Header title={t('homework.title')} onBack={handleBack} rightElement={settingsIcon} />
+    if (!homeworkId) {
+      setError(t('homework.missingId', 'Homework could not be loaded.'))
+      return
+    }
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Card variant="outlined" style={styles.mainCard}>
-          <View style={styles.iconContainer}>
-            <Image source={require('@/assets/images/icons/math.png')} style={styles.icon} />
-          </View>
-          <Text style={styles.title}>Counting 1 to 10</Text>
-          <Text style={styles.meta}>Mathematics · 5 {t('teacher.todayQuiz.questions')} · 10 {t('teacher.quiz.mins')}</Text>
+    setLoading(true)
+    setError(null)
 
-          <View style={styles.badgeRow}>
-            <Badge label="H.W 3" variant="blue" />
-            <Badge label="Level 3" variant="purple" />
-            <Badge label={t('homework.status.not_submitted')} variant="orange" />
-          </View>
-        </Card>
+    apiGetHomeworkDetail(homeworkId)
+      .then((data) => {
+        if (!cancelled) {
+          setHomework(data)
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : t('common.error', 'Something went wrong'))
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      })
 
-        <Button
-          label={`${t('homework.openHw')}  ▶`}
-          onPress={() => setShowSubmitModal(true)}
-          variant="primary"
-          style={styles.actionBtn}
-          textStyle={styles.actionBtnText}
-        />
+    return () => {
+      cancelled = true
+    }
+  }, [homeworkId, t])
 
-        <Button
-          label={`${t('common.download')}  ⬇`}
-          onPress={() => setShowDownloadModal(true)}
-          variant="secondary"
-          style={styles.actionBtn}
-          textStyle={styles.actionBtnText}
-        />
-
-        <View style={styles.bannerWrapper}>
-          <KeepGoingBanner
-            completed={2}
-            total={5}
-            unit={t('homework.keepGoingUnit')}
-            period={t('homework.keepGoingPeriod')}
-          />
-        </View>
-      </ScrollView>
-
-      <BottomNav />
-
-      <SubmitHWModal
-        visible={showSubmitModal}
-        onSubmit={() => {
-          setShowSubmitModal(false)
-          setShowSuccessModal(true)
-        }}
-      />
-
-      <SubmitSuccessModal
-        visible={showSuccessModal}
-        hwName="H.W 3"
-        onClose={() => setShowSuccessModal(false)}
-      />
-
-      <DownloadDoneModal
-        visible={showDownloadModal}
-        activityName="Activity 1"
-        onClose={() => setShowDownloadModal(false)}
-      />
-    </View>
-  )
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.white },
-  content: { padding: theme.spacing.xl, alignItems: 'center', paddingBottom: 32 },
-  settingsIcon: { width: 22, height: 22, tintColor: theme.colors.textSecondary },
-  mainCard: {
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    backgroundColor: theme.colors.successLight,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
-  },
-  icon: { width: 44, height: 44 },
-  title: { fontSize: 18, fontFamily: 'Lexend_700Bold', textAlign: 'center' },
-  meta: { color: theme.colors.textMuted, marginVertical: 8, fontSize: theme.typography.fontSize.sm },
-  badgeRow: { flexDirection: 'row', gap: 8, marginTop: 10, flexWrap: 'wrap', justifyContent: 'center' },
-  actionBtn: { width: '80%', marginBottom: 16, borderRadius: 50 },
-  actionBtnText: { fontSize: 16 },
-  bannerWrapper: {
-    width: '100%',
-    marginTop: 8,
-    position: 'relative',
-  },
-})
   const handleBack = () => {
     if (router.canGoBack()) {
       router.back()
@@ -134,3 +58,75 @@ const styles = StyleSheet.create({
     }
     router.replace('/(parent)/progress/homeworks' as any)
   }
+
+  return (
+    <View style={styles.container}>
+      <Header title={t('homework.title')} onBack={handleBack} />
+
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {loading ? <ActivityIndicator color={theme.colors.primary} /> : null}
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        {homework ? (
+          <Card variant="outlined" style={styles.mainCard}>
+            <Text style={styles.title}>{homework.title}</Text>
+            <Text style={styles.meta}>
+              {homework.dueDate
+                ? t('homework.dueDateLabel', {
+                    date: new Date(homework.dueDate).toLocaleDateString(i18n.language === 'ar' ? 'ar-JO' : 'en-GB'),
+                    defaultValue: `Due ${new Date(homework.dueDate).toLocaleDateString(i18n.language === 'ar' ? 'ar-JO' : 'en-GB')}`,
+                  })
+                : t('homework.noDueDate', 'No due date')}
+            </Text>
+
+            <View style={styles.badgeRow}>
+              {homework.groupNumber != null ? <Badge label={`H.W ${homework.groupNumber}`} variant="blue" /> : null}
+              {homework.orderNum != null ? <Badge label={`#${homework.orderNum}`} variant="purple" /> : null}
+              <Badge label={homework.status} variant={homework.status?.toLowerCase() === 'completed' ? 'green' : 'orange'} />
+            </View>
+
+            <Text style={styles.description}>
+              {homework.description || t('homework.noDescription', 'No description available.')}
+            </Text>
+          </Card>
+        ) : null}
+      </ScrollView>
+
+      <BottomNav />
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.colors.white },
+  content: { padding: theme.spacing.xl, alignItems: 'center', paddingBottom: 32 },
+  mainCard: {
+    width: '100%',
+    alignItems: 'flex-start',
+    marginBottom: 32,
+    gap: theme.spacing.md,
+  },
+  title: {
+    fontSize: 18,
+    fontFamily: 'Lexend_700Bold',
+    textAlign: 'left',
+    color: theme.colors.textPrimary,
+  },
+  meta: {
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.medium,
+  },
+  badgeRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  description: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: theme.typography.fontFamily.regular,
+  },
+  errorText: {
+    color: theme.colors.error,
+    textAlign: 'center',
+    fontFamily: theme.typography.fontFamily.medium,
+  },
+})

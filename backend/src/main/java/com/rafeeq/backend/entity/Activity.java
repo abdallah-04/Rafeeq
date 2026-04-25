@@ -37,6 +37,24 @@ public class Activity {
     @Column(name = "description_en", columnDefinition = "TEXT")
     private String descriptionEn;
 
+    @Column(name = "activity_task_ar", columnDefinition = "TEXT")
+    private String activityTaskAr;
+
+    @Column(name = "activity_task_en", columnDefinition = "TEXT")
+    private String activityTaskEn;
+
+    @Column(name = "parent_guide_ar", columnDefinition = "TEXT")
+    private String parentGuideAr;
+
+    @Column(name = "parent_guide_en", columnDefinition = "TEXT")
+    private String parentGuideEn;
+
+    @Column(name = "group_number")
+    private Integer groupNumber;
+
+    @Column(name = "order_num")
+    private Integer orderNum;
+
     @Column(name = "status", length = 50)
     private String status;
 

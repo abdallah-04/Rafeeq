@@ -185,11 +185,14 @@ export interface ChildResponse {
 }
 
 export interface ChildSummaryResponse {
-  id:            string;
-  fullNameAr:    string;
-  fullNameEn:    string | null;
-  status:        string;
-  assessedLevel: number | null;
+  childId:            string;
+  childName:          string;
+  level:              number | null;
+  difficulty:         string | null;
+  quizzesCount:       number;
+  homeworksCount:     number;
+  activitiesCount:    number;
+  progressPercentage: number;
 }
 
 export interface HomeworkResponse {
@@ -201,6 +204,10 @@ export interface HomeworkResponse {
   status:      string;
   authorRole:  string;
   createdAt:   string;     // LocalDateTime
+  treeId?:     string | null;
+  treeItemId?: string | null;
+  groupNumber?: number | null;
+  orderNum?:   number | null;
 }
 
 export interface ReportResponse {
@@ -323,6 +330,95 @@ export interface PlacementSubmissionResponse {
   childStatus:           string;
   active:                boolean;
   placementCompletedAt:  string | null;
+}
+
+export interface ChatbotMessageResponse {
+  sessionId:          string;
+  childId:            string | null;
+  userMessage:        string;
+  assistantResponse:  string;
+  createdAt:          string;
+}
+
+export interface LearningTreeResponse {
+  id:          string;
+  childId:     string;
+  level:       number | null;
+  topic:       string;
+  topicId:     string | null;
+  summary:     string;
+  status:      string;
+  generatedAt: string | null;
+}
+
+export interface TreeItemResponse {
+  id:                string;
+  treeId:            string;
+  itemId:            string;
+  itemType:          string;
+  title:             string | null;
+  description:       string | null;
+  status:            string;
+  orderNum:          number | null;
+  groupNumber:       number | null;
+  locked:            boolean | null;
+  completed:         boolean | null;
+  maxPoints:         number | null;
+  earnedPoints:      number | null;
+  completedAt:       string | null;
+}
+
+export interface TreeItemCompletionResponse {
+  treeId:             string;
+  itemId:             string;
+  treeCompleted:      boolean;
+  completedItems:     number;
+  totalItems:         number;
+  progressPercentage: number;
+  treeStatus:         string;
+}
+
+export interface ActivityResponse {
+  id:               string;
+  childId:          string;
+  treeId:           string | null;
+  treeItemId:       string | null;
+  title:            string;
+  description:      string | null;
+  instructions:     string | null;
+  materialsNeeded:  string | null;
+  expectedOutcome:  string | null;
+  status:           string;
+  groupNumber:      number | null;
+  orderNum:         number | null;
+  completedAt:      string | null;
+}
+
+export interface QuizQuestionResponse {
+  id:            string;
+  question:      string;
+  options:       string[];
+  correctOption: number;
+  explanation:   string | null;
+  orderNum:      number | null;
+  points:        number | null;
+}
+
+export interface QuizResponse {
+  id:             string;
+  childId:        string;
+  treeId:         string | null;
+  treeItemId:     string | null;
+  title:          string;
+  level:          number | null;
+  totalQuestions: number | null;
+  score:          number | null;
+  status:         string;
+  groupNumber:    number | null;
+  orderNum:       number | null;
+  startedAt:      string | null;
+  completedAt:    string | null;
+  questions:      QuizQuestionResponse[];
 }
 
 export interface ParentDashboard {
@@ -588,6 +684,10 @@ export async function apiCreateHomework(data: {
   dueDate:     string;   // YYYY-MM-DD
 }): Promise<HomeworkResponse> {
   return _post<HomeworkResponse>('/api/homework', data);
+}
+
+export async function apiGetHomeworkDetail(homeworkId: string): Promise<HomeworkResponse> {
+  return _get<HomeworkResponse>(`/api/homework/details/${homeworkId}`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -885,6 +985,57 @@ export async function apiSubmitPlacementAssessment(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  CHATBOT / LEARNING TREE / CONTENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function apiSendChatMessage(
+  message: string,
+  childId?: string | null
+): Promise<ChatbotMessageResponse> {
+  return _post<ChatbotMessageResponse>('/api/chatbot/message', {
+    message,
+    childId: childId ?? undefined,
+  });
+}
+
+export async function apiGetLearningTree(childId: string): Promise<LearningTreeResponse> {
+  return _get<LearningTreeResponse>(`/api/tree/children/${childId}`);
+}
+
+export async function apiGenerateLearningTree(
+  childId: string,
+  topicId?: string | null
+): Promise<LearningTreeResponse> {
+  return _post<LearningTreeResponse>(`/api/tree/children/${childId}/generate`, {
+    topicId: topicId ?? undefined,
+  });
+}
+
+export async function apiGetTreeItems(childId: string): Promise<TreeItemResponse[]> {
+  return _get<TreeItemResponse[]>(`/api/tree/children/${childId}/items`);
+}
+
+export async function apiCompleteTreeItem(itemId: string): Promise<TreeItemCompletionResponse> {
+  return request<TreeItemCompletionResponse>('PATCH', `/api/tree/items/${itemId}/complete`);
+}
+
+export async function apiGetActivities(childId: string): Promise<ActivityResponse[]> {
+  return _get<ActivityResponse[]>(`/api/activities/children/${childId}`);
+}
+
+export async function apiGetActivity(activityId: string): Promise<ActivityResponse> {
+  return _get<ActivityResponse>(`/api/activities/${activityId}`);
+}
+
+export async function apiGetQuizzes(childId: string): Promise<QuizResponse[]> {
+  return _get<QuizResponse[]>(`/api/quizzes/children/${childId}`);
+}
+
+export async function apiGetQuiz(quizId: string): Promise<QuizResponse> {
+  return _get<QuizResponse>(`/api/quizzes/${quizId}`);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  DASHBOARD
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -986,21 +1137,6 @@ export async function apiAddTeacher(data: {
   });
 }
 
-/** @deprecated Not implemented in backend yet */
-export async function apiSendChatMessage(
-  message: string,
-  _history: unknown[]
-): Promise<{ id: string; role: string; content: string; timestamp: string }> {
-  // Chatbot endpoint is not yet in the backend — keep mock until implemented
-  await new Promise((r) => setTimeout(r, 800));
-  return {
-    id:        `msg-${Date.now()}`,
-    role:      'assistant',
-    content:   'Thank you for your question! I am here to help guide you.',
-    timestamp: new Date().toISOString(),
-  };
-}
-
 /** @deprecated No backend endpoint yet */
 export async function apiGetChildProgress(_childId: string) {
   // Use apiGetParentDashboard() or ChildSummaryResponse for progress data
@@ -1008,28 +1144,14 @@ export async function apiGetChildProgress(_childId: string) {
   return null;
 }
 
-/** @deprecated No roadmap/tree endpoint yet */
-export async function apiGetChildTree(_childId: string) {
-  console.warn('apiGetChildTree is not yet implemented in the backend');
-  return [];
+/** @deprecated Use apiGetTreeItems() */
+export async function apiGetChildTree(childId: string): Promise<TreeItemResponse[]> {
+  return apiGetTreeItems(childId);
 }
 
-/** @deprecated No roadmap endpoint yet */
-export async function apiGetRoadmap(_childId: string) {
-  console.warn('apiGetRoadmap is not yet implemented in the backend');
-  return [];
-}
-
-/** @deprecated No quizzes endpoint yet */
-export async function apiGetQuizzes(_childId: string) {
-  console.warn('apiGetQuizzes is not yet implemented in the backend');
-  return [];
-}
-
-/** @deprecated No activities endpoint yet */
-export async function apiGetActivities(_childId: string) {
-  console.warn('apiGetActivities is not yet implemented in the backend');
-  return [];
+/** @deprecated Use apiGetTreeItems() */
+export async function apiGetRoadmap(childId: string): Promise<TreeItemResponse[]> {
+  return apiGetTreeItems(childId);
 }
 
 /** @deprecated No specialists endpoint yet */
