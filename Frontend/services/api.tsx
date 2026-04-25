@@ -42,33 +42,25 @@ async function getRefreshToken(): Promise<string | null> {
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
+const pendingGetRequests = new Map<string, Promise<unknown>>();
+
 interface RequestOptions {
   auth?: boolean;          // default true — attach Bearer token
   lang?: string;           // override Accept-Language
   body?: unknown;
 }
 
-async function request<T>(
+function getPendingGetKey(url: string, token: string | null, lang: string) {
+  return `GET:${url}:${token ?? ''}:${lang}`;
+}
+
+async function performRequest<T>(
+  url: string,
   method: HttpMethod,
-  path: string,
-  options: RequestOptions = {}
+  headers: Record<string, string>,
+  body?: unknown
 ): Promise<T> {
-  const { auth = true, body } = options;
-  const lang = options.lang ?? i18n.language ?? 'en';
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'Accept-Language': lang,
-  };
-
-  if (auth) {
-    const token = useAuthStore.getState().token;
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-  }
-
-  const res = await fetch(`${getApiBaseUrl()}${path}`, {
+  const res = await fetch(url, {
     method,
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -95,6 +87,48 @@ async function request<T>(
   }
 
   return data as T;
+}
+
+async function request<T>(
+  method: HttpMethod,
+  path: string,
+  options: RequestOptions = {}
+): Promise<T> {
+  const { auth = true, body } = options;
+  const lang = options.lang ?? i18n.language ?? 'en';
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Accept-Language': lang,
+  };
+  const token = auth ? useAuthStore.getState().token : null;
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const url = `${getApiBaseUrl()}${path}`;
+
+  if (method === 'GET') {
+    const pendingKey = getPendingGetKey(url, token, lang);
+    const pendingRequest = pendingGetRequests.get(pendingKey);
+    if (pendingRequest) {
+      return pendingRequest as Promise<T>;
+    }
+
+    const requestPromise = performRequest<T>(url, method, headers, body);
+    pendingGetRequests.set(pendingKey, requestPromise);
+
+    try {
+      return await requestPromise;
+    } finally {
+      if (pendingGetRequests.get(pendingKey) === requestPromise) {
+        pendingGetRequests.delete(pendingKey);
+      }
+    }
+  }
+
+  return performRequest<T>(url, method, headers, body);
 }
 
 const _get  = <T,>(path: string, opts?: RequestOptions) => request<T>('GET',    path, opts);

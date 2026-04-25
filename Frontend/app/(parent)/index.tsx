@@ -15,6 +15,8 @@ import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { apiGetChildren } from '@/services/api';
+import { useActiveChildStore } from '@/store/activeChildStore';
+import { useAuthStore } from '@/store/authStore';
 import { theme } from '@/theme';
 
 export default function ParentIndex() {
@@ -22,6 +24,14 @@ export default function ParentIndex() {
     let cancelled = false;
     (async () => {
       try {
+        const activeChild = useActiveChildStore.getState().activeChild;
+        const selectedChild = useAuthStore.getState().selectedChild;
+
+        if (activeChild || selectedChild) {
+          router.replace('/(parent)/myChildren' as any);
+          return;
+        }
+
         const children = await apiGetChildren();
         if (cancelled) return;
         router.replace(children.length === 0 ? '/(parent)/MyChildrenEmpty' as any : '/(parent)/myChildren' as any);

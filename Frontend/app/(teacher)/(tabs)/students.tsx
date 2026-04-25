@@ -38,6 +38,19 @@ function getProgress(student: StudentResponse) {
   return Math.max(0, Math.min(baseLevel * 20, 100));
 }
 
+function getStudentRouteParams(student: StudentResponse) {
+  return {
+    studentId: student.id,
+    studentNameAr: student.fullNameAr,
+    studentNameEn: student.fullNameEn ?? '',
+    studentLevel: student.level != null ? String(student.level) : '',
+    studentAssessedLevel: student.assessedLevel != null ? String(student.assessedLevel) : '',
+    studentLearningDifficulty: student.learningDifficulty ?? '',
+    studentStatus: student.status,
+    studentDateOfBirth: student.dateOfBirth ?? '',
+  };
+}
+
 function StudentCard({
   student,
   index,
@@ -188,7 +201,7 @@ export default function StudentsScreen() {
             index={index}
             isRTL={isRTL}
             t={t}
-            onPress={() => router.push({ pathname: '/(teacher)/Student_dashboard', params: { studentId: item.id } } as any)}
+            onPress={() => router.push({ pathname: '/(teacher)/Student_dashboard', params: getStudentRouteParams(item) } as any)}
           />
         )}
         ListEmptyComponent={

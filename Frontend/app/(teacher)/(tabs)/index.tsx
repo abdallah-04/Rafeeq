@@ -27,6 +27,19 @@ function getProgress(student: StudentResponse) {
   return Math.max(0, Math.min(baseLevel * 20, 100));
 }
 
+function getStudentRouteParams(student: StudentResponse) {
+  return {
+    studentId: student.id,
+    studentNameAr: student.fullNameAr,
+    studentNameEn: student.fullNameEn ?? '',
+    studentLevel: student.level != null ? String(student.level) : '',
+    studentAssessedLevel: student.assessedLevel != null ? String(student.assessedLevel) : '',
+    studentLearningDifficulty: student.learningDifficulty ?? '',
+    studentStatus: student.status,
+    studentDateOfBirth: student.dateOfBirth ?? '',
+  };
+}
+
 function StudentCard({ student, index, onPress }: {
   student: StudentResponse; index: number; onPress: () => void;
 }) {
@@ -102,6 +115,7 @@ export default function TeacherHomeScreen() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   const user  = useAuthStore((s) => s.user);
+  const greetingLabel = isRTL ? 'أهلاً' : 'Hello,';
 
   const [students,   setStudents]   = useState<StudentResponse[]>([]);
   const [loading,    setLoading]    = useState(true);
@@ -131,15 +145,16 @@ export default function TeacherHomeScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}
       >
-        <View style={styles.penguinBox}>
-          <Text style={styles.penguinEmoji}>🐧</Text>
-        </View>
-
-        <View style={styles.welcomeBlock}>
-          <Text style={[styles.welcomeText, isRTL && styles.textRight]}>
-            {t('teacher.home.greeting', 'Hello,')}{'  '}
-            <Text style={styles.welcomeName}>{teacherName}</Text>
-          </Text>
+        <View style={[styles.headerRow, isRTL && styles.headerRowRTL]}>
+          <View style={styles.welcomeBlock}>
+            <Text style={[styles.welcomeText, isRTL && styles.textRight]}>
+              {greetingLabel}{'  '}
+              <Text style={styles.welcomeName}>{teacherName}</Text>
+            </Text>
+          </View>
+          <View style={styles.brandSlot}>
+            <Text style={styles.brandText}>رفيق</Text>
+          </View>
         </View>
 
         <View style={styles.studentsCard}>
@@ -159,7 +174,7 @@ export default function TeacherHomeScreen() {
                 key={s.id}
                 student={s}
                 index={i}
-                onPress={() => router.push({ pathname: '/(teacher)/student-quick-access', params: { studentId: s.id } })}
+                onPress={() => router.push({ pathname: '/(teacher)/student-quick-access', params: getStudentRouteParams(s) })}
               />
             ))
           )}
@@ -174,18 +189,20 @@ export default function TeacherHomeScreen() {
 const styles = StyleSheet.create({
   safe:             { flex: 1, backgroundColor: '#F5F7FF' },
   scroll:           { flex: 1 },
-  scrollContent:    { paddingBottom: 32 },
+  scrollContent:    { paddingTop: 10, paddingBottom: 32 },
   rowReverse:       { flexDirection: 'row-reverse' },
-  penguinBox:       { width: 64, height: 64, alignItems: 'center', justifyContent: 'center' },
-  penguinEmoji:     { fontSize: 48 },
-  welcomeBlock:     { paddingHorizontal: 24, paddingVertical: 8 },
+  headerRow:        { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 10, paddingBottom: 8 },
+  headerRowRTL:     { flexDirection: 'row-reverse' },
+  welcomeBlock:     { flex: 1, justifyContent: 'center' },
   welcomeText:      { fontFamily: 'Lexend_700Bold', fontSize: 28, color: '#1a1a2e', lineHeight: 36 },
   welcomeName:      { color: '#508DF7' },
+  brandSlot:        { minWidth: 68, alignItems: 'flex-end', justifyContent: 'center' },
+  brandText:        { fontFamily: 'Lexend_700Bold', fontSize: 24, lineHeight: 30, color: '#508DF7' },
   textRight:        { textAlign: 'right' },
-  studentsCard:     { marginHorizontal: 16, marginTop: 8, backgroundColor: '#fff', borderRadius: 28, padding: 16, shadowColor: '#508DF7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 20, elevation: 4 },
-  sectionTitle:     { fontFamily: 'Lexend_700Bold', fontSize: 13, color: '#508DF7', letterSpacing: 1.5, textAlign: 'center', textTransform: 'uppercase', marginBottom: 14 },
+  studentsCard:     { marginHorizontal: 16, marginTop: 12, backgroundColor: '#fff', borderRadius: 28, paddingHorizontal: 16, paddingTop: 18, paddingBottom: 16, shadowColor: '#508DF7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 20, elevation: 4 },
+  sectionTitle:     { fontFamily: 'Lexend_700Bold', fontSize: 13, color: '#508DF7', letterSpacing: 1.5, textAlign: 'center', textTransform: 'uppercase', marginBottom: 16 },
   emptyText:        { fontFamily: 'Lexend_500Medium', fontSize: 14, color: '#93C5FD', textAlign: 'center', paddingVertical: 20 },
-  studentCard:      { backgroundColor: '#FAFBFF', borderRadius: 20, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(80,141,247,0.08)', elevation: 2 },
+  studentCard:      { backgroundColor: '#FAFBFF', borderRadius: 20, padding: 14, marginBottom: 14, borderWidth: 1, borderColor: 'rgba(80,141,247,0.08)', elevation: 2 },
   cardTop:          { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
   avatar:           { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(80,141,247,0.12)' },
   avatarText:       { fontFamily: 'Lexend_600SemiBold', fontSize: 16, color: '#1a1a2e' },

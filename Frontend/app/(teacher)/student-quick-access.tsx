@@ -21,6 +21,52 @@ import { useTranslation } from 'react-i18next';
 import { apiGetStudent, StudentResponse } from '@/services/api';
 import BackButton from '@/components/BackButton';
 
+function readParam(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function readNumberParam(value?: string | string[]) {
+  const raw = readParam(value);
+  if (!raw) return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function buildStudentFromParams(params: {
+  studentId?: string;
+  studentNameAr?: string | string[];
+  studentNameEn?: string | string[];
+  studentLevel?: string | string[];
+  studentAssessedLevel?: string | string[];
+  studentLearningDifficulty?: string | string[];
+  studentStatus?: string | string[];
+  studentDateOfBirth?: string | string[];
+}): StudentResponse | null {
+  if (!params.studentId) return null;
+
+  const fullNameAr = readParam(params.studentNameAr);
+  const fullNameEn = readParam(params.studentNameEn);
+
+  if (!fullNameAr && !fullNameEn) {
+    return null;
+  }
+
+  return {
+    id: params.studentId,
+    userId: null,
+    fullNameAr: fullNameAr ?? '',
+    fullNameEn: fullNameEn || null,
+    className: null,
+    level: readNumberParam(params.studentLevel),
+    gender: null,
+    dateOfBirth: readParam(params.studentDateOfBirth) || null,
+    learningDifficulty: readParam(params.studentLearningDifficulty) || null,
+    nationalId: '',
+    status: readParam(params.studentStatus) || '',
+    assessedLevel: readNumberParam(params.studentAssessedLevel),
+  };
+}
+
 const QUICK_ACCESS = [
   { id: 'roadmap',    labelKey: 'teacher.studentQuickAccess.roadMap',     label: 'Road Map',     icon: '🗺️',  color: '#508DF7', bg: '#EEF4FF', route: '/(teacher)/road-map' },
   { id: 'exam',       labelKey: 'teacher.studentQuickAccess.monthlyExam', label: 'Monthly Exam', icon: '📝',  color: '#BA6DE9', bg: '#F5EEFF', route: '/(teacher)/monthly-exam' },
@@ -31,10 +77,22 @@ const QUICK_ACCESS = [
 export default function StudentQuickAccessScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
-  const { studentId } = useLocalSearchParams<{ studentId: string }>();
+  const params = useLocalSearchParams<{
+    studentId: string;
+    studentNameAr?: string;
+    studentNameEn?: string;
+    studentLevel?: string;
+    studentAssessedLevel?: string;
+    studentLearningDifficulty?: string;
+    studentStatus?: string;
+    studentDateOfBirth?: string;
+  }>();
+  const { studentId } = params;
   const isRTL = i18n.language === 'ar';
+  const initialStudent = React.useMemo(() => buildStudentFromParams(params), [params]);
+  const skipInitialFetchRef = React.useRef(Boolean(initialStudent));
 
-  const [student,      setStudent]      = useState<StudentResponse | null>(null);
+  const [student,      setStudent]      = useState<StudentResponse | null>(initialStudent);
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleBack = useCallback(() => {
@@ -59,8 +117,12 @@ export default function StudentQuickAccessScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      if (skipInitialFetchRef.current && initialStudent) {
+        skipInitialFetchRef.current = false;
+        return;
+      }
       loadStudent();
-    }, [loadStudent])
+    }, [initialStudent, loadStudent])
   );
 
   const isUnplaced = student ? (student.assessedLevel == null) : false;
@@ -69,7 +131,19 @@ export default function StudentQuickAccessScreen() {
     if (isUnplaced) {
       setModalVisible(true);
     } else {
-      router.push({ pathname: route as any, params: { studentId: studentId ?? '' } });
+      router.push({
+        pathname: route as any,
+        params: {
+          studentId: studentId ?? '',
+          studentNameAr: student?.fullNameAr ?? '',
+          studentNameEn: student?.fullNameEn ?? '',
+          studentLevel: student?.level != null ? String(student.level) : '',
+          studentAssessedLevel: student?.assessedLevel != null ? String(student.assessedLevel) : '',
+          studentLearningDifficulty: student?.learningDifficulty ?? '',
+          studentStatus: student?.status ?? '',
+          studentDateOfBirth: student?.dateOfBirth ?? '',
+        },
+      });
     }
   };
 

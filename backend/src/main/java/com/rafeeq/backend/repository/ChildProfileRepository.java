@@ -1,6 +1,7 @@
 package com.rafeeq.backend.repository;
 
 import com.rafeeq.backend.entity.ChildProfile;
+import com.rafeeq.backend.entity_enums.ChildStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -16,6 +17,9 @@ public interface ChildProfileRepository extends JpaRepository<ChildProfile, UUID
     Optional<ChildProfile> findByIdAndTeacherSchoolId(UUID id, UUID schoolId);
     Optional<ChildProfile> findByIdAndParentId(UUID id, UUID parentId);
     long countByTeacherId(UUID teacherId);
+    long countByTeacherIdAndStatus(UUID teacherId, ChildStatus status);
     long countByParentId(UUID parentId);
+    long countByParentIdAndStatus(UUID parentId, ChildStatus status);
     long countByTeacherSchoolId(UUID schoolId);
+    long countByTeacherSchoolIdAndStatusNot(UUID schoolId, ChildStatus status);
 }

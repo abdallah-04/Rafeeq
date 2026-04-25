@@ -288,12 +288,19 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const isRTL = useAuthStore((s) => s.isRTL);
+  const selectedChild = useAuthStore((s) => s.selectedChild);
   const activeChild = useActiveChildStore((s) => s.activeChild);
+  const storedChild = activeChild ?? selectedChild ?? null;
 
   const [children, setChildren] = useState<ChildResponse[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!storedChild);
 
   const load = useCallback(async () => {
+    if (storedChild) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await apiGetChildren();
       setChildren(data);
@@ -302,14 +309,14 @@ export default function HomeScreen() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [storedChild]);
 
   useEffect(() => {
     load();
   }, [load]);
 
   const parentName = user?.name ?? user?.nameAr ?? 'Parent';
-  const firstChild = activeChild ?? children[0] ?? null;
+  const firstChild = storedChild ?? children[0] ?? null;
 
   return (
     <ScreenWrapper padded={false}>
@@ -327,9 +334,9 @@ export default function HomeScreen() {
             </Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.bellBtn}>
-          <Image source={require('@/assets/images/icons/ringing.png')} style={styles.bell} />
-        </TouchableOpacity>
+        <View style={styles.brandSlot}>
+          <Text style={styles.brandText}>رفيق</Text>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -383,18 +390,15 @@ const styles = StyleSheet.create({
   textRTL: {
     textAlign: 'right',
   },
-  bellBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.full,
-    backgroundColor: colors.backgroundLight,
-    alignItems: 'center',
+  brandSlot: {
+    minWidth: 52,
+    alignItems: 'flex-end',
     justifyContent: 'center',
   },
-  bell: {
-    width: 19,
-    height: 19,
-    tintColor: colors.textPrimary,
+  brandText: {
+    fontSize: typography.fontSize.lg,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.primary,
   },
   scroll: {
     paddingHorizontal: spacing.lg,

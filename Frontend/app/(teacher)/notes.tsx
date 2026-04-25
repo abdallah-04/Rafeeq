@@ -49,21 +49,21 @@ export default function NotesScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { show } = useModal();
-  const { studentId } = useLocalSearchParams<{ studentId: string }>();
+  const { studentId, studentName } = useLocalSearchParams<{ studentId: string; studentName?: string }>();
   const isRTL = i18n.language === 'ar';
 
-  const [studentName, setStudentName] = useState('');
+  const [resolvedStudentName, setResolvedStudentName] = useState(studentName ?? '');
   const [activeTab, setActiveTab] = useState<'teacher' | 'parent'>('teacher');
   const [teacherNotes, setTeacherNotes] = useState<NoteResponse[]>([]);
   const [parentNotes, setParentNotes] = useState<NoteResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!studentId) return;
+    if (!studentId || studentName) return;
     apiGetStudent(studentId)
-      .then((student) => setStudentName(student.fullNameAr ?? student.fullNameEn ?? ''))
+      .then((student) => setResolvedStudentName(student.fullNameAr ?? student.fullNameEn ?? ''))
       .catch(() => {});
-  }, [studentId]);
+  }, [studentId, studentName]);
 
   const handleBack = useCallback(() => {
     if (router.canGoBack()) {
@@ -135,9 +135,9 @@ export default function NotesScreen() {
             <Text style={[styles.headerTitle, isRTL && styles.textRight]}>
               {t('teacher.notes.title', 'Notes')}
             </Text>
-            {!!studentName && (
+            {!!resolvedStudentName && (
               <Text style={[styles.headerSubtitle, isRTL && styles.textRight]} numberOfLines={1}>
-                {studentName}
+                {resolvedStudentName}
               </Text>
             )}
           </View>

@@ -16,31 +16,92 @@ import { useModal } from '@/components/modal/ModalProvider';
 import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
 import BackButton from '@/components/BackButton';
 
+function readParam(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function readNumberParam(value?: string | string[]) {
+  const raw = readParam(value);
+  if (!raw) return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function buildStudentFromParams(params: {
+  studentId?: string;
+  studentNameAr?: string | string[];
+  studentNameEn?: string | string[];
+  studentLevel?: string | string[];
+  studentAssessedLevel?: string | string[];
+  studentLearningDifficulty?: string | string[];
+  studentStatus?: string | string[];
+  studentDateOfBirth?: string | string[];
+}): StudentResponse | null {
+  if (!params.studentId) return null;
+
+  const fullNameAr = readParam(params.studentNameAr);
+  const fullNameEn = readParam(params.studentNameEn);
+  const status = readParam(params.studentStatus);
+
+  if (!fullNameAr && !fullNameEn) {
+    return null;
+  }
+
+  return {
+    id: params.studentId,
+    userId: null,
+    fullNameAr: fullNameAr ?? '',
+    fullNameEn: fullNameEn || null,
+    className: null,
+    level: readNumberParam(params.studentLevel),
+    gender: null,
+    dateOfBirth: readParam(params.studentDateOfBirth) || null,
+    learningDifficulty: readParam(params.studentLearningDifficulty) || null,
+    nationalId: '',
+    status: status || '',
+    assessedLevel: readNumberParam(params.studentAssessedLevel),
+  };
+}
+
 
 export default function TeacherStudentDashboard() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { show } = useModal();
-  const { studentId } = useLocalSearchParams<{ studentId: string }>();
+  const params = useLocalSearchParams<{
+    studentId: string;
+    studentNameAr?: string;
+    studentNameEn?: string;
+    studentLevel?: string;
+    studentAssessedLevel?: string;
+    studentLearningDifficulty?: string;
+    studentStatus?: string;
+    studentDateOfBirth?: string;
+  }>();
+  const { studentId } = params;
   const isRTL = i18n.language === 'ar';
+  const initialStudent = React.useMemo(() => buildStudentFromParams(params), [params]);
+  const skipInitialStudentFetchRef = React.useRef(Boolean(initialStudent));
 
-  const [student,    setStudent]    = React.useState<StudentResponse | null>(null);
+  const [student,    setStudent]    = React.useState<StudentResponse | null>(initialStudent);
   const [notes,      setNotes]      = React.useState<NoteResponse[]>([]);
   const [isLoading,  setIsLoading]  = React.useState(true);
 
-  const load = React.useCallback(() => {
+  const load = React.useCallback((skipStudentFetch = false) => {
     if (!studentId) return;
     Promise.all([
-      apiGetStudent(studentId),
+      skipStudentFetch && initialStudent ? Promise.resolve(initialStudent) : apiGetStudent(studentId),
       apiGetNotesForTeacher(studentId).catch(() => [] as NoteResponse[]),
     ]).then(([s, n]) => { setStudent(s); setNotes(n); })
       .catch(() => show('error', { variant: 'invalidInfo' }))
       .finally(() => setIsLoading(false));
-  }, [studentId, show]);
+  }, [initialStudent, studentId, show]);
 
   useFocusEffect(
     React.useCallback(() => {
-      load();
+      const skipStudentFetch = skipInitialStudentFetchRef.current && Boolean(initialStudent);
+      skipInitialStudentFetchRef.current = false;
+      load(skipStudentFetch);
     }, [load])
   );
 
@@ -80,6 +141,7 @@ export default function TeacherStudentDashboard() {
   const initials    = (displayName ?? '?').split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
   const level       = student.assessedLevel ?? student.level ?? 0;
   const avatarBg    = ['#FFD9B3','#C8E6C9','#BBDEFB','#F8BBD0','#E1BEE7'][(displayName?.charCodeAt(0) ?? 0) % 5];
+  const needsPlacementAssessment = student.assessedLevel == null;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -89,10 +151,48 @@ export default function TeacherStudentDashboard() {
         <View style={{ width: 40 }} />
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {needsPlacementAssessment ? (
+          <TouchableOpacity
+            style={[styles.placementCard, isRTL && styles.rowReverse]}
+            activeOpacity={0.82}
+            onPress={() => router.push({
+              pathname: '/(teacher)/placement-exam' as any,
+              params: {
+                studentId: studentId ?? '',
+                studentName: student?.fullNameAr ?? student?.fullNameEn ?? '',
+              },
+            })}
+          >
+            <View style={styles.placementIconWrap}>
+              <Text style={styles.placementIcon}>📋</Text>
+            </View>
+            <View style={styles.placementBody}>
+              <Text style={[styles.placementTitle, isRTL && styles.textRight]}>
+                {t('teacher.placementExam.startPrimary', isRTL ? 'بدء اختبار تحديد المستوى' : 'Start Placement Assessment')}
+              </Text>
+              <Text style={[styles.placementSubtitle, isRTL && styles.textRight]}>
+                {t(
+                  'teacher.placementExam.startHint',
+                  isRTL ? 'تابع من هنا لتحديد مستوى الطالب باستخدام المسار الحالي.' : 'Use the current placement flow to assess this student.'
+                )}
+              </Text>
+            </View>
+            <View style={styles.placementCta}>
+              <Text style={styles.placementCtaText}>{isRTL ? 'ابدأ' : 'Start'}</Text>
+            </View>
+          </TouchableOpacity>
+        ) : null}
+
         <View style={[styles.actionsRow, isRTL && styles.rowReverse]}>
           {ACTION_BUTTONS.map((btn) => (
             <TouchableOpacity key={btn.id} style={[styles.actionBtn, { backgroundColor: btn.bg }]}
-              onPress={() => router.push({ pathname: btn.route as any, params: { studentId } })} activeOpacity={0.75}>
+              onPress={() => router.push({
+                pathname: btn.route as any,
+                params: {
+                  studentId,
+                  studentName: student?.fullNameAr ?? student?.fullNameEn ?? '',
+                },
+              })} activeOpacity={0.75}>
               <Text style={styles.actionIcon}>{btn.icon}</Text>
               <Text style={[styles.actionLabel, { color: btn.color }]}>{btn.label}</Text>
             </TouchableOpacity>
@@ -160,6 +260,64 @@ const styles = StyleSheet.create({
   navTitle: { fontFamily: 'Lexend_700Bold', fontSize: 17, color: '#1a1a2e' },
   fallbackBtn: { backgroundColor: '#508DF7', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 14 },
   fallbackBtnText: { fontFamily: 'Lexend_700Bold', fontSize: 15, color: '#fff' },
+
+  placementCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 14,
+    padding: 16,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D8E4FF',
+    shadowColor: '#508DF7',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    elevation: 3,
+  },
+  placementIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#EEF4FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placementIcon: {
+    fontSize: 24,
+  },
+  placementBody: {
+    flex: 1,
+    paddingHorizontal: 12,
+  },
+  placementTitle: {
+    fontFamily: 'Lexend_700Bold',
+    fontSize: 14,
+    color: '#1a1a2e',
+    marginBottom: 4,
+  },
+  placementSubtitle: {
+    fontFamily: 'Lexend_400Regular',
+    fontSize: 12,
+    color: '#6B7280',
+    lineHeight: 18,
+  },
+  placementCta: {
+    minWidth: 72,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 14,
+    backgroundColor: '#508DF7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placementCtaText: {
+    fontFamily: 'Lexend_700Bold',
+    fontSize: 12,
+    color: '#FFFFFF',
+  },
 
   actionsRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 10, marginBottom: 16 },
   actionBtn: { flex: 1, borderRadius: 16, padding: 14, alignItems: 'center', gap: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 2 },

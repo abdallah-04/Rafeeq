@@ -46,11 +46,8 @@ public class DashboardService {
         Teacher teacher = teacherRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("Teacher not found"));
 
-        var students = childProfileRepository.findByTeacherId(teacher.getId());
-        long studentsCount = students.size();
-        long activeStudentsCount = students.stream()
-                .filter(child -> child.getStatus() == ChildStatus.ACTIVE)
-                .count();
+        long studentsCount = childProfileRepository.countByTeacherId(teacher.getId());
+        long activeStudentsCount = childProfileRepository.countByTeacherIdAndStatus(teacher.getId(), ChildStatus.ACTIVE);
         long pendingPlacementCount = studentsCount - activeStudentsCount;
 
         Map<String, Object> map = new HashMap<>();
@@ -72,10 +69,8 @@ public class DashboardService {
 
         var children = childProfileRepository.findByParentId(parent.getId());
         long childrenCount = children.size();
-        long activeChildrenCount = children.stream()
-                .filter(child -> child.getStatus() == ChildStatus.ACTIVE)
-                .count();
-        long unreadNotifications = notificationRepository.findByUserIdAndIsRead(userId, false).size();
+        long activeChildrenCount = childProfileRepository.countByParentIdAndStatus(parent.getId(), ChildStatus.ACTIVE);
+        long unreadNotifications = notificationRepository.countByUserIdAndIsRead(userId, false);
         int progressAverage = children.isEmpty()
                 ? 0
                 : (int) Math.round(children.stream()
@@ -104,11 +99,7 @@ public class DashboardService {
 
         long teachersCount = teacherRepository.countBySchoolId(schoolId);
         long studentsCount = childProfileRepository.countByTeacherSchoolId(schoolId);
-        long pendingPlacementCount = teacherRepository.findBySchoolId(schoolId)
-                .stream()
-                .flatMap(teacher -> childProfileRepository.findByTeacherId(teacher.getId()).stream())
-                .filter(child -> child.getStatus() != ChildStatus.ACTIVE)
-                .count();
+        long pendingPlacementCount = childProfileRepository.countByTeacherSchoolIdAndStatusNot(schoolId, ChildStatus.ACTIVE);
 
         Map<String, Object> map = new HashMap<>();
         map.put("teachersCount", teachersCount);
