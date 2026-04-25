@@ -1,7 +1,6 @@
 package com.rafeeq.backend.service;
 
 import com.rafeeq.backend.common.NotFoundException;
-import com.rafeeq.backend.entity.ChildProfile;
 import com.rafeeq.backend.entity.Parent;
 import com.rafeeq.backend.entity.Teacher;
 import com.rafeeq.backend.entity_enums.ChildStatus;
@@ -18,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -67,16 +67,13 @@ public class DashboardService {
         Parent parent = parentRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("Parent not found"));
 
-        var children = childProfileRepository.findByParentId(parent.getId());
-        long childrenCount = children.size();
+        List<UUID> childIds = childProfileRepository.findIdsByParentId(parent.getId());
+        long childrenCount = childIds.size();
         long activeChildrenCount = childProfileRepository.countByParentIdAndStatus(parent.getId(), ChildStatus.ACTIVE);
         long unreadNotifications = notificationRepository.countByUserIdAndIsRead(userId, false);
-        int progressAverage = children.isEmpty()
+        int progressAverage = childIds.isEmpty()
                 ? 0
-                : (int) Math.round(children.stream()
-                .mapToInt(this::estimateProgress)
-                .average()
-                .orElse(0));
+                : calculateProgressAverage(childIds);
 
         Map<String, Object> map = new HashMap<>();
         map.put("childrenCount", childrenCount);
@@ -109,10 +106,30 @@ public class DashboardService {
         return map;
     }
 
-    private int estimateProgress(ChildProfile child) {
-        int quizzesCount = Math.toIntExact(quizRepository.countByChildId(child.getId()));
-        int homeworksCount = Math.toIntExact(homeworkRepository.countByChildId(child.getId()));
-        int activitiesCount = Math.toIntExact(activityRepository.countByChildId(child.getId()));
+    private int calculateProgressAverage(List<UUID> childIds) {
+        Map<UUID, Integer> quizCounts = toCountMap(quizRepository.countByChildIds(childIds));
+        Map<UUID, Integer> homeworkCounts = toCountMap(homeworkRepository.countByChildIds(childIds));
+        Map<UUID, Integer> activityCounts = toCountMap(activityRepository.countByChildIds(childIds));
+
+        return (int) Math.round(childIds.stream()
+                .mapToInt(childId -> estimateProgress(
+                        quizCounts.getOrDefault(childId, 0),
+                        homeworkCounts.getOrDefault(childId, 0),
+                        activityCounts.getOrDefault(childId, 0)
+                ))
+                .average()
+                .orElse(0));
+    }
+
+    private Map<UUID, Integer> toCountMap(List<Object[]> rows) {
+        Map<UUID, Integer> counts = new HashMap<>();
+        for (Object[] row : rows) {
+            counts.put((UUID) row[0], ((Number) row[1]).intValue());
+        }
+        return counts;
+    }
+
+    private int estimateProgress(int quizzesCount, int homeworksCount, int activitiesCount) {
         int total = quizzesCount + homeworksCount + activitiesCount;
         return total > 0 ? Math.min(100, total * 10) : 0;
     }

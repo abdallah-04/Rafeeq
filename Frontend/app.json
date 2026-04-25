@@ -4,6 +4,7 @@
     "slug": "rafeeq",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
    
     "scheme": "borrowbooks",
     "userInterfaceStyle": "automatic",
@@ -16,7 +17,11 @@
       "supportsTablet": true
     },
     "android": {
-      
+      "icon": "./assets/images/icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
       "predictiveBackGestureEnabled": false,
       "package": "com.abdallah.ammanlibrary"
     },

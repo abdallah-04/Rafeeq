@@ -36,3 +36,7 @@ RaveeqV0_extracted/
 *.tmp
 .DS_Store
 Thumbs.db
+Frontend/expo-web.log
+Frontend/expo-web.err.log
+backend/backend-run.log
+backend/backend-run.err.log

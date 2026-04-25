@@ -3,6 +3,8 @@ package com.rafeeq.backend.repository;
 import com.rafeeq.backend.entity.ChildProfile;
 import com.rafeeq.backend.entity_enums.ChildStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +13,8 @@ import java.util.UUID;
 public interface ChildProfileRepository extends JpaRepository<ChildProfile, UUID> {
     Optional<ChildProfile> findByUserId(UUID userId);
     List<ChildProfile> findByParentId(UUID parentId);
+    @Query("select c.id from ChildProfile c where c.parent.id = :parentId")
+    List<UUID> findIdsByParentId(@Param("parentId") UUID parentId);
     List<ChildProfile> findByTeacherId(UUID teacherId);
     List<ChildProfile> findByTeacherIdAndTeacherSchoolId(UUID teacherId, UUID schoolId);
     Optional<ChildProfile> findByIdAndTeacherId(UUID id, UUID teacherId);
