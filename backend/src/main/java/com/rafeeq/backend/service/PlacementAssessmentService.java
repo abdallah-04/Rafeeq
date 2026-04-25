@@ -147,17 +147,11 @@ public class PlacementAssessmentService {
                 .orElseThrow(() -> new NotFoundException("Teacher not found"));
     }
 
-    private int determineLevel(int correctAnswers, int totalQuestions) {
-        double score = totalQuestions == 0 ? 0 : (correctAnswers * 100.0) / totalQuestions;
-        if (score >= 80) {
-            return 3;
-        }
-        if (score >= 50) {
-            return 2;
-        }
-        return 1;
-    }
-
+   private int determineLevel(int correctAnswers, int totalQuestions) {
+    if (correctAnswers >= 5) return 3; // ممتاز → Level 3
+    if (correctAnswers >= 3) return 2; // متوسط → Level 2
+    return 1;                          // مبتدئ → Level 1
+}
     private PlacementQuestionResponse mapQuestion(AssessmentQuestion question) {
         return new PlacementQuestionResponse(
                 question.getId(),
