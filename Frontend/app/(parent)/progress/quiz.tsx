@@ -1,110 +1,127 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, TouchableOpacity, ScrollView, StatusBar, StyleSheet, ActivityIndicator } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { theme } from '@/theme';
+import React, { useCallback, useMemo, useState } from 'react'
+import { View, TouchableOpacity, ScrollView, StatusBar, StyleSheet, ActivityIndicator } from 'react-native'
+import { router, useFocusEffect } from 'expo-router'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
+import { Ionicons } from '@expo/vector-icons'
 
-import ScreenWrapper from '@/components/modal/shared/ScreenWap';
-import Header from '@/components/modal/shared/Header';
-import ChildSelector from '@/components/modal/parent/ChildSelector';
-import TabBar from '@/components/modal/shared/TabBar';
-import QuizCard from '@/components/modal/parent/quizcard';
-import { useActiveChildStore } from '@/store/activeChildStore';
-import { Text } from '@/components/modal/shared/Text';
-import { useTranslation } from 'react-i18next';
-import { apiGetQuizzes, QuizResponse } from '@/services/api';
-import type { BadgeVariant } from '@/components/modal/parent/StatusBadge';
+import ScreenWrapper from '@/components/modal/shared/ScreenWap'
+import Header from '@/components/modal/shared/Header'
+import ChildSelector from '@/components/modal/parent/ChildSelector'
+import TabBar from '@/components/modal/shared/TabBar'
+import QuizCard from '@/components/modal/parent/quizcard'
+import { useActiveChildStore } from '@/store/activeChildStore'
+import { Text } from '@/components/modal/shared/Text'
+import { apiGetQuizzes, apiGetTreeItems, QuizResponse, TreeItemResponse } from '@/services/api'
+import type { BadgeVariant } from '@/components/modal/parent/StatusBadge'
+import { theme } from '@/theme'
+import { buildLearningTreeAccessMap } from '@/utils/learningTree'
 
-function toBadgeVariant(status: string): BadgeVariant {
-  const normalized = status?.toLowerCase();
-  if (normalized === 'completed') return 'completed';
-  if (normalized === 'in_progress') return 'in_progress';
-  return 'new';
+function toBadgeVariant(quiz: QuizResponse, treeItems: TreeItemResponse[]): BadgeVariant {
+  if (!quiz.treeItemId) {
+    const normalized = quiz.status?.toLowerCase()
+    if (normalized === 'completed') return 'completed'
+    if (normalized === 'in_progress') return 'in_progress'
+    return 'new'
+  }
+
+  const step = buildLearningTreeAccessMap(treeItems).get(quiz.treeItemId)
+
+  if (step?.isLocked) return 'locked'
+  if (step?.isCompleted || quiz.status?.toLowerCase() === 'completed') return 'completed'
+  if (step?.isCurrent) return 'current'
+  return 'new'
 }
 
 export default function QuizzesScreen() {
-  const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const { t } = useTranslation()
+  const insets = useSafeAreaInsets()
   const tabs = useMemo(
     () => [
       t('progress.tabs.progress', 'Progress'),
       t('progress.tabs.quizzes', 'Quizzes'),
       t('activities.title', 'Activities'),
-      t('homework.title', 'Homeworks'),
+      t('homework.title', 'Homework'),
     ],
     [t]
-  );
-  const [activeTab, setActiveTab] = useState(tabs[1]);
-  const activeChild = useActiveChildStore((s) => s.activeChild);
-  const [quizzes, setQuizzes] = useState<QuizResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  )
 
-  const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? 'Zaid';
+  const [activeTab, setActiveTab] = useState(tabs[1])
+  const activeChild = useActiveChildStore((state) => state.activeChild)
+  const [quizzes, setQuizzes] = useState<QuizResponse[]>([])
+  const [treeItems, setTreeItems] = useState<TreeItemResponse[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? 'Zaid'
   const childAge = activeChild?.dateOfBirth
     ? Math.floor((Date.now() - new Date(activeChild.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365))
-    : 6;
+    : 6
   const childBadges = [
     ...(activeChild?.level ? [{ label: `${t('common.level', 'Level')} ${activeChild.level}`, color: '#A78BFA' }] : []),
     { label: t('myChildren.years', { age: childAge }), color: '#60A5FA' },
-  ];
+  ]
 
-  useEffect(() => {
-    let cancelled = false;
-
+  const loadQuizzes = useCallback(async () => {
     if (!activeChild?.id) {
-      setQuizzes([]);
-      return;
+      setQuizzes([])
+      setTreeItems([])
+      return
     }
 
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
 
-    apiGetQuizzes(activeChild.id)
-      .then((data) => {
-        if (!cancelled) {
-          setQuizzes(data);
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : t('common.error', 'Something went wrong'));
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      });
+    try {
+      const [quizResponse, treeItemResponse] = await Promise.all([
+        apiGetQuizzes(activeChild.id),
+        apiGetTreeItems(activeChild.id).catch(() => []),
+      ])
+      setQuizzes(quizResponse)
+      setTreeItems(treeItemResponse)
+    } catch (err) {
+      setQuizzes([])
+      setTreeItems([])
+      setError(err instanceof Error ? err.message : t('common.error', 'Something went wrong'))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [activeChild?.id, t])
 
-    return () => {
-      cancelled = true;
-    };
-  }, [activeChild?.id, t]);
+  useFocusEffect(
+    useCallback(() => {
+      setActiveTab(tabs[1])
+      loadQuizzes()
+    }, [loadQuizzes, tabs])
+  )
+
+  const accessMap = useMemo(() => buildLearningTreeAccessMap(treeItems), [treeItems])
 
   const handleBack = () => {
     if (router.canGoBack()) {
-      router.back();
-      return;
+      router.back()
+      return
     }
-    router.replace('/(parent)/progress/progress-page' as any);
-  };
+
+    router.replace('/(parent)/progress/progress-page' as any)
+  }
 
   const handleTabChange = (tab: string) => {
     if (tab === tabs[0]) {
-      router.replace('/(parent)/progress/progress-page' as any);
-      return;
+      router.replace('/(parent)/progress/progress-page' as any)
+      return
     }
     if (tab === tabs[2]) {
-      router.replace('/(parent)/progress/activities' as any);
-      return;
+      router.replace('/(parent)/progress/activities' as any)
+      return
     }
     if (tab === tabs[3]) {
-      router.replace('/(parent)/progress/homeworks' as any);
-      return;
+      router.replace('/(parent)/progress/homeworks' as any)
+      return
     }
-    setActiveTab(tabs[1]);
-  };
+
+    setActiveTab(tabs[1])
+  }
 
   return (
     <ScreenWrapper padded={false} scroll={false}>
@@ -131,7 +148,7 @@ export default function QuizzesScreen() {
         contentContainerStyle={[styles.scrollContent, { paddingBottom: theme.spacing.xl + insets.bottom }]}
       >
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>✏️ {t('progress.tabs.quizzes', "This week's quizzes")}</Text>
+          <Text style={styles.sectionTitle}>{t('quizzes.thisWeek', "This week's quizzes")}</Text>
         </View>
 
         {isLoading ? <ActivityIndicator color={theme.colors.primary} style={styles.centered} /> : null}
@@ -142,39 +159,44 @@ export default function QuizzesScreen() {
           </Text>
         ) : null}
 
-        {quizzes.map((quiz) => (
-          <QuizCard
-            key={quiz.id}
-            title={quiz.title}
-            questionsCount={quiz.totalQuestions ?? quiz.questions.length}
-            durationMinutes={5}
-            metaText={
-              quiz.level != null
-                ? t('quiz.levelMeta', {
-                    level: quiz.level,
-                    count: quiz.totalQuestions ?? quiz.questions.length,
-                    defaultValue: `Level ${quiz.level} · ${quiz.totalQuestions ?? quiz.questions.length} questions`,
-                  })
-                : undefined
-            }
-            status={toBadgeVariant(quiz.status)}
-            icon={require('@/assets/images/icons/math.png')}
-            iconBgColor="#FDE68A"
-            iconTintColor="#D97706"
-            onPress={() => router.push(`/(parent)/progress/quiz/${quiz.id}` as any)}
-          />
-        ))}
+        {quizzes.map((quiz) => {
+          const step = quiz.treeItemId ? accessMap.get(quiz.treeItemId) ?? null : null
+
+          return (
+            <QuizCard
+              key={quiz.id}
+              title={quiz.title}
+              questionsCount={quiz.totalQuestions ?? quiz.questions.length}
+              durationMinutes={5}
+              metaText={
+                quiz.level != null
+                  ? t('quiz.levelMeta', {
+                      level: quiz.level,
+                      count: quiz.totalQuestions ?? quiz.questions.length,
+                      defaultValue: `Level ${quiz.level} - ${quiz.totalQuestions ?? quiz.questions.length} questions`,
+                    })
+                  : undefined
+              }
+              status={toBadgeVariant(quiz, treeItems)}
+              icon={require('@/assets/images/icons/math.png')}
+              iconBgColor="#FDE68A"
+              iconTintColor="#D97706"
+              disabled={Boolean(step?.isLocked)}
+              onPress={() => router.push(`/(parent)/progress/quiz/${quiz.id}` as any)}
+            />
+          )
+        })}
       </ScrollView>
     </ScreenWrapper>
-  );
+  )
 }
 
 function HeaderRightButton({ onPress }: { onPress: () => void }) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.settingsBtn}>
-      <Text style={styles.settingsIcon}>⚙️</Text>
+    <TouchableOpacity onPress={onPress} style={styles.settingsButton}>
+      <Ionicons name="settings-outline" size={20} color={theme.colors.textSecondary} />
     </TouchableOpacity>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -195,13 +217,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend_700Bold',
     color: theme.colors.textPrimary,
   },
-  settingsBtn: {
-    width: 36,
+  settingsButton: {
+    minWidth: 36,
     height: 36,
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
-  settingsIcon: { fontSize: 20 },
   centered: { marginVertical: theme.spacing.md },
   messageText: {
     textAlign: 'center',
@@ -209,4 +230,4 @@ const styles = StyleSheet.create({
     marginVertical: theme.spacing.md,
     fontFamily: theme.typography.fontFamily.medium,
   },
-});
+})

@@ -432,6 +432,8 @@ export interface TeacherDashboard {
   studentsCount:         number;
   activeStudentsCount:   number;
   pendingPlacementCount: number;
+  averageProgress?:      number;
+  progressPercentage?:   number;
 }
 
 export interface SchoolDashboard {

@@ -652,6 +652,17 @@
     "keepGoingPeriod": "This week"
   },
 
+  "statusBadge": {
+    "repeat": "Repeat",
+    "start": "Start",
+    "completed": "Completed",
+    "in_progress": "In Progress",
+    "current": "Current",
+    "new": "New",
+    "later": "Later",
+    "locked": "Locked"
+  },
+
   "homework": {
     "title": "Homework",
     "thisWeek": "This week",
@@ -665,14 +676,41 @@
     "forToday": "For today",
     "notFinishedSince": "Not finished since last week",
     "openHw": "Open H.W",
-    "status": { "not_submitted": "Pending", "submitted": "Submitted", "graded": "Graded" }
+    "status": { "not_submitted": "Pending", "submitted": "Submitted", "graded": "Graded" },
+    "dueDateLabel": "Due {{date}}",
+    "noDueDate": "No due date",
+    "missingId": "Homework could not be loaded.",
+    "emptyState": "No homework available for this child yet.",
+    "progressSummary": "{{completed}} of {{total}} tasks completed",
+    "noHomeworkYet": "No homework yet",
+    "instructionsLabel": "Instructions",
+    "answerLabel": "Answer",
+    "answerPlaceholder": "Write the child answer here...",
+    "attachmentLabel": "Attachment (Optional)",
+    "submitHint": "Submitting this homework marks the current step as complete.",
+    "submitHomework": "Submit Homework",
+    "submittedTitle": "Homework submitted",
+    "submittedBody": "This homework is complete and the next learning-tree step can now open.",
+    "selectedAttachmentFallback": "Selected attachment",
+    "noDescription": "No description available."
   },
 
   "activities": {
     "title": "Activities",
     "recommendedFor": "Recommended for {{name}}",
     "daily": "Daily activities",
-    "mins": "{{count}} mins"
+    "mins": "{{count}} mins",
+    "emptyState": "No activities available for this child yet.",
+    "missingId": "Activity could not be loaded.",
+    "instructions": "Instructions",
+    "materials": "Materials",
+    "expectedOutcome": "Expected outcome"
+  },
+
+  "quiz": {
+    "emptyState": "No quizzes available for this child yet.",
+    "missingId": "Quiz could not be loaded.",
+    "levelMeta": "Level {{level}} - {{count}} questions"
   },
 
   "tree": {
@@ -681,7 +719,35 @@
     "completed": "Completed",
     "current": "Today",
     "upcoming": "Upcoming",
-    "locked": "Locked"
+    "locked": "Locked",
+    "active": "Active",
+    "ready": "Ready",
+    "generate": "Generate Tree",
+    "generating": "Generating...",
+    "noTopic": "Learning Tree",
+    "emptySummary": "Generate a tree after placement to see the child learning path.",
+    "emptyTitle": "No learning tree yet",
+    "emptyBody": "Generate the child learning tree after placement to unlock activities, homework, and quizzes.",
+    "noSteps": "No roadmap steps are available yet.",
+    "item": "Learning item",
+    "step": "Step",
+    "typeHomework": "Homework",
+    "typeActivity": "Activity",
+    "typeQuiz": "Quiz",
+    "currentStep": "Current",
+    "complete": "Mark Complete",
+    "submitHomework": "Submit Homework",
+    "openActivity": "Open Activity",
+    "startQuiz": "Start Quiz",
+    "progressCount": "{{completed}}/{{total}} completed",
+    "tapToOpen": "Tap to open details.",
+    "tapToReview": "Tap to review details.",
+    "tapToContinue": "Tap to continue this step.",
+    "tapToStartQuiz": "Tap to solve this quiz.",
+    "unlockPrevious": "Complete the previous step to unlock this one.",
+    "teacherLockedHint": "Locked until earlier steps are completed.",
+    "teacherCurrentHint": "This is the student current step.",
+    "teacherCompletedHint": "This step has already been completed."
   },
 
   "explore": {

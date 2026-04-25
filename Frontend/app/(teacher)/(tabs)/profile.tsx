@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -99,19 +99,9 @@ export default function TeacherProfileScreen() {
     ? (user?.nameAr ?? user?.name ?? t('teacher.profile.name', 'Teacher'))
     : (user?.name ?? user?.nameAr ?? t('teacher.profile.name', 'Teacher'));
 
-  const avgProgress = useMemo(() => {
-    const levels = students
-      .map((student) => student.assessedLevel ?? student.level)
-      .filter((value): value is number => value != null);
-
-    if (levels.length === 0) return 0;
-
-    const total = levels.reduce((sum, value) => sum + Math.max(0, Math.min(value * 20, 100)), 0);
-    return Math.round(total / levels.length);
-  }, [students]);
-
   const studentCount = dashboard?.studentsCount ?? students.length;
   const activeCount = dashboard?.activeStudentsCount ?? students.filter((student) => student.status === 'ACTIVE').length;
+  const avgProgress = dashboard?.averageProgress ?? dashboard?.progressPercentage ?? 0;
 
   const handleLogout = () => {
     void performLogout();

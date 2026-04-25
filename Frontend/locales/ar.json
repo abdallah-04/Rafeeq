@@ -718,6 +718,17 @@
     "keepGoingPeriod": "هذا الأسبوع"
   },
 
+  "statusBadge": {
+    "repeat": "إعادة",
+    "start": "ابدأ",
+    "completed": "مكتمل",
+    "in_progress": "قيد التنفيذ",
+    "current": "الحالية",
+    "new": "جديد",
+    "later": "لاحقًا",
+    "locked": "مقفل"
+  },
+
   "homework": {
     "title": "الواجبات",
     "thisWeek": "هذا الأسبوع",
@@ -731,14 +742,41 @@
     "forToday": "لليوم",
     "notFinishedSince": "لم يُنجز منذ الأسبوع الماضي",
     "openHw": "فتح الواجب",
-    "status": { "not_submitted": "قيد الانتظار", "submitted": "تم التسليم", "graded": "مصحَّح" }
+    "status": { "not_submitted": "قيد الانتظار", "submitted": "تم التسليم", "graded": "مصحَّح" },
+    "dueDateLabel": "موعد التسليم {{date}}",
+    "noDueDate": "لا يوجد موعد تسليم",
+    "missingId": "تعذر تحميل الواجب.",
+    "emptyState": "لا توجد واجبات متاحة لهذا الطفل بعد.",
+    "progressSummary": "{{completed}} من {{total}} مهام مكتملة",
+    "noHomeworkYet": "لا توجد واجبات بعد",
+    "instructionsLabel": "التعليمات",
+    "answerLabel": "الإجابة",
+    "answerPlaceholder": "اكتب إجابة الطفل هنا...",
+    "attachmentLabel": "مرفق (اختياري)",
+    "submitHint": "إرسال هذا الواجب يحدد الخطوة الحالية كمكتملة.",
+    "submitHomework": "إرسال الواجب",
+    "submittedTitle": "تم إرسال الواجب",
+    "submittedBody": "اكتمل هذا الواجب ويمكن الآن فتح الخطوة التالية في شجرة التعلم.",
+    "selectedAttachmentFallback": "تم اختيار مرفق",
+    "noDescription": "لا يوجد وصف متاح."
   },
 
   "activities": {
     "title": "الأنشطة",
     "recommendedFor": "موصى به لـ {{name}}",
     "daily": "الأنشطة اليومية",
-    "mins": "{{count}} دقيقة"
+    "mins": "{{count}} دقيقة",
+    "emptyState": "لا توجد أنشطة متاحة لهذا الطفل بعد.",
+    "missingId": "تعذر تحميل النشاط.",
+    "instructions": "التعليمات",
+    "materials": "المواد المطلوبة",
+    "expectedOutcome": "الناتج المتوقع"
+  },
+
+  "quiz": {
+    "emptyState": "لا توجد اختبارات متاحة لهذا الطفل بعد.",
+    "missingId": "تعذر تحميل الاختبار.",
+    "levelMeta": "المستوى {{level}} - {{count}} أسئلة"
   },
 
   "tree": {
@@ -747,7 +785,35 @@
     "completed": "مكتمل",
     "current": "اليوم",
     "upcoming": "قادم",
-    "locked": "مقفل"
+    "locked": "مقفل",
+    "active": "نشط",
+    "ready": "جاهز",
+    "generate": "إنشاء الشجرة",
+    "generating": "جارٍ الإنشاء...",
+    "noTopic": "شجرة التعلم",
+    "emptySummary": "أنشئ الشجرة بعد التقييم لتظهر رحلة تعلم الطفل.",
+    "emptyTitle": "لا توجد شجرة تعلم بعد",
+    "emptyBody": "أنشئ شجرة التعلم بعد التقييم لفتح الأنشطة والواجبات والاختبارات.",
+    "noSteps": "لا توجد خطوات متاحة في الخريطة بعد.",
+    "item": "عنصر تعلّم",
+    "step": "الخطوة",
+    "typeHomework": "واجب",
+    "typeActivity": "نشاط",
+    "typeQuiz": "اختبار",
+    "currentStep": "الحالية",
+    "complete": "تحديد كمكتمل",
+    "tapToOpen": "اضغط لفتح التفاصيل.",
+    "tapToStartQuiz": "اضغط لبدء حل الاختبار.",
+    "unlockPrevious": "أكمل الخطوة السابقة لفتح هذه الخطوة.",
+    "submitHomework": "إرسال الواجب",
+    "openActivity": "فتح النشاط",
+    "startQuiz": "بدء الاختبار",
+    "progressCount": "{{completed}}/{{total}} مكتمل",
+    "tapToReview": "اضغط لمراجعة التفاصيل.",
+    "tapToContinue": "اضغط لمتابعة هذه الخطوة.",
+    "teacherLockedHint": "ستبقى هذه الخطوة مقفلة حتى تكتمل الخطوات السابقة.",
+    "teacherCurrentHint": "هذه هي الخطوة الحالية للطالب.",
+    "teacherCompletedHint": "تم إكمال هذه الخطوة بالفعل."
   },
 
   "explore": {

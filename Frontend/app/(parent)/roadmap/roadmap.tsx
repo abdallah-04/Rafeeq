@@ -1,20 +1,21 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import { Ionicons } from '@expo/vector-icons'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-import { theme } from '@/theme'
 import { useTranslation } from 'react-i18next'
+
 import BackButton from '@/components/modal/shared/BackButton'
+import LearningTreeTimeline from '@/components/learning-tree/LearningTreeTimeline'
 import {
-  apiCompleteTreeItem,
   apiGenerateLearningTree,
   apiGetLearningTree,
   apiGetTreeItems,
@@ -22,24 +23,30 @@ import {
   TreeItemResponse,
 } from '@/services/api'
 import { useActiveChildStore } from '@/store/activeChildStore'
+import { theme } from '@/theme'
+import { buildLearningTreeSteps } from '@/utils/learningTree'
 
 const { colors, spacing, typography } = theme
 
 function statusLabel(status: string, t: ReturnType<typeof useTranslation>['t']) {
   switch (status?.toLowerCase()) {
     case 'completed':
-      return t('statusBadge.completed', 'Completed')
+      return t('tree.completed', 'Completed')
     case 'active':
+    case 'in_progress':
       return t('tree.active', 'Active')
     default:
-      return t('statusBadge.start', 'Start')
+      return t('tree.ready', 'Ready')
   }
 }
 
 export default function TreeScreen() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isRTL = i18n.language === 'ar'
+  const fonts = isRTL ? typography.fontFamilyAr : typography.fontFamily
   const insets = useSafeAreaInsets()
-  const activeChild = useActiveChildStore((s) => s.activeChild)
+  const activeChild = useActiveChildStore((state) => state.activeChild)
+
   const [tree, setTree] = useState<LearningTreeResponse | null>(null)
   const [items, setItems] = useState<TreeItemResponse[]>([])
   const [loading, setLoading] = useState(false)
@@ -55,6 +62,7 @@ export default function TreeScreen() {
 
     setLoading(true)
     setError(null)
+
     try {
       const [treeResponse, itemResponse] = await Promise.all([
         apiGetLearningTree(activeChild.id),
@@ -71,22 +79,33 @@ export default function TreeScreen() {
     }
   }, [activeChild?.id, t])
 
-  useEffect(() => {
-    loadTree()
-  }, [loadTree])
+  useFocusEffect(
+    useCallback(() => {
+      loadTree()
+    }, [loadTree])
+  )
+
+  const steps = useMemo(() => buildLearningTreeSteps(items), [items])
+  const completedCount = steps.filter((step) => step.isCompleted).length
+  const levelLabel = tree?.level ?? activeChild?.level ?? '--'
 
   const handleBack = () => {
     if (router.canGoBack()) {
       router.back()
       return
     }
+
     router.replace('/(parent)/Home-parent' as any)
   }
 
   const handleGenerate = async () => {
-    if (!activeChild?.id) return
+    if (!activeChild?.id) {
+      return
+    }
+
     setGenerating(true)
     setError(null)
+
     try {
       await apiGenerateLearningTree(activeChild.id)
       await loadTree()
@@ -97,24 +116,47 @@ export default function TreeScreen() {
     }
   }
 
-  const handleComplete = async (itemId: string) => {
-    try {
-      await apiCompleteTreeItem(itemId)
-      await loadTree()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error', 'Something went wrong'))
+  const handleStepPress = (step: (typeof steps)[number]) => {
+    if (step.isLocked || !step.itemId) {
+      return
     }
+
+    if (step.normalizedType === 'homework') {
+      router.push({
+        pathname: '/(parent)/progress/HomeworkDetail' as any,
+        params: { homeworkId: step.itemId },
+      })
+      return
+    }
+
+    if (step.normalizedType === 'activity') {
+      router.push(`/(parent)/activity/${step.itemId}` as any)
+      return
+    }
+
+    router.push(`/(parent)/progress/quiz/${step.itemId}` as any)
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <StatusBar style="dark" />
 
       <View style={styles.header}>
         <BackButton onPress={handleBack} />
-        <Text style={styles.headerTitle}>{t('tree.title', 'Learning Tree')}</Text>
-        <TouchableOpacity style={styles.settingsBtn} activeOpacity={0.8} onPress={handleGenerate} disabled={generating}>
-          <Text style={styles.settingsIcon}>{generating ? '…' : '↻'}</Text>
+        <Text style={[styles.headerTitle, { fontFamily: fonts.bold }]}>
+          {t('tree.title', 'Learning Tree')}
+        </Text>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          disabled={generating}
+          onPress={handleGenerate}
+          style={styles.headerAction}
+        >
+          {generating ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <Ionicons name="refresh-outline" size={22} color={colors.primary} />
+          )}
         </TouchableOpacity>
       </View>
 
@@ -124,240 +166,220 @@ export default function TreeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>
+          <Text
+            style={[
+              styles.summaryTitle,
+              {
+                fontFamily: fonts.bold,
+                textAlign: isRTL ? 'right' : 'left',
+              },
+            ]}
+          >
             {tree?.topic ?? t('tree.noTopic', 'Learning Tree')}
           </Text>
-          <Text style={styles.summaryBody}>
+
+          <Text
+            style={[
+              styles.summaryBody,
+              {
+                fontFamily: fonts.regular,
+                textAlign: isRTL ? 'right' : 'left',
+              },
+            ]}
+          >
             {tree?.summary ?? t('tree.emptySummary', 'Generate a tree after placement to see the child learning path.')}
           </Text>
-          <View style={styles.summaryMetaRow}>
+
+          <View style={[styles.summaryMetaRow, isRTL && styles.rowReverseWrap]}>
             <View style={styles.metaChip}>
-              <Text style={styles.metaChipText}>
-                {t('common.level', 'Level')} {tree?.level ?? activeChild?.level ?? '--'}
+              <Text style={[styles.metaChipText, { fontFamily: fonts.medium }]}>
+                {t('common.level', 'Level')} {levelLabel}
               </Text>
             </View>
+
             <View style={styles.metaChip}>
-              <Text style={styles.metaChipText}>
+              <Text style={[styles.metaChipText, { fontFamily: fonts.medium }]}>
                 {statusLabel(tree?.status ?? 'pending', t)}
               </Text>
             </View>
+
+            {steps.length > 0 ? (
+              <View style={styles.metaChip}>
+                <Text style={[styles.metaChipText, { fontFamily: fonts.medium }]}>
+                  {t('tree.progressCount', {
+                    completed: completedCount,
+                    total: steps.length,
+                    defaultValue: `${completedCount}/${steps.length} completed`,
+                  })}
+                </Text>
+              </View>
+            ) : null}
           </View>
         </View>
 
         {loading ? <ActivityIndicator color={colors.primary} style={styles.loader} /> : null}
-        {!loading && error ? <Text style={styles.messageText}>{error}</Text> : null}
+
+        {!loading && error ? (
+          <Text style={[styles.messageText, { fontFamily: fonts.medium }]}>
+            {error}
+          </Text>
+        ) : null}
 
         {!loading && !tree ? (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>{t('tree.emptyTitle', 'No learning tree yet')}</Text>
-            <Text style={styles.emptyBody}>
+            <Text
+              style={[
+                styles.emptyTitle,
+                {
+                  fontFamily: fonts.bold,
+                  textAlign: isRTL ? 'right' : 'left',
+                },
+              ]}
+            >
+              {t('tree.emptyTitle', 'No learning tree yet')}
+            </Text>
+
+            <Text
+              style={[
+                styles.emptyBody,
+                {
+                  fontFamily: fonts.regular,
+                  textAlign: isRTL ? 'right' : 'left',
+                },
+              ]}
+            >
               {t('tree.emptyBody', 'Generate the child learning tree after placement to unlock activities, homework, and quizzes.')}
             </Text>
-            <TouchableOpacity style={styles.primaryBtn} onPress={handleGenerate} disabled={generating}>
-              <Text style={styles.primaryBtnText}>
+
+            <TouchableOpacity
+              activeOpacity={0.85}
+              disabled={generating}
+              onPress={handleGenerate}
+              style={styles.primaryButton}
+            >
+              <Text style={[styles.primaryButtonText, { fontFamily: fonts.bold }]}>
                 {generating ? t('tree.generating', 'Generating...') : t('tree.generate', 'Generate Tree')}
               </Text>
             </TouchableOpacity>
           </View>
         ) : null}
 
-        {items.map((item) => {
-          const isCompleted = item.completed || item.status?.toLowerCase() === 'completed'
-          const isLocked = item.locked && !isCompleted
+        {!loading && tree && steps.length === 0 ? (
+          <Text style={[styles.messageText, { fontFamily: fonts.medium }]}>
+            {t('tree.noSteps', 'No roadmap steps are available yet.')}
+          </Text>
+        ) : null}
 
-          return (
-            <View key={item.id} style={styles.itemCard}>
-              <View style={styles.itemHeader}>
-                <View style={styles.itemIcon}>
-                  <Text style={styles.itemIconText}>
-                    {item.itemType === 'activity' ? '🎨' : item.itemType === 'homework' ? '📘' : '📝'}
-                  </Text>
-                </View>
-                <View style={styles.itemInfo}>
-                  <Text style={styles.itemTitle}>{item.title ?? t('tree.item', 'Learning item')}</Text>
-                  {item.description ? <Text style={styles.itemDescription}>{item.description}</Text> : null}
-                </View>
-              </View>
-
-              <View style={styles.itemFooter}>
-                <Text style={styles.itemStatus}>
-                  {isCompleted
-                    ? t('statusBadge.completed', 'Completed')
-                    : isLocked
-                      ? t('tree.locked', 'Locked')
-                      : t('tree.ready', 'Ready')}
-                </Text>
-                {!isCompleted && !isLocked ? (
-                  <TouchableOpacity style={styles.secondaryBtn} onPress={() => handleComplete(item.id)}>
-                    <Text style={styles.secondaryBtnText}>{t('tree.complete', 'Mark Complete')}</Text>
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-            </View>
-          )
-        })}
+        {!loading && steps.length > 0 ? (
+          <LearningTreeTimeline
+            levelLabel={levelLabel}
+            steps={steps}
+            onStepPress={handleStepPress}
+          />
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
+  safe: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
   headerTitle: {
+    flex: 1,
+    textAlign: 'center',
     fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
     color: colors.textPrimary,
   },
-  settingsBtn: {
+  headerAction: {
     width: 40,
-    alignItems: 'flex-end',
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  settingsIcon: {
-    fontSize: 22,
-    color: colors.primary,
+  scroll: {
+    flex: 1,
   },
-  scroll: { flex: 1 },
   content: {
     paddingHorizontal: spacing.lg,
     gap: spacing.md,
   },
   summaryCard: {
-    backgroundColor: '#EEF4FF',
     borderRadius: theme.radius.xl,
+    backgroundColor: '#EEF4FF',
     padding: spacing.lg,
     gap: spacing.sm,
   },
   summaryTitle: {
     fontSize: 18,
-    fontFamily: typography.fontFamily.bold,
     color: colors.textPrimary,
   },
   summaryBody: {
     fontSize: 14,
-    fontFamily: typography.fontFamily.regular,
     color: colors.textSecondary,
     lineHeight: 22,
   },
   summaryMetaRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
     flexWrap: 'wrap',
+    gap: spacing.sm,
   },
   metaChip: {
+    borderRadius: 999,
+    backgroundColor: '#DBEAFE',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#DBEAFE',
-    borderRadius: 999,
   },
   metaChipText: {
     fontSize: 12,
-    fontFamily: typography.fontFamily.medium,
     color: '#1D4ED8',
   },
   loader: {
     marginTop: spacing.lg,
   },
+  messageText: {
+    marginTop: spacing.md,
+    textAlign: 'center',
+    color: colors.textSecondary,
+  },
   emptyCard: {
-    backgroundColor: colors.white,
     borderRadius: theme.radius.xl,
-    padding: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
+    backgroundColor: colors.white,
+    padding: spacing.lg,
     gap: spacing.sm,
   },
   emptyTitle: {
     fontSize: 18,
-    fontFamily: typography.fontFamily.bold,
     color: colors.textPrimary,
   },
   emptyBody: {
     fontSize: 14,
-    fontFamily: typography.fontFamily.regular,
     color: colors.textSecondary,
     lineHeight: 22,
   },
-  primaryBtn: {
+  primaryButton: {
     marginTop: spacing.sm,
     borderRadius: theme.radius.lg,
     backgroundColor: colors.primary,
     paddingVertical: 12,
     alignItems: 'center',
   },
-  primaryBtnText: {
-    color: colors.white,
-    fontFamily: typography.fontFamily.bold,
+  primaryButtonText: {
     fontSize: 14,
+    color: colors.white,
   },
-  itemCard: {
-    backgroundColor: colors.white,
-    borderRadius: theme.radius.xl,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.md,
-  },
-  itemHeader: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  itemIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: '#F3E8FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  itemIconText: {
-    fontSize: 24,
-  },
-  itemInfo: {
-    flex: 1,
-    gap: 4,
-  },
-  itemTitle: {
-    fontSize: 15,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.textPrimary,
-  },
-  itemDescription: {
-    fontSize: 13,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
-  itemFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  itemStatus: {
-    fontSize: 12,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.textSecondary,
-  },
-  secondaryBtn: {
-    borderRadius: theme.radius.lg,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: '#DBEAFE',
-  },
-  secondaryBtnText: {
-    fontSize: 12,
-    fontFamily: typography.fontFamily.bold,
-    color: '#1D4ED8',
-  },
-  messageText: {
-    textAlign: 'center',
-    color: colors.textSecondary,
-    marginTop: spacing.md,
-    fontFamily: typography.fontFamily.medium,
+  rowReverseWrap: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
   },
 })

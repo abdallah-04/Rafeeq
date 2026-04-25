@@ -21,6 +21,7 @@ interface QuizCardProps {
     metaText?: string
     status: BadgeVariant
     onPress: () => void
+    disabled?: boolean
 }
 
 export default function QuizCard({
@@ -33,16 +34,19 @@ export default function QuizCard({
     metaText,
     status,
     onPress,
+    disabled = false,
     }: QuizCardProps) {
     const { t } = useTranslation()
 
     return (
         <TouchableOpacity
-        style={styles.card}
+        style={[styles.card, disabled && styles.cardDisabled]}
         onPress={onPress}
         activeOpacity={0.7}
+        disabled={disabled}
         accessibilityRole="button"
         accessibilityLabel={title}
+        accessibilityState={{ disabled }}
         >
         <View style={[styles.iconBox, { backgroundColor: iconBgColor }]}>
             <Image source={icon} style={[styles.icon, iconTintColor ? { tintColor: iconTintColor } : undefined]} resizeMode="contain" />
@@ -82,6 +86,9 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
         elevation: 2,
+    },
+    cardDisabled: {
+        opacity: 0.6,
     },
     iconBox: {
         width: 52,

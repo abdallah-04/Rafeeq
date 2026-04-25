@@ -12,6 +12,7 @@ import com.rafeeq.backend.repository.ParentRepository;
 import com.rafeeq.backend.repository.QuizRepository;
 import com.rafeeq.backend.repository.SchoolRepository;
 import com.rafeeq.backend.repository.TeacherRepository;
+import com.rafeeq.backend.repository.TreeItemRepository;
 import com.rafeeq.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class DashboardService {
     private final QuizRepository quizRepository;
     private final HomeworkRepository homeworkRepository;
     private final ActivityRepository activityRepository;
+    private final TreeItemRepository treeItemRepository;
 
     public Map<String, Object> teacher(String nationalId) {
 
@@ -46,14 +48,18 @@ public class DashboardService {
         Teacher teacher = teacherRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("Teacher not found"));
 
-        long studentsCount = childProfileRepository.countByTeacherId(teacher.getId());
+        List<UUID> childIds = childProfileRepository.findIdsByTeacherId(teacher.getId());
+        long studentsCount = childIds.size();
         long activeStudentsCount = childProfileRepository.countByTeacherIdAndStatus(teacher.getId(), ChildStatus.ACTIVE);
         long pendingPlacementCount = studentsCount - activeStudentsCount;
+        int averageProgress = calculateTreeProgressAverage(childIds);
 
         Map<String, Object> map = new HashMap<>();
         map.put("studentsCount", studentsCount);
         map.put("activeStudentsCount", activeStudentsCount);
         map.put("pendingPlacementCount", pendingPlacementCount);
+        map.put("averageProgress", averageProgress);
+        map.put("progressPercentage", averageProgress);
 
         return map;
     }
@@ -121,6 +127,25 @@ public class DashboardService {
                 .orElse(0));
     }
 
+    private int calculateTreeProgressAverage(List<UUID> childIds) {
+        if (childIds.isEmpty()) {
+            return 0;
+        }
+
+        Map<UUID, ProgressTotals> progressByChild = toProgressMap(treeItemRepository.countProgressByChildIds(childIds));
+
+        return (int) Math.round(childIds.stream()
+                .mapToInt(childId -> {
+                    ProgressTotals totals = progressByChild.get(childId);
+                    if (totals == null || totals.totalItems() == 0) {
+                        return 0;
+                    }
+                    return (int) Math.round((totals.completedItems() * 100.0) / totals.totalItems());
+                })
+                .average()
+                .orElse(0));
+    }
+
     private Map<UUID, Integer> toCountMap(List<Object[]> rows) {
         Map<UUID, Integer> counts = new HashMap<>();
         for (Object[] row : rows) {
@@ -129,8 +154,25 @@ public class DashboardService {
         return counts;
     }
 
+    private Map<UUID, ProgressTotals> toProgressMap(List<Object[]> rows) {
+        Map<UUID, ProgressTotals> progress = new HashMap<>();
+        for (Object[] row : rows) {
+            progress.put(
+                    (UUID) row[0],
+                    new ProgressTotals(
+                            ((Number) row[1]).intValue(),
+                            ((Number) row[2]).intValue()
+                    )
+            );
+        }
+        return progress;
+    }
+
     private int estimateProgress(int quizzesCount, int homeworksCount, int activitiesCount) {
         int total = quizzesCount + homeworksCount + activitiesCount;
         return total > 0 ? Math.min(100, total * 10) : 0;
+    }
+
+    private record ProgressTotals(int totalItems, int completedItems) {
     }
 }

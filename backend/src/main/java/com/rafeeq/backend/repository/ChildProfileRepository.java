@@ -15,6 +15,8 @@ public interface ChildProfileRepository extends JpaRepository<ChildProfile, UUID
     List<ChildProfile> findByParentId(UUID parentId);
     @Query("select c.id from ChildProfile c where c.parent.id = :parentId")
     List<UUID> findIdsByParentId(@Param("parentId") UUID parentId);
+    @Query("select c.id from ChildProfile c where c.teacher.id = :teacherId")
+    List<UUID> findIdsByTeacherId(@Param("teacherId") UUID teacherId);
     List<ChildProfile> findByTeacherId(UUID teacherId);
     List<ChildProfile> findByTeacherIdAndTeacherSchoolId(UUID teacherId, UUID schoolId);
     Optional<ChildProfile> findByIdAndTeacherId(UUID id, UUID teacherId);

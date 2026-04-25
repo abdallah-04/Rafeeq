@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   View,
   StyleSheet,
@@ -14,8 +14,10 @@ import Header from '@/components/modal/shared/Header'
 import { Text } from '@/components/modal/shared/Text'
 import Card from '@/components/modal/shared/Card'
 import BottomNav from '@/components/modal/shared/BottomNav'
-import { apiCompleteTreeItem, apiGetQuiz, QuizResponse } from '@/services/api'
+import { apiCompleteTreeItem, apiGetQuiz, apiGetTreeItems, QuizResponse } from '@/services/api'
+import { useActiveChildStore } from '@/store/activeChildStore'
 import { theme } from '@/theme'
+import { buildLearningTreeAccessMap, LearningTreeStep } from '@/utils/learningTree'
 
 type SubmissionResult = {
   correctAnswers: number
@@ -30,7 +32,10 @@ export default function QuizDetailScreen() {
   const isRTL = i18n.language === 'ar'
   const params = useLocalSearchParams<{ id?: string }>()
   const quizId = Array.isArray(params.id) ? params.id[0] : params.id
+  const activeChild = useActiveChildStore((state) => state.activeChild)
+
   const [quiz, setQuiz] = useState<QuizResponse | null>(null)
+  const [treeStep, setTreeStep] = useState<LearningTreeStep | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [questionIndex, setQuestionIndex] = useState(0)
@@ -38,9 +43,7 @@ export default function QuizDetailScreen() {
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<SubmissionResult | null>(null)
 
-  useEffect(() => {
-    let cancelled = false
-
+  const loadQuiz = useCallback(async () => {
     if (!quizId) {
       setError(t('quiz.missingId', 'Quiz could not be loaded.'))
       return
@@ -49,30 +52,30 @@ export default function QuizDetailScreen() {
     setLoading(true)
     setError(null)
 
-    apiGetQuiz(quizId)
-      .then((data) => {
-        if (!cancelled) {
-          setQuiz(data)
-          setQuestionIndex(0)
-          setAnswers({})
-          setResult(null)
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : t('common.error', 'Something went wrong'))
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      })
+    try {
+      const [quizResponse, treeItems] = await Promise.all([
+        apiGetQuiz(quizId),
+        activeChild?.id ? apiGetTreeItems(activeChild.id).catch(() => []) : Promise.resolve([]),
+      ])
 
-    return () => {
-      cancelled = true
+      const accessMap = buildLearningTreeAccessMap(treeItems)
+      setQuiz(quizResponse)
+      setTreeStep(quizResponse.treeItemId ? accessMap.get(quizResponse.treeItemId) ?? null : null)
+      setQuestionIndex(0)
+      setAnswers({})
+      setResult(null)
+    } catch (err) {
+      setQuiz(null)
+      setTreeStep(null)
+      setError(err instanceof Error ? err.message : t('common.error', 'Something went wrong'))
+    } finally {
+      setLoading(false)
     }
-  }, [quizId, t])
+  }, [activeChild?.id, quizId, t])
+
+  useEffect(() => {
+    loadQuiz()
+  }, [loadQuiz])
 
   const totalQuestions = quiz?.questions.length ?? 0
   const currentQuestion = quiz?.questions[questionIndex] ?? null
@@ -81,6 +84,7 @@ export default function QuizDetailScreen() {
   const progressPercentage = totalQuestions > 0
     ? Math.round(((questionIndex + 1) / totalQuestions) * 100)
     : 0
+  const isLocked = Boolean(treeStep?.isLocked)
 
   const questionProgressLabel = useMemo(() => {
     if (!totalQuestions) {
@@ -101,7 +105,7 @@ export default function QuizDetailScreen() {
   }
 
   const handleSelectOption = (optionIndex: number) => {
-    if (!currentQuestion || submitting || result) {
+    if (!currentQuestion || submitting || result || isLocked) {
       return
     }
 
@@ -112,7 +116,7 @@ export default function QuizDetailScreen() {
   }
 
   const handleNext = async () => {
-    if (!currentQuestion || !selectedOption) {
+    if (!currentQuestion || !selectedOption || isLocked) {
       return
     }
 
@@ -139,6 +143,12 @@ export default function QuizDetailScreen() {
       if (quiz.treeItemId && quiz.status?.toLowerCase() !== 'completed') {
         await apiCompleteTreeItem(quiz.treeItemId)
         setQuiz((current) => current ? { ...current, status: 'completed' } : current)
+        setTreeStep((current) => current ? {
+          ...current,
+          isCompleted: true,
+          isCurrent: false,
+          isLocked: false,
+        } : current)
       }
     } catch (err) {
       syncError = err instanceof Error && err.message
@@ -164,6 +174,16 @@ export default function QuizDetailScreen() {
   }
 
   const renderQuestionFlow = () => {
+    if (isLocked) {
+      return (
+        <Card variant="outlined" style={styles.card}>
+          <Text style={[styles.messageText, isRTL && styles.textRight]}>
+            {t('tree.unlockPrevious', 'Complete the previous step to unlock this one.')}
+          </Text>
+        </Card>
+      )
+    }
+
     if (!quiz || !currentQuestion) {
       return (
         <Card variant="outlined" style={styles.card}>
@@ -182,7 +202,7 @@ export default function QuizDetailScreen() {
             {t('quiz.levelMeta', {
               level: quiz.level ?? '--',
               count: quiz.totalQuestions ?? quiz.questions.length,
-              defaultValue: `Level ${quiz.level ?? '--'} · ${quiz.totalQuestions ?? quiz.questions.length} questions`,
+              defaultValue: `Level ${quiz.level ?? '--'} - ${quiz.totalQuestions ?? quiz.questions.length} questions`,
             })}
           </Text>
           <Text style={[styles.progressLabel, isRTL && styles.textRight]}>
@@ -305,7 +325,16 @@ export default function QuizDetailScreen() {
 
       {!loading && !error ? (
         <View style={styles.footer}>
-          {result ? (
+          {isLocked ? (
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleBack}
+            >
+              <Text style={styles.primaryButtonText}>
+                {t('common.back', 'Back')}
+              </Text>
+            </TouchableOpacity>
+          ) : result ? (
             <>
               <TouchableOpacity style={styles.secondaryButton} onPress={handleRetry}>
                 <Text style={styles.secondaryButtonText}>
