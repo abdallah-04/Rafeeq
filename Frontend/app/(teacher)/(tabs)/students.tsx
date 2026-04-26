@@ -2,7 +2,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useCallback } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   FlatList,
@@ -11,7 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-
+import { Text } from '@/components/modal/shared/Text'
 import { StudentListSkeleton } from '@/components/LoadingSkeleton';
 import { apiGetStudents, StudentResponse } from '@/services/api';
 import { useModal } from '@/components/modal/ModalProvider';

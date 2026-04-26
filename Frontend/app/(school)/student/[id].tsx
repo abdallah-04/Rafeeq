@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -20,6 +19,8 @@ import {
   HomeworkResponse,
   ReportResponse,
 } from '@/services/api'
+import { Text } from '@/components/modal/shared/Text'
+
 
 type Tab = 'grades' | 'hw' | 'progress' | 'reports'
 

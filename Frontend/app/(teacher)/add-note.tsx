@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
+  View, StyleSheet, TouchableOpacity,
   ScrollView, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -9,6 +9,8 @@ import { useTranslation } from 'react-i18next';
 import BackButton from '@/components/BackButton';
 import { apiCreateNote } from '@/services/api';
 import { useModal } from '@/components/modal/ModalProvider';
+import { Text } from '@/components/modal/shared/Text'
+
 
 export default function AddNoteScreen() {
   const router = useRouter();

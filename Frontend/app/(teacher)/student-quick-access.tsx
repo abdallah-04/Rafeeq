@@ -1,20 +1,15 @@
-// 
-
-
-
-
-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useCallback, useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
   Modal,
   Pressable,
 } from 'react-native';
+import { Text } from '@/components/modal/shared/Text'
+
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';

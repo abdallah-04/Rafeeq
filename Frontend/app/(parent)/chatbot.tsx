@@ -354,6 +354,7 @@ const styles = StyleSheet.create({
   // ── Top bar ─────────────────────────────────────
 topBar: {
   flexDirection: 'row',
+  direction: 'ltr',
   alignItems: 'center',
   justifyContent: 'space-between',
   paddingHorizontal: spacing.lg,

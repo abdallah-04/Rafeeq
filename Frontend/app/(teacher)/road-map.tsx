@@ -4,12 +4,12 @@ import {
   ActivityIndicator,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
+import { Text } from '@/components/modal/shared/Text'
 
 import BackButton from '@/components/BackButton'
 import LearningTreeTimeline from '@/components/learning-tree/LearningTreeTimeline'

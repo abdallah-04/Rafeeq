@@ -1,30 +1,13 @@
-/**
- * TeacherWiringAudit.tsx
- * ─────────────────────────────────────────────────────────────
- * Dev-only screen that verifies ALL M2 Day 6-7 wiring requirements.
- * Mount at /(teacher)/wiring-audit during development.
- * Remove or gate behind __DEV__ before production build.
- *
- * Covers:
- *  Wire 1 — Students list → Quick Access → Dashboard
- *  Wire 2 — Dashboard → Notes → Add Note → back
- *  Wire 3 — Dashboard → H.W → H.W Detail modal
- *  Wire 4 — Dashboard → Reports → Report Detail modal
- *  Wire 5 — Quick Access → Monthly Exam → Q flow → Score modal
- *  Wire 6 — Quick Access → Road Map
- *  Wire 7 — Day work modals fire at correct triggers
- *  Wire 8 — Mock data renders in EN and AR
- */
-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
+  View, StyleSheet, TouchableOpacity,
   ScrollView, Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Text } from '@/components/modal/shared/Text'
 
-// ─── Wire checklist data ───────────────────────────────────────
+
 const WIRES = [
   {
     id: 'w1',

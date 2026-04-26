@@ -297,6 +297,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    direction: 'ltr',
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,

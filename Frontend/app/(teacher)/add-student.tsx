@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
-  Text,
   TextInput,
   StyleSheet,
   ScrollView,
@@ -12,6 +11,8 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
+import { Text } from '@/components/modal/shared/Text'
+
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
