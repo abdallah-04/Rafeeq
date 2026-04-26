@@ -9,8 +9,9 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View,  StyleSheet, Animated } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
+import { Text } from '@/components/modal/shared/Text';
 
 // ─── Props ─────────────────────────────────────────────────────
 interface AnimatedProgressCircleProps {

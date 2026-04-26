@@ -3,6 +3,18 @@ import { Text as RNText, TextProps as RNTextProps, StyleProp, TextStyle } from '
 import { useTranslation } from 'react-i18next';
 import { theme } from '@/theme';
 
+
+// Maps every Lexend variant → corresponding Tajawal weight
+const LEXEND_TO_TAJAWAL: Record<string, string> = {
+  Lexend_400Regular:  'Tajawal-Regular',
+  Lexend_500Medium:   'Tajawal-Medium',
+  Lexend_600SemiBold: 'Tajawal-SemiBold',
+  Lexend_700Bold:     'Tajawal-Bold',
+  'Lexend-Regular':   'Tajawal-Regular',
+  'Lexend-Medium':    'Tajawal-Medium',
+  'Lexend-SemiBold':  'Tajawal-SemiBold',
+  'Lexend-Bold':      'Tajawal-Bold',
+};
 type TextVariant = 'heading' | 'body' | 'caption' | 'label';
 
 type TextProps = RNTextProps & {

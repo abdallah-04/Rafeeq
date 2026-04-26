@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View,  StyleSheet } from 'react-native';
 import { theme } from '@/theme';
+import { Text } from '@/components/modal/shared/Text';
 
 type BadgeVariant = 'blue' | 'purple' | 'green' | 'orange';
 

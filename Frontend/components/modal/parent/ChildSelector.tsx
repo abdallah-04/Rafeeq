@@ -1,7 +1,6 @@
 import React from 'react'
 import {
     View,
-    Text,
     Image,
     TouchableOpacity,
     StyleSheet,
@@ -9,6 +8,7 @@ import {
     I18nManager,
 } from 'react-native'
 import { theme } from '@/theme'
+import { Text } from '@/components/modal/shared/Text'
 
 export interface Badge {
     label: string

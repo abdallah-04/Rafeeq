@@ -1,13 +1,13 @@
 import React from 'react';
 import {
   TouchableOpacity,
-  Text,
   ActivityIndicator,
   StyleSheet,
   ViewStyle,
   TextStyle,
 } from 'react-native';
 import { theme } from '@/theme';
+import { Text } from '@/components/modal/shared/Text';
 
 type Variant = 'primary' | 'secondary' | 'outline' | 'ghost';
 

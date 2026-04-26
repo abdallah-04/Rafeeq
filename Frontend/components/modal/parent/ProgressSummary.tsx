@@ -1,6 +1,7 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View,  TouchableOpacity, StyleSheet } from 'react-native'
 import { theme } from '@/theme'
+import { Text } from '@/components/modal/shared/Text'
 
 export interface SkillItem {
     label: string

@@ -20,6 +20,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { apiGetStudent, StudentResponse } from '@/services/api';
 import BackButton from '@/components/BackButton';
+import { Ionicons } from '@expo/vector-icons';
 
 function readParam(value?: string | string[]) {
   return Array.isArray(value) ? value[0] : value;
@@ -68,10 +69,10 @@ function buildStudentFromParams(params: {
 }
 
 const QUICK_ACCESS = [
-  { id: 'roadmap',    labelKey: 'teacher.studentQuickAccess.roadMap',     label: 'Road Map',     icon: '🗺️',  color: '#508DF7', bg: '#EEF4FF', route: '/(teacher)/road-map' },
-  { id: 'exam',       labelKey: 'teacher.studentQuickAccess.monthlyExam', label: 'Monthly Exam', icon: '📝',  color: '#BA6DE9', bg: '#F5EEFF', route: '/(teacher)/monthly-exam' },
-  { id: 'reports',    labelKey: 'teacher.studentQuickAccess.reports',     label: 'Reports',      icon: '📊',  color: '#9C6ADE', bg: '#F5EEFF', route: '/(teacher)/reports' },
-  { id: 'dashboard',  labelKey: 'teacher.studentQuickAccess.dashboard',   label: 'Dashboard',    icon: '📋',  color: '#22C55E', bg: '#EDFAF3', route: '/(teacher)/Student_dashboard' },
+  { id: 'roadmap',    labelKey: 'teacher.studentQuickAccess.roadMap',     label: 'Road Map',     icon: 'map-outline',  color: '#508DF7', bg: '#EEF4FF', route: '/(teacher)/road-map' },
+  { id: 'exam',       labelKey: 'teacher.studentQuickAccess.monthlyExam', label: 'Monthly Exam', icon: 'create-outline',  color: '#BA6DE9', bg: '#F5EEFF', route: '/(teacher)/monthly-exam' },
+  { id: 'reports',    labelKey: 'teacher.studentQuickAccess.reports',     label: 'Reports',      icon: 'bar-chart-outline📊',  color: '#9C6ADE', bg: '#F5EEFF', route: '/(teacher)/reports' },
+  { id: 'dashboard',  labelKey: 'teacher.studentQuickAccess.dashboard',   label: 'Dashboard',    icon: 'grid-outline',  color: '#22C55E', bg: '#EDFAF3', route: '/(teacher)/Student_dashboard' },
 ];
 
 export default function StudentQuickAccessScreen() {
@@ -196,7 +197,7 @@ export default function StudentQuickAccessScreen() {
               onPress={() => setModalVisible(true)}
               activeOpacity={0.8}
             >
-              <Text style={styles.placementBannerIcon}>📋</Text>
+              <Ionicons name="clipboard-outline" size={24} color="#F59E0B" />
               <View style={{ flex: 1 }}>
                 <Text style={styles.placementBannerTitle}>
                   {t('teacher.placementExam.bannerTitle', 'Placement Exam Required')}
@@ -239,7 +240,11 @@ export default function StudentQuickAccessScreen() {
               onPress={() => handleGridPress(item.route)}
               activeOpacity={0.75}
             >
-              <Text style={styles.gridIcon}>{isUnplaced ? '🔒' : item.icon}</Text>
+              <Ionicons
+                name={isUnplaced ? 'lock-closed-outline' : item.icon as any}
+                size={32}
+                color={isUnplaced ? '#9CA3AF' : item.color}
+              />
               <Text style={[styles.gridLabel, { color: isUnplaced ? '#9CA3AF' : item.color }]}>
                 {t(item.labelKey, item.label)}
               </Text>
@@ -258,7 +263,7 @@ export default function StudentQuickAccessScreen() {
         <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
           <Pressable style={styles.modalCard} onPress={() => {}}>
             <View style={styles.modalIconWrap}>
-              <Text style={styles.modalIcon}>📋</Text>
+                <Ionicons name="clipboard-outline" size={36} color="#508DF7" />
             </View>
 
             <Text style={styles.modalTitle}>

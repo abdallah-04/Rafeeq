@@ -2,12 +2,12 @@
 import React from 'react'
 import {
     View,
-    Text,
     TouchableOpacity,
     ScrollView,
     StyleSheet,
 } from 'react-native'
 import { theme } from '@/theme'
+import { Text } from '@/components/modal/shared/Text'
 
 interface TabBarProps {
     tabs: string[]
