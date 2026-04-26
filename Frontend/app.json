@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
 
-    "scheme": "borrowbooks",
+    "scheme": "rafeeq",
     "userInterfaceStyle": "automatic",
 
     "splash": {
@@ -16,12 +16,13 @@
     },
 
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rafeeq.app"
     },
 
     "android": {
       "predictiveBackGestureEnabled": false,
-      "package": "com.abdallah.ammanlibrary",
+      "package": "com.rafeeq.app",
       "icon": "./assets/images/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
