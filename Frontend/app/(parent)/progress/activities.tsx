@@ -103,6 +103,18 @@ export default function ActivitiesScreen() {
     }).slice(0, 2)
   }, [accessMap, activities])
 
+  const learningTreeActivities = useMemo(
+    () => activities.filter((activity) => Boolean(activity.treeItemId || activity.treeId)),
+    [activities]
+  )
+
+  const otherActivities = useMemo(
+    () => activities.filter((activity) => !activity.treeItemId && !activity.treeId),
+    [activities]
+  )
+
+  const shouldGroupActivities = learningTreeActivities.length > 0 && otherActivities.length > 0
+
   const handleBack = () => {
     if (router.canGoBack()) {
       router.back()
@@ -127,6 +139,26 @@ export default function ActivitiesScreen() {
     }
 
     setActiveTab(tabs[2])
+  }
+
+  const renderActivityCard = (activity: ActivityResponse) => {
+    const step = activity.treeItemId ? accessMap.get(activity.treeItemId) ?? null : null
+    const isLocked = Boolean(step?.isLocked)
+
+    return (
+      <DailyCard
+        key={activity.id}
+        title={activity.title}
+        subtitle={activity.instructions ?? activity.description ?? t('activities.title', 'Activities')}
+        status={toBadgeVariant(activity, treeItems)}
+        isRTL={isRTL}
+        disabled={isLocked}
+        onPress={() => router.push({
+          pathname: '/(parent)/activity/[id]' as any,
+          params: { id: activity.id, childId: activity.childId },
+        })}
+      />
+    )
   }
 
   return (
@@ -162,7 +194,10 @@ export default function ActivitiesScreen() {
                 title={activity.title}
                 description={activity.description ?? t('activities.title', 'Activities')}
                 isRTL={isRTL}
-                onPress={() => router.push(`/(parent)/activity/${activity.id}` as any)}
+                onPress={() => router.push({
+                  pathname: '/(parent)/activity/[id]' as any,
+                  params: { id: activity.id, childId: activity.childId },
+                })}
               />
             ))
           ) : (
@@ -194,22 +229,16 @@ export default function ActivitiesScreen() {
           </Text>
         ) : null}
 
-        {activities.map((activity) => {
-          const step = activity.treeItemId ? accessMap.get(activity.treeItemId) ?? null : null
-          const isLocked = Boolean(step?.isLocked)
-
-          return (
-            <DailyCard
-              key={activity.id}
-              title={activity.title}
-              subtitle={activity.instructions ?? activity.description ?? t('activities.title', 'Activities')}
-              status={toBadgeVariant(activity, treeItems)}
-              isRTL={isRTL}
-              disabled={isLocked}
-              onPress={() => router.push(`/(parent)/activity/${activity.id}` as any)}
-            />
-          )
-        })}
+        {shouldGroupActivities ? (
+          <>
+            <Text style={[styles.groupTitle, isRTL && styles.textRight]}>{t('tree.title', 'Learning Tree')}</Text>
+            {learningTreeActivities.map(renderActivityCard)}
+            <Text style={[styles.groupTitle, isRTL && styles.textRight]}>{t('homework.fromTeacher', 'From Teacher')}</Text>
+            {otherActivities.map(renderActivityCard)}
+          </>
+        ) : (
+          activities.map(renderActivityCard)
+        )}
       </ScrollView>
     </ScreenWrapper>
   )
@@ -317,6 +346,12 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
+    fontFamily: 'Lexend_700Bold',
+    color: theme.colors.textPrimary,
+  },
+  groupTitle: {
+    marginTop: theme.spacing.sm,
+    fontSize: 14,
     fontFamily: 'Lexend_700Bold',
     color: theme.colors.textPrimary,
   },

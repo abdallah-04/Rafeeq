@@ -330,6 +330,8 @@ export interface PlacementSubmissionResponse {
   childStatus:           string;
   active:                boolean;
   placementCompletedAt:  string | null;
+  treeGenerated?:        boolean;
+  treeGenerationMessage?: string | null;
 }
 
 export interface ChatbotMessageResponse {
@@ -419,6 +421,20 @@ export interface QuizResponse {
   startedAt:      string | null;
   completedAt:    string | null;
   questions:      QuizQuestionResponse[];
+}
+
+export interface QuizSubmissionResponse {
+  quizId:             string;
+  treeId:             string | null;
+  treeItemId:         string | null;
+  score:              number;
+  correctAnswers:     number;
+  totalQuestions:     number;
+  progressPercentage: number | null;
+  treeCompleted:      boolean;
+  completedItems:     number | null;
+  totalItems:         number | null;
+  treeStatus:         string | null;
 }
 
 export interface ParentDashboard {
@@ -1035,6 +1051,13 @@ export async function apiGetQuizzes(childId: string): Promise<QuizResponse[]> {
 
 export async function apiGetQuiz(quizId: string): Promise<QuizResponse> {
   return _get<QuizResponse>(`/api/quizzes/${quizId}`);
+}
+
+export async function apiSubmitQuiz(
+  quizId: string,
+  answers: Array<{ questionId: string; selectedOption: string }>
+): Promise<QuizSubmissionResponse> {
+  return _post<QuizSubmissionResponse>(`/api/quizzes/${quizId}/submit`, { answers });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

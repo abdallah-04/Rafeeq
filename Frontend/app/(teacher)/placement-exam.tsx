@@ -60,6 +60,8 @@ export default function PlacementExamScreen() {
     correctAnswers: number;
     totalQuestions: number;
     confidence: number;
+    treeGenerated: boolean;
+    treeGenerationMessage?: string | null;
   } | null>(null);
 
   const handleExit = () => {
@@ -120,6 +122,8 @@ export default function PlacementExamScreen() {
         correctAnswers: response.correctAnswers,
         totalQuestions: response.totalQuestions,
         confidence: response.confidencePercentage,
+        treeGenerated: response.treeGenerated ?? false,
+        treeGenerationMessage: response.treeGenerationMessage,
       });
       setPhase('done');
     } catch {
@@ -278,6 +282,18 @@ export default function PlacementExamScreen() {
               )}
             </Text>
           </View>
+
+          {!result.treeGenerated ? (
+            <View style={styles.warningCard}>
+              <Text style={[styles.warningText, isRTL && styles.textRight]}>
+                {result.treeGenerationMessage
+                  ?? t(
+                    'teacher.placementExam.treeGenerationWarning',
+                    'Placement was saved, but the AI learning tree was not generated.'
+                  )}
+              </Text>
+            </View>
+          ) : null}
         </ScrollView>
 
         <View style={styles.bottomBar}>
@@ -461,4 +477,6 @@ const styles = StyleSheet.create({
   confFill: { height: 8, borderRadius: 99, backgroundColor: '#508DF7' },
   disclaimerCard: { backgroundColor: '#FFF8E1', borderRadius: 14, padding: 14, marginBottom: 10 },
   disclaimerText: { fontFamily: 'Lexend_400Regular', fontSize: 12, color: '#92400E', lineHeight: 20 },
+  warningCard: { backgroundColor: '#FEF2F2', borderRadius: 14, padding: 14, marginBottom: 10 },
+  warningText: { fontFamily: 'Lexend_500Medium', fontSize: 12, color: '#B91C1C', lineHeight: 20 },
 });

@@ -30,8 +30,9 @@ export default function ActivityDetailScreen() {
   const isRTL = i18n.language === 'ar'
   const fonts = isRTL ? theme.typography.fontFamilyAr : theme.typography.fontFamily
   const insets = useSafeAreaInsets()
-  const params = useLocalSearchParams<{ id?: string }>()
+  const params = useLocalSearchParams<{ id?: string; childId?: string }>()
   const activityId = Array.isArray(params.id) ? params.id[0] : params.id
+  const routeChildId = Array.isArray(params.childId) ? params.childId[0] : params.childId
   const activeChild = useActiveChildStore((state) => state.activeChild)
 
   const [activity, setActivity] = useState<ActivityResponse | null>(null)
@@ -50,10 +51,9 @@ export default function ActivityDetailScreen() {
     setError(null)
 
     try {
-      const [activityResponse, treeItems] = await Promise.all([
-        apiGetActivity(activityId),
-        activeChild?.id ? apiGetTreeItems(activeChild.id).catch(() => []) : Promise.resolve([]),
-      ])
+      const activityResponse = await apiGetActivity(activityId)
+      const childId = routeChildId ?? activeChild?.id ?? activityResponse.childId
+      const treeItems = childId ? await apiGetTreeItems(childId).catch(() => []) : []
 
       const accessMap = buildLearningTreeAccessMap(treeItems)
       setActivity(activityResponse)
@@ -69,7 +69,7 @@ export default function ActivityDetailScreen() {
     } finally {
       setLoading(false)
     }
-  }, [activeChild?.id, activityId, t])
+  }, [activeChild?.id, activityId, routeChildId, t])
 
   useEffect(() => {
     loadActivity()

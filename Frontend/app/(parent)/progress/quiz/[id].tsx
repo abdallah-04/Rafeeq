@@ -14,7 +14,7 @@ import Header from '@/components/modal/shared/Header'
 import { Text } from '@/components/modal/shared/Text'
 import Card from '@/components/modal/shared/Card'
 import BottomNav from '@/components/modal/shared/BottomNav'
-import { apiCompleteTreeItem, apiGetQuiz, apiGetTreeItems, QuizResponse } from '@/services/api'
+import { apiGetQuiz, apiGetTreeItems, apiSubmitQuiz, QuizResponse } from '@/services/api'
 import { useActiveChildStore } from '@/store/activeChildStore'
 import { theme } from '@/theme'
 import { buildLearningTreeAccessMap, LearningTreeStep } from '@/utils/learningTree'
@@ -26,12 +26,17 @@ type SubmissionResult = {
   syncError: string | null
 }
 
+function toOptionLetter(option: number) {
+  return String.fromCharCode(64 + option)
+}
+
 export default function QuizDetailScreen() {
   const { t, i18n } = useTranslation()
   const insets = useSafeAreaInsets()
   const isRTL = i18n.language === 'ar'
-  const params = useLocalSearchParams<{ id?: string }>()
+  const params = useLocalSearchParams<{ id?: string; childId?: string }>()
   const quizId = Array.isArray(params.id) ? params.id[0] : params.id
+  const routeChildId = Array.isArray(params.childId) ? params.childId[0] : params.childId
   const activeChild = useActiveChildStore((state) => state.activeChild)
 
   const [quiz, setQuiz] = useState<QuizResponse | null>(null)
@@ -53,10 +58,9 @@ export default function QuizDetailScreen() {
     setError(null)
 
     try {
-      const [quizResponse, treeItems] = await Promise.all([
-        apiGetQuiz(quizId),
-        activeChild?.id ? apiGetTreeItems(activeChild.id).catch(() => []) : Promise.resolve([]),
-      ])
+      const quizResponse = await apiGetQuiz(quizId)
+      const childId = routeChildId ?? activeChild?.id ?? quizResponse.childId
+      const treeItems = childId ? await apiGetTreeItems(childId).catch(() => []) : []
 
       const accessMap = buildLearningTreeAccessMap(treeItems)
       setQuiz(quizResponse)
@@ -71,7 +75,7 @@ export default function QuizDetailScreen() {
     } finally {
       setLoading(false)
     }
-  }, [activeChild?.id, quizId, t])
+  }, [activeChild?.id, quizId, routeChildId, t])
 
   useEffect(() => {
     loadQuiz()
@@ -85,6 +89,7 @@ export default function QuizDetailScreen() {
     ? Math.round(((questionIndex + 1) / totalQuestions) * 100)
     : 0
   const isLocked = Boolean(treeStep?.isLocked)
+  const isCompleted = Boolean(treeStep?.isCompleted) || quiz?.status?.toLowerCase() === 'completed'
 
   const questionProgressLabel = useMemo(() => {
     if (!totalQuestions) {
@@ -105,7 +110,7 @@ export default function QuizDetailScreen() {
   }
 
   const handleSelectOption = (optionIndex: number) => {
-    if (!currentQuestion || submitting || result || isLocked) {
+    if (!currentQuestion || submitting || result || isLocked || isCompleted) {
       return
     }
 
@@ -116,7 +121,7 @@ export default function QuizDetailScreen() {
   }
 
   const handleNext = async () => {
-    if (!currentQuestion || !selectedOption || isLocked) {
+    if (!currentQuestion || !selectedOption || isLocked || isCompleted) {
       return
     }
 
@@ -129,41 +134,44 @@ export default function QuizDetailScreen() {
       return
     }
 
-    const correctAnswers = quiz.questions.reduce((total, question) => {
-      return total + (answers[question.id] === question.correctOption ? 1 : 0)
-    }, 0)
-    const percentage = totalQuestions > 0
-      ? Math.round((correctAnswers / totalQuestions) * 100)
-      : 0
-
-    let syncError: string | null = null
-
     setSubmitting(true)
     try {
-      if (quiz.treeItemId && quiz.status?.toLowerCase() !== 'completed') {
-        await apiCompleteTreeItem(quiz.treeItemId)
-        setQuiz((current) => current ? { ...current, status: 'completed' } : current)
-        setTreeStep((current) => current ? {
-          ...current,
-          isCompleted: true,
-          isCurrent: false,
-          isLocked: false,
-        } : current)
-      }
+      const response = await apiSubmitQuiz(
+        quiz.id,
+        quiz.questions.map((question) => ({
+          questionId: question.id,
+          selectedOption: toOptionLetter(answers[question.id]),
+        }))
+      )
+
+      setQuiz((current) => current ? {
+        ...current,
+        score: response.score,
+        status: 'completed',
+        completedAt: new Date().toISOString(),
+      } : current)
+      setTreeStep((current) => current ? {
+        ...current,
+        isCompleted: true,
+        isCurrent: false,
+        isLocked: false,
+      } : current)
+      setResult({
+        correctAnswers: response.correctAnswers,
+        totalQuestions: response.totalQuestions,
+        percentage: response.totalQuestions > 0
+          ? Math.round((response.correctAnswers / response.totalQuestions) * 100)
+          : 0,
+        syncError: null,
+      })
     } catch (err) {
-      syncError = err instanceof Error && err.message
+      setError(err instanceof Error && err.message
         ? err.message
         : isRTL
           ? 'تم حفظ النتيجة محليًا، لكن تعذر مزامنة التقدم الآن.'
-          : 'Your score was saved locally, but progress could not be synced right now.'
+          : 'Quiz could not be submitted right now.')
     } finally {
       setSubmitting(false)
-      setResult({
-        correctAnswers,
-        totalQuestions,
-        percentage,
-        syncError,
-      })
     }
   }
 
@@ -180,6 +188,27 @@ export default function QuizDetailScreen() {
           <Text style={[styles.messageText, isRTL && styles.textRight]}>
             {t('tree.unlockPrevious', 'Complete the previous step to unlock this one.')}
           </Text>
+        </Card>
+      )
+    }
+
+    if (isCompleted) {
+      return (
+        <Card variant="outlined" style={styles.card}>
+          <Text style={[styles.title, isRTL && styles.textRight]}>
+            {quiz?.title ?? t('progress.tabs.quizzes', 'Quizzes')}
+          </Text>
+          <Text style={[styles.messageText, isRTL && styles.textRight]}>
+            {t('quiz.completedReadOnly', 'This quiz has already been completed.')}
+          </Text>
+          {quiz?.score != null ? (
+            <Text style={[styles.resultSubtext, isRTL && styles.textRight]}>
+              {t('quiz.scoreMeta', {
+                score: quiz.score,
+                defaultValue: `Score ${quiz.score}/${quiz.totalQuestions ?? quiz.questions.length}`,
+              })}
+            </Text>
+          ) : null}
         </Card>
       )
     }
@@ -336,11 +365,13 @@ export default function QuizDetailScreen() {
             </TouchableOpacity>
           ) : result ? (
             <>
+              {!quiz?.treeItemId ? (
               <TouchableOpacity style={styles.secondaryButton} onPress={handleRetry}>
                 <Text style={styles.secondaryButtonText}>
                   {isRTL ? 'إعادة المحاولة' : 'Try Again'}
                 </Text>
               </TouchableOpacity>
+              ) : null}
               <TouchableOpacity
                 style={styles.primaryButton}
                 onPress={() => router.replace('/(parent)/progress/quiz' as any)}
@@ -350,6 +381,15 @@ export default function QuizDetailScreen() {
                 </Text>
               </TouchableOpacity>
             </>
+          ) : isCompleted ? (
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleBack}
+            >
+              <Text style={styles.primaryButtonText}>
+                {t('common.back', 'Back')}
+              </Text>
+            </TouchableOpacity>
           ) : (
             <>
               <TouchableOpacity

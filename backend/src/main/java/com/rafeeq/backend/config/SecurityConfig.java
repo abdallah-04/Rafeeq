@@ -89,6 +89,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/notes/**", "/api/homework/**", "/api/reports/**").hasRole("TEACHER")
                         .requestMatchers("/api/notes/teacher/**", "/api/homework/teacher/**", "/api/reports/teacher/**").hasRole("TEACHER")
                         .requestMatchers("/api/notes/parent/**", "/api/homework/parent/**", "/api/reports/parent/**").hasRole("PARENT")
+                        .requestMatchers(HttpMethod.PATCH, "/api/tree/items/*/complete").hasAnyRole("PARENT", "CHILD")
+                        .requestMatchers(HttpMethod.POST, "/api/quizzes/*/submit").hasAnyRole("PARENT", "CHILD")
                         .requestMatchers("/api/notifications/**").authenticated()
                         .requestMatchers("/api/articles/**").authenticated()
                         .requestMatchers("/auth/me").authenticated()

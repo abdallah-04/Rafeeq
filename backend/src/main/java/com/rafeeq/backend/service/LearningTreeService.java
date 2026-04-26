@@ -2,13 +2,17 @@ package com.rafeeq.backend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.rafeeq.backend.common.BadRequestException;
 import com.rafeeq.backend.common.LanguageUtil;
 import com.rafeeq.backend.common.NotFoundException;
 import com.rafeeq.backend.common.ServiceUnavailableException;
+import com.rafeeq.backend.common.UnauthorizedException;
 import com.rafeeq.backend.dto.learning.LearningTreeResponse;
 import com.rafeeq.backend.dto.learning.TreeItemCompletionResponse;
 import com.rafeeq.backend.dto.learning.TreeItemResponse;
 import com.rafeeq.backend.entity.Activity;
+import com.rafeeq.backend.entity.ChildAssessment;
 import com.rafeeq.backend.entity.ChildProfile;
 import com.rafeeq.backend.entity.ContentType;
 import com.rafeeq.backend.entity.Homework;
@@ -17,7 +21,10 @@ import com.rafeeq.backend.entity.Quiz;
 import com.rafeeq.backend.entity.QuizQuestion;
 import com.rafeeq.backend.entity.Topic;
 import com.rafeeq.backend.entity.TreeItem;
+import com.rafeeq.backend.entity.User;
+import com.rafeeq.backend.entity_enums.UserRole;
 import com.rafeeq.backend.repository.ActivityRepository;
+import com.rafeeq.backend.repository.ChildProfileRepository;
 import com.rafeeq.backend.repository.ContentTypeRepository;
 import com.rafeeq.backend.repository.HomeworkRepository;
 import com.rafeeq.backend.repository.LearningTreeRepository;
@@ -27,6 +34,7 @@ import com.rafeeq.backend.repository.TopicRepository;
 import com.rafeeq.backend.repository.TreeItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -54,6 +62,7 @@ public class LearningTreeService {
 
     private final AccessService accessService;
     private final OpenAiService openAiService;
+    private final ChildProfileRepository childProfileRepository;
     private final LearningTreeRepository learningTreeRepository;
     private final TreeItemRepository treeItemRepository;
     private final ActivityRepository activityRepository;
@@ -63,6 +72,9 @@ public class LearningTreeService {
     private final ContentTypeRepository contentTypeRepository;
     private final TopicRepository topicRepository;
     private final ObjectMapper objectMapper;
+
+    public record GenerationResult(boolean generated, String message) {
+    }
 
     @Transactional(readOnly = true)
     public LearningTreeResponse getActiveTree(UUID childId, String nationalId, String acceptLanguage) {
@@ -87,13 +99,29 @@ public class LearningTreeService {
     @Transactional
     public LearningTreeResponse generateTree(UUID childId, UUID topicId, String nationalId, String acceptLanguage) {
         ChildProfile child = accessService.getAccessibleChild(childId, nationalId);
-        LearningTree tree = generateTreeForChild(child, topicId);
+        LearningTree tree = generateTreeForChild(child, topicId, null, null, null);
         return mapTree(tree, acceptLanguage);
     }
 
-    @Transactional
-    public void generateTreeAfterPlacement(ChildProfile child) {
-        generateTreeForChild(child, null);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public GenerationResult generateTreeAfterPlacement(
+            ChildProfile child,
+            ChildAssessment assessment,
+            int correctAnswers,
+            int totalQuestions
+    ) {
+        ChildProfile currentChild = childProfileRepository.findById(child.getId())
+                .orElseThrow(() -> new NotFoundException("Child not found"));
+        currentChild.setAssessedLevel(child.getAssessedLevel());
+        currentChild.setLevel(child.getLevel());
+        currentChild.setStatus(child.getStatus());
+        currentChild.setPlacementCompletedAt(child.getPlacementCompletedAt());
+        if (currentChild.getUser() != null) {
+            currentChild.getUser().setIsActive(true);
+        }
+
+        generateTreeForChild(currentChild, null, assessment, correctAnswers, totalQuestions);
+        return new GenerationResult(true, "Learning tree generated successfully.");
     }
 
     @Transactional
@@ -101,7 +129,26 @@ public class LearningTreeService {
         TreeItem item = treeItemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Tree item not found"));
 
+        User user = accessService.getCurrentUser(nationalId);
+        if (user.getRole() != UserRole.PARENT && user.getRole() != UserRole.CHILD) {
+            throw new UnauthorizedException("Only parent or child users can complete learning tree steps");
+        }
         accessService.getAccessibleChild(item.getTree().getChild().getId(), nationalId);
+
+        List<TreeItem> items = treeItemRepository.findByTreeIdOrderByOrderNumAsc(item.getTree().getId());
+        TreeItem currentIncompleteItem = items.stream()
+                .filter(treeItem -> !Boolean.TRUE.equals(treeItem.getIsCompleted()))
+                .findFirst()
+                .orElse(null);
+
+        if (!Boolean.TRUE.equals(item.getIsCompleted())) {
+            if (Boolean.TRUE.equals(item.getIsLocked())) {
+                throw new BadRequestException("Learning tree step is locked");
+            }
+            if (currentIncompleteItem != null && !currentIncompleteItem.getId().equals(item.getId())) {
+                throw new BadRequestException("Only the current learning tree step can be completed");
+            }
+        }
 
         if (!Boolean.TRUE.equals(item.getIsCompleted())) {
             item.setIsCompleted(true);
@@ -113,7 +160,6 @@ public class LearningTreeService {
             updateLinkedContentStatus(item);
         }
 
-        List<TreeItem> items = treeItemRepository.findByTreeIdOrderByOrderNumAsc(item.getTree().getId());
         unlockNextItem(items, item.getId());
 
         long completedItems = items.stream().filter(treeItem -> Boolean.TRUE.equals(treeItem.getIsCompleted())).count();
@@ -140,14 +186,21 @@ public class LearningTreeService {
     }
 
     @Transactional
-    protected LearningTree generateTreeForChild(ChildProfile child, UUID topicId) {
+    protected LearningTree generateTreeForChild(
+            ChildProfile child,
+            UUID topicId,
+            ChildAssessment assessment,
+            Integer correctAnswers,
+            Integer totalQuestions
+    ) {
         Integer level = child.getAssessedLevel() != null ? child.getAssessedLevel() : child.getLevel();
         if (level == null) {
             throw new NotFoundException("Child level is not available yet");
         }
 
         Topic topic = resolveTopic(topicId, level);
-        JsonNode root = requestLearningTree(child, topic, level);
+        JsonNode root = requestLearningTree(child, topic, level, assessment, correctAnswers, totalQuestions);
+        validateAndNormalizeLearningTree(root);
 
         archiveCurrentTrees(child.getId());
 
@@ -160,41 +213,45 @@ public class LearningTreeService {
         tree.setAiSummaryAr(readText(root, "summary_ar"));
         tree.setAiSummaryEn(readText(root, "summary_en"));
         tree.setModelUsed(openAiService.getModelName());
-        tree.setPromptVersion("local-merge-2026-04-25");
+        tree.setPromptVersion("ai-tree-v2-2026-04-26");
         learningTreeRepository.save(tree);
 
         JsonNode groups = root.path("groups");
-        if (!groups.isArray() || groups.isEmpty()) {
-            throw new ServiceUnavailableException("OpenAI returned an invalid learning tree structure.");
-        }
-
         int orderNum = 1;
         for (int i = 0; i < groups.size(); i++) {
             JsonNode groupNode = groups.get(i);
             int groupNumber = groupNode.path("group_number").asInt(i + 1);
 
-            Activity activity = createActivity(groupNode.path("activity"), child, tree, groupNumber, orderNum);
-            TreeItem activityItem = createTreeItem(tree, ACTIVITY_CONTENT_TYPE, activity.getId(), "activity", groupNumber, orderNum, orderNum != 1, 10);
-            activity.setTreeItemId(activityItem.getId());
-            activityRepository.save(activity);
-            orderNum++;
-
             Homework homework = createHomework(groupNode.path("homework"), child, tree, groupNumber, orderNum);
-            TreeItem homeworkItem = createTreeItem(tree, HOMEWORK_CONTENT_TYPE, homework.getId(), "homework", groupNumber, orderNum, true, 10);
+            TreeItem homeworkItem = createTreeItem(tree, HOMEWORK_CONTENT_TYPE, homework.getId(), "homework", groupNumber, orderNum, orderNum != 1, 10);
             homework.setTreeItemId(homeworkItem.getId());
             homeworkRepository.save(homework);
             orderNum++;
 
+            Activity activity = createActivity(groupNode.path("activity"), child, tree, groupNumber, orderNum);
+            TreeItem activityItem = createTreeItem(tree, ACTIVITY_CONTENT_TYPE, activity.getId(), "activity", groupNumber, orderNum, true, 10);
+            activity.setTreeItemId(activityItem.getId());
+            activityRepository.save(activity);
+            orderNum++;
+
             Quiz quiz = createQuiz(groupNode.path("quiz"), child, tree, level, groupNumber, orderNum);
             TreeItem quizItem = createTreeItem(tree, QUIZ_CONTENT_TYPE, quiz.getId(), "quiz", groupNumber, orderNum, true, Math.max(quiz.getTotalQuestions() != null ? quiz.getTotalQuestions() * 10 : 30, 10));
-            treeItemRepository.save(quizItem);
+            quiz.setTreeItemId(quizItem.getId());
+            quizRepository.save(quiz);
             orderNum++;
         }
 
         return tree;
     }
 
-    private JsonNode requestLearningTree(ChildProfile child, Topic topic, Integer level) {
+    private JsonNode requestLearningTree(
+            ChildProfile child,
+            Topic topic,
+            Integer level,
+            ChildAssessment assessment,
+            Integer correctAnswers,
+            Integer totalQuestions
+    ) {
         try {
             int age = child.getDateOfBirth() != null
                     ? Math.max(3, Period.between(child.getDateOfBirth(), LocalDate.now()).getYears())
@@ -202,6 +259,10 @@ public class LearningTreeService {
 
             String childName = LanguageUtil.firstNonBlank(child.getFullNameAr(), child.getFullNameEn());
             String difficulty = child.getLearningDifficulty() != null ? child.getLearningDifficulty().name() : "NONE";
+            String languagePreference = child.getUser() != null && child.getUser().getLanguage() != null
+                    ? child.getUser().getLanguage().name()
+                    : "UNKNOWN";
+            String assessmentSummary = buildAssessmentSummary(assessment, correctAnswers, totalQuestions);
 
             List<Map<String, String>> messages = new ArrayList<>();
             messages.add(Map.of(
@@ -211,10 +272,10 @@ public class LearningTreeService {
             ));
             messages.add(Map.of(
                     "role", "user",
-                    "content", buildLearningTreePrompt(childName, age, level, difficulty, topic)
+                    "content", buildLearningTreePrompt(child, childName, age, level, difficulty, languagePreference, assessmentSummary, topic)
             ));
 
-            String content = openAiService.chat(messages, 0.7, 2800);
+            String content = openAiService.chat(messages, 0.7, 4096);
             return objectMapper.readTree(extractJson(content));
         } catch (ServiceUnavailableException ex) {
             throw ex;
@@ -223,14 +284,28 @@ public class LearningTreeService {
         }
     }
 
-    private String buildLearningTreePrompt(String childName, int age, int level, String difficulty, Topic topic) {
+    private String buildLearningTreePrompt(
+            ChildProfile child,
+            String childName,
+            int age,
+            int level,
+            String difficulty,
+            String languagePreference,
+            String assessmentSummary,
+            Topic topic
+    ) {
         return """
                 Create a bilingual Arabic and English learning tree for one child.
 
+                Child id: %s
                 Child name: %s
                 Age: %d
-                Level: %d
+                Assessed level: %d
                 Learning difficulty: %s
+                Language preference: %s
+                Class name: %s
+                Gender: %s
+                Assessment summary: %s
                 Topic Arabic: %s
                 Topic English: %s
 
@@ -238,7 +313,7 @@ public class LearningTreeService {
                 - Return valid JSON only.
                 - Keep text simple, supportive, and age appropriate.
                 - Produce exactly 3 groups.
-                - Each group must include one activity, one homework, and one quiz.
+                - Each group must include one homework, one activity, and one quiz.
                 - Each quiz must include exactly 3 questions.
                 - Always include both Arabic and English content for every text field.
 
@@ -292,12 +367,34 @@ public class LearningTreeService {
                   ]
                 }
                 """.formatted(
+                child.getId(),
                 childName,
                 age,
                 level,
                 difficulty,
+                languagePreference,
+                LanguageUtil.firstNonBlank(child.getClassName(), "UNKNOWN"),
+                child.getGender() != null ? child.getGender().name() : "UNKNOWN",
+                assessmentSummary,
                 LanguageUtil.firstNonBlank(topic.getNameAr(), topic.getNameEn()),
                 LanguageUtil.firstNonBlank(topic.getNameEn(), topic.getNameAr())
+        );
+    }
+
+    private String buildAssessmentSummary(ChildAssessment assessment, Integer correctAnswers, Integer totalQuestions) {
+        if (assessment == null) {
+            return "No placement assessment details available beyond the assessed level.";
+        }
+
+        int total = totalQuestions != null ? totalQuestions : 0;
+        int correct = correctAnswers != null ? correctAnswers : 0;
+        int percent = total == 0 ? 0 : (int) Math.round((correct * 100.0) / total);
+        return "assessmentId=%s, resultLevel=%s, correctAnswers=%d/%d, confidence=%d%%".formatted(
+                assessment.getId(),
+                assessment.getResultLevel(),
+                correct,
+                total,
+                percent
         );
     }
 
@@ -309,6 +406,110 @@ public class LearningTreeService {
             return trimmed.substring(start, end + 1);
         }
         return trimmed;
+    }
+
+    private void validateAndNormalizeLearningTree(JsonNode root) {
+        if (!(root instanceof ObjectNode rootObject)) {
+            throw invalidTreeStructure();
+        }
+
+        ensureBilingualPair(rootObject, "summary_ar", "summary_en", "Learning tree summary");
+
+        JsonNode groups = rootObject.path("groups");
+        if (!groups.isArray() || groups.size() != 3) {
+            throw invalidTreeStructure();
+        }
+
+        for (int i = 0; i < groups.size(); i++) {
+            if (!(groups.get(i) instanceof ObjectNode groupNode)) {
+                throw invalidTreeStructure();
+            }
+
+            int groupNumber = i + 1;
+            groupNode.put("group_number", groupNumber);
+
+            ObjectNode homeworkNode = requireObject(groupNode, "homework");
+            ObjectNode activityNode = requireActivityNode(groupNode);
+            ObjectNode quizNode = requireObject(groupNode, "quiz");
+
+            ensureBilingualPair(homeworkNode, "title_ar", "title_en", "Homework " + groupNumber);
+            ensureBilingualPair(homeworkNode, "description_ar", "description_en", "Practice activity " + groupNumber);
+
+            ensureBilingualPair(activityNode, "title_ar", "title_en", "Activity " + groupNumber);
+            ensureBilingualPair(activityNode, "description_ar", "description_en", "Guided activity " + groupNumber);
+            ensureBilingualPair(activityNode, "activity_task_ar", "activity_task_en", "Complete the guided activity.");
+            ensureBilingualPair(activityNode, "parent_guide_ar", "parent_guide_en", "Support the child while they practice.");
+            ensureBilingualPair(activityNode, "materials_needed_ar", "materials_needed_en", "No special materials needed.");
+            ensureBilingualPair(activityNode, "expected_outcome_ar", "expected_outcome_en", "The child practices the target skill.");
+
+            JsonNode questions = quizNode.path("questions");
+            if (!questions.isArray() || questions.size() != 3) {
+                throw invalidTreeStructure();
+            }
+
+            for (int j = 0; j < questions.size(); j++) {
+                if (!(questions.get(j) instanceof ObjectNode questionNode)) {
+                    throw invalidTreeStructure();
+                }
+
+                int questionNumber = j + 1;
+                ensureBilingualPair(questionNode, "question_ar", "question_en", "Question " + questionNumber);
+                ensureBilingualPair(questionNode, "option_1_ar", "option_1", "Option A");
+                ensureBilingualPair(questionNode, "option_2_ar", "option_2", "Option B");
+                ensureBilingualPair(questionNode, "option_3_ar", "option_3", "Option C");
+                ensureBilingualPair(questionNode, "option_4_ar", "option_4", "Option D");
+                ensureBilingualPair(questionNode, "explanation_ar", "explanation_en", "Review the correct answer.");
+
+                int correctOption = questionNode.path("correct_option").asInt(0);
+                if (correctOption < 1 || correctOption > 4) {
+                    throw invalidTreeStructure();
+                }
+            }
+        }
+    }
+
+    private ServiceUnavailableException invalidTreeStructure() {
+        return new ServiceUnavailableException("OpenAI returned an invalid learning tree structure.");
+    }
+
+    private ObjectNode requireObject(ObjectNode parent, String fieldName) {
+        JsonNode node = parent.get(fieldName);
+        if (node instanceof ObjectNode objectNode) {
+            return objectNode;
+        }
+        throw invalidTreeStructure();
+    }
+
+    private ObjectNode requireActivityNode(ObjectNode groupNode) {
+        JsonNode activityNode = groupNode.get("activity");
+        if (activityNode instanceof ObjectNode objectNode) {
+            return objectNode;
+        }
+
+        JsonNode taskNode = groupNode.get("task");
+        if (taskNode instanceof ObjectNode objectNode) {
+            groupNode.set("activity", objectNode);
+            return objectNode;
+        }
+
+        throw invalidTreeStructure();
+    }
+
+    private void ensureBilingualPair(ObjectNode node, String arabicField, String englishField, String fallback) {
+        String arabicValue = readText(node, arabicField);
+        String englishValue = readText(node, englishField);
+
+        if (arabicValue == null && englishValue == null) {
+            arabicValue = fallback;
+            englishValue = fallback;
+        } else if (arabicValue == null) {
+            arabicValue = englishValue;
+        } else if (englishValue == null) {
+            englishValue = arabicValue;
+        }
+
+        node.put(arabicField, arabicValue);
+        node.put(englishField, englishValue);
     }
 
     private Topic resolveTopic(UUID topicId, Integer level) {

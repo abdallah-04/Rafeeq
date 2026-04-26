@@ -97,6 +97,18 @@ export default function QuizzesScreen() {
 
   const accessMap = useMemo(() => buildLearningTreeAccessMap(treeItems), [treeItems])
 
+  const learningTreeQuizzes = useMemo(
+    () => quizzes.filter((quiz) => Boolean(quiz.treeItemId || quiz.treeId)),
+    [quizzes]
+  )
+
+  const otherQuizzes = useMemo(
+    () => quizzes.filter((quiz) => !quiz.treeItemId && !quiz.treeId),
+    [quizzes]
+  )
+
+  const shouldGroupQuizzes = learningTreeQuizzes.length > 0 && otherQuizzes.length > 0
+
   const handleBack = () => {
     if (router.canGoBack()) {
       router.back()
@@ -121,6 +133,37 @@ export default function QuizzesScreen() {
     }
 
     setActiveTab(tabs[1])
+  }
+
+  const renderQuizCard = (quiz: QuizResponse) => {
+    const step = quiz.treeItemId ? accessMap.get(quiz.treeItemId) ?? null : null
+
+    return (
+      <QuizCard
+        key={quiz.id}
+        title={quiz.title}
+        questionsCount={quiz.totalQuestions ?? quiz.questions.length}
+        durationMinutes={5}
+        metaText={
+          quiz.level != null
+            ? t('quiz.levelMeta', {
+                level: quiz.level,
+                count: quiz.totalQuestions ?? quiz.questions.length,
+                defaultValue: `Level ${quiz.level} - ${quiz.totalQuestions ?? quiz.questions.length} questions`,
+              })
+            : undefined
+        }
+        status={toBadgeVariant(quiz, treeItems)}
+        icon={require('@/assets/images/icons/math.png')}
+        iconBgColor="#FDE68A"
+        iconTintColor="#D97706"
+        disabled={Boolean(step?.isLocked)}
+        onPress={() => router.push({
+          pathname: '/(parent)/progress/quiz/[id]' as any,
+          params: { id: quiz.id, childId: quiz.childId },
+        })}
+      />
+    )
   }
 
   return (
@@ -159,33 +202,16 @@ export default function QuizzesScreen() {
           </Text>
         ) : null}
 
-        {quizzes.map((quiz) => {
-          const step = quiz.treeItemId ? accessMap.get(quiz.treeItemId) ?? null : null
-
-          return (
-            <QuizCard
-              key={quiz.id}
-              title={quiz.title}
-              questionsCount={quiz.totalQuestions ?? quiz.questions.length}
-              durationMinutes={5}
-              metaText={
-                quiz.level != null
-                  ? t('quiz.levelMeta', {
-                      level: quiz.level,
-                      count: quiz.totalQuestions ?? quiz.questions.length,
-                      defaultValue: `Level ${quiz.level} - ${quiz.totalQuestions ?? quiz.questions.length} questions`,
-                    })
-                  : undefined
-              }
-              status={toBadgeVariant(quiz, treeItems)}
-              icon={require('@/assets/images/icons/math.png')}
-              iconBgColor="#FDE68A"
-              iconTintColor="#D97706"
-              disabled={Boolean(step?.isLocked)}
-              onPress={() => router.push(`/(parent)/progress/quiz/${quiz.id}` as any)}
-            />
-          )
-        })}
+        {shouldGroupQuizzes ? (
+          <>
+            <Text style={styles.groupTitle}>{t('tree.title', 'Learning Tree')}</Text>
+            {learningTreeQuizzes.map(renderQuizCard)}
+            <Text style={styles.groupTitle}>{t('homework.fromTeacher', 'From Teacher')}</Text>
+            {otherQuizzes.map(renderQuizCard)}
+          </>
+        ) : (
+          quizzes.map(renderQuizCard)
+        )}
       </ScrollView>
     </ScreenWrapper>
   )
@@ -214,6 +240,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
+    fontFamily: 'Lexend_700Bold',
+    color: theme.colors.textPrimary,
+  },
+  groupTitle: {
+    marginTop: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
+    fontSize: 14,
     fontFamily: 'Lexend_700Bold',
     color: theme.colors.textPrimary,
   },

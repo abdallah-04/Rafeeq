@@ -154,7 +154,7 @@ public class HomeworkService {
                 ),
                 hw.getDueDate(),
                 hw.getStatus(),
-                "TEACHER",
+                hw.getTree() != null || hw.getTreeItemId() != null ? "AI_TREE" : "TEACHER",
                 createdAt,
                 hw.getTree() != null ? hw.getTree().getId() : null,
                 hw.getTreeItemId(),

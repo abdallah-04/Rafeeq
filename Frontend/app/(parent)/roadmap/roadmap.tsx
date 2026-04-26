@@ -121,20 +121,28 @@ export default function TreeScreen() {
       return
     }
 
+    const childId = tree?.childId ?? activeChild?.id ?? ''
+
     if (step.normalizedType === 'homework') {
       router.push({
         pathname: '/(parent)/progress/HomeworkDetail' as any,
-        params: { homeworkId: step.itemId },
+        params: { homeworkId: step.itemId, childId },
       })
       return
     }
 
     if (step.normalizedType === 'activity') {
-      router.push(`/(parent)/activity/${step.itemId}` as any)
+      router.push({
+        pathname: '/(parent)/activity/[id]' as any,
+        params: { id: step.itemId, childId },
+      })
       return
     }
 
-    router.push(`/(parent)/progress/quiz/${step.itemId}` as any)
+    router.push({
+      pathname: '/(parent)/progress/quiz/[id]' as any,
+      params: { id: step.itemId, childId },
+    })
   }
 
   return (
@@ -148,8 +156,8 @@ export default function TreeScreen() {
         </Text>
         <TouchableOpacity
           activeOpacity={0.8}
-          disabled={generating}
-          onPress={handleGenerate}
+          disabled={generating || loading}
+          onPress={tree ? loadTree : handleGenerate}
           style={styles.headerAction}
         >
           {generating ? (

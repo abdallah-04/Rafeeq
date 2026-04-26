@@ -128,10 +128,22 @@ public class PlacementAssessmentService {
             child.getUser().setIsActive(true);
         }
 
+        boolean treeGenerated = false;
+        String treeGenerationMessage = "Learning tree generation was not attempted.";
         try {
-            learningTreeService.generateTreeAfterPlacement(child);
+            LearningTreeService.GenerationResult generationResult = learningTreeService.generateTreeAfterPlacement(
+                    child,
+                    assessment,
+                    correctAnswers,
+                    questions.size()
+            );
+            treeGenerated = generationResult.generated();
+            treeGenerationMessage = generationResult.message();
         } catch (RuntimeException ex) {
             log.warn("Learning tree generation was not completed after placement for child {}", child.getId(), ex);
+            treeGenerationMessage = ex.getMessage() != null
+                    ? ex.getMessage()
+                    : "Placement was saved, but learning tree generation failed.";
         }
 
         int confidencePercentage = (int) Math.round((correctAnswers * 100.0) / questions.size());
@@ -146,7 +158,9 @@ public class PlacementAssessmentService {
                 child.getLearningDifficulty() != null ? child.getLearningDifficulty().name() : null,
                 child.getStatus().name(),
                 child.getUser() != null && Boolean.TRUE.equals(child.getUser().getIsActive()),
-                child.getPlacementCompletedAt()
+                child.getPlacementCompletedAt(),
+                treeGenerated,
+                treeGenerationMessage
         );
     }
 

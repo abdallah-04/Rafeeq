@@ -44,8 +44,9 @@ export default function HomeworkDetail() {
   const isRTL = i18n.language === 'ar'
   const fonts = isRTL ? theme.typography.fontFamilyAr : theme.typography.fontFamily
   const insets = useSafeAreaInsets()
-  const params = useLocalSearchParams<{ homeworkId?: string }>()
+  const params = useLocalSearchParams<{ homeworkId?: string; childId?: string }>()
   const homeworkId = Array.isArray(params.homeworkId) ? params.homeworkId[0] : params.homeworkId
+  const routeChildId = Array.isArray(params.childId) ? params.childId[0] : params.childId
   const activeChild = useActiveChildStore((state) => state.activeChild)
 
   const [homework, setHomework] = useState<HomeworkResponse | null>(null)
@@ -66,10 +67,9 @@ export default function HomeworkDetail() {
     setError(null)
 
     try {
-      const [homeworkResponse, treeItems] = await Promise.all([
-        apiGetHomeworkDetail(homeworkId),
-        activeChild?.id ? apiGetTreeItems(activeChild.id).catch(() => []) : Promise.resolve([]),
-      ])
+      const homeworkResponse = await apiGetHomeworkDetail(homeworkId)
+      const childId = routeChildId ?? activeChild?.id ?? homeworkResponse.childId
+      const treeItems = childId ? await apiGetTreeItems(childId).catch(() => []) : []
 
       const accessMap = buildLearningTreeAccessMap(treeItems)
       setHomework(homeworkResponse)
@@ -85,7 +85,7 @@ export default function HomeworkDetail() {
     } finally {
       setLoading(false)
     }
-  }, [activeChild?.id, homeworkId, t])
+  }, [activeChild?.id, homeworkId, routeChildId, t])
 
   useEffect(() => {
     loadHomework()

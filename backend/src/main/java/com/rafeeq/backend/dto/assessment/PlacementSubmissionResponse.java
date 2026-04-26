@@ -21,4 +21,6 @@ public class PlacementSubmissionResponse {
     private String childStatus;
     private boolean active;
     private LocalDateTime placementCompletedAt;
+    private boolean treeGenerated;
+    private String treeGenerationMessage;
 }

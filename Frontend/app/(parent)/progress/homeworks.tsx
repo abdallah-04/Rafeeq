@@ -108,6 +108,18 @@ export default function HomeworksMain() {
     }).length
   }, [accessMap, homeworks])
 
+  const learningTreeHomeworks = useMemo(
+    () => filteredHomeworks.filter((homework) => Boolean(homework.treeItemId || homework.treeId || homework.authorRole === 'AI_TREE')),
+    [filteredHomeworks]
+  )
+
+  const teacherHomeworks = useMemo(
+    () => filteredHomeworks.filter((homework) => !homework.treeItemId && !homework.treeId && homework.authorRole !== 'AI_TREE'),
+    [filteredHomeworks]
+  )
+
+  const shouldGroupHomeworks = learningTreeHomeworks.length > 0 && teacherHomeworks.length > 0
+
   const percentage = homeworks.length ? Math.round((completedCount / homeworks.length) * 100) : 0
 
   const handleBack = () => {
@@ -136,6 +148,39 @@ export default function HomeworksMain() {
     }
 
     setActiveTab(tabs[3])
+  }
+
+  const renderHomeworkCard = (homework: HomeworkResponse) => {
+    const step = homework.treeItemId ? accessMap.get(homework.treeItemId) ?? null : null
+    const isLocked = Boolean(step?.isLocked)
+
+    return (
+      <QuizCard
+        key={homework.id}
+        title={homework.title}
+        questionsCount={homework.groupNumber ?? 1}
+        durationMinutes={0}
+        metaText={
+          homework.dueDate
+            ? t('homework.dueDateLabel', {
+                date: new Date(homework.dueDate).toLocaleDateString(i18n.language === 'ar' ? 'ar-JO' : 'en-GB'),
+                defaultValue: `Due ${new Date(homework.dueDate).toLocaleDateString(i18n.language === 'ar' ? 'ar-JO' : 'en-GB')}`,
+              })
+            : t('homework.noDueDate', 'No due date')
+        }
+        status={toBadgeVariant(homework, treeItems)}
+        icon={require('@/assets/images/icons/math.png')}
+        iconBgColor="#D1FAE5"
+        iconTintColor="#059669"
+        disabled={isLocked}
+        onPress={() =>
+          router.push({
+            pathname: '/(parent)/progress/HomeworkDetail' as any,
+            params: { homeworkId: homework.id, childId: homework.childId },
+          })
+        }
+      />
+    )
   }
 
   return (
@@ -189,38 +234,16 @@ export default function HomeworksMain() {
             </Text>
           ) : null}
 
-          {filteredHomeworks.map((homework) => {
-            const step = homework.treeItemId ? accessMap.get(homework.treeItemId) ?? null : null
-            const isLocked = Boolean(step?.isLocked)
-
-            return (
-              <QuizCard
-                key={homework.id}
-                title={homework.title}
-                questionsCount={homework.groupNumber ?? 1}
-                durationMinutes={0}
-                metaText={
-                  homework.dueDate
-                    ? t('homework.dueDateLabel', {
-                        date: new Date(homework.dueDate).toLocaleDateString(i18n.language === 'ar' ? 'ar-JO' : 'en-GB'),
-                        defaultValue: `Due ${new Date(homework.dueDate).toLocaleDateString(i18n.language === 'ar' ? 'ar-JO' : 'en-GB')}`,
-                      })
-                    : t('homework.noDueDate', 'No due date')
-                }
-                status={toBadgeVariant(homework, treeItems)}
-                icon={require('@/assets/images/icons/math.png')}
-                iconBgColor="#D1FAE5"
-                iconTintColor="#059669"
-                disabled={isLocked}
-                onPress={() =>
-                  router.push({
-                    pathname: '/(parent)/progress/HomeworkDetail' as any,
-                    params: { homeworkId: homework.id },
-                  })
-                }
-              />
-            )
-          })}
+          {shouldGroupHomeworks ? (
+            <>
+              <Text style={styles.groupTitle}>{t('tree.title', 'Learning Tree')}</Text>
+              {learningTreeHomeworks.map(renderHomeworkCard)}
+              <Text style={styles.groupTitle}>{t('homework.fromTeacher', 'From Teacher')}</Text>
+              {teacherHomeworks.map(renderHomeworkCard)}
+            </>
+          ) : (
+            filteredHomeworks.map(renderHomeworkCard)
+          )}
         </View>
       </ScrollView>
     </ScreenWrapper>
@@ -259,6 +282,13 @@ const styles = StyleSheet.create({
   listSection: {
     paddingBottom: 24,
     marginTop: theme.spacing.md,
+  },
+  groupTitle: {
+    marginTop: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
+    fontFamily: theme.typography.fontFamily.semiBold,
+    fontSize: 14,
+    color: theme.colors.textPrimary,
   },
   centered: {
     marginVertical: theme.spacing.md,
