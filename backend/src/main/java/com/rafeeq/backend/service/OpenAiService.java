@@ -20,7 +20,7 @@ import java.util.Map;
 public class OpenAiService {
 
     private static final String CHAT_COMPLETIONS_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String MODEL_NAME = "gpt-5.4-mini";
+     private static final String MODEL_NAME = "gpt-4o-mini";
 
     @Value("${openai.api.key:}")
     private String apiKey;
