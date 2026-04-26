@@ -11,6 +11,7 @@ import Card from '@/components/modal/shared/Card';
 import { Text } from '@/components/modal/shared/Text';
 import SchoolCard from '@/components/modal/parent/schoolCard';
 import { useActiveChildStore } from '@/store/activeChildStore';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 export default function SchoolScreen() {
   const { t, i18n } = useTranslation();
@@ -40,7 +41,7 @@ export default function SchoolScreen() {
 
   if (!activeChild) return null;
 
-  const childName = activeChild.fullNameAr ?? activeChild.fullNameEn ?? '—';
+  const childName = pickLocalizedName(isRTL, activeChild.fullNameAr, activeChild.fullNameEn);
   const childLevel = activeChild.level ?? activeChild.assessedLevel;
 
   const handleBack = () => {

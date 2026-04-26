@@ -225,7 +225,8 @@ export default function AddStudentScreen() {
   } = useForm<AddStudentForm>({
     resolver: zodResolver(schema),
     defaultValues: {
-      fullName: '',
+      fullNameAr: '',
+      fullNameEn: '',
       nationalId: '',
       dateOfBirth: '',
       difficulty: '',
@@ -278,7 +279,8 @@ export default function AddStudentScreen() {
     setLoading(true);
     try {
       await apiCreateStudent({
-        fullNameAr: data.fullName,
+        fullNameAr: data.fullNameAr,
+        fullNameEn: data.fullNameEn,
         nationalId: data.nationalId.trim(),
         dateOfBirth: parseDob(data.dateOfBirth),
         learningDifficulty: data.difficulty,
@@ -304,23 +306,42 @@ export default function AddStudentScreen() {
 
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <Text style={[styles.label, isRTL && styles.textRight]}>
-            {t('teacher.addStudent.fullName', "Child's Full Name")}
+            {t('teacher.addStudent.fullNameAr')}
           </Text>
           <Controller
             control={control}
-            name="fullName"
+            name="fullNameAr"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                style={[styles.input, isRTL && styles.textRight, errors.fullName && styles.inputError]}
-                placeholder={t('teacher.addStudent.fullNamePlaceholder', 'Enter full name...')}
+                style={[styles.input, styles.textRight, errors.fullNameAr && styles.inputError]}
+                placeholder={t('teacher.addStudent.fullNameArPlaceholder')}
                 placeholderTextColor="#93C5FD"
                 value={value}
                 onChangeText={onChange}
-                textAlign={isRTL ? 'right' : 'left'}
+                textAlign="right"
               />
             )}
           />
-          {errors.fullName && <Text style={[styles.error, isRTL && styles.textRight]}>{errors.fullName.message}</Text>}
+          {errors.fullNameAr && <Text style={[styles.error, isRTL && styles.textRight]}>{errors.fullNameAr.message}</Text>}
+
+          <Text style={[styles.label, isRTL && styles.textRight]}>
+            {t('teacher.addStudent.fullNameEn')}
+          </Text>
+          <Controller
+            control={control}
+            name="fullNameEn"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={[styles.input, errors.fullNameEn && styles.inputError]}
+                placeholder={t('teacher.addStudent.fullNameEnPlaceholder')}
+                placeholderTextColor="#93C5FD"
+                value={value}
+                onChangeText={onChange}
+                textAlign="left"
+              />
+            )}
+          />
+          {errors.fullNameEn && <Text style={[styles.error, isRTL && styles.textRight]}>{errors.fullNameEn.message}</Text>}
 
           <Text style={[styles.label, isRTL && styles.textRight]}>
             {t('teacher.addStudent.nationalId', 'National ID')}

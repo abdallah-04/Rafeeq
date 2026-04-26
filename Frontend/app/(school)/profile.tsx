@@ -12,6 +12,7 @@ import Header from '@/components/modal/shared/Header'
 import Card from '@/components/modal/shared/Card'
 import { apiGetMe, apiGetSchoolDashboard, MeResponse, SchoolDashboard } from '@/services/api'
 import type { Language } from '@/types'
+import { pickLocalizedName } from '@/utils/localizedName'
 
 const { colors, spacing, radius, typography } = theme
 
@@ -123,10 +124,11 @@ export default function ProfileScreen() {
   }, [])
 
   const displayName = useMemo(() => {
-    const candidates = [user?.nameAr, user?.name, me?.email, me?.phone, user?.phone, user?.nationalId]
+    const localized = pickLocalizedName(isRTL, user?.nameAr, user?.name, '')
+    const candidates = [localized, me?.email, me?.phone, user?.phone, user?.nationalId]
     return candidates.find((value) => typeof value === 'string' && value.trim().length > 0)?.trim()
       ?? t('roleSelect.schoolTitle')
-  }, [me?.email, me?.phone, t, user?.name, user?.nameAr, user?.nationalId, user?.phone])
+  }, [isRTL, me?.email, me?.phone, t, user?.name, user?.nameAr, user?.nationalId, user?.phone])
 
   const phoneValue = me?.phone || user?.phone || '—'
   const emailValue = me?.email || '—'

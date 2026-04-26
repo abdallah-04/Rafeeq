@@ -14,6 +14,7 @@ import { Text } from '@/components/modal/shared/Text'
 import { StudentListSkeleton } from '@/components/LoadingSkeleton';
 import { apiGetStudents, StudentResponse } from '@/services/api';
 import { useModal } from '@/components/modal/ModalProvider';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 const AVATAR_COLORS = ['#BCD6FF', '#C8E6C9', '#BBDEFB', '#F8BBD0', '#E1BEE7'];
 const LEVEL_PILL = '#B7CCFF';
@@ -63,7 +64,7 @@ function StudentCard({
   onPress: () => void;
   t: any;
 }) {
-  const displayName = isRTL ? student.fullNameAr : (student.fullNameEn ?? student.fullNameAr);
+  const displayName = pickLocalizedName(isRTL, student.fullNameAr, student.fullNameEn);
   const initials = getInitials(student.fullNameAr || student.fullNameEn || '?');
   const avatarBg = AVATAR_COLORS[index % AVATAR_COLORS.length];
   const progress = getProgress(student);

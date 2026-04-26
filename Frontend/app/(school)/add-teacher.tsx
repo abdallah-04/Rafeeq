@@ -54,7 +54,8 @@ export default function AddTeacherScreen() {
     setLoading(true);
     try {
       await apiCreateTeacher({
-        fullNameAr:  data.fullName,
+        fullNameAr:  data.fullNameAr,
+        fullNameEn:  data.fullNameEn,
         nationalId:  data.nationalId,
         phone:       `+962${data.phone}`,
         password:    data.password,
@@ -107,14 +108,28 @@ export default function AddTeacherScreen() {
 
             <Controller
               control={control}
-              name="fullName"
+              name="fullNameAr"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  label={t('addTeacher.fullName')}
-                  placeholder={t('addTeacher.fullNamePlaceholder')}
+                  label={t('addTeacher.fullNameAr')}
+                  placeholder={t('addTeacher.fullNameArPlaceholder')}
                   value={value}
                   onChangeText={onChange}
-                  errorMsg={errors.fullName?.message}
+                  errorMsg={errors.fullNameAr?.message}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="fullNameEn"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  label={t('addTeacher.fullNameEn')}
+                  placeholder={t('addTeacher.fullNameEnPlaceholder')}
+                  value={value}
+                  onChangeText={onChange}
+                  errorMsg={errors.fullNameEn?.message}
                 />
               )}
             />

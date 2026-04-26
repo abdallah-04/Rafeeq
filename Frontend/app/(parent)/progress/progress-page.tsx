@@ -13,6 +13,7 @@ import ChildSelector from '@/components/modal/parent/ChildSelector';
 import TabBar from '@/components/modal/shared/TabBar';
 import ProgressCard from '@/components/modal/parent/ProgressCard';
 import ProgressSummary, { SkillItem } from '@/components/modal/parent/ProgressSummary';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 type SummaryLevelResponse = {
   assessedLevel?: number | null;
@@ -20,7 +21,7 @@ type SummaryLevelResponse = {
 };
 
 export default function ProgressScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const activeChild = useActiveChildStore((s) => s.activeChild);
   const [activeTab, setActiveTab] = useState('');
   const [summaryLevel, setSummaryLevel] = useState<number | null>(null);
@@ -75,7 +76,7 @@ export default function ProgressScreen() {
     };
   }, [activeChild?.id, childLevel]);
 
-  const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? '—';
+  const childName = pickLocalizedName(i18n.language === 'ar', activeChild?.fullNameAr, activeChild?.fullNameEn);
   const childAge = activeChild?.dateOfBirth
     ? Math.floor((Date.now() - new Date(activeChild.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365))
     : 0;

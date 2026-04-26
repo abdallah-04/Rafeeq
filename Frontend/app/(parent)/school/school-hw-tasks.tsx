@@ -11,6 +11,7 @@ import { Text } from '@/components/modal/shared/Text';
 import SchoolCard from '@/components/modal/parent/schoolCard';
 import { useActiveChildStore } from '@/store/activeChildStore';
 import { apiGetHomeworkForParent, HomeworkResponse } from '@/services/api';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 export default function HWTasksScreen() {
   const { t, i18n } = useTranslation();
@@ -70,7 +71,7 @@ export default function HWTasksScreen() {
     else setActiveTab(tabs[1]);
   };
 
-  const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? '—';
+  const childName = pickLocalizedName(isRTL, activeChild?.fullNameAr, activeChild?.fullNameEn);
   const statusColor = (status: string) => ((status === 'SUBMITTED' || status === 'GRADED') ? '#22C55E' : '#F97316');
 
   return (

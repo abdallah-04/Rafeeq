@@ -264,7 +264,7 @@ export default function PlacementExamScreen() {
 
           <View style={styles.resultSmallCard}>
             <Text style={styles.resultSmallLabel}>
-              {t('teacher.monthlyExam.scoreLabel', 'Score')}
+              {t('common.score', 'Score')}
             </Text>
             <Text style={[styles.resultSmallValue, { color: '#22C55E' }]}>
               {`${result.correctAnswers}/${result.totalQuestions}`}

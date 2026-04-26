@@ -19,12 +19,13 @@ import { useModal } from '@/components/modal/ModalProvider';
 import { apiGetChildren, ChildResponse } from '@/services/api';
 import { useActiveChildStore } from '@/store/activeChildStore';
 import { useAuthStore } from '@/store/authStore';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 const { colors, spacing, typography, radius } = theme;
 
 function ChildCard({ child, onPress }: { child: ChildResponse; onPress: () => void }) {
-  const { t } = useTranslation();
-  const displayName = child.fullNameAr ?? child.fullNameEn ?? '—';
+  const { t, i18n } = useTranslation();
+  const displayName = pickLocalizedName(i18n.language === 'ar', child.fullNameAr, child.fullNameEn);
   const age = child.dateOfBirth
     ? Math.floor((Date.now() - new Date(child.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365))
     : null;

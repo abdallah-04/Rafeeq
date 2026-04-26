@@ -104,8 +104,8 @@ export default function VerifySchoolPhoneScreen() {
           phone,
           email:    `${nid}@rafeeq.app`,
           password,
-          nameAr:   step1.schoolName ?? '',
-          nameEn:   step1.schoolName ?? '',
+          nameAr:   step1.schoolNameAr ?? step1.schoolNameEn ?? '',
+          nameEn:   step1.schoolNameEn ?? step1.schoolNameAr ?? '',
           location: 'Jordan',
         });
 
@@ -113,7 +113,7 @@ export default function VerifySchoolPhoneScreen() {
         const rawRole = res.role?.replace('ROLE_', '').toLowerCase() as UserRole;
         login(
           {
-            id: '', name: step1.advisorName ?? '', nameAr: step1.advisorName ?? '',
+            id: '', name: step1.schoolNameEn ?? step1.schoolNameAr ?? '', nameAr: step1.schoolNameAr ?? step1.schoolNameEn ?? '',
             phone, nationalId: nid, role: rawRole,
             language: i18n.language as 'en' | 'ar', createdAt: new Date().toISOString(),
           } as any,

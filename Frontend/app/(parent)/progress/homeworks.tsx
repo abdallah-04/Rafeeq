@@ -14,6 +14,7 @@ import { apiGetHomeworkForParent, apiGetTreeItems, HomeworkResponse, TreeItemRes
 import { useActiveChildStore } from '@/store/activeChildStore'
 import type { BadgeVariant } from '@/components/modal/parent/StatusBadge'
 import { buildLearningTreeAccessMap, isLearningTreeContentCompletedStatus } from '@/utils/learningTree'
+import { pickLocalizedName } from '@/utils/localizedName'
 
 function toBadgeVariant(homework: HomeworkResponse, treeItems: TreeItemResponse[]): BadgeVariant {
   if (!homework.treeItemId) {
@@ -182,7 +183,12 @@ export default function HomeworksMain() {
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ProgressCard
-          childName={activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? t('homework.title', 'Homework')}
+          childName={pickLocalizedName(
+            i18n.language === 'ar',
+            activeChild?.fullNameAr,
+            activeChild?.fullNameEn,
+            t('homework.title', 'Homework')
+          )}
           monthLabel={t('homework.today', 'Today')}
           description={
             aiHomeworks.length

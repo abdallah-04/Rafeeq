@@ -23,6 +23,7 @@ import ScreenWrapper from '@/components/modal/shared/ScreenWap';
 import { useAuthStore } from '@/store/authStore';
 import { apiGetChildren, ChildResponse } from '@/services/api';
 import { useActiveChildStore } from '@/store/activeChildStore';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 const { colors, spacing, typography, radius } = theme;
 
@@ -66,7 +67,7 @@ function ChildCard({
   t: (k: string, o?: any) => string;
   isRTL: boolean;
 }) {
-  const displayName = child.fullNameAr ?? child.fullNameEn ?? '—';
+  const displayName = pickLocalizedName(isRTL, child.fullNameAr, child.fullNameEn);
   const level = child.level ?? child.assessedLevel ?? '—';
   const difficulty = child.learningDifficulty ?? '—';
   const age = child.dateOfBirth

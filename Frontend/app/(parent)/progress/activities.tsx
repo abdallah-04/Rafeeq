@@ -14,6 +14,7 @@ import { useActiveChildStore } from '@/store/activeChildStore'
 import { ActivityResponse, apiGetActivities, apiGetTreeItems, TreeItemResponse } from '@/services/api'
 import { theme } from '@/theme'
 import { buildLearningTreeAccessMap } from '@/utils/learningTree'
+import { pickLocalizedName } from '@/utils/localizedName'
 
 function toBadgeVariant(activity: ActivityResponse, treeItems: TreeItemResponse[]): BadgeVariant {
   if (!activity.treeItemId) {
@@ -34,7 +35,7 @@ export default function ActivitiesScreen() {
   const { t, i18n } = useTranslation()
   const isRTL = i18n.language === 'ar'
   const activeChild = useActiveChildStore((state) => state.activeChild)
-  const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? 'Zaid'
+  const childName = pickLocalizedName(isRTL, activeChild?.fullNameAr, activeChild?.fullNameEn, 'Zaid')
   const childAge = activeChild?.dateOfBirth
     ? Math.floor((Date.now() - new Date(activeChild.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365))
     : 6

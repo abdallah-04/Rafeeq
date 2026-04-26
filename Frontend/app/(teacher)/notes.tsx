@@ -17,6 +17,7 @@ import BackButton from '@/components/BackButton';
 
 import { apiGetNotesForTeacher, apiGetNotesForParent, apiGetStudent, NoteResponse } from '@/services/api';
 import { useModal } from '@/components/modal/ModalProvider';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 function NoteItem({
   note,
@@ -62,9 +63,9 @@ export default function NotesScreen() {
   useEffect(() => {
     if (!studentId || studentName) return;
     apiGetStudent(studentId)
-      .then((student) => setResolvedStudentName(student.fullNameAr ?? student.fullNameEn ?? ''))
+      .then((student) => setResolvedStudentName(pickLocalizedName(isRTL, student.fullNameAr, student.fullNameEn, '')))
       .catch(() => {});
-  }, [studentId, studentName]);
+  }, [isRTL, studentId, studentName]);
 
   const handleBack = useCallback(() => {
     if (router.canGoBack()) {

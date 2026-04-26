@@ -16,6 +16,7 @@ import { apiGetQuizzes, apiGetTreeItems, QuizResponse, TreeItemResponse } from '
 import type { BadgeVariant } from '@/components/modal/parent/StatusBadge'
 import { theme } from '@/theme'
 import { buildLearningTreeAccessMap } from '@/utils/learningTree'
+import { pickLocalizedName } from '@/utils/localizedName'
 
 function toBadgeVariant(quiz: QuizResponse, treeItems: TreeItemResponse[]): BadgeVariant {
   if (!quiz.treeItemId) {
@@ -34,7 +35,7 @@ function toBadgeVariant(quiz: QuizResponse, treeItems: TreeItemResponse[]): Badg
 }
 
 export default function QuizzesScreen() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const insets = useSafeAreaInsets()
   const tabs = useMemo(
     () => [
@@ -53,7 +54,7 @@ export default function QuizzesScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? 'Zaid'
+  const childName = pickLocalizedName(i18n.language === 'ar', activeChild?.fullNameAr, activeChild?.fullNameEn, 'Zaid')
   const childAge = activeChild?.dateOfBirth
     ? Math.floor((Date.now() - new Date(activeChild.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365))
     : 6

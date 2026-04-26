@@ -7,6 +7,7 @@ import { colors, spacing, borderRadius } from '@/constants'
 import { apiGetStudents, StudentResponse } from '@/services/api'
 import { useModal } from '@/components/modal/ModalProvider'
 import { Text } from '@/components/modal/shared/Text'
+import { pickLocalizedName } from '@/utils/localizedName'
 
 const DIFF_COLORS: Record<string, { bg: string; text: string }> = {
   ADHD:               { bg: '#FDF4FF', text: '#A855F7' },
@@ -32,9 +33,11 @@ function EmptyState({ t }: { t: any }) {
 }
 
 function StudentCard({ student, t }: { student: StudentResponse; t: any }) {
+  const { i18n } = useTranslation()
+  const isRTL = i18n.language === 'ar'
   const diffKey   = student.learningDifficulty?.toString() ?? 'OTHER'
   const diffColor = DIFF_COLORS[diffKey] ?? DIFF_COLORS.OTHER
-  const displayName = student.fullNameEn ?? student.fullNameAr ?? '—'
+  const displayName = pickLocalizedName(isRTL, student.fullNameAr, student.fullNameEn)
   return (
     <TouchableOpacity style={styles.studentCard} onPress={() => router.push(`/(school)/student/${student.id}` as any)} accessibilityRole="button">
       <View style={styles.avatar}><Text style={styles.avatarText}>{displayName.charAt(0).toUpperCase()}</Text></View>

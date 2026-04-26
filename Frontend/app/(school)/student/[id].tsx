@@ -20,6 +20,7 @@ import {
   ReportResponse,
 } from '@/services/api'
 import { Text } from '@/components/modal/shared/Text'
+import { pickLocalizedName } from '@/utils/localizedName'
 
 
 type Tab = 'grades' | 'hw' | 'progress' | 'reports'
@@ -280,8 +281,8 @@ export default function SchoolStudentDetailScreen() {
 
   const displayName = useMemo(() => {
     if (!student) return '—'
-    return student.fullNameEn ?? student.fullNameAr ?? '—'
-  }, [student])
+    return pickLocalizedName(isRTL, student.fullNameAr, student.fullNameEn)
+  }, [isRTL, student])
 
   const age = useMemo(() => {
     if (!student?.dateOfBirth) return null

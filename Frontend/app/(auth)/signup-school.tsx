@@ -59,23 +59,41 @@ export default function SchoolSignupStep1() {
 
           <Card variant="elevated" padded style={styles.card}>
 
-            {/* School Name */}
-            <Text variant="label" style={[styles.label, isRTL && styles.textRight]}>{t('schoolSignup.schoolName')}</Text>
+            {/* School Name Arabic */}
+            <Text variant="label" style={[styles.label, isRTL && styles.textRight]}>{t('schoolSignup.schoolNameAr')}</Text>
             <Controller
               control={control}
-              name="schoolName"
+              name="schoolNameAr"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  style={[styles.input, isRTL && styles.inputRTL, errors.schoolName && styles.inputError]}
+                  style={[styles.input, styles.inputRTL, errors.schoolNameAr && styles.inputError]}
                   onChangeText={onChange}
                   value={value}
-                  placeholder={t('schoolSignup.schoolNamePlaceholder')}
+                  placeholder={t('schoolSignup.schoolNameArPlaceholder')}
                   placeholderTextColor={colors.textMuted}
-                  textAlign={isRTL ? 'right' : 'left'}
+                  textAlign="right"
                 />
               )}
             />
-            {errors.schoolName && <Text style={[styles.error, isRTL && styles.textRight]}>{errors.schoolName.message}</Text>}
+            {errors.schoolNameAr && <Text style={[styles.error, isRTL && styles.textRight]}>{errors.schoolNameAr.message}</Text>}
+
+            {/* School Name English */}
+            <Text variant="label" style={[styles.label, isRTL && styles.textRight]}>{t('schoolSignup.schoolNameEn')}</Text>
+            <Controller
+              control={control}
+              name="schoolNameEn"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  style={[styles.input, errors.schoolNameEn && styles.inputError]}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder={t('schoolSignup.schoolNameEnPlaceholder')}
+                  placeholderTextColor={colors.textMuted}
+                  textAlign="left"
+                />
+              )}
+            />
+            {errors.schoolNameEn && <Text style={[styles.error, isRTL && styles.textRight]}>{errors.schoolNameEn.message}</Text>}
 
             {/* School ID */}
             <Text variant="label" style={[styles.label, isRTL && styles.textRight]}>{t('schoolSignup.schoolId')}</Text>

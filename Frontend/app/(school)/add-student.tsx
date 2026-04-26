@@ -14,11 +14,12 @@ import Avatar from '@/components/modal/shared/Avatar'
 import Badge from '@/components/modal/shared/Badge'
 import { apiGetTeachers, TeacherResponse } from '@/services/api'
 import { useModal } from '@/components/modal/ModalProvider'
+import { pickLocalizedName } from '@/utils/localizedName'
 
 const { colors, spacing, radius } = theme
 
-function TeacherCard({ teacher, t }: { teacher: TeacherResponse; t: any }) {
-  const displayName = teacher.fullNameEn ?? teacher.fullNameAr
+function TeacherCard({ teacher, t, isRTL }: { teacher: TeacherResponse; t: any; isRTL: boolean }) {
+  const displayName = pickLocalizedName(isRTL, teacher.fullNameAr, teacher.fullNameEn)
   return (
     <TouchableOpacity onPress={() => router.push(`/(school)/teacher/${teacher.id}` as any)} activeOpacity={0.7}>
       <Card variant="elevated" style={styles.card}>
@@ -52,7 +53,8 @@ function EmptyState({ t }: { t: any }) {
 }
 
 export default function TeachersScreen() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isRTL = i18n.language === 'ar'
   const { show } = useModal()
   const [teachers,   setTeachers]   = useState<TeacherResponse[]>([])
   const [isLoading,  setIsLoading]  = useState(true)
@@ -82,7 +84,7 @@ export default function TeachersScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load() }} />}>
         {teachers.length === 0 ? <EmptyState t={t} /> : (
           <View style={styles.list}>
-            {teachers.map(tc => <TeacherCard key={tc.id} teacher={tc} t={t} />)}
+            {teachers.map(tc => <TeacherCard key={tc.id} teacher={tc} t={t} isRTL={isRTL} />)}
             <TouchableOpacity style={styles.ghostCardAdd} onPress={() => router.push('/(school)/add-teacher')} activeOpacity={0.7}>
               <Ionicons name="add" size={28} color={colors.textSecondary} />
             </TouchableOpacity>

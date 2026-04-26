@@ -3,7 +3,8 @@ import { TFunction } from 'i18next'
 
 export const createSchoolStep1Schema = (t: TFunction) =>
   z.object({
-    schoolName:        z.string().min(2, t('validation.schoolNameRequired')),
+    schoolNameAr:      z.string().min(2, t('validation.schoolNameRequired')),
+    schoolNameEn:      z.string().min(2, t('validation.schoolNameRequired')),
     schoolId:          z.string().min(3, t('validation.schoolIdRequired')),
     advisorName:       z.string().min(2, t('validation.advisorNameRequired')),
     advisorNationalId: z
@@ -29,7 +30,8 @@ export const createSchoolStep2Schema = (t: TFunction) =>
 
 // Static schemas kept for backward-compat (English fallback)
 export const schoolStep1Schema = z.object({
-  schoolName:        z.string().min(2, 'School name is required'),
+  schoolNameAr:      z.string().min(2, 'School name is required'),
+  schoolNameEn:      z.string().min(2, 'School name is required'),
   schoolId:          z.string().min(3, 'School ID is required'),
   advisorName:       z.string().min(2, 'Advisor name is required'),
   advisorNationalId: z

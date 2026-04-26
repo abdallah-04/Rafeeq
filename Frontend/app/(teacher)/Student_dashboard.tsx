@@ -17,6 +17,7 @@ import BackButton from '@/components/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '@/components/modal/shared/Text';
 import { Theme } from '@/theme';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 
 function readParam(value?: string | string[]) {
@@ -140,7 +141,7 @@ export default function TeacherStudentDashboard() {
     );
   }
 
-  const displayName = isRTL ? student.fullNameAr : (student.fullNameEn ?? student.fullNameAr);
+  const displayName = pickLocalizedName(isRTL, student.fullNameAr, student.fullNameEn);
   const initials    = (displayName ?? '?').split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
   const level       = student.assessedLevel ?? student.level ?? 0;
   const avatarBg    = ['#FFD9B3','#C8E6C9','#BBDEFB','#F8BBD0','#E1BEE7'][(displayName?.charCodeAt(0) ?? 0) % 5];
@@ -162,7 +163,7 @@ export default function TeacherStudentDashboard() {
               pathname: '/(teacher)/placement-exam' as any,
               params: {
                 studentId: studentId ?? '',
-                studentName: student?.fullNameAr ?? student?.fullNameEn ?? '',
+                studentName: displayName,
               },
             })}
           >
@@ -193,7 +194,7 @@ export default function TeacherStudentDashboard() {
                 pathname: btn.route as any,
                 params: {
                   studentId,
-                  studentName: student?.fullNameAr ?? student?.fullNameEn ?? '',
+                  studentName: displayName,
                 },
               })} activeOpacity={0.75}>
               <Text style={styles.actionIcon}>{btn.icon}</Text>

@@ -4,7 +4,8 @@ import { TFunction } from 'i18next'
 export const createAddTeacherSchema = (t: TFunction) =>
   z
     .object({
-      fullName:        z.string().min(2, t('validation.fullNameRequired')),
+      fullNameAr:      z.string().min(2, t('validation.fullNameRequired')),
+      fullNameEn:      z.string().min(2, t('validation.fullNameRequired')),
       nationalId:      z
         .string()
         .length(10, t('validation.nationalId10Digits'))
@@ -24,7 +25,8 @@ export const createAddTeacherSchema = (t: TFunction) =>
 // Static schema kept for backward-compat (English fallback)
 export const addTeacherSchema = z
   .object({
-    fullName:        z.string().min(2, 'Full name is required'),
+    fullNameAr:      z.string().min(2, 'Full name is required'),
+    fullNameEn:      z.string().min(2, 'Full name is required'),
     nationalId:      z.string().length(10, 'National ID must be 10 digits').regex(/^\d+$/, 'Numbers only'),
     phone:           z.string().min(9, 'Phone is required').regex(/^7\d{8}$/, 'Enter a valid Jordanian number'),
     password:        z.string().min(8, 'Password must be at least 8 characters'),

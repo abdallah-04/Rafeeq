@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { apiGetStudent, StudentResponse } from '@/services/api';
 import BackButton from '@/components/BackButton';
 import { Ionicons } from '@expo/vector-icons';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 function readParam(value?: string | string[]) {
   return Array.isArray(value) ? value[0] : value;
@@ -122,6 +123,7 @@ export default function StudentQuickAccessScreen() {
   );
 
   const isUnplaced = student ? (student.assessedLevel == null) : false;
+  const displayName = pickLocalizedName(isRTL, student?.fullNameAr, student?.fullNameEn, '');
 
   const handleGridPress = (route: string) => {
     if (isUnplaced) {
@@ -158,10 +160,10 @@ export default function StudentQuickAccessScreen() {
         {/* ── Profile Card ── */}
         <View style={styles.profileCard}>
           <View style={[styles.avatar, { backgroundColor: '#BBDEFB' }]}>
-            <Text style={styles.avatarText}>{(student?.fullNameAr ?? '?').split(' ').map((w:string)=>w[0]).slice(0,2).join('').toUpperCase()}</Text>
+            <Text style={styles.avatarText}>{(displayName || '?').split(' ').map((w:string)=>w[0]).slice(0,2).join('').toUpperCase()}</Text>
           </View>
 
-          <Text style={styles.studentName}>{student?.fullNameAr ?? student?.fullNameEn ?? ''}</Text>
+          <Text style={styles.studentName}>{displayName}</Text>
 
           <View style={styles.pillsRow}>
             <View style={[styles.pill, isUnplaced && styles.pillWarning]}>
@@ -266,8 +268,8 @@ export default function StudentQuickAccessScreen() {
             </Text>
             <Text style={styles.modalBody}>
               {t('teacher.placementExam.modalBody', {
-                name: student?.fullNameAr ?? student?.fullNameEn ?? '',
-                defaultValue: `${student?.fullNameAr ?? student?.fullNameEn ?? ''} hasn't taken the placement exam yet.`,
+                name: displayName,
+                defaultValue: `${displayName} hasn't taken the placement exam yet.`,
               })}
             </Text>
 
@@ -279,7 +281,7 @@ export default function StudentQuickAccessScreen() {
                   pathname: '/(teacher)/placement-exam' as any,
                   params: {
                     studentId: studentId ?? '',
-                    studentName: student?.fullNameAr ?? student?.fullNameEn ?? '',
+                    studentName: displayName,
                   },
                 });
               }}

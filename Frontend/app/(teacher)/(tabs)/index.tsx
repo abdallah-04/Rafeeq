@@ -9,6 +9,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { apiGetStudents, StudentResponse } from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 const DIFF_COLORS: Record<string, string> = {
   ADD:'#508DF7', ADHD:'#A855F7', ASD:'#10B981',
@@ -45,7 +46,7 @@ function StudentCard({ student, index, onPress }: {
 }) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const displayName = isRTL ? student.fullNameAr : (student.fullNameEn ?? student.fullNameAr);
+  const displayName = pickLocalizedName(isRTL, student.fullNameAr, student.fullNameEn);
   const diffColor = DIFF_COLORS[student.learningDifficulty ?? 'OTHER'] ?? '#6B7280';
   const avatarBg  = AVATAR_COLORS[index % AVATAR_COLORS.length];
   const initials  = getInitials(student.fullNameAr || student.fullNameEn || '?');

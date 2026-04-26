@@ -12,6 +12,7 @@ import { Text } from '@/components/modal/shared/Text';
 import SchoolCard from '@/components/modal/parent/schoolCard';
 import { useActiveChildStore } from '@/store/activeChildStore';
 import { apiGetChildSummary, apiGetNotesForParent, ChildSummaryResponse, NoteResponse } from '@/services/api';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 export default function ProgressReport() {
   const { t, i18n } = useTranslation();
@@ -73,7 +74,7 @@ export default function ProgressReport() {
     else setActiveTab(tabs[2]);
   };
 
-  const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? '—';
+  const childName = pickLocalizedName(isRTL, activeChild?.fullNameAr, activeChild?.fullNameEn);
   const level = activeChild?.assessedLevel ?? summary?.level ?? activeChild?.level ?? null;
   const levelPct = level ? Math.min(level * 20, 100) : 0;
   const skills = level

@@ -11,6 +11,7 @@ import { Text } from '@/components/modal/shared/Text';
 import SchoolCard from '@/components/modal/parent/schoolCard';
 import { useActiveChildStore } from '@/store/activeChildStore';
 import { apiGetReportsForParent, ReportResponse } from '@/services/api';
+import { pickLocalizedName } from '@/utils/localizedName';
 
 export default function TeacherReports() {
   const { t, i18n } = useTranslation();
@@ -71,7 +72,7 @@ export default function TeacherReports() {
     else setActiveTab(tabs[3]);
   };
 
-  const childName = activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? '—';
+  const childName = pickLocalizedName(isRTL, activeChild?.fullNameAr, activeChild?.fullNameEn);
 
   return (
     <ScreenWrapper padded={false} scroll={false}>
