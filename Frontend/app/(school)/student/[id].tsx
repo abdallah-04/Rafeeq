@@ -255,7 +255,7 @@ export default function SchoolStudentDetailScreen() {
         apiGetReportsForSchool(id ?? '').catch(() => []),
       ])
 
-      setHomework(homeworkData)
+      setHomework(homeworkData.filter((item) => !item.treeItemId && !item.treeId))
       setReports(reportsData)
     } catch {
       setStudent(null)

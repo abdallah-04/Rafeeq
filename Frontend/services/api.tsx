@@ -672,8 +672,12 @@ export async function apiDeleteChild(id: string): Promise<MessageResponse> {
  * GET /api/homework/parent/:childId
  * Parent view: get homework assigned to a child
  */
-export async function apiGetHomeworkForParent(childId: string): Promise<HomeworkResponse[]> {
-  return _get<HomeworkResponse[]>(`/api/homework/parent/${childId}`);
+export async function apiGetHomeworkForParent(
+  childId: string,
+  source?: 'ai' | 'teacher'
+): Promise<HomeworkResponse[]> {
+  const query = source ? `?source=${encodeURIComponent(source)}` : '';
+  return _get<HomeworkResponse[]>(`/api/homework/parent/${childId}${query}`);
 }
 
 /**

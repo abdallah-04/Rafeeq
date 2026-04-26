@@ -40,9 +40,10 @@ public class HomeworkController {
     public ResponseEntity<List<HomeworkResponse>> getParentHomework(
             @PathVariable UUID childId,
             @RequestHeader(value = "Accept-Language", required = false) String acceptLanguage,
+            @RequestParam(value = "source", required = false) String source,
             Authentication auth
     ) {
-        return ResponseEntity.ok(homeworkService.getParentHomework(childId, auth.getName(), acceptLanguage));
+        return ResponseEntity.ok(homeworkService.getParentHomework(childId, auth.getName(), acceptLanguage, source));
     }
 
     @GetMapping("/school/{childId}")

@@ -70,7 +70,7 @@ export default function HomeworkScreen() {
     if (!studentId) return;
     try {
       const data = await apiGetHomeworkForTeacher(studentId);
-      setHwList(data);
+      setHwList(data.filter((hw) => !hw.treeItemId && !hw.treeId));
     } catch (err: any) {
       show('error', { variant: 'invalidInfo' });
     } finally {

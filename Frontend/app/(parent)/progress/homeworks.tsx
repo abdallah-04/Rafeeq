@@ -92,35 +92,28 @@ export default function HomeworksMain() {
 
   const accessMap = useMemo(() => buildLearningTreeAccessMap(treeItems), [treeItems])
 
+  const aiHomeworks = useMemo(
+    () => homeworks.filter((homework) => Boolean(homework.treeItemId || homework.treeId)),
+    [homeworks]
+  )
+
   const filteredHomeworks = useMemo(() => {
-    return homeworks.filter((homework) => {
+    return aiHomeworks.filter((homework) => {
       const step = homework.treeItemId ? accessMap.get(homework.treeItemId) ?? null : null
       const isDone = Boolean(step?.isCompleted) || isLearningTreeContentCompletedStatus(homework.status)
 
       return filter === 'done' ? isDone : !isDone
     })
-  }, [accessMap, filter, homeworks])
+  }, [accessMap, aiHomeworks, filter])
 
   const completedCount = useMemo(() => {
-    return homeworks.filter((homework) => {
+    return aiHomeworks.filter((homework) => {
       const step = homework.treeItemId ? accessMap.get(homework.treeItemId) ?? null : null
       return Boolean(step?.isCompleted) || isLearningTreeContentCompletedStatus(homework.status)
     }).length
-  }, [accessMap, homeworks])
+  }, [accessMap, aiHomeworks])
 
-  const learningTreeHomeworks = useMemo(
-    () => filteredHomeworks.filter((homework) => Boolean(homework.treeItemId || homework.treeId || homework.authorRole === 'AI_TREE')),
-    [filteredHomeworks]
-  )
-
-  const teacherHomeworks = useMemo(
-    () => filteredHomeworks.filter((homework) => !homework.treeItemId && !homework.treeId && homework.authorRole !== 'AI_TREE'),
-    [filteredHomeworks]
-  )
-
-  const shouldGroupHomeworks = learningTreeHomeworks.length > 0 && teacherHomeworks.length > 0
-
-  const percentage = homeworks.length ? Math.round((completedCount / homeworks.length) * 100) : 0
+  const percentage = aiHomeworks.length ? Math.round((completedCount / aiHomeworks.length) * 100) : 0
 
   const handleBack = () => {
     if (router.canGoBack()) {
@@ -192,11 +185,11 @@ export default function HomeworksMain() {
           childName={activeChild?.fullNameAr ?? activeChild?.fullNameEn ?? t('homework.title', 'Homework')}
           monthLabel={t('homework.today', 'Today')}
           description={
-            homeworks.length
+            aiHomeworks.length
               ? t('homework.progressSummary', {
                   completed: completedCount,
-                  total: homeworks.length,
-                  defaultValue: `${completedCount} of ${homeworks.length} tasks completed`,
+                  total: aiHomeworks.length,
+                  defaultValue: `${completedCount} of ${aiHomeworks.length} tasks completed`,
                 })
               : t('homework.noHomeworkYet', 'No homework yet')
           }
@@ -234,16 +227,7 @@ export default function HomeworksMain() {
             </Text>
           ) : null}
 
-          {shouldGroupHomeworks ? (
-            <>
-              <Text style={styles.groupTitle}>{t('tree.title', 'Learning Tree')}</Text>
-              {learningTreeHomeworks.map(renderHomeworkCard)}
-              <Text style={styles.groupTitle}>{t('homework.fromTeacher', 'From Teacher')}</Text>
-              {teacherHomeworks.map(renderHomeworkCard)}
-            </>
-          ) : (
-            filteredHomeworks.map(renderHomeworkCard)
-          )}
+          {filteredHomeworks.map(renderHomeworkCard)}
         </View>
       </ScrollView>
     </ScreenWrapper>

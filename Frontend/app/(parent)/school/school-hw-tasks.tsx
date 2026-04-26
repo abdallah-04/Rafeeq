@@ -41,7 +41,8 @@ export default function HWTasksScreen() {
       return;
     }
     try {
-      setHwList(await apiGetHomeworkForParent(activeChild.id));
+      const data = await apiGetHomeworkForParent(activeChild.id, 'teacher');
+      setHwList(data.filter((hw) => !hw.treeItemId && !hw.treeId));
     } catch {
       // show empty state
     } finally {

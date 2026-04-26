@@ -71,18 +71,22 @@ public class HomeworkService {
         childProfileRepository.findByIdAndTeacherId(childId, teacher.getId())
                 .orElseThrow(() -> new NotFoundException("Child not found"));
 
-        return homeworkRepository.findByChildIdOrderByDueDateAsc(childId)
+        return homeworkRepository.findTeacherCreatedByChildId(childId)
                 .stream()
                 .map(homework -> map(homework, acceptLanguage))
                 .toList();
     }
 
-    public List<HomeworkResponse> getParentHomework(UUID childId, String nationalId, String acceptLanguage) {
+    public List<HomeworkResponse> getParentHomework(UUID childId, String nationalId, String acceptLanguage, String source) {
         Parent parent = getCurrentParent(nationalId);
         childProfileRepository.findByIdAndParentId(childId, parent.getId())
                 .orElseThrow(() -> new NotFoundException("Child not found"));
 
-        return homeworkRepository.findByChildIdOrderByDueDateAsc(childId)
+        List<Homework> homeworkList = "teacher".equalsIgnoreCase(source)
+                ? homeworkRepository.findTeacherCreatedByChildId(childId)
+                : homeworkRepository.findAiTreeByChildId(childId);
+
+        return homeworkList
                 .stream()
                 .map(homework -> map(homework, acceptLanguage))
                 .toList();
@@ -93,7 +97,7 @@ public class HomeworkService {
         childProfileRepository.findByIdAndTeacherSchoolId(childId, school.getId())
                 .orElseThrow(() -> new NotFoundException("Child not found"));
 
-        return homeworkRepository.findByChildIdOrderByDueDateAsc(childId)
+        return homeworkRepository.findTeacherCreatedByChildId(childId)
                 .stream()
                 .map(homework -> map(homework, acceptLanguage))
                 .toList();

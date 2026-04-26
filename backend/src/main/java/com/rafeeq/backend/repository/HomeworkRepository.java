@@ -18,4 +18,26 @@ public interface HomeworkRepository extends JpaRepository<Homework, UUID> {
     List<Homework> findByTreeId(UUID treeId);
    
     List<Homework> findByChildIdAndStatus(UUID childId, String status);
+
+    @Query("""
+            select h
+            from Homework h
+            where h.child.id = :childId
+              and (h.treeItemId is not null or h.tree is not null)
+            order by
+              case when h.orderNum is null then 1 else 0 end,
+              h.orderNum asc,
+              h.dueDate asc
+            """)
+    List<Homework> findAiTreeByChildId(@Param("childId") UUID childId);
+
+    @Query("""
+            select h
+            from Homework h
+            where h.child.id = :childId
+              and h.treeItemId is null
+              and h.tree is null
+            order by h.dueDate asc
+            """)
+    List<Homework> findTeacherCreatedByChildId(@Param("childId") UUID childId);
 }
