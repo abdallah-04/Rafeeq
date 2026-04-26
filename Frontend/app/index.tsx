@@ -1,7 +1,8 @@
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Text } from '@/components/modal/shared/Text'
 
 export default function Index() {
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function Index() {
         // Fall through to the auth entry route below.
       }
 
-      router.replace('/(auth)/language' as any);
+      router.replace('/(auth)/splash' as any);
     };
     goNext();
   }, []);

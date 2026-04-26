@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/theme';
 
@@ -10,8 +10,7 @@ type Props = {
 };
 
 export default function BackButton({ onPress }: Props) {
-    // Arrow points right in RTL, left in LTR
-    const icon = I18nManager.isRTL ? 'chevron-forward' : 'chevron-back';
+    const icon = 'chevron-back';
 
     return (
         <TouchableOpacity

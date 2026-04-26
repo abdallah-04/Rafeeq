@@ -37,6 +37,7 @@ export default function Header({ title, subtitle, onBack, rightElement }: Props)
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
+    direction: 'ltr',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: theme.spacing.lg,

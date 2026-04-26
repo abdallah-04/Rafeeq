@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
   /* Header */
   header: {
     flexDirection: 'row',
+    direction: 'ltr',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,

@@ -114,7 +114,7 @@ function ArticleCard({
       </View>
 
       <View style={styles.cardBody}>
-        <View style={[styles.metaRow, isRTL && styles.rowReverse]}>
+        <View style={styles.metaRow}>
           <View style={[styles.categoryChip, { backgroundColor: color + '22' }]}>
             <Text style={[styles.categoryChipText, { color }]}>{article.category.toUpperCase()}</Text>
           </View>
@@ -300,6 +300,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    direction: 'ltr',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
@@ -456,6 +457,7 @@ const styles = StyleSheet.create({
   },
   metaRow: {
     flexDirection: 'row',
+    direction: 'ltr',
     alignItems: 'center',
     gap: spacing.sm,
     marginBottom: 4,

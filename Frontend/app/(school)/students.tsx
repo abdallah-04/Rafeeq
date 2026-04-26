@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl } from 'react-native'
+import { Image, ScrollView, StatusBar, StyleSheet, TouchableOpacity, View, ActivityIndicator, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { colors, spacing, borderRadius } from '@/constants'
 import { apiGetStudents, StudentResponse } from '@/services/api'
 import { useModal } from '@/components/modal/ModalProvider'
+import { Text } from '@/components/modal/shared/Text'
 
 const DIFF_COLORS: Record<string, { bg: string; text: string }> = {
   ADHD:               { bg: '#FDF4FF', text: '#A855F7' },

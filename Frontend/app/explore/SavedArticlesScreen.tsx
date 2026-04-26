@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -9,6 +9,7 @@ import BackButton from '@/components/modal/shared/BackButton';
 import { useAuthStore } from '@/store/authStore';
 import { theme } from '@/theme';
 import { apiGetArticles, apiUnsaveArticle, ArticleResponse } from '@/services/api';
+import { Text } from '@/components/modal/shared/Text'
 
 const { colors, spacing, typography, radius } = theme;
 type Category = 'All' | 'Speech' | 'Learning' | 'Behavior';

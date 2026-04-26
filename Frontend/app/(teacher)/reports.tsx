@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
+  View, StyleSheet, TouchableOpacity,
   ScrollView, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -10,6 +10,7 @@ import { ReportsListSkeleton } from '@/components/LoadingSkeleton';
 import BackButton from '@/components/BackButton';
 import { apiGetReportsForTeacher, apiCreateReport, ReportResponse } from '@/services/api';
 import { useModal } from '@/components/modal/ModalProvider';
+import { Text } from '@/components/modal/shared/Text'
 
 export default function ReportsScreen() {
   const router = useRouter();

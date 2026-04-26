@@ -150,7 +150,7 @@ export default function MyChildrenListScreen() {
 
 const styles = StyleSheet.create({
   safe:             { flex: 1, backgroundColor: colors.background },
-  header:           { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
+  header:           { flexDirection: 'row', direction: 'ltr', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
   headerTitle:      { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.textPrimary },
   headerSpacer:     { width: 36 },
   scroll:           { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.xl, alignItems: 'center', gap: spacing.md },
