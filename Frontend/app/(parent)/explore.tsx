@@ -17,7 +17,6 @@ import { Text } from '@/components/modal/shared/Text';
 import BottomNav from '@/components/modal/shared/BottomNav';
 import BackButton from '@/components/modal/shared/BackButton';
 import { theme } from '@/theme';
-import { useAuthStore } from '@/store/authStore';
 import { mockArticles, CATEGORY_COLORS, Article, ArticleCategory } from '@/mock/articles';
 import { apiGetArticles, apiSaveArticle, apiUnsaveArticle, ArticleResponse } from '@/services/api';
 
@@ -114,7 +113,7 @@ function ArticleCard({
       </View>
 
       <View style={styles.cardBody}>
-        <View style={styles.metaRow}>
+        <View style={[styles.metaRow, isRTL && styles.rowReverse]}>
           <View style={[styles.categoryChip, { backgroundColor: color + '22' }]}>
             <Text style={[styles.categoryChipText, { color }]}>{article.category.toUpperCase()}</Text>
           </View>
@@ -142,7 +141,7 @@ function ArticleCard({
           <View style={styles.authorAvatar}>
             <Text style={styles.authorAvatarText}>{article.authorInitial}</Text>
           </View>
-          <Text style={[styles.authorName, { flex: 1 }]} numberOfLines={1}>
+          <Text style={[styles.authorName, { flex: 1 }, isRTL && styles.textRight]} numberOfLines={1}>
             {article.author}
           </Text>
           <Text style={styles.readTime}>
@@ -163,8 +162,8 @@ function FilterChip({ label, active, onPress }: { label: string; active: boolean
 }
 
 export default function ExploreScreen() {
-  const { t } = useTranslation();
-  const isRTL = useAuthStore((s) => s.isRTL);
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
 
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<Filter>('All');
@@ -457,8 +456,8 @@ const styles = StyleSheet.create({
   },
   metaRow: {
     flexDirection: 'row',
-    direction: 'ltr',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: spacing.sm,
     marginBottom: 4,
   },
@@ -473,7 +472,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   saveBtn: {
-    marginLeft: 'auto',
     width: 32,
     height: 32,
     borderRadius: 16,

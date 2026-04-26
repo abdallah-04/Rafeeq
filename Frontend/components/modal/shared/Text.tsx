@@ -31,9 +31,17 @@ const variantFontWeight: Record<TextVariant, keyof typeof theme.typography.fontF
     caption: 'regular',
 };
 
+const EMOJI_RE = /[\u2600-\u27BF\u{1F300}-\u{1FAFF}]/u;
+const TEXT_RE = /[0-9A-Za-z\u0600-\u06FF]/u;
+
+function isEmojiOnly(children: React.ReactNode) {
+    return typeof children === 'string' && EMOJI_RE.test(children) && !TEXT_RE.test(children);
+}
+
 export const Text = ({ variant = 'body', color = 'textPrimary', style, children, ...rest }: TextProps) => {
     const { i18n } = useTranslation();
     const isAr = i18n.language === 'ar';
+    const emojiOnly = isEmojiOnly(children);
 
     const fontFamilies = isAr
         ? theme.typography.fontFamilyAr
@@ -45,7 +53,13 @@ export const Text = ({ variant = 'body', color = 'textPrimary', style, children,
 
     return (
         <RNText
-            style={[{ color: textColor, fontFamily }, variantStyle, style]}
+            style={[
+                { color: textColor },
+                !emojiOnly && { fontFamily },
+                emojiOnly && { includeFontPadding: true },
+                !emojiOnly && variantStyle,
+                style,
+            ]}
             {...rest}
         >
             {children}

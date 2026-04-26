@@ -203,13 +203,13 @@ export default function TeacherStudentDashboard() {
         </View>
         <View style={styles.progressCard}>
           <View style={[styles.progressCardInner, isRTL && styles.rowReverse]}>
-            <View style={styles.progressLeft}>
+            <View style={[styles.progressLeft, isRTL && styles.rowReverse]}>
               <View style={[styles.avatar, { backgroundColor: avatarBg }]}>
                 <Text style={styles.avatarText}>{initials}</Text>
               </View>
               <View style={styles.progressInfo}>
-                <Text style={styles.progressName}>{displayName} - {t('teacher.dashboard.progressOf','Progress')}</Text>
-                <View style={styles.tagsRow}>
+                <Text style={[styles.progressName, isRTL && styles.textRight]}>{displayName} - {t('teacher.dashboard.progressOf','Progress')}</Text>
+                <View style={[styles.tagsRow, isRTL && styles.rowReverseWrap]}>
                   {student.level != null && <View style={styles.tagBlue}><Text style={styles.tagBlueText}>Level {student.level}</Text></View>}
                   {student.learningDifficulty && <View style={styles.tagOrange}><Text style={styles.tagOrangeText}>{String(student.learningDifficulty)}</Text></View>}
                 </View>
@@ -257,6 +257,7 @@ const styles = StyleSheet.create({
   centered: { alignItems: 'center', justifyContent: 'center' },
   scrollContent: { paddingBottom: 32 },
   rowReverse: { flexDirection: 'row-reverse' },
+  rowReverseWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap' },
   textRight: { textAlign: 'right' },
 
   navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },

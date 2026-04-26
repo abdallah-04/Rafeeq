@@ -286,10 +286,10 @@ export default function ChatbotScreen() {
           </TouchableOpacity>
 
           {/* Input pill */}
-          <View style={[styles.inputPill, isRTL && styles.rowReverse]}>
+          <View style={styles.inputPill}>
             {pendingAttachment && (
               <TouchableOpacity
-                style={styles.pendingChip}
+                style={[styles.pendingChip, isRTL && styles.pendingChipRTL]}
                 onPress={() => setPendingAttachment(undefined)}
               >
                 <Ionicons name="document-attach-outline" size={14} color={colors.primary} />
@@ -300,7 +300,7 @@ export default function ChatbotScreen() {
               </TouchableOpacity>
             )}
             <TextInput
-              style={[styles.textInput, isRTL && styles.textRight]}
+              style={[styles.textInput, isRTL && styles.textRight, { writingDirection: isRTL ? 'rtl' : 'ltr' }]}
               placeholder={t('chatbot.inputPlaceholder')}
               placeholderTextColor={colors.textMuted}
               value={inputText}
@@ -550,6 +550,10 @@ side: {
     paddingVertical: 3,
     alignSelf: 'flex-start',
     marginBottom: 4,
+  },
+  pendingChipRTL: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row-reverse',
   },
 
   pendingChipText: {

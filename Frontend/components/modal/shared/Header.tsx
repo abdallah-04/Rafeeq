@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.sm,
+    minHeight: 58,
     backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
@@ -62,10 +63,10 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   right: {
-    width: 36,
+    width: 40,
     alignItems: 'flex-end',
   },
   placeholder: {
-    width: 36,
+    width: 40,
   },
 });

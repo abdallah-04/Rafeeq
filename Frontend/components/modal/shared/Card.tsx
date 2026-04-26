@@ -1,12 +1,12 @@
 import React, { ReactNode } from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { theme } from '@/theme';
 
 type Props = {
     children: ReactNode;
     variant?: 'default' | 'elevated' | 'outlined';
     padded?: boolean;
-    style?: ViewStyle;
+    style?: StyleProp<ViewStyle>;
 };
 
 export default function Card({ children, variant = 'default', padded = true, style }: Props) {

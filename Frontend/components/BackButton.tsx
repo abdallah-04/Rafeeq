@@ -14,6 +14,8 @@ export default function BackButton({ onPress }: BackButtonProps)
       style={styles.container}
       onPress={onPress}
       activeOpacity={0.7}
+      accessibilityLabel="Back"
+      accessibilityRole="button"
     >
       <Ionicons
         name="chevron-back"
@@ -28,6 +30,7 @@ const styles = StyleSheet.create({
   container: {
     width: 40,
     height: 40,
+    flexShrink: 0,
     borderRadius: 20,       
     backgroundColor: colors.surface,
     alignItems: 'center',     

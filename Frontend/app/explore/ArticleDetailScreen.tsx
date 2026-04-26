@@ -4,6 +4,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Text as NativeText,
 } from 'react-native';
 import { Text } from '@/components/modal/shared/Text'
 
@@ -15,7 +16,6 @@ import { Ionicons } from '@expo/vector-icons';
 
 import BackButton from '@/components/modal/shared/BackButton';
 import { apiGetArticle, apiSaveArticle, apiUnsaveArticle, ArticleResponse } from '@/services/api';
-import { useAuthStore } from '@/store/authStore';
 import { useModal } from '@/components/modal/ModalProvider';
 import { theme } from '@/theme';
 
@@ -141,8 +141,8 @@ function StatChip({ value, label }: { value: string | number; label: string }) {
 
 export default function ArticleDetailScreen() {
   const router  = useRouter();
-  const { t }   = useTranslation();
-  const isRTL   = useAuthStore((s) => s.isRTL);
+  const { t, i18n } = useTranslation();
+  const isRTL   = i18n.language === 'ar';
   const { show } = useModal();
 
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -177,7 +177,6 @@ export default function ArticleDetailScreen() {
     router.replace('/(parent)/explore' as any);
   };
 
-  const lang  = isRTL ? 'ar' : 'en';
   const title  = (isRTL ? article.titleAr : article.title) ?? article.title ?? article.titleAr ?? '';
   const body   = (isRTL ? article.bodyAr : article.body) ?? article.body ?? '';
   const cat    = article.tags?.[0] ?? 'Learning';
@@ -190,7 +189,7 @@ export default function ArticleDetailScreen() {
       <StatusBar style="dark" />
 
       {/* Top nav: back | title | bookmark */}
-      <View style={[styles.topNav, isRTL && styles.rowReverse]}>
+      <View style={styles.topNav}>
         <BackButton onPress={handleBack} />
 
         <Text style={styles.navTitle}>{t('explore.title')}</Text>
@@ -215,7 +214,7 @@ export default function ArticleDetailScreen() {
       >
         {/* Hero image */}
         <View style={styles.heroImage}>
-          <Text style={styles.heroEmoji}>{emoji}</Text>
+          <NativeText style={styles.heroEmoji}>{emoji}</NativeText>
         </View>
 
         <View style={styles.body}>
@@ -241,7 +240,7 @@ export default function ArticleDetailScreen() {
             <View style={styles.authorAvatar}>
               <Text style={styles.authorAvatarText}>{'R'}</Text>
             </View>
-            <Text style={[styles.authorName, { flex: 1 }]}>{'Rafeeq'}</Text>
+            <Text style={[styles.authorName, { flex: 1 }, isRTL && styles.textRight]}>{'Rafeeq'}</Text>
             <TouchableOpacity
               style={[styles.followBtn, following && styles.followBtnActive]}
               onPress={() => setFollowing(!following)}
@@ -341,7 +340,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  heroEmoji: { fontSize: 72 },
+  heroEmoji: { fontSize: 72, lineHeight: 96, textAlign: 'center', includeFontPadding: true },
 
   // ── Body ────────────────────────────────────────
   body: { paddingHorizontal: spacing.lg },
@@ -349,6 +348,7 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: spacing.sm,
   },
 
@@ -368,7 +368,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.xs,
     color: colors.textMuted,
-    marginLeft: 'auto',
   },
 
   title: {

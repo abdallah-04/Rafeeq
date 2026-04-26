@@ -18,6 +18,7 @@ export default function BackButton({ onPress }: Props) {
             onPress={onPress}
             activeOpacity={0.7}
             accessibilityLabel="Back"
+            accessibilityRole="button"
         >
             <Ionicons name={icon} size={22} color={colors.primary} />
         </TouchableOpacity>
@@ -28,6 +29,7 @@ const styles = StyleSheet.create({
     container: {
         width: 40,
         height: 40,
+        flexShrink: 0,
         borderRadius: 20,
         backgroundColor: colors.surfaceElevated,
         alignItems: 'center',

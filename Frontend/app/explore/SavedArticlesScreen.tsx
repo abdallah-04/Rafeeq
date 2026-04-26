@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Text as NativeText } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import BackButton from '@/components/modal/shared/BackButton';
-import { useAuthStore } from '@/store/authStore';
 import { theme } from '@/theme';
 import { apiGetArticles, apiUnsaveArticle, ArticleResponse } from '@/services/api';
 import { Text } from '@/components/modal/shared/Text'
@@ -24,8 +23,8 @@ function getCategory(article: ArticleResponse): string {
 
 export default function SavedArticlesScreen() {
   const router = useRouter();
-  const { t }  = useTranslation();
-  const isRTL  = useAuthStore((s) => s.isRTL);
+  const { t, i18n }  = useTranslation();
+  const isRTL  = i18n.language === 'ar';
   const [selected,   setSelected]   = useState<Category>('All');
   const [articles,   setArticles]   = useState<ArticleResponse[]>([]);
   const [isLoading,  setIsLoading]  = useState(true);
@@ -65,7 +64,7 @@ export default function SavedArticlesScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
-      <View style={[styles.header, isRTL && styles.rowReverse]}>
+      <View style={styles.header}>
         <BackButton onPress={handleBack} />
         <View style={[styles.headerCenter, isRTL && styles.rowReverse]}>
           <Ionicons name="bookmark" size={20} color={colors.primary} />
@@ -83,7 +82,7 @@ export default function SavedArticlesScreen() {
       {isLoading ? <ActivityIndicator style={{ marginTop: 60 }} size="large" color={colors.primary} /> :
        filtered.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyEmoji}>📭</Text>
+          <NativeText style={styles.emptyEmoji}>📭</NativeText>
           <Text style={[styles.emptyTitle, isRTL && styles.textRight]}>{t('explore.empty')}</Text>
           <TouchableOpacity style={styles.exploreBtn} onPress={() => router.replace('/(parent)/explore' as any)}><Text style={styles.exploreBtnText}>{t('explore.explore_btn')}</Text></TouchableOpacity>
         </View>
@@ -96,9 +95,9 @@ export default function SavedArticlesScreen() {
             const emoji = CATEGORY_EMOJIS[cat] ?? '📄';
             const title = (isRTL ? item.titleAr : item.title) ?? item.title ?? item.titleAr ?? '';
             return (
-              <TouchableOpacity style={styles.card} activeOpacity={0.85}
+              <TouchableOpacity style={[styles.card, isRTL && styles.rowReverse]} activeOpacity={0.85}
                 onPress={() => router.push({ pathname: '/explore/ArticleDetailScreen', params: { id: item.id } })}>
-                <View style={styles.thumb}><Text style={styles.thumbEmoji}>{emoji}</Text></View>
+                <View style={styles.thumb}><NativeText style={styles.thumbEmoji}>{emoji}</NativeText></View>
                 <View style={styles.cardContent}>
                   <View style={[styles.metaRow, isRTL && styles.rowReverse]}>
                     <View style={[styles.categoryTag, { backgroundColor: color + '22' }]}><Text style={[styles.categoryTagText, { color }]}>{cat.toUpperCase()}</Text></View>
@@ -107,7 +106,7 @@ export default function SavedArticlesScreen() {
                   <Text style={[styles.cardTitle, isRTL && styles.textRight]} numberOfLines={2}>{title}</Text>
                   <View style={[styles.cardFooter, isRTL && styles.rowReverse]}>
                     <View style={styles.authorAvatar}><Text style={styles.authorAvatarText}>R</Text></View>
-                    <Text style={styles.authorName} numberOfLines={1}>Rafeeq</Text>
+                    <Text style={[styles.authorName, isRTL && styles.textRight]} numberOfLines={1}>Rafeeq</Text>
                     <TouchableOpacity style={styles.removeBtn} onPress={() => handleRemove(item.id)} disabled={removing === item.id}>
                       {removing === item.id ? <ActivityIndicator size={12} color="#FF6B6B" /> : <Ionicons name="bookmark" size={14} color="#FF6B6B" />}
                     </TouchableOpacity>
@@ -137,11 +136,11 @@ const styles = StyleSheet.create({
   listContent: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm, paddingBottom: spacing.xl, gap: spacing.sm },
   card: { backgroundColor: colors.surface, borderRadius: 20, flexDirection: 'row', padding: spacing.md, shadowColor: colors.black, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2, alignItems: 'flex-start', gap: spacing.sm },
   thumb: { width: 64, height: 64, borderRadius: 14, backgroundColor: '#EEF3FF', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  thumbEmoji: { fontSize: 28 }, cardContent: { flex: 1 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+  thumbEmoji: { fontSize: 28, lineHeight: 38, textAlign: 'center', includeFontPadding: true }, cardContent: { flex: 1 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   categoryTag: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
   categoryTagText: { fontFamily: typography.fontFamily.bold, fontSize: 10, letterSpacing: 0.4 },
-  readTime: { fontFamily: typography.fontFamily.regular, fontSize: 11, color: colors.textMuted, marginLeft: 'auto' },
+  readTime: { fontFamily: typography.fontFamily.regular, fontSize: 11, color: colors.textMuted },
   cardTitle: { fontFamily: typography.fontFamily.semiBold, fontSize: typography.fontSize.sm, color: colors.textPrimary, lineHeight: 19, marginBottom: spacing.xs },
   cardFooter: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   authorAvatar: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#BDD7FF', alignItems: 'center', justifyContent: 'center' },
@@ -149,7 +148,7 @@ const styles = StyleSheet.create({
   authorName: { fontFamily: typography.fontFamily.regular, fontSize: 12, color: colors.textSecondary, flex: 1 },
   removeBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#FFF0F0', alignItems: 'center', justifyContent: 'center' },
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xl, gap: spacing.md },
-  emptyEmoji: { fontSize: 52 },
+  emptyEmoji: { fontSize: 52, lineHeight: 68, textAlign: 'center', includeFontPadding: true },
   emptyTitle: { fontFamily: typography.fontFamily.bold, fontSize: typography.fontSize.lg, color: colors.textPrimary, textAlign: 'center' },
   exploreBtn: { backgroundColor: colors.primary, borderRadius: radius.lg, paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, minHeight: 48, justifyContent: 'center' },
   exploreBtnText: { fontFamily: typography.fontFamily.semiBold, fontSize: typography.fontSize.base, color: colors.textWhite },

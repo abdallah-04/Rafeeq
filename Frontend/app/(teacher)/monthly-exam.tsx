@@ -2,7 +2,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, StyleSheet, TouchableOpacity,
-  ScrollView, Modal, Animated,
+  ScrollView, Modal, Animated, Text as NativeText,
 } from 'react-native';
 import { Text } from '@/components/modal/shared/Text'
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -139,7 +139,7 @@ function QuestionScreen({
         {question.type === 'visual' && (
           <>
             <Text style={styles.questionText}>{question.question}</Text>
-            <Text style={styles.visualEmoji}>{question.visual}</Text>
+            <NativeText style={styles.visualEmoji}>{question.visual}</NativeText>
           </>
         )}
         {question.type === 'text' && (
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   examDetailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: 0.5, borderBottomColor: '#F0F0F0' },
   examDetailLabel: { fontFamily: 'Lexend_400Regular', fontSize: 13, color: '#9CA3AF' },
   examDetailValue: { fontFamily: 'Lexend_600SemiBold', fontSize: 13, color: '#1a1a2e' },
-  examRight: { alignItems: 'center', gap: 10, marginLeft: 16 },
+  examRight: { alignItems: 'center', gap: 10, marginStart: 16 },
   levelBadge: { backgroundColor: '#EDE9FE', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 99 },
   levelBadgeText: { fontFamily: 'Lexend_600SemiBold', fontSize: 11, color: '#7C3AED' },
   examCircle: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#EEF4FF', alignItems: 'center', justifyContent: 'center', borderWidth: 5, borderColor: '#508DF7' },
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
 
   questionCard: { flex: 1, margin: 16, backgroundColor: '#fff', borderRadius: 24, padding: 20, shadowColor: '#508DF7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 3 },
   questionText: { fontFamily: 'Lexend_600SemiBold', fontSize: 16, color: '#1a1a2e', textAlign: 'center', lineHeight: 26, marginBottom: 16 },
-  visualEmoji: { fontSize: 36, textAlign: 'center', letterSpacing: 4, marginBottom: 20 },
+  visualEmoji: { fontSize: 36, lineHeight: 52, textAlign: 'center', letterSpacing: 4, marginBottom: 20, includeFontPadding: true },
 
   answersGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center', marginBottom: 20 },
   answerBtn: { width: '44%', paddingVertical: 20, borderRadius: 16, backgroundColor: '#F5F7FF', alignItems: 'center', borderWidth: 2, borderColor: '#E8EEFF' },

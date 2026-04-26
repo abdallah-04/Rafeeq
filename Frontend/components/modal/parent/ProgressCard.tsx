@@ -5,6 +5,7 @@ import {
     StyleSheet,
     ImageSourcePropType,
     } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import {theme} from '@/theme'
 import { Text } from '@/components/modal/shared/Text'
 
@@ -23,16 +24,18 @@ export default function ProgressCard({
     percentage,
     mascotImage,
     }: ProgressCardProps) {
+    const { i18n } = useTranslation()
+    const isRTL = i18n.language === 'ar'
     const clampedPct = Math.min(100, Math.max(0, percentage))
 
     return (
         <View style={styles.card}>
-        <View style={styles.row}>
+        <View style={[styles.row, isRTL && styles.rowRTL]}>
             <View style={styles.textBlock}>
-            <Text style={styles.title}>
+            <Text style={[styles.title, isRTL && styles.textRTL]}>
                 {childName}'s Progress {monthLabel}
             </Text>
-            <Text style={styles.desc} numberOfLines={2}>
+            <Text style={[styles.desc, isRTL && styles.textRTL]} numberOfLines={2}>
                 {description}
             </Text>
             </View>
@@ -75,6 +78,9 @@ export default function ProgressCard({
         alignItems: 'center',
         gap: theme.spacing.md,
     },
+    rowRTL: {
+        flexDirection: 'row-reverse',
+    },
     textBlock: {
         flex: 1,
         gap: 4,
@@ -85,12 +91,17 @@ export default function ProgressCard({
         fontWeight: '700',
         color: theme.colors.textPrimary,
         lineHeight: 22,
+        textAlign: 'left',
     },
     desc: {
         fontSize: 13,
         fontFamily: 'Lexend_400Regular',
         color: theme.colors.textSecondary,
         lineHeight: 19,
+        textAlign: 'left',
+    },
+    textRTL: {
+        textAlign: 'right',
     },
     mascot: {
         width: 72,

@@ -66,7 +66,7 @@ function buildStudentFromParams(params: {
 const QUICK_ACCESS = [
   { id: 'roadmap',    labelKey: 'teacher.studentQuickAccess.roadMap',     label: 'Road Map',     icon: 'map-outline',  color: '#508DF7', bg: '#EEF4FF', route: '/(teacher)/road-map' },
   { id: 'exam',       labelKey: 'teacher.studentQuickAccess.monthlyExam', label: 'Monthly Exam', icon: 'create-outline',  color: '#BA6DE9', bg: '#F5EEFF', route: '/(teacher)/monthly-exam' },
-  { id: 'reports',    labelKey: 'teacher.studentQuickAccess.reports',     label: 'Reports',      icon: 'bar-chart-outline📊',  color: '#9C6ADE', bg: '#F5EEFF', route: '/(teacher)/reports' },
+  { id: 'reports',    labelKey: 'teacher.studentQuickAccess.reports',     label: 'Reports',      icon: 'bar-chart-outline',  color: '#9C6ADE', bg: '#F5EEFF', route: '/(teacher)/reports' },
   { id: 'dashboard',  labelKey: 'teacher.studentQuickAccess.dashboard',   label: 'Dashboard',    icon: 'grid-outline',  color: '#22C55E', bg: '#EDFAF3', route: '/(teacher)/Student_dashboard' },
 ];
 

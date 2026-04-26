@@ -36,11 +36,12 @@ export default function QuizCard({
     onPress,
     disabled = false,
     }: QuizCardProps) {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
+    const isRTL = i18n.language === 'ar'
 
     return (
         <TouchableOpacity
-        style={[styles.card, disabled && styles.cardDisabled]}
+        style={[styles.card, isRTL && styles.cardRTL, disabled && styles.cardDisabled]}
         onPress={onPress}
         activeOpacity={0.7}
         disabled={disabled}
@@ -53,10 +54,10 @@ export default function QuizCard({
         </View>
 
         <View style={styles.info}>
-            <Text style={styles.title} numberOfLines={1}>
+            <Text style={[styles.title, isRTL && styles.textRTL]} numberOfLines={1}>
             {title}
             </Text>
-            <Text style={styles.meta}>
+            <Text style={[styles.meta, isRTL && styles.textRTL]}>
             {metaText ?? t('quiz.meta', {
                 count: questionsCount,
                 minutes: durationMinutes,
@@ -90,6 +91,9 @@ const styles = StyleSheet.create({
     cardDisabled: {
         opacity: 0.6,
     },
+    cardRTL: {
+        flexDirection: 'row-reverse',
+    },
     iconBox: {
         width: 52,
         height: 52,
@@ -110,10 +114,15 @@ const styles = StyleSheet.create({
         fontFamily: 'Lexend_700Bold',
         fontWeight: '700',
         color: theme.colors.textPrimary,
+        textAlign: 'left',
     },
     meta: {
         fontSize: 12,
         fontFamily: 'Lexend_400Regular',
         color: theme.colors.textMuted,
+        textAlign: 'left',
+    },
+    textRTL: {
+        textAlign: 'right',
     },
 })

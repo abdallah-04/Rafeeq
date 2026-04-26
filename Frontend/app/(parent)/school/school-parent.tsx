@@ -167,6 +167,7 @@ const styles = StyleSheet.create({
   upcomingCard: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: theme.spacing.sm,
     marginTop: theme.spacing.sm,
     borderLeftWidth: 4,
     borderLeftColor: theme.colors.primary,
@@ -174,13 +175,16 @@ const styles = StyleSheet.create({
   },
   upcomingCardRTL: {
     flexDirection: 'row-reverse',
+    borderLeftWidth: 0,
+    borderRightWidth: 4,
+    borderRightColor: theme.colors.primary,
   },
   upcomingIconBox: {
     width: 40,
     height: 40,
     backgroundColor: theme.colors.primaryLighter,
     borderRadius: theme.radius.md,
-    marginEnd: theme.spacing.sm,
+    flexShrink: 0,
   },
   upcomingBody: {
     flex: 1,
@@ -196,6 +200,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: 4,
     borderRadius: theme.radius.lg,
+    flexShrink: 0,
   },
   tomorrowText: {
     color: theme.colors.primary,
