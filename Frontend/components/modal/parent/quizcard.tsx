@@ -1,7 +1,6 @@
 import React from 'react'
 import {
     View,
-    Text,
     Image,
     TouchableOpacity,
     StyleSheet,
@@ -10,6 +9,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { theme } from '@/theme'
 import StatusBadge, { BadgeVariant } from '@/components/modal/parent/StatusBadge'
+import { Text } from '@/components/modal/shared/Text'
 
 interface QuizCardProps {
     icon: ImageSourcePropType

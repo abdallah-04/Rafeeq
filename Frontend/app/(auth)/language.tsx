@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import {useState } from 'react';
 import { View, Image, TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';

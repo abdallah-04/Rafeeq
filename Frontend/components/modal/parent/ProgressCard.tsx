@@ -1,12 +1,12 @@
 import React from 'react'
 import {
     View,
-    Text,
     Image,
     StyleSheet,
     ImageSourcePropType,
     } from 'react-native'
-    import {theme} from '@/theme'
+import {theme} from '@/theme'
+import { Text } from '@/components/modal/shared/Text'
 
 interface ProgressCardProps {
     childName: string

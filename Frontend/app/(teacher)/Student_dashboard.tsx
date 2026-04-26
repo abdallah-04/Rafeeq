@@ -2,7 +2,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -15,6 +14,10 @@ import { apiGetStudent, apiGetNotesForTeacher, StudentResponse, NoteResponse } f
 import { useModal } from '@/components/modal/ModalProvider';
 import AnimatedProgressCircle from '@/components/AnimatedProgressCircle';
 import BackButton from '@/components/BackButton';
+import { Ionicons } from '@expo/vector-icons';
+import { Text } from '@/components/modal/shared/Text';
+import { Theme } from '@/theme';
+
 
 function readParam(value?: string | string[]) {
   return Array.isArray(value) ? value[0] : value;
@@ -164,7 +167,7 @@ export default function TeacherStudentDashboard() {
             })}
           >
             <View style={styles.placementIconWrap}>
-              <Text style={styles.placementIcon}>📋</Text>
+              <Ionicons name="clipboard-outline" size={26} color="#F59E0B" />
             </View>
             <View style={styles.placementBody}>
               <Text style={[styles.placementTitle, isRTL && styles.textRight]}>

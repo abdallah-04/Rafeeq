@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   TextInput as RNTextInput,
-  Text,
   TouchableOpacity,
   StyleSheet,
   I18nManager,
@@ -10,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { theme } from '@/theme';
+import { Text } from '@/components/modal/shared/Text';
 
 type Props = {
   label?: string;
