@@ -11,6 +11,7 @@ import com.rafeeq.backend.dto.quiz.QuizResponse;
 import com.rafeeq.backend.dto.quiz.QuizSubmissionResponse;
 import com.rafeeq.backend.dto.quiz.SubmitQuizRequest;
 import com.rafeeq.backend.entity.ChildProfile;
+import com.rafeeq.backend.entity.LearningTree;
 import com.rafeeq.backend.entity.Quiz;
 import com.rafeeq.backend.entity.QuizAnswer;
 import com.rafeeq.backend.entity.QuizQuestion;
@@ -20,6 +21,7 @@ import com.rafeeq.backend.entity_enums.UserRole;
 import com.rafeeq.backend.repository.QuizAnswerRepository;
 import com.rafeeq.backend.repository.QuizQuestionRepository;
 import com.rafeeq.backend.repository.QuizRepository;
+import com.rafeeq.backend.repository.LearningTreeRepository;
 import com.rafeeq.backend.repository.TreeItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,17 +43,25 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class QuizService {
 
+    private static final String TREE_STATUS_ACTIVE = "active";
+
     private final QuizRepository quizRepository;
     private final QuizQuestionRepository quizQuestionRepository;
     private final QuizAnswerRepository quizAnswerRepository;
+    private final LearningTreeRepository learningTreeRepository;
     private final TreeItemRepository treeItemRepository;
     private final AccessService accessService;
     private final LearningTreeService learningTreeService;
 
     public List<QuizResponse> getQuizzes(UUID childId, String nationalId, String acceptLanguage) {
         ChildProfile child = accessService.getAccessibleChild(childId, nationalId);
+        User user = accessService.getCurrentUser(nationalId);
 
-        return quizRepository.findByChildId(child.getId())
+        List<Quiz> quizzes = user.getRole() == UserRole.PARENT
+                ? findCurrentTreeQuizzes(child.getId())
+                : quizRepository.findByChildId(child.getId());
+
+        return quizzes
                 .stream()
                 .sorted(Comparator.comparing(quiz -> resolveTreeItem(quiz).map(TreeItem::getOrderNum).orElse(Integer.MAX_VALUE)))
                 .map(quiz -> map(quiz, acceptLanguage, false))
@@ -160,6 +170,13 @@ public class QuizService {
         if (user.getRole() != UserRole.PARENT && user.getRole() != UserRole.CHILD) {
             throw new UnauthorizedException("Only parent or child users can submit quizzes");
         }
+    }
+
+    private List<Quiz> findCurrentTreeQuizzes(UUID childId) {
+        return learningTreeRepository.findFirstByChildIdAndStatusOrderByGeneratedAtDesc(childId, TREE_STATUS_ACTIVE)
+                .map(LearningTree::getId)
+                .map(treeId -> quizRepository.findByChildIdAndTreeId(childId, treeId))
+                .orElseGet(List::of);
     }
 
     private int parseSelectedOption(String selectedOption) {

@@ -7,6 +7,7 @@ import com.rafeeq.backend.dto.homework.CreateHomeworkRequest;
 import com.rafeeq.backend.dto.homework.HomeworkResponse;
 import com.rafeeq.backend.entity.ChildProfile;
 import com.rafeeq.backend.entity.Homework;
+import com.rafeeq.backend.entity.LearningTree;
 import com.rafeeq.backend.entity.Parent;
 import com.rafeeq.backend.entity.School;
 import com.rafeeq.backend.entity.Teacher;
@@ -14,6 +15,7 @@ import com.rafeeq.backend.entity.User;
 import com.rafeeq.backend.entity_enums.ChildStatus;
 import com.rafeeq.backend.repository.ChildProfileRepository;
 import com.rafeeq.backend.repository.HomeworkRepository;
+import com.rafeeq.backend.repository.LearningTreeRepository;
 import com.rafeeq.backend.repository.ParentRepository;
 import com.rafeeq.backend.repository.SchoolRepository;
 import com.rafeeq.backend.repository.TeacherRepository;
@@ -33,8 +35,10 @@ import java.util.UUID;
 public class HomeworkService {
 
     private static final String STATUS_PENDING = "pending";
+    private static final String TREE_STATUS_ACTIVE = "active";
 
     private final HomeworkRepository homeworkRepository;
+    private final LearningTreeRepository learningTreeRepository;
     private final UserRepository userRepository;
     private final TeacherRepository teacherRepository;
     private final ParentRepository parentRepository;
@@ -84,7 +88,7 @@ public class HomeworkService {
 
         List<Homework> homeworkList = "teacher".equalsIgnoreCase(source)
                 ? homeworkRepository.findTeacherCreatedByChildId(childId)
-                : homeworkRepository.findAiTreeByChildId(childId);
+                : findCurrentTreeHomework(childId);
 
         return homeworkList
                 .stream()
@@ -140,6 +144,13 @@ public class HomeworkService {
                 || !Boolean.TRUE.equals(child.getUser().getIsActive())) {
             throw new BadRequestException("Homework can only be assigned after placement is completed");
         }
+    }
+
+    private List<Homework> findCurrentTreeHomework(UUID childId) {
+        return learningTreeRepository.findFirstByChildIdAndStatusOrderByGeneratedAtDesc(childId, TREE_STATUS_ACTIVE)
+                .map(LearningTree::getId)
+                .map(treeId -> homeworkRepository.findAiTreeByChildIdAndTreeId(childId, treeId))
+                .orElseGet(List::of);
     }
 
     private HomeworkResponse map(Homework hw, String acceptLanguage) {

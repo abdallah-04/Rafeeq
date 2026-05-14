@@ -5,7 +5,11 @@ import com.rafeeq.backend.common.NotFoundException;
 import com.rafeeq.backend.dto.activity.ActivityResponse;
 import com.rafeeq.backend.entity.Activity;
 import com.rafeeq.backend.entity.ChildProfile;
+import com.rafeeq.backend.entity.LearningTree;
+import com.rafeeq.backend.entity.User;
+import com.rafeeq.backend.entity_enums.UserRole;
 import com.rafeeq.backend.repository.ActivityRepository;
+import com.rafeeq.backend.repository.LearningTreeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,13 +23,21 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class ActivityService {
 
+    private static final String TREE_STATUS_ACTIVE = "active";
+
     private final ActivityRepository activityRepository;
+    private final LearningTreeRepository learningTreeRepository;
     private final AccessService accessService;
 
     public List<ActivityResponse> getActivities(UUID childId, String nationalId, String acceptLanguage) {
         ChildProfile child = accessService.getAccessibleChild(childId, nationalId);
+        User user = accessService.getCurrentUser(nationalId);
 
-        return activityRepository.findByChildId(child.getId())
+        List<Activity> activities = user.getRole() == UserRole.PARENT
+                ? findCurrentTreeActivities(child.getId())
+                : activityRepository.findByChildId(child.getId());
+
+        return activities
                 .stream()
                 .sorted(Comparator
                         .comparing(Activity::getGroupNumber, Comparator.nullsLast(Integer::compareTo))
@@ -39,6 +51,13 @@ public class ActivityService {
                 .orElseThrow(() -> new NotFoundException("Activity not found"));
         accessService.getAccessibleChild(activity.getChild().getId(), nationalId);
         return map(activity, acceptLanguage);
+    }
+
+    private List<Activity> findCurrentTreeActivities(UUID childId) {
+        return learningTreeRepository.findFirstByChildIdAndStatusOrderByGeneratedAtDesc(childId, TREE_STATUS_ACTIVE)
+                .map(LearningTree::getId)
+                .map(treeId -> activityRepository.findByChildIdAndTreeId(childId, treeId))
+                .orElseGet(List::of);
     }
 
     private ActivityResponse map(Activity activity, String acceptLanguage) {

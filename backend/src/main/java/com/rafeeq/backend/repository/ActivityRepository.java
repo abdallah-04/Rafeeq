@@ -15,4 +15,22 @@ public interface ActivityRepository extends JpaRepository<Activity, UUID> {
     List<Activity> findByChildId(UUID childId);
     List<Activity> findByTreeId(UUID treeId);
     List<Activity> findByChildIdAndStatus(UUID childId, String status);
+
+    @Query("""
+            select a
+            from Activity a
+            where a.child.id = :childId
+              and (
+                a.tree.id = :treeId
+                or a.treeItemId in (
+                  select ti.id
+                  from TreeItem ti
+                  where ti.tree.id = :treeId
+                )
+              )
+            """)
+    List<Activity> findByChildIdAndTreeId(
+            @Param("childId") UUID childId,
+            @Param("treeId") UUID treeId
+    );
 }
