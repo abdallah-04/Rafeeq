@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Slot, useRouter, useSegments } from 'expo-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useFonts } from 'expo-font'
@@ -14,9 +14,16 @@ import { changeLanguage } from '@/i18n'
 import { useAuthStore, selectIsAuthenticated, selectRole, selectIsRTL, selectLanguage } from '@/store/authStore'
 import { ModalProvider } from '@/components/modal/ModalProvider'
 import { apiRefreshToken } from '@/services/api'
+import {
+  acknowledgeSessionExpirationRedirect,
+  expireSession,
+  isSessionExpirationInProgress,
+  registerProtectedCacheClearer,
+} from '@/utils/session'
 import React from 'react'
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 1000 * 60 * 5, retry: 1 } } })
+registerProtectedCacheClearer(() => queryClient.clear())
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
@@ -26,10 +33,10 @@ export default function RootLayout() {
   const role            = useAuthStore(selectRole)
   const isRTL           = useAuthStore(selectIsRTL)
   const language        = useAuthStore(selectLanguage)
-  const storeLogin      = useAuthStore((s) => s.login)
-  const storeLogout     = useAuthStore((s) => s.logout)
-  const storeUser       = useAuthStore((s) => s.user)
+  const setAccessToken  = useAuthStore((s) => s.setAccessToken)
   const refreshAttempted = useRef(false)
+  const [hasHydrated, setHasHydrated] = useState(useAuthStore.persist.hasHydrated())
+  const [startupSessionChecked, setStartupSessionChecked] = useState(false)
 
   const [fontsLoaded, fontError] = useFonts({
     Lexend_400Regular, Lexend_500Medium, Lexend_600SemiBold, Lexend_700Bold,
@@ -37,7 +44,16 @@ export default function RootLayout() {
     'Tajawal-SemiBold': Tajawal_700Bold, 'Tajawal-Bold': Tajawal_700Bold,
   })
 
-  useEffect(() => { if (fontsLoaded || fontError) SplashScreen.hideAsync() }, [fontsLoaded, fontError])
+  useEffect(() => {
+    if ((fontsLoaded || fontError) && hasHydrated && startupSessionChecked) {
+      SplashScreen.hideAsync()
+    }
+  }, [fontsLoaded, fontError, hasHydrated, startupSessionChecked])
+
+  useEffect(() => {
+    if (useAuthStore.persist.hasHydrated()) setHasHydrated(true)
+    return useAuthStore.persist.onFinishHydration(() => setHasHydrated(true))
+  }, [])
 
   useEffect(() => {
     changeLanguage(language)
@@ -47,32 +63,35 @@ export default function RootLayout() {
   // Auto refresh token on startup
   useEffect(() => {
     if (!fontsLoaded && !fontError) return
+    if (!hasHydrated) return
     if (refreshAttempted.current) return
     refreshAttempted.current = true
-    if (!isAuthenticated) return
+    if (!isAuthenticated) {
+      setStartupSessionChecked(true)
+      return
+    }
     ;(async () => {
       try {
         const storedRefresh = await AsyncStorage.getItem('rafeeq-refresh-token')
-        if (!storedRefresh) return
-        const res = await apiRefreshToken(storedRefresh)
-        const raw = await AsyncStorage.getItem('rafeeq-auth-storage')
-        if (raw) {
-          const parsed = JSON.parse(raw)
-          parsed.state.token = res.accessToken
-          await AsyncStorage.setItem('rafeeq-auth-storage', JSON.stringify(parsed))
+        if (!storedRefresh) {
+          await expireSession()
+          return
         }
+        const res = await apiRefreshToken(storedRefresh)
+        setAccessToken(res.accessToken)
         if (res.refreshToken) await AsyncStorage.setItem('rafeeq-refresh-token', res.refreshToken)
-        if (storeUser) storeLogin(storeUser, res.accessToken)
       } catch {
-        await AsyncStorage.removeItem('rafeeq-refresh-token')
-        storeLogout()
+        await expireSession()
+      } finally {
+        setStartupSessionChecked(true)
       }
     })()
-  }, [fontsLoaded, fontError, isAuthenticated])
+  }, [fontsLoaded, fontError, hasHydrated, isAuthenticated, setAccessToken])
 
   // Role-based routing
   useEffect(() => {
     if (!fontsLoaded && !fontError) return
+    if (!hasHydrated || !startupSessionChecked) return
     const inAuthGroup    = segments[0] === '(auth)'
     const inParentGroup  = segments[0] === '(parent)'
     const inTeacherGroup = segments[0] === '(teacher)'
@@ -81,7 +100,12 @@ export default function RootLayout() {
     const authScreen     = inAuthGroup ? segments[1] : null
     const allowOtpScreen = authScreen === 'verify-phone' || authScreen === 'verify-school-phone'
 
+    if (authScreen === 'login' && isSessionExpirationInProgress()) {
+      acknowledgeSessionExpirationRedirect()
+    }
+
     if (!isAuthenticated) {
+      if (isSessionExpirationInProgress()) return
       if (!inAuthGroup) router.replace('/(auth)/language' as any)
       return
     }
@@ -92,7 +116,7 @@ export default function RootLayout() {
     if (role === 'parent'  && !inParentGroup)  { router.replace('/(parent)/'          as any); return }
     if (role === 'teacher' && !inTeacherGroup) { router.replace('/(teacher)/'         as any); return }
     if (role === 'school'  && !inSchoolGroup)  { router.replace('/(school)/teachers'  as any); return }
-  }, [isAuthenticated, role, fontsLoaded, fontError, segments])
+  }, [isAuthenticated, role, fontsLoaded, fontError, hasHydrated, startupSessionChecked, segments])
 
   if (!fontsLoaded && !fontError) return null
 

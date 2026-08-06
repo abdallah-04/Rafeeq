@@ -16,6 +16,7 @@ interface AuthStore extends AuthState {
   // ── Actions ──────────────────────────────
   login:               (user: User, token: string) => void
   logout:              () => void
+  setAccessToken:      (token: string) => void
   setSelectedChild:    (child: ChildResponse | null) => void
   setLanguage:         (lang: Language) => void
   setRole:             (role: UserRole) => void
@@ -87,7 +88,17 @@ export const useAuthStore = create<AuthStore>()(
       // NOTE: we keep languageSelected true so the language
       // screen doesn't show again after logout
       logout: () => {
-        set({ ...initialState, languageSelected: true })
+        set((state) => ({
+          ...initialState,
+          language: state.language,
+          isRTL: state.isRTL,
+          languageSelected: state.languageSelected,
+        }))
+      },
+
+      // Replace only the access token after a successful refresh.
+      setAccessToken: (token) => {
+        set({ token, isAuthenticated: true })
       },
 
       // ── setSelectedChild ──────────────────────

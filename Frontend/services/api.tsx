@@ -9,6 +9,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '@/i18n';
 import { useAuthStore } from '@/store/authStore';
+import { expireSession } from '@/utils/session';
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const API_BASE_URL =
@@ -26,16 +27,8 @@ function getApiBaseUrl(): string {
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
 
-/** Read the persisted Zustand auth store and return the refreshToken */
 async function getRefreshToken(): Promise<string | null> {
-  try {
-    const raw = await AsyncStorage.getItem('rafeeq-auth-storage');
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return parsed?.state?.refreshToken ?? null;
-  } catch {
-    return null;
-  }
+  return AsyncStorage.getItem('rafeeq-refresh-token');
 }
 
 // ── Core request helpers ──────────────────────────────────────────────────────
@@ -49,6 +42,15 @@ interface RequestOptions {
   lang?: string;           // override Accept-Language
   body?: unknown;
 }
+
+class HttpError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+    this.name = 'HttpError';
+  }
+}
+
+let refreshPromise: Promise<string> | null = null;
 
 function getPendingGetKey(url: string, token: string | null, lang: string) {
   return `GET:${url}:${token ?? ''}:${lang}`;
@@ -73,26 +75,67 @@ async function performRequest<T>(
   try {
     data = await res.json();
   } catch {
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw new HttpError(`HTTP ${res.status}`, res.status);
     return null as T;
   }
 
   if (!res.ok) {
     // Backend error shape: { success, message, errorCode, timestamp }
+    const errorPayload = isErrorPayload(data) ? data : null;
     const msg =
-      (data as any)?.message ??
-      (data as any)?.error ??
+      errorPayload?.message ??
+      errorPayload?.error ??
       `HTTP ${res.status}`;
-    throw new Error(msg);
+    throw new HttpError(msg, res.status);
   }
 
   return data as T;
 }
 
+function isErrorPayload(value: unknown): value is { message?: string; error?: string } {
+  return typeof value === 'object' && value !== null;
+}
+
+async function refreshAccessToken(): Promise<string> {
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      try {
+        const refreshToken = await getRefreshToken();
+        if (!refreshToken) throw new Error('Missing refresh token');
+
+        const url = `${getApiBaseUrl()}/auth/refresh`;
+        const response = await performRequest<RefreshTokenResponse>(
+          url,
+          'POST',
+          {
+            'Content-Type': 'application/json',
+            'Accept-Language': i18n.language ?? 'en',
+          },
+          { refreshToken }
+        );
+
+        useAuthStore.getState().setAccessToken(response.accessToken);
+        if (response.refreshToken) {
+          await AsyncStorage.setItem('rafeeq-refresh-token', response.refreshToken);
+        }
+        return response.accessToken;
+      } catch (error) {
+        await expireSession();
+        throw error;
+      } finally {
+        refreshPromise = null;
+      }
+    })();
+  }
+
+  return refreshPromise;
+}
+
 async function request<T>(
   method: HttpMethod,
   path: string,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
+  hasRetried = false
 ): Promise<T> {
   const { auth = true, body } = options;
   const lang = options.lang ?? i18n.language ?? 'en';
@@ -116,7 +159,16 @@ async function request<T>(
       return pendingRequest as Promise<T>;
     }
 
-    const requestPromise = performRequest<T>(url, method, headers, body);
+    const requestPromise = performRequest<T>(url, method, headers, body).catch(async (error: unknown) => {
+      if (auth && !hasRetried && error instanceof HttpError && error.status === 401) {
+        await refreshAccessToken();
+        return request<T>(method, path, options, true);
+      }
+      if (auth && hasRetried && error instanceof HttpError && error.status === 401) {
+        await expireSession();
+      }
+      throw error;
+    });
     pendingGetRequests.set(pendingKey, requestPromise);
 
     try {
@@ -128,7 +180,18 @@ async function request<T>(
     }
   }
 
-  return performRequest<T>(url, method, headers, body);
+  try {
+    return await performRequest<T>(url, method, headers, body);
+  } catch (error: unknown) {
+    if (auth && !hasRetried && error instanceof HttpError && error.status === 401) {
+      await refreshAccessToken();
+      return request<T>(method, path, options, true);
+    }
+    if (auth && hasRetried && error instanceof HttpError && error.status === 401) {
+      await expireSession();
+    }
+    throw error;
+  }
 }
 
 const _get  = <T,>(path: string, opts?: RequestOptions) => request<T>('GET',    path, opts);

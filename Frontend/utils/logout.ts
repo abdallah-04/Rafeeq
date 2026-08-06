@@ -7,9 +7,8 @@
  * 4. Navigates to login
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
-import { useAuthStore } from '@/store/authStore';
 import { apiLogout } from '@/services/api';
+import { expireSession } from '@/utils/session';
 
 export async function performLogout(): Promise<void> {
   try {
@@ -18,8 +17,6 @@ export async function performLogout(): Promise<void> {
       await apiLogout(storedRefresh).catch(() => {});
     }
   } catch { /* ignore */ } finally {
-    await AsyncStorage.removeItem('rafeeq-refresh-token');
-    useAuthStore.getState().logout();
-    router.replace('/(auth)/login' as any);
+    await expireSession();
   }
 }
