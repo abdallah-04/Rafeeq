@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useModal } from '../ModalProvider';
+import { useModal } from '../ModalContext';
 import { theme } from '@/theme';
 import { apiLinkChild } from '@/services/api';
 

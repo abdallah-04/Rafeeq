@@ -10,6 +10,7 @@ import ChildSelector from '@/components/modal/parent/ChildSelector'
 import TabBar from '@/components/modal/shared/TabBar'
 import { Text } from '@/components/modal/shared/Text'
 import StatusBadge, { BadgeVariant } from '@/components/modal/parent/StatusBadge'
+import CompletionFilter, { CompletionFilterValue } from '@/components/modal/parent/CompletionFilter'
 import { useActiveChildStore } from '@/store/activeChildStore'
 import { ActivityResponse, apiGetActivities, apiGetTreeItems, TreeItemResponse } from '@/services/api'
 import { theme } from '@/theme'
@@ -55,6 +56,7 @@ export default function ActivitiesScreen() {
   )
 
   const [activeTab, setActiveTab] = useState(tabs[2])
+  const [filter, setFilter] = useState<CompletionFilterValue>('todo')
   const [activities, setActivities] = useState<ActivityResponse[]>([])
   const [treeItems, setTreeItems] = useState<TreeItemResponse[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -95,23 +97,32 @@ export default function ActivitiesScreen() {
 
   const accessMap = useMemo(() => buildLearningTreeAccessMap(treeItems), [treeItems])
 
-  const recommended = useMemo(() => {
+  const filteredActivities = useMemo(() => {
     return activities.filter((activity) => {
+      const step = activity.treeItemId ? accessMap.get(activity.treeItemId) ?? null : null
+      const isDone = Boolean(step?.isCompleted) || activity.status?.toLowerCase() === 'completed'
+
+      return filter === 'done' ? isDone : !isDone
+    })
+  }, [accessMap, activities, filter])
+
+  const recommended = useMemo(() => {
+    return filteredActivities.filter((activity) => {
       const step = activity.treeItemId ? accessMap.get(activity.treeItemId) ?? null : null
       const isLocked = Boolean(step?.isLocked)
       const isCompleted = Boolean(step?.isCompleted) || activity.status?.toLowerCase() === 'completed'
       return !isLocked && !isCompleted
     }).slice(0, 2)
-  }, [accessMap, activities])
+  }, [accessMap, filteredActivities])
 
   const learningTreeActivities = useMemo(
-    () => activities.filter((activity) => Boolean(activity.treeItemId || activity.treeId)),
-    [activities]
+    () => filteredActivities.filter((activity) => Boolean(activity.treeItemId || activity.treeId)),
+    [filteredActivities]
   )
 
   const otherActivities = useMemo(
-    () => activities.filter((activity) => !activity.treeItemId && !activity.treeId),
-    [activities]
+    () => filteredActivities.filter((activity) => !activity.treeItemId && !activity.treeId),
+    [filteredActivities]
   )
 
   const shouldGroupActivities = learningTreeActivities.length > 0 && otherActivities.length > 0
@@ -183,6 +194,8 @@ export default function ActivitiesScreen() {
       <TabBar tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        <CompletionFilter value={filter} onChange={setFilter} />
+
         <View style={styles.recommendedSection}>
           <Text variant="heading" style={[styles.sectionTitle, isRTL && styles.textRight]}>
             {t('activities.recommendedFor', { name: childName })}
@@ -224,7 +237,7 @@ export default function ActivitiesScreen() {
 
         {isLoading ? <ActivityIndicator color={theme.colors.primary} style={styles.centered} /> : null}
         {error ? <Text style={styles.messageText}>{error}</Text> : null}
-        {!isLoading && !error && activities.length === 0 ? (
+        {!isLoading && !error && filteredActivities.length === 0 ? (
           <Text style={styles.messageText}>
             {t('activities.emptyState', 'No activities available for this child yet.')}
           </Text>
@@ -238,7 +251,7 @@ export default function ActivitiesScreen() {
             {otherActivities.map(renderActivityCard)}
           </>
         ) : (
-          activities.map(renderActivityCard)
+          filteredActivities.map(renderActivityCard)
         )}
       </ScrollView>
     </ScreenWrapper>
@@ -330,7 +343,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: {
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
+    paddingTop: 0,
     paddingBottom: theme.spacing.xl,
     gap: theme.spacing.lg,
   },

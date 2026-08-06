@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { useState, useCallback, ReactNode } from 'react';
 import { Modal, View, StyleSheet, Pressable } from 'react-native';
+import { ModalContext, ModalData, ModalType, useModal } from './ModalContext';
 
 import ErrorModal from './variants/ErrorModal';
 import SuccessModal from './variants/SuccessModal';
@@ -7,13 +8,6 @@ import DayWorkModal from './variants/DayWorkModal';
 import AddChildModal from './variants/AddChildModal';
 import WellDoneModal from './variants/WellDoneModal';
 
-
-export type ModalType =
-  | 'error'
-  | 'success'
-  | 'daywork'
-  | 'addChild'
-  | 'wellDone';
 
 export type ErrorVariant =
   | 'incompleteInfo'
@@ -44,28 +38,11 @@ export type DayWorkVariant =
   | 'todayExam'
   | 'soproud';
 
-export interface ModalData {
-  variant?: ErrorVariant | SuccessVariant | DayWorkVariant;
-  taskName?: string;
-  date?: string;
-  score?: number;
-  total?: number;
-}
-
 interface ModalState {
   type: ModalType | null;
   data: ModalData;
   visible: boolean;
 }
-
-interface ModalContextValue {
-  show: (type: ModalType, data?: ModalData) => void;
-  hide: () => void;
-}
-
-
-const ModalContext = createContext<ModalContextValue | null>(null);
-
 
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ModalState>({
@@ -136,13 +113,7 @@ function ModalRenderer({
 }
 
 
-export function useModal(): ModalContextValue {
-  const ctx = useContext(ModalContext);
-  if (!ctx) {
-    throw new Error('useModal must be used inside <ModalProvider>');
-  }
-  return ctx;
-}
+export { useModal };
 
 
 const styles = StyleSheet.create({

@@ -10,6 +10,7 @@ import Header from '@/components/modal/shared/Header'
 import ChildSelector from '@/components/modal/parent/ChildSelector'
 import TabBar from '@/components/modal/shared/TabBar'
 import QuizCard from '@/components/modal/parent/quizcard'
+import CompletionFilter, { CompletionFilterValue } from '@/components/modal/parent/CompletionFilter'
 import { useActiveChildStore } from '@/store/activeChildStore'
 import { Text } from '@/components/modal/shared/Text'
 import { apiGetQuizzes, apiGetTreeItems, QuizResponse, TreeItemResponse } from '@/services/api'
@@ -48,6 +49,7 @@ export default function QuizzesScreen() {
   )
 
   const [activeTab, setActiveTab] = useState(tabs[1])
+  const [filter, setFilter] = useState<CompletionFilterValue>('todo')
   const activeChild = useActiveChildStore((state) => state.activeChild)
   const [quizzes, setQuizzes] = useState<QuizResponse[]>([])
   const [treeItems, setTreeItems] = useState<TreeItemResponse[]>([])
@@ -98,14 +100,23 @@ export default function QuizzesScreen() {
 
   const accessMap = useMemo(() => buildLearningTreeAccessMap(treeItems), [treeItems])
 
+  const filteredQuizzes = useMemo(() => {
+    return quizzes.filter((quiz) => {
+      const step = quiz.treeItemId ? accessMap.get(quiz.treeItemId) ?? null : null
+      const isDone = Boolean(step?.isCompleted) || quiz.status?.toLowerCase() === 'completed'
+
+      return filter === 'done' ? isDone : !isDone
+    })
+  }, [accessMap, filter, quizzes])
+
   const learningTreeQuizzes = useMemo(
-    () => quizzes.filter((quiz) => Boolean(quiz.treeItemId || quiz.treeId)),
-    [quizzes]
+    () => filteredQuizzes.filter((quiz) => Boolean(quiz.treeItemId || quiz.treeId)),
+    [filteredQuizzes]
   )
 
   const otherQuizzes = useMemo(
-    () => quizzes.filter((quiz) => !quiz.treeItemId && !quiz.treeId),
-    [quizzes]
+    () => filteredQuizzes.filter((quiz) => !quiz.treeItemId && !quiz.treeId),
+    [filteredQuizzes]
   )
 
   const shouldGroupQuizzes = learningTreeQuizzes.length > 0 && otherQuizzes.length > 0
@@ -191,13 +202,15 @@ export default function QuizzesScreen() {
         style={styles.scroll}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: theme.spacing.xl + insets.bottom }]}
       >
+        <CompletionFilter value={filter} onChange={setFilter} />
+
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t('quizzes.thisWeek', "This week's quizzes")}</Text>
         </View>
 
         {isLoading ? <ActivityIndicator color={theme.colors.primary} style={styles.centered} /> : null}
         {error ? <Text style={styles.messageText}>{error}</Text> : null}
-        {!isLoading && !error && quizzes.length === 0 ? (
+        {!isLoading && !error && filteredQuizzes.length === 0 ? (
           <Text style={styles.messageText}>
             {t('quiz.emptyState', 'No quizzes available for this child yet.')}
           </Text>
@@ -211,7 +224,7 @@ export default function QuizzesScreen() {
             {otherQuizzes.map(renderQuizCard)}
           </>
         ) : (
-          quizzes.map(renderQuizCard)
+          filteredQuizzes.map(renderQuizCard)
         )}
       </ScrollView>
     </ScreenWrapper>
@@ -230,7 +243,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: {
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
+    paddingTop: 0,
     paddingBottom: theme.spacing.xl,
   },
   sectionHeader: {

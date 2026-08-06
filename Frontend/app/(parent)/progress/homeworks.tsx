@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 
@@ -9,6 +9,7 @@ import ProgressCard from '@/components/modal/parent/ProgressCard'
 import TabBar from '@/components/modal/shared/TabBar'
 import { Text } from '@/components/modal/shared/Text'
 import QuizCard from '@/components/modal/parent/quizcard'
+import CompletionFilter, { CompletionFilterValue } from '@/components/modal/parent/CompletionFilter'
 import { theme } from '@/theme'
 import { apiGetHomeworkForParent, apiGetTreeItems, HomeworkResponse, TreeItemResponse } from '@/services/api'
 import { useActiveChildStore } from '@/store/activeChildStore'
@@ -52,7 +53,7 @@ export default function HomeworksMain() {
   )
 
   const [activeTab, setActiveTab] = useState(tabs[3])
-  const [filter, setFilter] = useState<'todo' | 'done'>('todo')
+  const [filter, setFilter] = useState<CompletionFilterValue>('todo')
   const [homeworks, setHomeworks] = useState<HomeworkResponse[]>([])
   const [treeItems, setTreeItems] = useState<TreeItemResponse[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -205,24 +206,7 @@ export default function HomeworksMain() {
 
         <TabBar tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
 
-        <View style={styles.toggleContainer}>
-          <TouchableOpacity
-            style={[styles.toggleButton, filter === 'todo' && styles.activeToggle]}
-            onPress={() => setFilter('todo')}
-          >
-            <Text style={[styles.toggleText, filter === 'todo' && styles.activeToggleText]}>
-              {t('homework.todo', 'To do')}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.toggleButton, filter === 'done' && styles.activeToggle]}
-            onPress={() => setFilter('done')}
-          >
-            <Text style={[styles.toggleText, filter === 'done' && styles.activeToggleText]}>
-              {t('homework.done', 'Done')}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <CompletionFilter value={filter} onChange={setFilter} />
 
         <View style={styles.listSection}>
           {isLoading ? <ActivityIndicator color={theme.colors.primary} style={styles.centered} /> : null}
@@ -245,29 +229,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: 100,
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    backgroundColor: theme.colors.backgroundLight,
-    borderRadius: theme.radius.lg,
-    padding: 4,
-    marginTop: theme.spacing.lg,
-  },
-  toggleButton: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderRadius: theme.radius.md,
-  },
-  activeToggle: {
-    backgroundColor: theme.colors.primary,
-  },
-  toggleText: {
-    fontFamily: theme.typography.fontFamily.semiBold,
-    color: theme.colors.textSecondary,
-  },
-  activeToggleText: {
-    color: theme.colors.white,
   },
   listSection: {
     paddingBottom: 24,
