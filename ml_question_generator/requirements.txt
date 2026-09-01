@@ -1,5 +1,6 @@
 torch>=2.2
 transformers>=4.40,<5.0
+accelerate>=0.26.0
 datasets>=2.18
 sentencepiece>=0.2
 protobuf>=5.0

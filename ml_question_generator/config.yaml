@@ -4,8 +4,9 @@ project:
   seed: 42
 model:
   name: google/mt5-small
-  max_input_length: 512
-  max_target_length: 512
+  output_name: rafeeq-mt5-qg-v0.1-fp32
+  max_input_length: 128
+  max_target_length: 320
 training:
   epochs: 5
   learning_rate: 0.00005
@@ -13,6 +14,7 @@ training:
   eval_batch_size: 1
   gradient_accumulation_steps: 4
   early_stopping_patience: 1
+  fp16: false
 generation:
   max_retries: 2
-  max_new_tokens: 512
+  max_new_tokens: 320

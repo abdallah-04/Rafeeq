@@ -21,6 +21,7 @@ class TrainingResult:
     training_loss: float | None
     validation_loss: float | None
     best_checkpoint: str | None
+    epoch_metrics: list[dict]
 
     def as_dict(self) -> dict:
         data = asdict(self)
@@ -28,7 +29,12 @@ class TrainingResult:
         return data
 
 
-def train(data_dir: str | Path, output_dir: str | Path, config: PrototypeConfig) -> TrainingResult:
+def train(
+    data_dir: str | Path,
+    models_dir: str | Path,
+    checkpoints_dir: str | Path,
+    config: PrototypeConfig,
+) -> TrainingResult:
     try:
         import torch
         from datasets import Dataset
@@ -52,9 +58,12 @@ def train(data_dir: str | Path, output_dir: str | Path, config: PrototypeConfig)
 
     train_dataset = Dataset.from_list(rows).map(tokenize, remove_columns=list(rows[0].keys()))
     eval_dataset = Dataset.from_list(eval_rows).map(tokenize, remove_columns=list(eval_rows[0].keys()))
-    destination = Path(output_dir)
+    model_destination = Path(models_dir)
+    checkpoint_destination = Path(checkpoints_dir) / config.model_output_name
+    model_destination.mkdir(parents=True, exist_ok=True)
+    checkpoint_destination.mkdir(parents=True, exist_ok=True)
     training_args = {
-        "output_dir": str(destination / "checkpoints"),
+        "output_dir": str(checkpoint_destination),
         "num_train_epochs": config.epochs,
         "learning_rate": config.learning_rate,
         "per_device_train_batch_size": config.train_batch_size,
@@ -67,8 +76,9 @@ def train(data_dir: str | Path, output_dir: str | Path, config: PrototypeConfig)
         "save_total_limit": 2,
         "seed": config.seed,
         "report_to": [],
+        "logging_strategy": "epoch",
         "use_cpu": get_device() == "cpu",
-        "fp16": get_device() == "cuda",
+        "fp16": config.fp16 and get_device() == "cuda",
     }
     # Transformers renamed this parameter; support the declared compatible range.
     evaluation_parameter = "eval_strategy" if "eval_strategy" in inspect.signature(Seq2SeqTrainingArguments).parameters else "evaluation_strategy"
@@ -85,7 +95,7 @@ def train(data_dir: str | Path, output_dir: str | Path, config: PrototypeConfig)
         callbacks=[EarlyStoppingCallback(early_stopping_patience=config.early_stopping_patience)],
     )
     train_result = trainer.train()
-    model_dir = destination / "rafeeq-mt5-qg-v0.1"
+    model_dir = model_destination / config.model_output_name
     trainer.save_model(str(model_dir))
     tokenizer.save_pretrained(str(model_dir))
     eval_losses = [entry["eval_loss"] for entry in trainer.state.log_history if "eval_loss" in entry]
@@ -94,6 +104,10 @@ def train(data_dir: str | Path, output_dir: str | Path, config: PrototypeConfig)
         model_dir=model_dir,
         epochs_completed=completed_epochs,
         training_loss=float(train_result.training_loss) if train_result.training_loss is not None else None,
-        validation_loss=float(eval_losses[-1]) if eval_losses else None,
+        validation_loss=float(min(eval_losses)) if eval_losses else None,
         best_checkpoint=trainer.state.best_model_checkpoint,
+        epoch_metrics=[
+            {key: value for key, value in entry.items() if key in {"epoch", "loss", "eval_loss", "learning_rate"}}
+            for entry in trainer.state.log_history if "epoch" in entry and ("loss" in entry or "eval_loss" in entry)
+        ],
     )

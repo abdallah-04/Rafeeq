@@ -7,6 +7,7 @@ from pathlib import Path
 @dataclass(frozen=True)
 class PrototypeConfig:
     model_name: str = "google/mt5-small"
+    model_output_name: str = "rafeeq-mt5-qg-v0.1-fp32"
     seed: int = 42
     max_input_length: int = 512
     max_target_length: int = 512
@@ -16,6 +17,7 @@ class PrototypeConfig:
     eval_batch_size: int = 1
     gradient_accumulation_steps: int = 4
     early_stopping_patience: int = 1
+    fp16: bool = False
     max_retries: int = 2
     max_new_tokens: int = 512
 
@@ -36,6 +38,7 @@ def load_config(path: str | Path | None = None) -> PrototypeConfig:
         return PrototypeConfig()
     return PrototypeConfig(
         model_name=raw.get("model", {}).get("name", PrototypeConfig.model_name),
+        model_output_name=raw.get("model", {}).get("output_name", PrototypeConfig.model_output_name),
         seed=raw.get("project", {}).get("seed", PrototypeConfig.seed),
         max_input_length=raw.get("model", {}).get("max_input_length", PrototypeConfig.max_input_length),
         max_target_length=raw.get("model", {}).get("max_target_length", PrototypeConfig.max_target_length),
@@ -45,6 +48,7 @@ def load_config(path: str | Path | None = None) -> PrototypeConfig:
         eval_batch_size=raw.get("training", {}).get("eval_batch_size", PrototypeConfig.eval_batch_size),
         gradient_accumulation_steps=raw.get("training", {}).get("gradient_accumulation_steps", PrototypeConfig.gradient_accumulation_steps),
         early_stopping_patience=raw.get("training", {}).get("early_stopping_patience", PrototypeConfig.early_stopping_patience),
+        fp16=raw.get("training", {}).get("fp16", PrototypeConfig.fp16),
         max_retries=raw.get("generation", {}).get("max_retries", PrototypeConfig.max_retries),
         max_new_tokens=raw.get("generation", {}).get("max_new_tokens", PrototypeConfig.max_new_tokens),
     )

@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from rafeeq_qg.config import load_config
 from rafeeq_qg.evaluation import evaluate_output, write_metrics
 from rafeeq_qg.generator import LocalQuestionGenerator
+from rafeeq_qg.runtime_paths import resolve_runtime_paths
 
 
 def _read_jsonl(path: Path) -> list[dict]:
@@ -28,8 +29,10 @@ def _merge(payloads: list[dict], mode: str) -> dict:
 def main() -> None:
     config = load_config(ROOT / "config.yaml")
     curriculum = ROOT / "data" / "curriculum_demo.json"
-    model_path = ROOT / "models" / "rafeeq-mt5-qg-v0.1"
-    output_dir = ROOT / "outputs"
+    paths = resolve_runtime_paths(ROOT)
+    model_path = paths.models_dir / config.model_output_name
+    output_dir = paths.outputs_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
     if not model_path.exists():
         raise RuntimeError(f"MODEL MODE cannot run because trained model is missing: {model_path}")
 

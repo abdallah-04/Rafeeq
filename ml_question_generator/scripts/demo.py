@@ -10,11 +10,12 @@ sys.path.insert(0, str(ROOT / "src"))
 from rafeeq_qg.config import load_config
 from rafeeq_qg.evaluation import evaluate_output, write_metrics
 from rafeeq_qg.generator import LocalQuestionGenerator
+from rafeeq_qg.runtime_paths import resolve_runtime_paths
 
 
 def main() -> None:
     curriculum = ROOT / "data" / "curriculum_demo.json"
-    output_dir = ROOT / "outputs"
+    output_dir = resolve_runtime_paths(ROOT).outputs_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     generator = LocalQuestionGenerator(curriculum, config=load_config(ROOT / "config.yaml"), mode="fallback")
     all_questions = []

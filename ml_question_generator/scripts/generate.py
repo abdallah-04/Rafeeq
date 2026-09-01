@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from rafeeq_qg.config import load_config
 from rafeeq_qg.generator import LocalQuestionGenerator
+from rafeeq_qg.runtime_paths import resolve_runtime_paths
 
 
 def main() -> None:
@@ -28,7 +29,7 @@ def main() -> None:
         ROOT / "data" / "curriculum_demo.json", args.model_path, load_config(ROOT / "config.yaml"), args.mode
     )
     payload = generator.generate(args.level, args.num_questions, args.subject, args.unit_id, args.sampling)
-    output = args.output or ROOT / "outputs" / f"generate_level_{args.level}.json"
+    output = args.output or resolve_runtime_paths(ROOT).outputs_dir / f"generate_level_{args.level}.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {len(payload['questions'])} question(s) to {output}")

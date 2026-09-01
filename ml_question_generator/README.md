@@ -40,11 +40,31 @@ Python 3.10-3.13 is supported by the declared PyTorch/Transformers stack. The pr
 
 ## Train locally
 
+Large artifacts can be redirected without hardcoding machine paths in Python source. For example, on this Windows training host:
+
 ```powershell
-py scripts/train.py
+$env:HF_HOME = "D:\RafeeqML\hf_cache"
+$env:HF_HUB_CACHE = "D:\RafeeqML\hf_cache\hub"
+$env:TORCH_HOME = "D:\RafeeqML\torch_cache"
+$env:TEMP = "D:\RafeeqML\temp"
+$env:TMP = "D:\RafeeqML\temp"
+$env:RAFREEQ_ML_MODELS_DIR = "D:\RafeeqML\models"
+$env:RAFREEQ_ML_CHECKPOINTS_DIR = "D:\RafeeqML\checkpoints"
+$env:RAFREEQ_ML_OUTPUTS_DIR = "D:\RafeeqML\outputs"
 ```
 
-This performs local fine-tuning only after the required packages and the configured Hugging Face model files are available. The resulting weights are stored in `models/rafeeq-mt5-qg-v0.1/` and are ignored by Git. If a local model cannot be downloaded or trained, do not present the fallback output as model-generated or trained.
+For CUDA-enabled PyTorch on compatible Windows hardware, install an official wheel into the module virtual environment, then verify `torch.cuda.is_available()` before training:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install --index-url https://download.pytorch.org/whl/cu128 torch==2.11.0+cu128
+```
+
+```powershell
+.\.venv\Scripts\python.exe scripts\train.py
+.\.venv\Scripts\python.exe scripts\run_model_evaluation.py
+```
+
+This performs local fine-tuning only after the required packages and the configured Hugging Face model files are available. The resulting weights are stored under the configured model-artifact directory using the configured output name, and are ignored by Git. `MODEL MODE` never substitutes fallback output: invalid model output is recorded as a failure. If a local model cannot be downloaded or trained, do not present the fallback output as model-generated or trained.
 
 ## Generate and evaluate
 
