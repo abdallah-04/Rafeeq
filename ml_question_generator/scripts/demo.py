@@ -16,7 +16,7 @@ def main() -> None:
     curriculum = ROOT / "data" / "curriculum_demo.json"
     output_dir = ROOT / "outputs"
     output_dir.mkdir(parents=True, exist_ok=True)
-    generator = LocalQuestionGenerator(curriculum, config=load_config(ROOT / "config.yaml"))
+    generator = LocalQuestionGenerator(curriculum, config=load_config(ROOT / "config.yaml"), mode="fallback")
     all_questions = []
     for level in (1, 2, 3):
         payload = generator.generate(level=level, num_questions=4)
@@ -25,8 +25,8 @@ def main() -> None:
         all_questions.extend(payload["questions"])
         print(f"Level {level}: {len(payload['questions'])} questions -> {destination.name}")
     metrics = evaluate_output({"questions": all_questions}, curriculum)
-    write_metrics(metrics, output_dir / "evaluation_metrics.json")
-    print("Wrote combined evaluation metrics.")
+    write_metrics(metrics, output_dir / "baseline_evaluation_metrics.json")
+    print("Wrote baseline-only evaluation metrics.")
 
 
 if __name__ == "__main__":

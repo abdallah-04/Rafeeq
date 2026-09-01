@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import random
+import inspect
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -52,23 +53,28 @@ def train(data_dir: str | Path, output_dir: str | Path, config: PrototypeConfig)
     train_dataset = Dataset.from_list(rows).map(tokenize, remove_columns=list(rows[0].keys()))
     eval_dataset = Dataset.from_list(eval_rows).map(tokenize, remove_columns=list(eval_rows[0].keys()))
     destination = Path(output_dir)
+    training_args = {
+        "output_dir": str(destination / "checkpoints"),
+        "num_train_epochs": config.epochs,
+        "learning_rate": config.learning_rate,
+        "per_device_train_batch_size": config.train_batch_size,
+        "per_device_eval_batch_size": config.eval_batch_size,
+        "gradient_accumulation_steps": config.gradient_accumulation_steps,
+        "save_strategy": "epoch",
+        "load_best_model_at_end": True,
+        "metric_for_best_model": "eval_loss",
+        "greater_is_better": False,
+        "save_total_limit": 2,
+        "seed": config.seed,
+        "report_to": [],
+        "use_cpu": get_device() == "cpu",
+        "fp16": get_device() == "cuda",
+    }
+    # Transformers renamed this parameter; support the declared compatible range.
+    evaluation_parameter = "eval_strategy" if "eval_strategy" in inspect.signature(Seq2SeqTrainingArguments).parameters else "evaluation_strategy"
+    training_args[evaluation_parameter] = "epoch"
     args = Seq2SeqTrainingArguments(
-        output_dir=str(destination / "checkpoints"),
-        num_train_epochs=config.epochs,
-        learning_rate=config.learning_rate,
-        per_device_train_batch_size=config.train_batch_size,
-        per_device_eval_batch_size=config.eval_batch_size,
-        gradient_accumulation_steps=config.gradient_accumulation_steps,
-        evaluation_strategy="epoch",
-        save_strategy="epoch",
-        load_best_model_at_end=True,
-        metric_for_best_model="eval_loss",
-        greater_is_better=False,
-        save_total_limit=2,
-        seed=config.seed,
-        report_to=[],
-        use_cpu=get_device() == "cpu",
-        fp16=get_device() == "cuda",
+        **training_args,
     )
     trainer = Seq2SeqTrainer(
         model=model,

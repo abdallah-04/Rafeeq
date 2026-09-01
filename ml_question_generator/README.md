@@ -36,7 +36,7 @@ py scripts/prepare_dataset.py
 py -m pytest tests -q
 ```
 
-Python 3.10-3.12 is recommended for the declared PyTorch/Transformers stack. The prototype code itself does not download or call a model during normal demo generation.
+Python 3.10-3.13 is supported by the declared PyTorch/Transformers stack. The prototype code itself does not download or call a model during normal demo generation.
 
 ## Train locally
 
@@ -44,7 +44,7 @@ Python 3.10-3.12 is recommended for the declared PyTorch/Transformers stack. The
 py scripts/train.py
 ```
 
-This performs local fine-tuning only after the required packages and the configured Hugging Face model files are available. The resulting weights are stored in `models/model/` and are ignored by Git. If a local model cannot be downloaded or trained, do not present the fallback output as model-generated or trained.
+This performs local fine-tuning only after the required packages and the configured Hugging Face model files are available. The resulting weights are stored in `models/rafeeq-mt5-qg-v0.1/` and are ignored by Git. If a local model cannot be downloaded or trained, do not present the fallback output as model-generated or trained.
 
 ## Generate and evaluate
 
@@ -54,7 +54,7 @@ py scripts/generate.py --level 2 --num-questions 4 --subject MATH
 py scripts/evaluate.py --input outputs/generate_level_2.json
 ```
 
-`demo.py` writes four valid questions for each level to `outputs/demo_level_1.json`, `outputs/demo_level_2.json`, and `outputs/demo_level_3.json`, followed by transparent schema/grounding metrics in `outputs/evaluation_metrics.json`.
+`demo.py` writes four deterministic baseline questions for each level to `outputs/demo_level_1.json`, `outputs/demo_level_2.json`, and `outputs/demo_level_3.json`, followed by baseline-only schema/grounding metrics in `outputs/baseline_evaluation_metrics.json`. These are not trained-model results.
 
 ## Output contract
 

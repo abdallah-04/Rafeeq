@@ -18,14 +18,16 @@ def main() -> None:
     parser.add_argument("--num-questions", required=True, type=int)
     parser.add_argument("--subject", choices=("MATH", "LANGUAGE"))
     parser.add_argument("--unit-id")
-    parser.add_argument("--model-path", type=Path, help="Optional local trained model directory. No remote model is loaded.")
+    parser.add_argument("--mode", choices=("fallback", "model"), default="fallback")
+    parser.add_argument("--model-path", type=Path, help="Required in model mode; must be a local trained model directory.")
+    parser.add_argument("--sampling", action="store_true", help="Use seeded sampling in model mode for inspection examples.")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
     generator = LocalQuestionGenerator(
-        ROOT / "data" / "curriculum_demo.json", args.model_path, load_config(ROOT / "config.yaml")
+        ROOT / "data" / "curriculum_demo.json", args.model_path, load_config(ROOT / "config.yaml"), args.mode
     )
-    payload = generator.generate(args.level, args.num_questions, args.subject, args.unit_id)
+    payload = generator.generate(args.level, args.num_questions, args.subject, args.unit_id, args.sampling)
     output = args.output or ROOT / "outputs" / f"generate_level_{args.level}.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

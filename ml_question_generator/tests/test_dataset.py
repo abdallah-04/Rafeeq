@@ -17,6 +17,15 @@ def test_dataset_split_is_deterministic_and_has_no_unit_leakage(tmp_path):
     assert not unit_ids["train"] & unit_ids["validation"]
     assert not unit_ids["train"] & unit_ids["test"]
     assert not unit_ids["validation"] & unit_ids["test"]
+    topics = {
+        name: {(row["input"]["topic_ar"], row["input"]["topic_en"]) for row in rows}
+        for name, rows in splits.items()
+    }
+    assert not topics["train"] & topics["validation"]
+    assert not topics["train"] & topics["test"]
+    assert not topics["validation"] & topics["test"]
     for rows in splits.values():
         assert all("condition" in row["input"] for row in rows)
+        assert all(row["target"]["source_unit_id"] == row["curriculum_unit_id"] for row in rows)
+        assert all(row["target"]["target_level"] == row["level"] for row in rows)
         assert all(len([key for key in row["target"] if key.startswith("option_")]) == 8 for row in rows)

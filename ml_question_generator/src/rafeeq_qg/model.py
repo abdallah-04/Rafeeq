@@ -19,6 +19,6 @@ def load_seq2seq_model(model_name_or_path: str | Path, config: PrototypeConfig):
         from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
     except ModuleNotFoundError as exc:
         raise RuntimeError("Install requirements.txt before using the Transformer model path") from exc
-    tokenizer = AutoTokenizer.from_pretrained(str(model_name_or_path))
+    tokenizer = AutoTokenizer.from_pretrained(str(model_name_or_path), use_fast=False)
     model = AutoModelForSeq2SeqLM.from_pretrained(str(model_name_or_path))
     return tokenizer, model
