@@ -40,7 +40,8 @@ def read_rows() -> list[dict]:
 
 def label_audit(rows: list[dict], tokenizer: object) -> dict:
     sentinel_ids = [
-        tokenizer.convert_tokens_to_ids(f"<extra_id_{index}>") for index in range(100)
+        tokenizer.encode(f"<extra_id_{index}>", add_special_tokens=False)[0]
+        for index in range(100)
     ]
     entries = []
     found: list[dict] = []
@@ -87,7 +88,7 @@ def generate_rows(model, tokenizer, rows: list[dict], *, bad_words_ids=None, str
     model.eval()
     results = []
     question_id = tokenizer.convert_tokens_to_ids("<QUESTION>")
-    start_id = tokenizer.decoder_start_token_id
+    start_id = model.config.decoder_start_token_id
     for row in rows:
         inputs = tokenizer(row["input"]["condition"], return_tensors="pt", truncation=True, max_length=96)
         inputs = {key: value.to(model.device) for key, value in inputs.items()}
@@ -118,7 +119,7 @@ def generate_rows(model, tokenizer, rows: list[dict], *, bad_words_ids=None, str
 def first_step_diagnostic(model, tokenizer, row: dict) -> dict:
     inputs = tokenizer(row["input"]["condition"], return_tensors="pt", truncation=True, max_length=96)
     inputs = {key: value.to(model.device) for key, value in inputs.items()}
-    decoder_input_ids = torch.tensor([[tokenizer.decoder_start_token_id]], device=model.device)
+    decoder_input_ids = torch.tensor([[model.config.decoder_start_token_id]], device=model.device)
     logits = model(**inputs, decoder_input_ids=decoder_input_ids).logits[0, -1]
     values, ids = torch.topk(logits, 15)
     entries = []
@@ -126,7 +127,11 @@ def first_step_diagnostic(model, tokenizer, row: dict) -> dict:
         entries.append({"rank": rank, "token": tokenizer.convert_ids_to_tokens(token_id), "token_id": token_id, "logit": logit})
     lookup = {}
     for token in ("<QUESTION>", "<extra_id_0>"):
-        token_id = tokenizer.convert_tokens_to_ids(token)
+        token_id = (
+            tokenizer.convert_tokens_to_ids(token)
+            if token == "<QUESTION>"
+            else tokenizer.encode(token, add_special_tokens=False)[0]
+        )
         positions = (logits.argsort(descending=True) == token_id).nonzero(as_tuple=False)
         lookup[token] = {
             "token_id": token_id,
@@ -146,6 +151,7 @@ def main() -> None:
         raise RuntimeError(f"refusing to overwrite existing model directory: {MODEL_PATH}")
     random.seed(42)
     torch.manual_seed(42)
+    torch.set_float32_matmul_precision("high")
     if not torch.cuda.is_available():
         raise RuntimeError("RTX/CUDA is required for the sanity experiment")
     device = torch.device("cuda")
@@ -169,7 +175,7 @@ def main() -> None:
     loss_progression = []
     best_count = -1
     best_epoch = 0
-    for epoch in range(1, 101):
+    for epoch in range(1, 51):
         model.train()
         order = list(range(len(rows)))
         random.shuffle(order)
@@ -186,7 +192,8 @@ def main() -> None:
             losses.append(float(loss.item()))
         mean_loss = sum(losses) / len(losses)
         loss_progression.append({"epoch": epoch, "mean_training_loss": mean_loss, "last_training_loss": losses[-1]})
-        if epoch == 1 or epoch % 10 == 0:
+        print(f"epoch={epoch} mean_training_loss={mean_loss:.6f}", flush=True)
+        if epoch % 10 == 0:
             probe = generate_rows(model, tokenizer, rows)
             count = sum(item["valid"] for item in probe)
             best_count = max(best_count, count)
@@ -214,7 +221,7 @@ def main() -> None:
         "extra_id_0": tokenizer.convert_tokens_to_ids("<extra_id_0>"),
         "pad_token_id": tokenizer.pad_token_id,
         "eos_token_id": tokenizer.eos_token_id,
-        "decoder_start_token_id": tokenizer.decoder_start_token_id,
+        "decoder_start_token_id": model.config.decoder_start_token_id,
         "label_audit": label_audit(rows, tokenizer),
         "training": {"epochs_completed": len(loss_progression), "steps": len(loss_progression) * 12, "batch_size": 1, "learning_rate": 1e-4, "loss_progression": loss_progression, "best_probe_parse_count": best_count, "best_probe_epoch": best_epoch},
         "first_step_diagnostics": [first_step_diagnostic(model, tokenizer, rows[2]), first_step_diagnostic(model, tokenizer, rows[3])],
