@@ -52,8 +52,7 @@ def train(
 
     def tokenize(row):
         model_inputs = tokenizer(row["input"]["condition"], max_length=config.max_input_length, truncation=True)
-        target = json.dumps(row["target"], ensure_ascii=False)
-        model_inputs["labels"] = tokenizer(text_target=target, max_length=config.max_target_length, truncation=True)["input_ids"]
+        model_inputs["labels"] = tokenizer(text_target=row["target"], max_length=config.max_target_length, truncation=True)["input_ids"]
         return model_inputs
 
     train_dataset = Dataset.from_list(rows).map(tokenize, remove_columns=list(rows[0].keys()))

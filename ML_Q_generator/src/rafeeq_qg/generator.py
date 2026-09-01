@@ -29,6 +29,8 @@ class CurriculumGroundedGenerator:
             (unit.prompt_ar, unit.prompt_en),
             (f"اختر الإجابة الصحيحة: {unit.prompt_ar}", f"Choose the correct answer: {unit.prompt_en}"),
             (f"تذكّر الدرس ثم أجب: {unit.prompt_ar}", f"Remember the lesson, then answer: {unit.prompt_en}"),
+            (f"اعتمد على فكرة الدرس: {unit.prompt_ar}", f"Use the lesson idea: {unit.prompt_en}"),
+            (f"طبّق ما تعلمته: {unit.prompt_ar}", f"Apply what you learned: {unit.prompt_en}"),
         )
         prompt_ar, prompt_en = prompts[variant % len(prompts)]
         return GeneratedQuestion(
