@@ -1,0 +1,27 @@
+{
+  "data_status": "DEMO / PROTOTYPE EDUCATIONAL DATA",
+  "curriculum_id": "rafeeq-demo-curriculum-v1",
+  "anchors": [
+    {
+      "level": 1,
+      "label_ar": "مبتدئ",
+      "label_en": "Beginner",
+      "description_ar": "يتعرف مفاهيم أساسية ويختار إجابة مباشرة من أربع بدائل.",
+      "description_en": "Recognises foundational concepts and selects a direct answer from four options."
+    },
+    {
+      "level": 2,
+      "label_ar": "نامٍ",
+      "label_en": "Developing",
+      "description_ar": "يطبق مهارة قصيرة بخطوة واحدة أو يميز بين مفاهيم متقاربة.",
+      "description_en": "Applies a short one-step skill or distinguishes related concepts."
+    },
+    {
+      "level": 3,
+      "label_ar": "متقدم",
+      "label_en": "Advanced",
+      "description_ar": "يحل مسألة قصيرة أو يستخدم دليلاً مباشراً من المحتوى.",
+      "description_en": "Solves a short problem or uses direct evidence from the supplied content."
+    }
+  ]
+}
