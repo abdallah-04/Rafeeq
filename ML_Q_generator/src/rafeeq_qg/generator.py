@@ -9,7 +9,7 @@ from .config import PrototypeConfig
 from .curriculum_loader import load_curriculum, select_units
 from .model import get_device, load_seq2seq_model
 from .schemas import CurriculumUnit, GeneratedQuestion
-from .tokenizer_utils import format_model_input
+from .tokenizer_utils import decode_preserving_structural_tokens, format_model_input
 from .validator import validate_question
 
 
@@ -149,7 +149,7 @@ class LocalQuestionGenerator:
     def _generate_with_model(self, unit: CurriculumUnit, seed_offset: int, sampling: bool) -> tuple[GeneratedQuestion | None, str, str | None]:
         import torch
 
-        inputs = self.tokenizer(format_model_input(unit), return_tensors="pt", truncation=True, max_length=self.config.max_input_length)
+        inputs = self.tokenizer(format_model_input(unit, "en"), return_tensors="pt", truncation=True, max_length=self.config.max_input_length)
         inputs = {name: value.to(get_device()) for name, value in inputs.items()}
         generation_args = {"max_new_tokens": self.config.max_new_tokens, "do_sample": sampling}
         if sampling:
@@ -162,7 +162,7 @@ class LocalQuestionGenerator:
             generation_args["num_beams"] = 1
         with torch.no_grad():
             output_ids = self.model.generate(**inputs, **generation_args)
-        raw = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
+        raw = decode_preserving_structural_tokens(self.tokenizer, output_ids[0])
         try:
             payload = json.loads(raw)
             return GeneratedQuestion(**payload), raw, None

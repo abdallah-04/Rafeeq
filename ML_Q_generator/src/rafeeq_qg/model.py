@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .config import PrototypeConfig
+from .tokenizer_utils import ensure_structural_tokens
 
 
 def get_device() -> str:
@@ -20,5 +21,8 @@ def load_seq2seq_model(model_name_or_path: str | Path, config: PrototypeConfig):
     except ModuleNotFoundError as exc:
         raise RuntimeError("Install requirements.txt before using the Transformer model path") from exc
     tokenizer = AutoTokenizer.from_pretrained(str(model_name_or_path), use_fast=False)
+    added_tokens = ensure_structural_tokens(tokenizer)
     model = AutoModelForSeq2SeqLM.from_pretrained(str(model_name_or_path))
+    if added_tokens:
+        model.resize_token_embeddings(len(tokenizer))
     return tokenizer, model

@@ -8,7 +8,7 @@ from .config import PrototypeConfig
 from .curriculum_loader import load_curriculum
 from .model import get_device, load_seq2seq_model
 from .schemas import CurriculumUnit
-from .tokenizer_utils import format_model_input
+from .tokenizer_utils import decode_preserving_structural_tokens, format_model_input
 
 TOKEN_PATTERN = re.compile(r"[A-Za-z0-9\u0600-\u06FF]+")
 
@@ -39,7 +39,7 @@ class CompactModelGenerator:
                 repetition_penalty=1.1,
                 no_repeat_ngram_size=3,
             )
-        raw = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
+        raw = decode_preserving_structural_tokens(self.tokenizer, output_ids[0])
         try:
             parsed = parse_compact_target(raw)
             return {
