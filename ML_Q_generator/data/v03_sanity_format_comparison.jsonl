@@ -1,0 +1,111 @@
+{
+  "_readme": "ILLUSTRATIVE TEMPLATE, NOT YOUR ORIGINAL CURRICULUM DATA. Reconstructed only from the 12 unit IDs/topics you already named (math-l1-big, lang-l1-letter-alif, lang-l2-action-run, math-l3-compare-total, lang-l3-complete-sentence, math-l2-add-three-one, x2 languages each). Content wording below is a placeholder example so Codex can see the exact structure of all three candidate target formats side by side. Swap in your real content_ar/content_en from curriculum_demo.json before running. Field mapping for FORMAT_SENTINEL: extra_id_0=QUESTION, extra_id_1=OPTION_A, extra_id_2=OPTION_B, extra_id_3=OPTION_C, extra_id_4=OPTION_D, extra_id_5=CORRECT, extra_id_6=EXPLANATION."
+}
+{
+  "id": "math-l1-big-ar",
+  "level": 1,
+  "language": "ar",
+  "input": "task=generate_mcq level=1 subject=MATH language=ar topic=الكبير والصغير content=نتعلم أن نقارن بين حجمين مختلفين ونحدد أيهما أكبر.",
+  "target_custom_tags": "<QUESTION> ما الكلمة التي تعني أكبر حجماً؟\n<OPTION_A> كبير\n<OPTION_B> صغير\n<OPTION_C> قصير\n<OPTION_D> رفيع\n<CORRECT> A\n<EXPLANATION> كلمة كبير تصف الشيء الأعلى في الحجم مقارنة بغيره.",
+  "target_sentinel_native": "<extra_id_0> ما الكلمة التي تعني أكبر حجماً؟ <extra_id_1> كبير <extra_id_2> صغير <extra_id_3> قصير <extra_id_4> رفيع <extra_id_5> A <extra_id_6> كلمة كبير تصف الشيء الأعلى في الحجم مقارنة بغيره.",
+  "target_plain_text": "Q: ما الكلمة التي تعني أكبر حجماً؟\nA: كبير\nB: صغير\nC: قصير\nD: رفيع\nANS: A\nEXP: كلمة كبير تصف الشيء الأعلى في الحجم مقارنة بغيره."
+}
+{
+  "id": "math-l1-big-en",
+  "level": 1,
+  "language": "en",
+  "input": "task=generate_mcq level=1 subject=MATH language=en topic=Big and Small content=We learn to compare two sizes and identify which one is larger.",
+  "target_custom_tags": "<QUESTION> Which word means larger in size?\n<OPTION_A> Big\n<OPTION_B> Small\n<OPTION_C> Short\n<OPTION_D> Thin\n<CORRECT> A\n<EXPLANATION> The word big describes something that is larger compared to other things.",
+  "target_sentinel_native": "<extra_id_0> Which word means larger in size? <extra_id_1> Big <extra_id_2> Small <extra_id_3> Short <extra_id_4> Thin <extra_id_5> A <extra_id_6> The word big describes something that is larger compared to other things.",
+  "target_plain_text": "Q: Which word means larger in size?\nA: Big\nB: Small\nC: Short\nD: Thin\nANS: A\nEXP: The word big describes something that is larger compared to other things."
+}
+{
+  "id": "lang-l1-letter-alif-ar",
+  "level": 1,
+  "language": "ar",
+  "input": "task=generate_mcq level=1 subject=LANGUAGE language=ar topic=حرف الألف content=نتعرف على شكل حرف الألف ونميزه بين الحروف الأخرى.",
+  "target_custom_tags": "<QUESTION> أي رمز هو حرف الألف؟\n<OPTION_A> ا\n<OPTION_B> ب\n<OPTION_C> ت\n<OPTION_D> ث\n<CORRECT> A\n<EXPLANATION> الرمز ا هو الشكل الصحيح لحرف الألف في اللغة العربية.",
+  "target_sentinel_native": "<extra_id_0> أي رمز هو حرف الألف؟ <extra_id_1> ا <extra_id_2> ب <extra_id_3> ت <extra_id_4> ث <extra_id_5> A <extra_id_6> الرمز ا هو الشكل الصحيح لحرف الألف في اللغة العربية.",
+  "target_plain_text": "Q: أي رمز هو حرف الألف؟\nA: ا\nB: ب\nC: ت\nD: ث\nANS: A\nEXP: الرمز ا هو الشكل الصحيح لحرف الألف في اللغة العربية."
+}
+{
+  "id": "lang-l1-letter-alif-en",
+  "level": 1,
+  "language": "en",
+  "input": "task=generate_mcq level=1 subject=LANGUAGE language=en topic=Letter A content=We recognize the shape of the letter A and distinguish it from other letters.",
+  "target_custom_tags": "<QUESTION> Which symbol is the letter A?\n<OPTION_A> A\n<OPTION_B> B\n<OPTION_C> C\n<OPTION_D> D\n<CORRECT> A\n<EXPLANATION> The symbol A is the correct shape of the first letter of the alphabet.",
+  "target_sentinel_native": "<extra_id_0> Which symbol is the letter A? <extra_id_1> A <extra_id_2> B <extra_id_3> C <extra_id_4> D <extra_id_5> A <extra_id_6> The symbol A is the correct shape of the first letter of the alphabet.",
+  "target_plain_text": "Q: Which symbol is the letter A?\nA: A\nB: B\nC: C\nD: D\nANS: A\nEXP: The symbol A is the correct shape of the first letter of the alphabet."
+}
+{
+  "id": "lang-l2-action-run-ar",
+  "level": 2,
+  "language": "ar",
+  "input": "task=generate_mcq level=2 subject=LANGUAGE language=ar topic=كلمات الفعل content=نميّز الكلمة التي تدل على فعل أو حركة يقوم بها شخص.",
+  "target_custom_tags": "<QUESTION> أي كلمة تدل على فعل؟\n<OPTION_A> يجري\n<OPTION_B> طاولة\n<OPTION_C> أزرق\n<OPTION_D> كتاب\n<CORRECT> A\n<EXPLANATION> كلمة يجري تصف حركة يقوم بها الشخص، وهذا ما يميز الفعل عن الاسم أو الصفة.",
+  "target_sentinel_native": "<extra_id_0> أي كلمة تدل على فعل؟ <extra_id_1> يجري <extra_id_2> طاولة <extra_id_3> أزرق <extra_id_4> كتاب <extra_id_5> A <extra_id_6> كلمة يجري تصف حركة يقوم بها الشخص، وهذا ما يميز الفعل عن الاسم أو الصفة.",
+  "target_plain_text": "Q: أي كلمة تدل على فعل؟\nA: يجري\nB: طاولة\nC: أزرق\nD: كتاب\nANS: A\nEXP: كلمة يجري تصف حركة يقوم بها الشخص، وهذا ما يميز الفعل عن الاسم أو الصفة."
+}
+{
+  "id": "lang-l2-action-run-en",
+  "level": 2,
+  "language": "en",
+  "input": "task=generate_mcq level=2 subject=LANGUAGE language=en topic=Action words content=We identify the word that names an action or movement someone performs.",
+  "target_custom_tags": "<QUESTION> Which word names an action?\n<OPTION_A> Runs\n<OPTION_B> Table\n<OPTION_C> Blue\n<OPTION_D> Book\n<CORRECT> A\n<EXPLANATION> The word runs describes a movement performed by a person, which is what distinguishes a verb from a noun or adjective.",
+  "target_sentinel_native": "<extra_id_0> Which word names an action? <extra_id_1> Runs <extra_id_2> Table <extra_id_3> Blue <extra_id_4> Book <extra_id_5> A <extra_id_6> The word runs describes a movement performed by a person, which is what distinguishes a verb from a noun or adjective.",
+  "target_plain_text": "Q: Which word names an action?\nA: Runs\nB: Table\nC: Blue\nD: Book\nANS: A\nEXP: The word runs describes a movement performed by a person, which is what distinguishes a verb from a noun or adjective."
+}
+{
+  "id": "math-l2-add-three-one-ar",
+  "level": 2,
+  "language": "ar",
+  "input": "task=generate_mcq level=2 subject=MATH language=ar topic=الجمع البسيط content=نتدرب على جمع عددين صغيرين معًا للحصول على الناتج.",
+  "target_custom_tags": "<QUESTION> ما ناتج 3 + 1؟\n<OPTION_A> 4\n<OPTION_B> 3\n<OPTION_C> 5\n<OPTION_D> 2\n<CORRECT> A\n<EXPLANATION> عند جمع 3 و 1 معًا نحصل على الناتج 4.",
+  "target_sentinel_native": "<extra_id_0> ما ناتج 3 + 1؟ <extra_id_1> 4 <extra_id_2> 3 <extra_id_3> 5 <extra_id_4> 2 <extra_id_5> A <extra_id_6> عند جمع 3 و 1 معًا نحصل على الناتج 4.",
+  "target_plain_text": "Q: ما ناتج 3 + 1؟\nA: 4\nB: 3\nC: 5\nD: 2\nANS: A\nEXP: عند جمع 3 و 1 معًا نحصل على الناتج 4."
+}
+{
+  "id": "math-l2-add-three-one-en",
+  "level": 2,
+  "language": "en",
+  "input": "task=generate_mcq level=2 subject=MATH language=en topic=Simple addition content=We practice adding two small numbers together to find the result.",
+  "target_custom_tags": "<QUESTION> What is 3 + 1?\n<OPTION_A> 4\n<OPTION_B> 3\n<OPTION_C> 5\n<OPTION_D> 2\n<CORRECT> A\n<EXPLANATION> Adding 3 and 1 together gives a result of 4.",
+  "target_sentinel_native": "<extra_id_0> What is 3 + 1? <extra_id_1> 4 <extra_id_2> 3 <extra_id_3> 5 <extra_id_4> 2 <extra_id_5> A <extra_id_6> Adding 3 and 1 together gives a result of 4.",
+  "target_plain_text": "Q: What is 3 + 1?\nA: 4\nB: 3\nC: 5\nD: 2\nANS: A\nEXP: Adding 3 and 1 together gives a result of 4."
+}
+{
+  "id": "math-l3-compare-total-ar",
+  "level": 3,
+  "language": "ar",
+  "input": "task=generate_mcq level=3 subject=MATH language=ar topic=مقارنة المجاميع content=نجمع مجموعتين من الأعداد بشكل منفصل ثم نقارن أيهما أكبر.",
+  "target_custom_tags": "<QUESTION> أي مجموع أكبر؟ 2 + 2 أم 1 + 5؟\n<OPTION_A> 1 + 5\n<OPTION_B> 2 + 2\n<OPTION_C> متساويان\n<OPTION_D> لا يمكن المعرفة\n<CORRECT> A\n<EXPLANATION> ناتج 1 + 5 يساوي 6 وهو أكبر من ناتج 2 + 2 الذي يساوي 4.",
+  "target_sentinel_native": "<extra_id_0> أي مجموع أكبر؟ 2 + 2 أم 1 + 5؟ <extra_id_1> 1 + 5 <extra_id_2> 2 + 2 <extra_id_3> متساويان <extra_id_4> لا يمكن المعرفة <extra_id_5> A <extra_id_6> ناتج 1 + 5 يساوي 6 وهو أكبر من ناتج 2 + 2 الذي يساوي 4.",
+  "target_plain_text": "Q: أي مجموع أكبر؟ 2 + 2 أم 1 + 5؟\nA: 1 + 5\nB: 2 + 2\nC: متساويان\nD: لا يمكن المعرفة\nANS: A\nEXP: ناتج 1 + 5 يساوي 6 وهو أكبر من ناتج 2 + 2 الذي يساوي 4."
+}
+{
+  "id": "math-l3-compare-total-en",
+  "level": 3,
+  "language": "en",
+  "input": "task=generate_mcq level=3 subject=MATH language=en topic=Comparing totals content=We add two separate groups of numbers and then compare which total is bigger.",
+  "target_custom_tags": "<QUESTION> Which total is greater? 2 + 2 or 1 + 5?\n<OPTION_A> 1 + 5\n<OPTION_B> 2 + 2\n<OPTION_C> They are equal\n<OPTION_D> Cannot be known\n<CORRECT> A\n<EXPLANATION> 1 + 5 equals 6, which is greater than 2 + 2, which equals 4.",
+  "target_sentinel_native": "<extra_id_0> Which total is greater? 2 + 2 or 1 + 5? <extra_id_1> 1 + 5 <extra_id_2> 2 + 2 <extra_id_3> They are equal <extra_id_4> Cannot be known <extra_id_5> A <extra_id_6> 1 + 5 equals 6, which is greater than 2 + 2, which equals 4.",
+  "target_plain_text": "Q: Which total is greater? 2 + 2 or 1 + 5?\nA: 1 + 5\nB: 2 + 2\nC: They are equal\nD: Cannot be known\nANS: A\nEXP: 1 + 5 equals 6, which is greater than 2 + 2, which equals 4."
+}
+{
+  "id": "lang-l3-complete-sentence-ar",
+  "level": 3,
+  "language": "ar",
+  "input": "task=generate_mcq level=3 subject=LANGUAGE language=ar topic=إكمال الجملة content=نختار الكلمة المناسبة لإكمال جملة بمعنى صحيح.",
+  "target_custom_tags": "<QUESTION> نكتب بـ ____.\n<OPTION_A> قلم\n<OPTION_B> ملعقة\n<OPTION_C> كرة\n<OPTION_D> مظلة\n<CORRECT> A\n<EXPLANATION> القلم هو الأداة التي نستخدمها للكتابة، لذلك هو الإجابة الصحيحة لإكمال الجملة.",
+  "target_sentinel_native": "<extra_id_0> نكتب بـ ____. <extra_id_1> قلم <extra_id_2> ملعقة <extra_id_3> كرة <extra_id_4> مظلة <extra_id_5> A <extra_id_6> القلم هو الأداة التي نستخدمها للكتابة، لذلك هو الإجابة الصحيحة لإكمال الجملة.",
+  "target_plain_text": "Q: نكتب بـ ____.\nA: قلم\nB: ملعقة\nC: كرة\nD: مظلة\nANS: A\nEXP: القلم هو الأداة التي نستخدمها للكتابة، لذلك هو الإجابة الصحيحة لإكمال الجملة."
+}
+{
+  "id": "lang-l3-complete-sentence-en",
+  "level": 3,
+  "language": "en",
+  "input": "task=generate_mcq level=3 subject=LANGUAGE language=en topic=Sentence completion content=We choose the appropriate word to complete a sentence so it makes correct sense.",
+  "target_custom_tags": "<QUESTION> We write with a ____.\n<OPTION_A> Pen\n<OPTION_B> Spoon\n<OPTION_C> Ball\n<OPTION_D> Umbrella\n<CORRECT> A\n<EXPLANATION> A pen is the tool we use for writing, so it is the correct answer to complete the sentence.",
+  "target_sentinel_native": "<extra_id_0> We write with a ____. <extra_id_1> Pen <extra_id_2> Spoon <extra_id_3> Ball <extra_id_4> Umbrella <extra_id_5> A <extra_id_6> A pen is the tool we use for writing, so it is the correct answer to complete the sentence.",
+  "target_plain_text": "Q: We write with a ____.\nA: Pen\nB: Spoon\nC: Ball\nD: Umbrella\nANS: A\nEXP: A pen is the tool we use for writing, so it is the correct answer to complete the sentence."
+}
