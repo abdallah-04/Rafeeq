@@ -1,0 +1,78 @@
+{
+  "dataset_version": "v04_final",
+  "curriculum_id": "rafeeq-demo-curriculum-v04-final",
+  "split_policy": "Frozen historical unit membership; no reshuffle. Only answer-option order was deterministically rebalanced within split.",
+  "train_units": [
+    "lang-l1-letter-alif",
+    "lang-l1-letter-ba",
+    "lang-l1-word-book",
+    "lang-l1-word-cat",
+    "lang-l1-word-sun",
+    "lang-l2-action-run",
+    "lang-l2-category-fruit",
+    "lang-l2-first-sound",
+    "lang-l2-opposite-cold",
+    "lang-l2-sentence-end",
+    "lang-l3-complete-sentence",
+    "lang-l3-pronoun",
+    "lang-l3-reading-detail",
+    "lang-l3-sequence",
+    "lang-l3-word-order",
+    "math-l1-big",
+    "math-l1-circle",
+    "math-l1-count-one",
+    "math-l1-count-three",
+    "math-l1-square",
+    "math-l2-add-three-one",
+    "math-l2-add-two-one",
+    "math-l2-more",
+    "math-l2-pattern",
+    "math-l2-triangle-sides",
+    "math-l3-equal-groups",
+    "math-l3-missing-number",
+    "math-l3-subtract",
+    "math-l3-two-step-apples",
+    "math-l3-word-problem"
+  ],
+  "validation_units": [
+    "lang-l2-sentence-subject",
+    "lang-l3-question-mark",
+    "math-l1-count-two"
+  ],
+  "test_units": [
+    "lang-l1-letter-ta",
+    "math-l2-add-one",
+    "math-l3-compare-total"
+  ],
+  "correct_letter_targets": {
+    "train": {
+      "A": 15,
+      "C": 15,
+      "B": 15,
+      "D": 15
+    },
+    "validation": {
+      "A": 2,
+      "C": 2,
+      "B": 1,
+      "D": 1
+    },
+    "test": {
+      "A": 1,
+      "C": 1,
+      "B": 2,
+      "D": 2
+    },
+    "all": {
+      "A": 18,
+      "C": 18,
+      "B": 18,
+      "D": 18
+    }
+  },
+  "counts": {
+    "train": 60,
+    "validation": 6,
+    "test": 6
+  }
+}

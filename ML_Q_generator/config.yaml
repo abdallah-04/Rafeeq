@@ -1,3 +1,4 @@
+# LEGACY v0.2 configuration retained for old scripts/reproducibility. Active v0.4 uses config_v04.yaml.
 project:
   name: rafeeq-question-generator
   version: rafeeq-qg-v0.2

@@ -1,3 +1,5 @@
+> **HISTORICAL SNAPSHOT:** preserved for v0.4 micro/sanity reproducibility. The current held-out generalization dataset is `../v04_final/`.
+
 # Rafeeq v0.4 research-guided actual data
 
 Derived from the uploaded `ML_Q_generator/data/curriculum_demo.json`. No external educational facts were added.

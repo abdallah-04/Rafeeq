@@ -12,9 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from rafeeq_qg.v04_formats import content_match, parse_plain, parse_sentinel, serialize_plain, serialize_sentinel
+from rafeeq_qg.runtime_paths import resolve_runtime_paths
 
 DATA = ROOT / "data" / "v04_actual" / "rafeeq_v04_micro_actual.jsonl"
-RUNTIME = Path(r"D:\RafeeqML")
+RUNTIME_PATHS = resolve_runtime_paths(ROOT)
+RUNTIME = RUNTIME_PATHS.models_dir.parent
 MAX_STEPS = 2000
 INTERVAL = 200
 
@@ -75,10 +77,10 @@ def run_one(rows: list[dict], serialization: str, optimizer_name: str, lr: float
     from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, Adafactor
 
     name = f"rafeeq-v04-micro-{serialization}-{optimizer_name.lower()}"
-    model_path = RUNTIME / "models" / name
+    model_path = RUNTIME_PATHS.models_dir / name
     if model_path.exists():
         raise RuntimeError(f"refusing to overwrite {model_path}")
-    checkpoint_path = RUNTIME / "checkpoints" / name
+    checkpoint_path = RUNTIME_PATHS.checkpoints_dir / name
     started = time.perf_counter()
     tokenizer = AutoTokenizer.from_pretrained("google/mt5-small", use_fast=False)
     model = AutoModelForSeq2SeqLM.from_pretrained("google/mt5-small").to("cuda")
@@ -132,11 +134,11 @@ def main() -> None:
     for serialization, optimizer, lr in configs:
         result = run_one(rows, serialization, optimizer, lr)
         results.append(result)
-        write_path = RUNTIME / "outputs" / f"{result['run_name']}.json"
+        write_path = RUNTIME_PATHS.outputs_dir / f"{result['run_name']}.json"
         write_path.parent.mkdir(parents=True, exist_ok=True)
         write_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     comparison = [{key: result[key] for key in ("run_name", "serialization", "optimizer", "learning_rate", "steps", "final_loss", "strict_parse_rate", "content_pass_rate", "runtime_seconds")} for result in results]
-    (RUNTIME / "outputs" / "v04_micro_comparison.json").write_text(json.dumps(comparison, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (RUNTIME_PATHS.outputs_dir / "v04_micro_comparison.json").write_text(json.dumps(comparison, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(comparison, ensure_ascii=False, indent=2))
 
 

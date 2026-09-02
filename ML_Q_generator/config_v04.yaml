@@ -1,0 +1,32 @@
+project:
+  name: rafeeq-question-generator
+  experiment: rafeeq-mt5-qg-v0.4-generalization
+  seeds: [42, 43, 44]
+
+data:
+  master: data/v04_final/rafeeq_v04_final_master.jsonl
+  manifest: data/v04_final/rafeeq_v04_final_split_manifest.json
+  target_field: sentinel_native_v2
+
+model:
+  name: google/mt5-small
+  max_input_length: 128
+  max_target_length: 192
+  max_new_tokens: 192
+
+training:
+  optimizer: Adafactor
+  learning_rate: 0.001
+  relative_step: false
+  scale_parameter: false
+  warmup_init: false
+  clip_threshold: 1.0
+  weight_decay: 0.0
+  precision: FP32
+  batch_size: 1
+  max_epochs: 30
+  early_stopping_patience: 5
+
+generation:
+  do_sample: false
+  num_beams: 1

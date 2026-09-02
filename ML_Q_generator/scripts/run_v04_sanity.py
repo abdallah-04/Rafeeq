@@ -12,10 +12,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from rafeeq_qg.v04_formats import content_match, parse_sentinel
+from rafeeq_qg.runtime_paths import resolve_runtime_paths
 
 DATA = ROOT / "data" / "v04_actual" / "rafeeq_v04_sanity_actual.jsonl"
-RUNTIME = Path(r"D:\RafeeqML")
-MODEL_PATH = RUNTIME / "models" / "rafeeq-v04-sanity-sentinel-adafactor"
+RUNTIME_PATHS = resolve_runtime_paths(ROOT)
+RUNTIME = RUNTIME_PATHS.models_dir.parent
+MODEL_PATH = RUNTIME_PATHS.models_dir / "rafeeq-v04-sanity-sentinel-adafactor"
 MAX_STEPS = 2000
 INTERVAL = 200
 
@@ -115,7 +117,7 @@ def main() -> None:
     model.save_pretrained(MODEL_PATH)
     tokenizer.save_pretrained(MODEL_PATH)
     report = {"base_model": "google/mt5-small", "serialization": "sentinel_native_v2", "optimizer": "Adafactor", "learning_rate": 1e-3, "steps": step, "precision": "FP32", "device": torch.cuda.get_device_name(0), "rows": 12, "tokenizer_length": len(tokenizer), "model_embedding_size": model.get_input_embeddings().num_embeddings, "teacher_forced_final": final_teacher, "loss_progression": checkpoints, "strict_parse_count": sum(item["strict_parse"] for item in final), "exact_content_count": sum(item["content_match_fields"] == 7 for item in final), "outputs": final, "runtime_seconds": time.perf_counter() - started, "pass_gate": sum(item["strict_parse"] and item["content_match_fields"] == 7 for item in final) >= 10, "master_training_run": False}
-    output = RUNTIME / "outputs" / "v04_sanity_results.json"
+    output = RUNTIME_PATHS.outputs_dir / "v04_sanity_results.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({key: report[key] for key in ("steps", "strict_parse_count", "exact_content_count", "runtime_seconds", "pass_gate")}, indent=2))

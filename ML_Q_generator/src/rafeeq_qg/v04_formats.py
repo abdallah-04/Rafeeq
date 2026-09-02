@@ -4,6 +4,7 @@ import re
 
 SENTINELS = tuple(f"<extra_id_{index}>" for index in range(8))
 PLAIN_FIELDS = ("Q:", "A:", "B:", "C:", "D:", "ANS:", "EXP:")
+_SENTINEL_RE = re.compile(r"<extra_id_(\d+)>")
 
 
 def serialize_sentinel(row: dict) -> str:
@@ -26,12 +27,14 @@ def serialize_plain(row: dict) -> str:
 
 
 def parse_sentinel(raw: str) -> dict:
-    positions = [raw.find(token) for token in SENTINELS]
-    if any(position < 0 for position in positions) or positions != sorted(positions):
-        raise ValueError("sentinel fields must contain extra_id_0 through extra_id_7 in order")
-    if any(raw.find(token, positions[index] + len(token)) >= 0 for index, token in enumerate(SENTINELS[:-1])):
-        raise ValueError("ambiguous extra sentinel structure")
-    values = [raw[positions[index] + len(SENTINELS[index]):positions[index + 1]].strip() for index in range(7)]
+    matches = list(_SENTINEL_RE.finditer(raw))
+    ids = [int(match.group(1)) for match in matches]
+    if ids != list(range(8)):
+        raise ValueError("sentinel structure must contain exactly extra_id_0 through extra_id_7 once, in order")
+    if raw[: matches[0].start()].strip() or raw[matches[-1].end() :].strip():
+        raise ValueError("unexpected content outside sentinel structure")
+
+    values = [raw[matches[index].end() : matches[index + 1].start()].strip() for index in range(7)]
     if not values[0] or any(not value for value in values[1:5]) or values[5] not in {"A", "B", "C", "D"} or not values[6]:
         raise ValueError("invalid sentinel field content")
     if len(set(value.casefold() for value in values[1:5])) != 4:
@@ -55,6 +58,6 @@ def content_match(parsed: dict | None, expected: dict) -> int:
     if parsed is None:
         return 0
     fields = ["question", "correct_letter", "explanation"]
-    matches = sum(parsed[field] == expected[field if field != "correct_letter" else "correct_letter"] for field in fields)
+    matches = sum(parsed[field] == expected[field] for field in fields)
     matches += sum(left == right for left, right in zip(parsed["options"], expected["options"]))
     return matches
