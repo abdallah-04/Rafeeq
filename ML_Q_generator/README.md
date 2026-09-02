@@ -2,9 +2,17 @@
 
 Standalone local ML research prototype for curriculum-grounded Arabic/English MCQ generation. It is intentionally isolated from the production Rafeeq application.
 
-## Current status: v0.5 dataset/generalization experiment
+## Current status: v0.6 hybrid generalization experiment
 
-v0.5 expands the curriculum to 240 concept units and 480 unique paired language conditions. It uses 48 semantic families, deterministic family-disjoint 360/60/60 train/validation/test splits, balanced Arabic/English and MATH/LANGUAGE coverage, and the proven native mT5 sentinel serialization with Adafactor. The v0.5 hidden test is new and distinct from the observed v0.4 benchmark.
+v0.6 is the active controlled experiment. It preserves the frozen v0.5 high-quality conditions as a 480-condition dataset rather than fabricating scale, adds explicit task types and verified math fact payloads, and uses a hybrid acceptance pipeline: the model generates the question and language, while verified curriculum facts and deterministic distractors control math correctness. The official v0.6 hidden test is family-disjoint and does not reuse the v0.5 test family.
+
+The v0.6 dataset audit is stored in `data/v06/dataset_statistics_v06.json`. The v0.5 failure taxonomy is stored externally at `D:\RafeeqML\outputs\v06_v05_failure_analysis.json`.
+
+The completed v0.6 run used fresh seeds 42, 43, and 44, native mT5 sentinels, FP32 Adafactor at `1e-3`, validation-only checkpoint selection, and delayed hidden-test access. The final report is `D:\RafeeqML\outputs\v06_final_experiment_summary.json`. Raw model metrics and hybrid acceptance metrics are reported separately; the hybrid layer is not evidence that the model learned arithmetic.
+
+## Historical v0.5 status
+
+v0.5 expanded the curriculum to 240 concept units and 480 unique paired language conditions. Its artifacts remain frozen and historical for v0.6 analysis.
 
 The v0.5 dataset audit is stored in `data/v05/dataset_statistics_v05.json`. Training and final evaluation are offline only; no production integration is authorized.
 
@@ -32,9 +40,15 @@ Controlled checks already completed on the user's training machine:
 
 Those results establish pipeline/memorization sanity only. They are not held-out generalization, educational validity, clinical validity, or production readiness.
 
-## Active frozen dataset
+## Historical v0.4 frozen dataset
 
-Use only:
+The v0.4 snapshot is historical only. The active v0.6 run uses:
+
+`data/v06/`
+
+The historical v0.4 experiment used:
+
+`data/v04_final/`
 
 `data/v04_final/`
 

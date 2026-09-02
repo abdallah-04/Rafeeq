@@ -1,0 +1,58 @@
+{
+  "total_conditions": 480,
+  "unique_conditions": 480,
+  "curriculum_units": 240,
+  "concept_families": 48,
+  "template_families": 128,
+  "task_types": {
+    "NUMBER_RECOGNITION": 20,
+    "SHAPE_RECOGNITION": 20,
+    "COMPARISON": 80,
+    "ADDITION": 20,
+    "MISSING_NUMBER": 20,
+    "SUBTRACTION": 28,
+    "SHORT_READING": 54,
+    "SEQUENCE": 26,
+    "LETTER_RECOGNITION": 40,
+    "WORD_RECOGNITION": 40,
+    "ACTION_WORD": 40,
+    "WORD_MEANING": 40,
+    "CONTEXT_SELECTION": 26,
+    "BASIC_INFERENCE": 26
+  },
+  "language_counts": {
+    "ar": 240,
+    "en": 240
+  },
+  "subject_counts": {
+    "MATH": 240,
+    "LANGUAGE": 240
+  },
+  "level_counts": {
+    "1": 160,
+    "2": 160,
+    "3": 160
+  },
+  "correct_letter_counts": {
+    "A": 120,
+    "B": 120,
+    "C": 120,
+    "D": 120
+  },
+  "split_counts": {
+    "train": 360,
+    "validation": 60,
+    "test": 60
+  },
+  "duplicate_input_count": 0,
+  "duplicate_question_count": 0,
+  "duplicate_option_count": 0,
+  "sentinel_parse_failure_count": 0,
+  "structured_math_fact_count": 240,
+  "structured_math_fact_verified_count": 240,
+  "unit_leakage": false,
+  "language_pair_leakage": false,
+  "concept_family_leakage": false,
+  "template_family_leakage": false,
+  "critical_failures": []
+}
