@@ -2,7 +2,19 @@
 
 Standalone local ML research prototype for curriculum-grounded Arabic/English MCQ generation. It is intentionally isolated from the production Rafeeq application.
 
-## Current status: v0.4 generalization experiment
+## Current status: v0.5 dataset/generalization experiment
+
+v0.5 expands the curriculum to 240 concept units and 480 unique paired language conditions. It uses 48 semantic families, deterministic family-disjoint 360/60/60 train/validation/test splits, balanced Arabic/English and MATH/LANGUAGE coverage, and the proven native mT5 sentinel serialization with Adafactor. The v0.5 hidden test is new and distinct from the observed v0.4 benchmark.
+
+The v0.5 dataset audit is stored in `data/v05/dataset_statistics_v05.json`. Training and final evaluation are offline only; no production integration is authorized.
+
+Historical progression:
+
+- v0.1: long bilingual structured targets failed autoregressive parsing.
+- v0.2: duplicated inputs with conflicting targets made supervision inconsistent.
+- v0.3: custom structural tags did not overcome mT5's sentinel prior.
+- v0.4: native sentinels plus Adafactor passed micro memorization and reached 11/12 on the sanity set, but held-out generalization remained weak.
+- v0.5: expands curriculum coverage and evaluates generalization with three fresh seeds and a newly frozen hidden test.
 
 The active model path is:
 

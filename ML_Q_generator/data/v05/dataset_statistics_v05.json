@@ -1,0 +1,40 @@
+{
+  "total_conditions": 480,
+  "unique_conditions": 480,
+  "curriculum_units": 240,
+  "concept_families": 48,
+  "language_counts": {
+    "ar": 240,
+    "en": 240
+  },
+  "subject_counts": {
+    "MATH": 240,
+    "LANGUAGE": 240
+  },
+  "level_counts": {
+    "1": 160,
+    "2": 160,
+    "3": 160
+  },
+  "correct_letter_counts": {
+    "A": 120,
+    "B": 120,
+    "C": 120,
+    "D": 120
+  },
+  "split_counts": {
+    "train": 360,
+    "validation": 60,
+    "test": 60
+  },
+  "duplicate_input_count": 0,
+  "duplicate_question_count": 0,
+  "duplicate_option_count": 0,
+  "empty_field_count": 0,
+  "invalid_correct_option_count": 0,
+  "sentinel_parse_failure_count": 0,
+  "unit_leakage": false,
+  "language_pair_leakage": false,
+  "concept_family_leakage": false,
+  "critical_failures": []
+}
