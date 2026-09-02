@@ -1,0 +1,87 @@
+{
+  "source": "uploaded Rafeeq-amr-edit (1)(1).zip",
+  "curriculum_file": "ML_Q_generator/data/curriculum_demo.json",
+  "historical_split_source": "existing archive train/validation/test JSONL files",
+  "historical_split_units": {
+    "train": [
+      "lang-l1-letter-alif",
+      "lang-l1-letter-ba",
+      "lang-l1-word-book",
+      "lang-l1-word-cat",
+      "lang-l1-word-sun",
+      "lang-l2-action-run",
+      "lang-l2-category-fruit",
+      "lang-l2-first-sound",
+      "lang-l2-opposite-cold",
+      "lang-l2-sentence-end",
+      "lang-l3-complete-sentence",
+      "lang-l3-pronoun",
+      "lang-l3-reading-detail",
+      "lang-l3-sequence",
+      "lang-l3-word-order",
+      "math-l1-big",
+      "math-l1-circle",
+      "math-l1-count-one",
+      "math-l1-count-three",
+      "math-l1-square",
+      "math-l2-add-three-one",
+      "math-l2-add-two-one",
+      "math-l2-more",
+      "math-l2-pattern",
+      "math-l2-triangle-sides",
+      "math-l3-equal-groups",
+      "math-l3-missing-number",
+      "math-l3-subtract",
+      "math-l3-two-step-apples",
+      "math-l3-word-problem"
+    ],
+    "validation": [
+      "lang-l2-sentence-subject",
+      "lang-l3-question-mark",
+      "math-l1-count-two"
+    ],
+    "test": [
+      "lang-l1-letter-ta",
+      "math-l2-add-one",
+      "math-l3-compare-total"
+    ]
+  },
+  "historical_split_counts_units": {
+    "train": 30,
+    "validation": 3,
+    "test": 3
+  },
+  "historical_split_counts_canonical_language_rows": {
+    "train": 60,
+    "validation": 6,
+    "test": 6
+  },
+  "previous_v03_sanity_units": [
+    "lang-l1-letter-alif",
+    "lang-l2-action-run",
+    "lang-l3-complete-sentence",
+    "math-l1-big",
+    "math-l2-add-three-one",
+    "math-l3-compare-total"
+  ],
+  "previous_v03_sanity_non_train_by_historical_manifest": [
+    "math-l3-compare-total"
+  ],
+  "v04_corrected_sanity_units": [
+    "lang-l1-letter-alif",
+    "lang-l2-action-run",
+    "lang-l3-complete-sentence",
+    "math-l1-big",
+    "math-l2-add-three-one",
+    "math-l3-subtract"
+  ],
+  "v04_micro_unit": "math-l2-add-three-one",
+  "correct_letter_distribution_full_72": {
+    "A": 18,
+    "B": 18,
+    "C": 18,
+    "D": 18
+  },
+  "sentinel_format_note": "sentinel_native_v2 uses extra_id_0..extra_id_6 to introduce seven content spans and extra_id_7 as the final terminating sentinel before tokenizer EOS, mirroring T5 span-corruption target shape more closely.",
+  "split_reproducibility_bug": "Current split_by_unit converts a set directly to list before seeded shuffle. Python set iteration order is not a stable reproducibility guarantee across processes. Freeze this manifest or sort unit IDs before shuffling."
+}
