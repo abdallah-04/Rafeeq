@@ -1,0 +1,11 @@
+{
+  "version": "v0.6.3",
+  "counts": {
+    "train": 480,
+    "validation": 60,
+    "test": 60
+  },
+  "historical_training_pool": "v0.5 frozen conditions transformed to planner objective",
+  "new_validation_units": 15,
+  "new_hidden_test_units": 15
+}

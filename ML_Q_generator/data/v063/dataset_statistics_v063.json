@@ -1,0 +1,19 @@
+{
+  "version": "v0.6.3",
+  "rows": 600,
+  "counts": {
+    "train": 480,
+    "validation": 60,
+    "test": 60
+  },
+  "units": {
+    "train": 240,
+    "validation": 30,
+    "test": 30
+  },
+  "unique_inputs": 600,
+  "math_facts_valid": true,
+  "arabic_math_latin_contexts": 0,
+  "validation_test_signature_overlap": 0,
+  "deterministic_option_integrity": true
+}
