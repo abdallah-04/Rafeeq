@@ -1,0 +1,9 @@
+{
+  "version": "v0.6.4",
+  "counts": {
+    "train": 480,
+    "validation": 60,
+    "test": 60
+  },
+  "hidden_physical_file": "hidden_test_v064.jsonl"
+}
