@@ -2,7 +2,13 @@
 
 Standalone local ML research prototype for curriculum-grounded Arabic/English MCQ generation. It is intentionally isolated from the production Rafeeq application.
 
-## Current status: v0.6.1 corrective hybrid experiment
+## Current status: v0.6.2 reproducible hybrid experiment
+
+v0.6.2 corrected the v0.6.1 dataset and reproducibility issues without modifying frozen historical artifacts. It uses 480 historical training conditions, 60 genuinely new validation conditions, and 60 genuinely new hidden-test conditions. All three fresh sanity seeds passed the 22/24 gate before full training. The full experiment used explicit RNG seeding, native mT5 short sentinels, FP32 Adafactor at `1e-3`, validation-only selection, and fixed beam retries.
+
+The final model is stored at `D:\RafeeqML\models\rafeeq-mt5-qg-v0.6.2-final`, with the final report at `D:\RafeeqML\outputs\v062_final_experiment_summary.json`. Raw model question-generation metrics and deterministic hybrid integrity metrics are reported separately.
+
+v0.6.1 remains historical: its original sanity reached 18/24. v0.6.1b reproduced the short objective with explicit seeding and reached 24/24 at 720 steps, proving learnability while exposing reproducibility sensitivity.
 
 v0.6 is frozen historical work. v0.6.1 corrects its implementation defects without rewriting v0.6 files or results. The corrected architecture trains mT5 on a short native-sentinel target containing only `QUESTION` and `EXPLANATION`; trusted curriculum metadata deterministically supplies the answer, distractors, and option position.
 

@@ -1,0 +1,87 @@
+{
+  "total": 600,
+  "split_counts": {
+    "train": 480,
+    "validation": 60,
+    "test": 60
+  },
+  "unique_inputs": 600,
+  "language_counts": {
+    "ar": 300,
+    "en": 300
+  },
+  "subject_counts": {
+    "MATH": 300,
+    "LANGUAGE": 300
+  },
+  "level_counts": {
+    "1": 200,
+    "2": 200,
+    "3": 200
+  },
+  "task_types": {
+    "NUMBER_RECOGNITION": 20,
+    "SHAPE_RECOGNITION": 20,
+    "COMPARISON": 92,
+    "ADDITION": 32,
+    "MISSING_NUMBER": 32,
+    "SUBTRACTION": 40,
+    "COUNTING": 26,
+    "SEQUENCE": 38,
+    "LETTER_RECOGNITION": 40,
+    "WORD_RECOGNITION": 52,
+    "ACTION_WORD": 52,
+    "WORD_MEANING": 52,
+    "SHORT_READING": 40,
+    "CONTEXT_SELECTION": 26,
+    "BASIC_INFERENCE": 38
+  },
+  "short_parse_failures": 0,
+  "unknown_math_operation_count": 0,
+  "math_language_misclassification_count": 0,
+  "language_schema_failure_count": 0,
+  "structured_fact_by_task": {
+    "ADDITION": {
+      "verified": 32,
+      "total": 32
+    },
+    "COMPARISON": {
+      "verified": 92,
+      "total": 92
+    },
+    "COUNTING": {
+      "verified": 26,
+      "total": 26
+    },
+    "MISSING_NUMBER": {
+      "verified": 32,
+      "total": 32
+    },
+    "NUMBER_RECOGNITION": {
+      "verified": 20,
+      "total": 20
+    },
+    "SEQUENCE": {
+      "verified": 38,
+      "total": 38
+    },
+    "SHAPE_RECOGNITION": {
+      "verified": 20,
+      "total": 20
+    },
+    "SUBTRACTION": {
+      "verified": 40,
+      "total": 40
+    }
+  },
+  "deterministic_option_failures": 0,
+  "validation_test_unit_intersection": 0,
+  "validation_test_signature_intersection": 0,
+  "validation_test_normalized_question_intersection": 0,
+  "validation_test_normalized_content_intersection": 0,
+  "validation_test_structured_fact_intersection": 0,
+  "validation_test_language_signature_intersection": 0,
+  "split_name_in_semantic_ids": 0,
+  "new_split_duplicate_question_count": 0,
+  "critical_failures": []
+}
