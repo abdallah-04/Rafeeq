@@ -2,7 +2,13 @@
 
 Standalone local ML research prototype for curriculum-grounded Arabic/English MCQ generation. It is intentionally isolated from the production Rafeeq application.
 
-## Current status: v0.6 hybrid generalization experiment
+## Current status: v0.6.1 corrective hybrid experiment
+
+v0.6 is frozen historical work. v0.6.1 corrects its implementation defects without rewriting v0.6 files or results. The corrected architecture trains mT5 on a short native-sentinel target containing only `QUESTION` and `EXPLANATION`; trusted curriculum metadata deterministically supplies the answer, distractors, and option position.
+
+The v0.6.1 dataset audit is stored in `data/v061/dataset_statistics_v061.json`. Its required fresh 24-condition sanity gate reached `18/24` strict short parses and `18/24` language passes after 30 epochs, below the `22/24` stop threshold. The full v0.6.1 experiment was therefore not run, as required by the control protocol. The runtime sanity report is `D:\RafeeqML\outputs\v061_sanity.json`.
+
+This remains a **HYBRID CURRICULUM-GROUNDED ML QUESTION GENERATOR**, not pure end-to-end neural MCQ generation.
 
 v0.6 is the active controlled experiment. It preserves the frozen v0.5 high-quality conditions as a 480-condition dataset rather than fabricating scale, adds explicit task types and verified math fact payloads, and uses a hybrid acceptance pipeline: the model generates the question and language, while verified curriculum facts and deterministic distractors control math correctness. The official v0.6 hidden test is family-disjoint and does not reuse the v0.5 test family.
 

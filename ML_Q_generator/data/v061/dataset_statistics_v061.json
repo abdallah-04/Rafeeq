@@ -1,0 +1,86 @@
+{
+  "total": 600,
+  "split_counts": {
+    "train": 480,
+    "validation": 60,
+    "test": 60
+  },
+  "unique_conditions": 600,
+  "duplicate_input_count": 0,
+  "conflicting_target_group_count": 0,
+  "duplicate_question_target_count": 80,
+  "language_counts": {
+    "ar": 300,
+    "en": 300
+  },
+  "subject_counts": {
+    "MATH": 300,
+    "LANGUAGE": 300
+  },
+  "level_counts": {
+    "1": 200,
+    "2": 200,
+    "3": 200
+  },
+  "task_types": {
+    "NUMBER_RECOGNITION": 20,
+    "SHAPE_RECOGNITION": 20,
+    "COMPARISON": 92,
+    "ADDITION": 32,
+    "MISSING_NUMBER": 32,
+    "SUBTRACTION": 40,
+    "COUNTING": 26,
+    "SEQUENCE": 38,
+    "LETTER_RECOGNITION": 40,
+    "WORD_RECOGNITION": 52,
+    "ACTION_WORD": 52,
+    "WORD_MEANING": 52,
+    "SHORT_READING": 40,
+    "CONTEXT_SELECTION": 26,
+    "BASIC_INFERENCE": 38
+  },
+  "short_parse_failures": 0,
+  "unknown_math_operation_count": 0,
+  "math_short_reading_misclassification_count": 0,
+  "language_task_schema_failure_count": 0,
+  "structured_fact_verification_by_task": {
+    "ADDITION": {
+      "verified": 32,
+      "total": 32
+    },
+    "COMPARISON": {
+      "verified": 92,
+      "total": 92
+    },
+    "COUNTING": {
+      "verified": 26,
+      "total": 26
+    },
+    "MISSING_NUMBER": {
+      "verified": 32,
+      "total": 32
+    },
+    "NUMBER_RECOGNITION": {
+      "verified": 20,
+      "total": 20
+    },
+    "SEQUENCE": {
+      "verified": 38,
+      "total": 38
+    },
+    "SHAPE_RECOGNITION": {
+      "verified": 20,
+      "total": 20
+    },
+    "SUBTRACTION": {
+      "verified": 40,
+      "total": 40
+    }
+  },
+  "deterministic_final_unique_options": 0,
+  "deterministic_final_failures": 0,
+  "new_validation_units": 30,
+  "new_test_units": 30,
+  "v05_or_v06_test_ids_in_v061_test": [],
+  "critical_failures": []
+}
