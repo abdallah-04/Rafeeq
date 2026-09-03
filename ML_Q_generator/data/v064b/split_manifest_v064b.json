@@ -1,0 +1,8 @@
+{
+  "version": "v0.6.4b",
+  "counts": {
+    "train": 480,
+    "validation": 60,
+    "test": 60
+  }
+}

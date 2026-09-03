@@ -1,0 +1,581 @@
+{
+  "version": "v0.6.4b",
+  "counts": {
+    "train": 480,
+    "validation": 60,
+    "hidden": 60
+  },
+  "gold_semantic": 600,
+  "gold_level_style": 600,
+  "sanity_gold_semantic": 24,
+  "sanity_gold_level_style": 24,
+  "explicit_answer_label_leak_count": 0,
+  "answer_equivalent_field_leak_count": 0,
+  "target_sentence_copy_leak_count": 0,
+  "allowed_stimulus_cases": [
+    {
+      "id": "math-l1-number-1-v05-001-v063-v064b-ar",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-1-v05-001-v063-v064b-en",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-2-v05-005-v063-v064b-ar",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-2-v05-005-v063-v064b-en",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-3-v05-009-v063-v064b-ar",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-3-v05-009-v063-v064b-en",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-4-v05-013-v063-v064b-ar",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-4-v05-013-v063-v064b-en",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-5-v05-017-v063-v064b-ar",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-5-v05-017-v063-v064b-en",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-6-v05-021-v063-v064b-ar",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-6-v05-021-v063-v064b-en",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-7-v05-025-v063-v064b-ar",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-7-v05-025-v063-v064b-en",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-8-v05-029-v063-v064b-ar",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-8-v05-029-v063-v064b-en",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-9-v05-033-v063-v064b-ar",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-9-v05-033-v063-v064b-en",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-10-v05-037-v063-v064b-ar",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "math-l1-number-10-v05-037-v063-v064b-en",
+      "task_type": "NUMBER_RECOGNITION",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-0-v05-162-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-0-v05-162-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-1-v05-164-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-1-v05-164-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-2-v05-166-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-2-v05-166-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-3-v05-168-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-3-v05-168-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-4-v05-170-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-4-v05-170-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-5-v05-172-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-5-v05-172-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-6-v05-174-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-6-v05-174-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-7-v05-176-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-7-v05-176-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-8-v05-178-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-8-v05-178-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-9-v05-180-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-9-v05-180-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-10-v05-182-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-10-v05-182-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-11-v05-184-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-11-v05-184-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-12-v05-186-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-12-v05-186-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-13-v05-188-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-13-v05-188-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-14-v05-190-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-14-v05-190-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-0-v05-192-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-0-v05-192-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-1-v05-194-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-1-v05-194-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-2-v05-196-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-2-v05-196-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-3-v05-198-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-3-v05-198-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-4-v05-200-v063-v064b-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l2-meaning-4-v05-200-v063-v064b-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-0-v05-201-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-0-v05-201-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-1-v05-204-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-1-v05-204-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-2-v05-207-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-2-v05-207-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-3-v05-210-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-3-v05-210-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-4-v05-213-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-4-v05-213-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-5-v05-216-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-5-v05-216-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-6-v05-219-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-6-v05-219-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-7-v05-222-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-7-v05-222-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-8-v05-225-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-8-v05-225-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-9-v05-228-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-9-v05-228-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-10-v05-231-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-10-v05-231-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-11-v05-234-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-11-v05-234-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-12-v05-237-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-12-v05-237-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-13-v05-240-v063-v064b-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "lang-l3-context-13-v05-240-v063-v064b-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-03-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-03-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-04-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-04-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-08-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-08-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-09-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-09-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-13-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-13-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-14-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-v-language-14-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-03-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-03-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-04-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-04-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-08-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-08-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-09-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-09-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-13-en",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-13-ar",
+      "task_type": "WORD_MEANING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-14-en",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    },
+    {
+      "id": "v064b-h-language-14-ar",
+      "task_type": "SHORT_READING",
+      "reason": "required curriculum stimulus"
+    }
+  ],
+  "unique_model_inputs": 600,
+  "deterministic_mcq_integrity": 1.0,
+  "validation_generation_count": 0,
+  "hidden_test_open_count": 0
+}
