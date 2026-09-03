@@ -29,3 +29,21 @@ def parse_short(raw: str) -> dict:
     if not question or not explanation:
         raise ValueError("short sentinel question and explanation must be non-empty")
     return {"question": question, "explanation": explanation}
+
+
+def serialize_question_only(question: str) -> str:
+    if not question.strip():
+        raise ValueError("question must be non-empty")
+    return f"<extra_id_0> {question.strip()} <extra_id_1>"
+
+
+def parse_question_only(raw: str) -> dict:
+    matches = list(_SENTINEL_RE.finditer(raw))
+    if [int(match.group(1)) for match in matches] != [0, 1]:
+        raise ValueError("question-only structure must contain exactly extra_id_0 and extra_id_1 once")
+    if raw[:matches[0].start()].strip() or raw[matches[-1].end():].strip():
+        raise ValueError("unexpected content outside question-only structure")
+    question = raw[matches[0].end():matches[1].start()].strip()
+    if not question:
+        raise ValueError("question-only question must be non-empty")
+    return {"question": question}

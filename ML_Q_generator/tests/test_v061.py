@@ -1,7 +1,7 @@
 import inspect
 from pathlib import Path
 
-from rafeeq_qg.v061_formats import parse_short, serialize_short
+from rafeeq_qg.v061_formats import parse_question_only, parse_short, serialize_question_only, serialize_short
 from rafeeq_qg.v061_hybrid import build_final, deterministic_options, retry_model, stable_position, verify_fact
 
 
@@ -12,6 +12,16 @@ def test_short_sentinel_round_trip_and_strictness():
         try: parse_short(bad)
         except ValueError: pass
         else: raise AssertionError("invalid short target accepted")
+
+
+def test_question_only_round_trip_and_wrapper_cleanup_contract():
+    assert parse_question_only(serialize_question_only("Which shape?")) == {"question": "Which shape?"}
+    try:
+        parse_short("<pad> <extra_id_0> Q <extra_id_1> E <extra_id_2></s>")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("parser must receive wrapper-cleaned model text")
 
 
 def test_unknown_fact_and_comparison_schema_are_rejected_or_verified():
