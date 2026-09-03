@@ -29,9 +29,10 @@ def question(row):
     if task=="COMPARISON": return (f"Which number is greater, {f['left']} or {f['right']}?" if level<3 else f"Look at {f['left']} and {f['right']}. Which number is greater?") if not ar else (f"أي العددين أكبر: {f['left']} أم {f['right']}؟" if level<3 else f"قارن بين العددين {f['left']} و{f['right']}. أيهما أكبر؟")
     if task in {"NUMBER_RECOGNITION","COUNTING"}: return "Which number does the lesson show?" if not ar else "أي عدد يوضحه الدرس؟"
     if task=="SHAPE_RECOGNITION": return "Which shape does the lesson show?" if not ar else "أي شكل يوضحه الدرس؟"
-    if task=="WORD_MEANING": return f'What does the word "{row["stimulus"]}" mean?' if not ar else f"ماذا تعني كلمة «{row['stimulus']}»؟"
-    if task=="WORD_RECOGNITION": return "Which word names a fruit?" if not ar else "أي كلمة تدل على فاكهة؟"
-    if task=="ACTION_WORD": return "Which word describes what the child is doing?" if not ar else "أي كلمة تصف ما يفعله الطفل؟"
+    if task=="WORD_MEANING": return (f'What does the word "{row["stimulus"]}" mean?' if level<3 else f'In this lesson, what does the word "{row["stimulus"]}" mean?') if not ar else (f"ماذا تعني كلمة «{row['stimulus']}»؟" if level<3 else f"في هذا الدرس، ماذا تعني كلمة «{row['stimulus']}»؟")
+    if task=="WORD_RECOGNITION": return ("Which word is a fruit?" if level==1 else "Which word names a fruit?" if level==2 else "Read the clue. Which word names a fruit?") if not ar else ("أي كلمة فاكهة؟" if level==1 else "أي كلمة تدل على فاكهة؟" if level==2 else "اقرأ الدليل. أي كلمة تدل على فاكهة؟")
+    if task=="ACTION_WORD": return ("Which word shows movement?" if level==1 else "Which word describes what the child is doing?" if level==2 else "Look at the scene. Which word describes what the child is doing?") if not ar else ("أي كلمة تدل على حركة؟" if level==1 else "أي كلمة تصف ما يفعله الطفل؟" if level==2 else "انظر إلى المشهد. أي كلمة تصف ما يفعله الطفل؟")
+    if task=="LETTER_RECOGNITION": return ("Which letter matches the lesson?" if level<3 else "Read the clue. Which letter matches the lesson?") if not ar else ("أي حرف يطابق الدرس؟" if level<3 else "اقرأ الدليل. أي حرف يطابق الدرس؟")
     if task=="SHORT_READING": return "Which object is mentioned in the passage?" if not ar else "أي شيء ذُكر في الفقرة؟"
     if task=="BASIC_INFERENCE": return "What can we infer from the scene?" if not ar else "ماذا نستنتج من المشهد؟"
     return "Which answer fits the lesson?" if not ar else "أي إجابة تناسب الدرس؟"
