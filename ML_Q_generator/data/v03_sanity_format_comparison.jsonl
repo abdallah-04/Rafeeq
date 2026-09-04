@@ -10,6 +10,7 @@
   "target_sentinel_native": "<extra_id_0> ما الكلمة التي تعني أكبر حجماً؟ <extra_id_1> كبير <extra_id_2> صغير <extra_id_3> قصير <extra_id_4> رفيع <extra_id_5> A <extra_id_6> كلمة كبير تصف الشيء الأعلى في الحجم مقارنة بغيره.",
   "target_plain_text": "Q: ما الكلمة التي تعني أكبر حجماً؟\nA: كبير\nB: صغير\nC: قصير\nD: رفيع\nANS: A\nEXP: كلمة كبير تصف الشيء الأعلى في الحجم مقارنة بغيره."
 }
+
 {
   "id": "math-l1-big-en",
   "level": 1,
@@ -19,6 +20,7 @@
   "target_sentinel_native": "<extra_id_0> Which word means larger in size? <extra_id_1> Big <extra_id_2> Small <extra_id_3> Short <extra_id_4> Thin <extra_id_5> A <extra_id_6> The word big describes something that is larger compared to other things.",
   "target_plain_text": "Q: Which word means larger in size?\nA: Big\nB: Small\nC: Short\nD: Thin\nANS: A\nEXP: The word big describes something that is larger compared to other things."
 }
+
 {
   "id": "lang-l1-letter-alif-ar",
   "level": 1,
