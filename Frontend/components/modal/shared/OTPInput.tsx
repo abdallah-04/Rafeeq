@@ -18,7 +18,7 @@ export default function OTPInput({
     error = false 
     }: Props) {
     const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-    const inputs = useRef<Array<TextInput | null>>([]);
+    const inputs = useRef<Array<React.ComponentRef<typeof TextInput> | null>>([]);
 
     // Reset focused state when value changes from outside
     useEffect(() => {

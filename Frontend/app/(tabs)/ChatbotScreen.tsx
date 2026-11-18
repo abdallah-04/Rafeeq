@@ -120,7 +120,7 @@ export default function ChatbotScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 
   const t = i18n[lang];
   const isRTL = lang === 'ar';
@@ -160,7 +160,7 @@ export default function ChatbotScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F0F2FF" />
+      <StatusBar barStyle="dark-content" />
 
       {/* Top nav */}
       <View style={[styles.topNav, isRTL && styles.rowReverse]}>

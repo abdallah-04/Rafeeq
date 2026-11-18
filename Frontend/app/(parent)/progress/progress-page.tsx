@@ -112,7 +112,7 @@ export default function ProgressScreen() {
 
   return (
     <ScreenWrapper padded={false} scroll={false}>
-      <StatusBar barStyle="dark-content" backgroundColor={theme.colors.white} />
+      <StatusBar barStyle="dark-content" />
 
       <Header
         title={t('progress.title')}

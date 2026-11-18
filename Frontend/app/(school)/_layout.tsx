@@ -37,7 +37,7 @@ export default function SchoolLayout() {
               <Ionicons
                 name={focused ? 'people' : 'people-outline'}
                 size={24}
-                color={color}
+                color={color as string}
               />
             ),
           }}
@@ -50,7 +50,7 @@ export default function SchoolLayout() {
               <Ionicons
                 name={focused ? 'person-circle' : 'person-circle-outline'}
                 size={24}
-                color={color}
+                color={color as string}
               />
             ),
           }}

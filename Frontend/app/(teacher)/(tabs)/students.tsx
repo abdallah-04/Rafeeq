@@ -208,7 +208,7 @@ export default function StudentsScreen() {
           <AddStudentCard onPress={handleAddStudent} t={t} isRTL={isRTL} />
         }
         ListFooterComponent={
-          students.length > 0 ? <AddStudentCard onPress={handleAddStudent} t={t} isRTL={isRTL} /> : null
+          students.length > 0 ? <AddStudentCard onPress={handleAddStudent} t={t} isRTL={isRTL} /> : undefined
         }
       />
     </SafeAreaView>

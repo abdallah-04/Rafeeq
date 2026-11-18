@@ -431,7 +431,7 @@ export default function AddStudentScreen() {
           <TouchableOpacity
             style={[styles.continueBtn, (loading || !gender) && styles.continueBtnDisabled]}
             disabled={loading || !gender}
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => handleSubmit(onSubmit)()}
           >
             {loading ? (
               <ActivityIndicator color={colors.white} />
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
     color: '#93C5FD',
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 10,
   },
   dropdownList: {

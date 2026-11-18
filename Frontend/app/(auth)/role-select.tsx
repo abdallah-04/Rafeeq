@@ -87,7 +87,7 @@ export default function RoleSelectionScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+      <StatusBar barStyle="dark-content" />
 
       <View style={styles.topBar}>
         <BackButton onPress={router.back} />

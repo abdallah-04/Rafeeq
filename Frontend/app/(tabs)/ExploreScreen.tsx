@@ -219,7 +219,7 @@ export default function ExploreScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="dark-content" />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}

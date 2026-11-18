@@ -22,7 +22,7 @@ export default function TeacherTabsLayout() {
         options={{
           title: t('teacher.nav.home', 'Home'),
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color as string} />
           ),
         }}
       />
@@ -31,7 +31,7 @@ export default function TeacherTabsLayout() {
         options={{
           title: t('teacher.nav.profile', 'Profile'),
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'person' : 'person-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'person' : 'person-outline'} size={24} color={color as string} />
           ),
         }}
       />
@@ -40,7 +40,7 @@ export default function TeacherTabsLayout() {
         options={{
           title: t('teacher.nav.students', 'Students'),
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'people' : 'people-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'people' : 'people-outline'} size={24} color={color as string} />
           ),
         }}
       />

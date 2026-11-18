@@ -169,7 +169,7 @@ export default function QuizzesScreen() {
 
   return (
     <ScreenWrapper padded={false} scroll={false}>
-      <StatusBar barStyle="dark-content" backgroundColor={theme.colors.white} />
+      <StatusBar barStyle="dark-content" />
 
       <Header
         title={t('progress.tabs.quizzes', 'Quizzes')}

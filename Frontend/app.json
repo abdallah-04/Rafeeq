@@ -5,21 +5,12 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-
     "scheme": "rafeeq",
     "userInterfaceStyle": "automatic",
-
-    "splash": {
-      "image": "./assets/images/mascot/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.rafeeq.app"
     },
-
     "android": {
       "predictiveBackGestureEnabled": false,
       "package": "com.rafeeq.app",
@@ -29,32 +20,37 @@
         "backgroundColor": "#ffffff"
       }
     },
-
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-
     "plugins": [
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/mascot/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
       "expo-font",
       "expo-web-browser",
       "expo-localization",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-splash-screen",
+      "expo-status-bar"
     ],
-
     "experiments": {
       "typedRoutes": true
     },
-
     "extra": {
       "router": {},
       "eas": {
         "projectId": "4c7b6c51-8e1d-4397-83c4-ab12f99696a8"
       }
     },
-
     "owner": "gumball04"
   }
 }

@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   featuredBg: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: '#D6E4FF',
     alignItems: 'center',
     justifyContent: 'center',
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
   },
   featuredOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(20, 40, 90, 0.52)',
   },
   featuredBadge: {

@@ -164,7 +164,7 @@ export default function ActivitiesScreen() {
 
   return (
     <ScreenWrapper padded={false} scroll={false}>
-      <StatusBar barStyle="dark-content" backgroundColor={theme.colors.white} />
+      <StatusBar barStyle="dark-content" />
 
       <Header
         title={t('activities.title', 'Activities')}

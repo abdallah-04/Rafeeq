@@ -79,7 +79,7 @@ export default function StudentsScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+      <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('students.title')}</Text>
         <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/(school)/add-student')}>
