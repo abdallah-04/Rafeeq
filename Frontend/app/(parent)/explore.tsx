@@ -33,6 +33,10 @@ const FILTER_I18N_KEYS: Record<Filter, string> = {
 };
 
 function backendToArticle(a: ArticleResponse): Article {
+  // Mock mode: keep the richer local article (author, read time, paragraphs) and only take the saved state.
+  const rich = mockArticles.find((m) => m.id === a.id);
+  if (rich) return { ...rich, saved: a.isSaved ? 1 : 0 };
+
   const category: ArticleCategory =
     (a.tags?.find((tag: string) => ['Speech', 'Learning', 'Behavior'].includes(tag)) as ArticleCategory) ??
     'Learning';

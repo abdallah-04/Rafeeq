@@ -1,143 +1,214 @@
 // services/api.tsx
 // ─────────────────────────────────────────────────────────────────────────────
-//  FULLY WIRED — all functions call the real Spring Boot backend.
-//  Set EXPO_PUBLIC_API_BASE_URL in your .env for local dev and in EAS build envs
-//  for standalone APK/AAB builds.
-//  Auth token is read from the Zustand authStore via AsyncStorage.
+//  MOCK API — this branch is disconnected from the backend.
+//
+//  Every function keeps the same name and signature as the real API client, but
+//  reads/writes a local mock database (services/mock/db.ts) that is persisted in
+//  AsyncStorage. No network requests are made.
+//
+//  Demo accounts (password for all: 123456)
+//    School  / المدرسة  : 1111111111
+//    Teacher / المعلم   : 2222222222
+//    Parent  / الأهل    : 4444444444
+//
+//  Children that can be linked from the parent "add child" flow:
+//    5000000003 (pending placement exam), 5000000004 (active, has a tree)
+//
+//  OTP codes: any code is accepted.
+//  To restore the seed data call resetMockDb() from services/mock/db.ts.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '@/i18n';
 import { useAuthStore } from '@/store/authStore';
+import {
+  generateTree,
+  getDb,
+  mockArticles,
+  nextId,
+  PLACEMENT_QUESTIONS,
+  saveDb,
+  type Loc,
+  type MockDb,
+  type MockQuiz,
+  type MockUser,
+} from './mock/db';
 
-// ── Config ────────────────────────────────────────────────────────────────────
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/$/, '') ?? '';
+// ── Core helpers ──────────────────────────────────────────────────────────────
 
-function getApiBaseUrl(): string {
-  if (!API_BASE_URL) {
-    throw new Error(
-      'Missing EXPO_PUBLIC_API_BASE_URL. Configure it in local .env and EAS build envs before building the app.'
-    );
-  }
+const NETWORK_DELAY_MS = 250;
+const TOKEN_PREFIX = 'mock-token-';
+const REFRESH_PREFIX = 'mock-refresh-';
 
-  return API_BASE_URL;
+const delay = (ms = NETWORK_DELAY_MS) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+function isArabic(): boolean {
+  return (i18n.language ?? 'en').startsWith('ar');
 }
 
-// ── Token helpers ─────────────────────────────────────────────────────────────
-
-/** Read the persisted Zustand auth store and return the refreshToken */
-async function getRefreshToken(): Promise<string | null> {
-  try {
-    const raw = await AsyncStorage.getItem('rafeeq-auth-storage');
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return parsed?.state?.refreshToken ?? null;
-  } catch {
-    return null;
-  }
+/** Pick the user's language: merge the Arabic override over the English base. */
+function localize<T extends { ar?: object }>(entity: T): Omit<T, 'ar'> {
+  const { ar, ...base } = entity;
+  return (isArabic() && ar ? { ...base, ...ar } : base) as Omit<T, 'ar'>;
 }
 
-// ── Core request helpers ──────────────────────────────────────────────────────
+const localizeAll = <T extends { ar?: object }>(list: T[]) => list.map((item) => localize(item));
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-
-const pendingGetRequests = new Map<string, Promise<unknown>>();
-
-interface RequestOptions {
-  auth?: boolean;          // default true — attach Bearer token
-  lang?: string;           // override Accept-Language
-  body?: unknown;
+function localizeQuiz(quiz: MockQuiz): QuizResponse {
+  const { ar, questions, ...rest } = quiz;
+  const base = isArabic() && ar ? { ...rest, ...ar } : rest;
+  return {
+    ...base,
+    questions: questions.map((q) => {
+      const { ar: qAr, ...qBase } = q;
+      return (isArabic() && qAr ? { ...qBase, ...qAr } : qBase) as QuizQuestionResponse;
+    }),
+  } as QuizResponse;
 }
 
-function getPendingGetKey(url: string, token: string | null, lang: string) {
-  return `GET:${url}:${token ?? ''}:${lang}`;
+const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
+
+function fail(en: string, ar: string): never {
+  throw new Error(isArabic() ? ar : en);
 }
 
-async function performRequest<T>(
-  url: string,
-  method: HttpMethod,
-  headers: Record<string, string>,
-  body?: unknown
-): Promise<T> {
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
-
-  // 204 No Content — return null cast as T
-  if (res.status === 204) return null as T;
-
-  let data: unknown;
-  try {
-    data = await res.json();
-  } catch {
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return null as T;
-  }
-
-  if (!res.ok) {
-    // Backend error shape: { success, message, errorCode, timestamp }
-    const msg =
-      (data as any)?.message ??
-      (data as any)?.error ??
-      `HTTP ${res.status}`;
-    throw new Error(msg);
-  }
-
-  return data as T;
+/** Open the database after a short artificial latency. */
+async function open(): Promise<MockDb> {
+  await delay();
+  return getDb();
 }
 
-async function request<T>(
-  method: HttpMethod,
-  path: string,
-  options: RequestOptions = {}
-): Promise<T> {
-  const { auth = true, body } = options;
-  const lang = options.lang ?? i18n.language ?? 'en';
+/** Resolve the logged-in mock user from the token kept in the auth store. */
+function currentUser(db: MockDb): MockUser {
+  const token = useAuthStore.getState().token ?? '';
+  const userId = token.startsWith(TOKEN_PREFIX) ? token.slice(TOKEN_PREFIX.length) : '';
+  const user = db.users.find((u) => u.userId === userId);
+  if (!user) fail('Unauthorized. Please log in again.', 'غير مصرّح. الرجاء تسجيل الدخول مجددًا.');
+  return user;
+}
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'Accept-Language': lang,
+function ok(message = 'OK'): MessageResponse {
+  return { success: true, message };
+}
+
+function authFor(user: MockUser): AuthResponse {
+  return {
+    accessToken: `${TOKEN_PREFIX}${user.userId}`,
+    refreshToken: `${REFRESH_PREFIX}${user.userId}`,
+    role: user.role,
+    message: 'Login successful',
   };
-  const token = auth ? useAuthStore.getState().token : null;
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  const url = `${getApiBaseUrl()}${path}`;
-
-  if (method === 'GET') {
-    const pendingKey = getPendingGetKey(url, token, lang);
-    const pendingRequest = pendingGetRequests.get(pendingKey);
-    if (pendingRequest) {
-      return pendingRequest as Promise<T>;
-    }
-
-    const requestPromise = performRequest<T>(url, method, headers, body);
-    pendingGetRequests.set(pendingKey, requestPromise);
-
-    try {
-      return await requestPromise;
-    } finally {
-      if (pendingGetRequests.get(pendingKey) === requestPromise) {
-        pendingGetRequests.delete(pendingKey);
-      }
-    }
-  }
-
-  return performRequest<T>(url, method, headers, body);
 }
 
-const _get  = <T,>(path: string, opts?: RequestOptions) => request<T>('GET',    path, opts);
-const _post = <T,>(path: string, body: unknown, opts?: RequestOptions) => request<T>('POST',   path, { body, ...opts });
-const _put  = <T,>(path: string, body: unknown, opts?: RequestOptions) => request<T>('PUT',    path, { body, ...opts });
-const _del  = <T,>(path: string, opts?: RequestOptions) => request<T>('DELETE', path, opts);
+function findChild(db: MockDb, id: string) {
+  const child = db.children.find((c) => c.id === id);
+  if (!child) fail('Child not found', 'لم يتم العثور على الطفل');
+  return child;
+}
+
+/** The teacher record for the logged-in teacher. */
+function currentTeacher(db: MockDb, user: MockUser) {
+  return db.teachers.find((t) => t.userId === user.userId);
+}
+
+/** Children visible to a given user, depending on their role. */
+function childrenFor(db: MockDb, user: MockUser) {
+  if (user.role === 'ROLE_PARENT') return db.children.filter((c) => c.parentId === user.userId);
+  if (user.role === 'ROLE_TEACHER') {
+    const teacher = currentTeacher(db, user);
+    return db.children.filter((c) => teacher && c.teacherId === teacher.id);
+  }
+  const teacherIds = db.teachers.filter((t) => t.schoolUserId === user.userId).map((t) => t.id);
+  return db.children.filter((c) => c.teacherId && teacherIds.includes(c.teacherId));
+}
+
+function treeItemsFor(db: MockDb, childId: string) {
+  return db.treeItems
+    .filter((i) => i.treeId === `tree-${childId}`)
+    .sort((a, b) => (a.orderNum ?? 0) - (b.orderNum ?? 0));
+}
+
+function progressFor(db: MockDb, childId: string) {
+  const items = treeItemsFor(db, childId);
+  if (items.length === 0) return 0;
+  return Math.round((items.filter((i) => i.completed).length / items.length) * 100);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  RESPONSE TYPES (matching backend DTOs exactly)
+//  Internal helpers that mutate the mock database
+// ─────────────────────────────────────────────────────────────────────────────
+
+function notifyParent(db: MockDb, childId: string, en: { title: string; body: string }, ar: { title: string; body: string }) {
+  const child = db.children.find((c) => c.id === childId);
+  if (!child?.parentId) return;
+  db.notifications.unshift({
+    id: nextId(db, 'n'), userId: child.parentId, title: en.title, body: en.body,
+    isRead: false, createdAt: new Date().toISOString(), ar,
+  });
+}
+
+function removeChild(db: MockDb, childId: string) {
+  db.children = db.children.filter((c) => c.id !== childId);
+  db.trees = db.trees.filter((t) => t.childId !== childId);
+  db.treeItems = db.treeItems.filter((i) => i.treeId !== `tree-${childId}`);
+  db.activities = db.activities.filter((a) => a.childId !== childId);
+  db.quizzes = db.quizzes.filter((q) => q.childId !== childId);
+  db.homeworks = db.homeworks.filter((h) => h.childId !== childId);
+  db.notes = db.notes.filter((n) => n.childId !== childId);
+  db.reports = db.reports.filter((r) => r.childId !== childId);
+}
+
+function completeItem(db: MockDb, itemId: string): TreeItemCompletionResponse {
+  const item = db.treeItems.find((i) => i.id === itemId);
+  if (!item) fail('Learning tree item not found', 'لم يتم العثور على عنصر في المسار');
+  const tree = db.trees.find((t) => t.id === item.treeId);
+  const childId = tree?.childId ?? item.treeId.replace('tree-', '');
+  const now = new Date().toISOString();
+
+  if (!item.completed) {
+    item.completed = true;
+    item.locked = false;
+    item.status = 'COMPLETED';
+    item.completedAt = now;
+    item.earnedPoints = item.maxPoints;
+
+    const homework = db.homeworks.find((h) => h.id === item.itemId);
+    if (homework) homework.status = 'COMPLETED';
+    const activity = db.activities.find((a) => a.id === item.itemId);
+    if (activity) { activity.status = 'COMPLETED'; activity.completedAt = now; }
+    const quiz = db.quizzes.find((q) => q.id === item.itemId);
+    if (quiz) { quiz.status = 'COMPLETED'; quiz.completedAt = now; quiz.startedAt = quiz.startedAt ?? now; }
+
+    const next = treeItemsFor(db, childId).find((i) => !i.completed);
+    if (next) next.locked = false;
+  }
+
+  const items = treeItemsFor(db, childId);
+  const completedItems = items.filter((i) => i.completed).length;
+  const treeCompleted = items.length > 0 && completedItems === items.length;
+  if (tree) tree.status = treeCompleted ? 'COMPLETED' : 'ACTIVE';
+
+  return {
+    treeId: item.treeId,
+    itemId: item.id,
+    treeCompleted,
+    completedItems,
+    totalItems: items.length,
+    progressPercentage: items.length ? Math.round((completedItems / items.length) * 100) : 0,
+    treeStatus: treeCompleted ? 'COMPLETED' : 'ACTIVE',
+  };
+}
+
+function toTeacher(t: MockDb['teachers'][number]): TeacherResponse {
+  const { schoolUserId: _ignored, ...rest } = t;
+  return rest;
+}
+
+function childName(child: ChildResponse) {
+  return isArabic() ? child.fullNameAr : child.fullNameEn ?? child.fullNameAr;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  RESPONSE TYPES (kept identical to the real API client)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface AuthResponse {
@@ -246,30 +317,6 @@ export interface ArticleResponse {
   createdAt:   string;
 }
 
-interface BackendArticleResponse {
-  id:          string;
-  titleAr:     string | null;
-  titleEn:     string | null;
-  contentAr:   string | null;
-  contentEn:   string | null;
-  imageUrl:    string | null;
-  tags:        string[] | null;
-  saved:       boolean;
-}
-
-function normalizeArticle(article: BackendArticleResponse): ArticleResponse {
-  return {
-    id:        article.id,
-    title:     article.titleEn ?? article.titleAr ?? '',
-    titleAr:   article.titleAr ?? article.titleEn ?? null,
-    body:      article.contentEn ?? article.contentAr ?? '',
-    bodyAr:    article.contentAr ?? article.contentEn ?? null,
-    imageUrl:  article.imageUrl,
-    tags:      article.tags ?? [],
-    isSaved:   article.saved,
-    createdAt: new Date().toISOString(),
-  };
-}
 
 export interface TeacherResponse {
   id:           string;
@@ -462,21 +509,16 @@ export interface SchoolDashboard {
 //  AUTH
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * POST /auth/login
- * body: { nationalId, password }
- */
 export async function apiLogin(
   nationalId: string,
   password:   string
 ): Promise<AuthResponse> {
-  return _post<AuthResponse>('/auth/login', { nationalId, password }, { auth: false });
+  const db = await open();
+  const user = db.users.find((u) => u.nationalId === nationalId.trim() && u.password === password);
+  if (!user) fail('Invalid national ID or password', 'رقم الهوية أو كلمة المرور غير صحيحة');
+  return authFor(user);
 }
 
-/**
- * POST /auth/register/parent
- * body: { phone, email, password, nationalId, fullNameAr, fullNameEn? }
- */
 export async function apiRegisterParent(data: {
   phone:        string;
   email:        string;
@@ -485,13 +527,19 @@ export async function apiRegisterParent(data: {
   fullNameAr:   string;
   fullNameEn?:  string;
 }): Promise<AuthResponse> {
-  return _post<AuthResponse>('/auth/register/parent', data, { auth: false });
+  const db = await open();
+  if (db.users.some((u) => u.nationalId === data.nationalId)) {
+    fail('This national ID is already registered', 'رقم الهوية مسجّل مسبقًا');
+  }
+  const user: MockUser = {
+    userId: nextId(db, 'u-parent'), role: 'ROLE_PARENT', nationalId: data.nationalId,
+    password: data.password, email: data.email, phone: data.phone,
+  };
+  db.users.push(user);
+  await saveDb();
+  return authFor(user);
 }
 
-/**
- * POST /auth/register/school
- * body: { phone, email, password, nationalId, nameAr, nameEn?, location, description? }
- */
 export async function apiRegisterSchool(data: {
   phone:        string;
   email:        string;
@@ -502,139 +550,134 @@ export async function apiRegisterSchool(data: {
   location:     string;
   description?: string;
 }): Promise<AuthResponse> {
-  return _post<AuthResponse>('/auth/register/school', data, { auth: false });
+  const db = await open();
+  if (db.users.some((u) => u.nationalId === data.nationalId)) {
+    fail('This national ID is already registered', 'رقم الهوية مسجّل مسبقًا');
+  }
+  const user: MockUser = {
+    userId: nextId(db, 'u-school'), role: 'ROLE_SCHOOL', nationalId: data.nationalId,
+    password: data.password, email: data.email, phone: data.phone,
+  };
+  db.users.push(user);
+  await saveDb();
+  return authFor(user);
 }
 
-/**
- * POST /auth/forgot-password
- * Triggers OTP generation (printed to backend console in dev)
- */
-export async function apiForgotPassword(
-  nationalId: string
-): Promise<MessageResponse> {
-  return _post<MessageResponse>('/auth/forgot-password', { nationalId }, { auth: false });
+/** Mock: no SMS is sent — any OTP code is accepted. */
+export async function apiForgotPassword(_nationalId: string): Promise<MessageResponse> {
+  await delay();
+  return ok('Verification code sent');
 }
 
-/**
- * POST /auth/verify-otp
- * Used for OTP verification after forgot-password
- */
 export async function apiVerifyOTP(
-  nationalId:   string,
-  otpCode:      string,
-  trustDevice?: boolean
+  _nationalId:  string,
+  _otpCode:     string,
+  _trustDevice?: boolean
 ): Promise<MessageResponse> {
-  return _post<MessageResponse>('/auth/verify-otp', { nationalId, otpCode, trustDevice }, { auth: false });
+  await delay();
+  return ok('Verified');
 }
 
-/**
- * POST /auth/resend-otp
- */
-export async function apiResendOTP(
-  nationalId: string
-): Promise<MessageResponse> {
-  return _post<MessageResponse>('/auth/resend-otp', { nationalId }, { auth: false });
+export async function apiResendOTP(_nationalId: string): Promise<MessageResponse> {
+  await delay();
+  return ok('Verification code sent');
 }
 
-/**
- * POST /auth/reset-password
- * body: { nationalId, otpCode, newPassword, confirmPassword }
- */
 export async function apiResetPassword(data: {
   nationalId:      string;
   otpCode:         string;
   newPassword:     string;
   confirmPassword: string;
 }): Promise<MessageResponse> {
-  return _post<MessageResponse>('/auth/reset-password', data, { auth: false });
+  const db = await open();
+  if (data.newPassword !== data.confirmPassword) {
+    fail('Passwords do not match', 'كلمتا المرور غير متطابقتين');
+  }
+  const user = db.users.find((u) => u.nationalId === data.nationalId);
+  if (!user) fail('User not found', 'المستخدم غير موجود');
+  user.password = data.newPassword;
+  await saveDb();
+  return ok('Password updated');
 }
 
-/**
- * POST /auth/refresh
- * Use when access token expires — pass the stored refresh token
- */
 export async function apiRefreshToken(
   refreshToken: string
 ): Promise<RefreshTokenResponse> {
-  return _post<RefreshTokenResponse>('/auth/refresh', { refreshToken }, { auth: false });
+  const db = await open();
+  const userId = refreshToken.startsWith(REFRESH_PREFIX) ? refreshToken.slice(REFRESH_PREFIX.length) : '';
+  const user = db.users.find((u) => u.userId === userId);
+  if (!user) fail('Invalid refresh token', 'رمز التحديث غير صالح');
+  return { accessToken: `${TOKEN_PREFIX}${user.userId}`, refreshToken };
 }
 
-/**
- * POST /auth/logout
- */
-export async function apiLogout(refreshToken: string): Promise<MessageResponse> {
-  return _post<MessageResponse>('/auth/logout', { refreshToken });
+export async function apiLogout(_refreshToken: string): Promise<MessageResponse> {
+  await delay(50);
+  return ok('Logged out');
 }
 
-/**
- * GET /auth/me
- * Returns the current authenticated user's basic info
- */
 export async function apiGetMe(): Promise<MeResponse> {
-  return _get<MeResponse>('/auth/me');
+  const db = await open();
+  const user = currentUser(db);
+  return { userId: user.userId, role: user.role, email: user.email, phone: user.phone };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  CHILDREN  (Parent role)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /api/parent/children
- * Returns all children linked to the authenticated parent
- */
 export async function apiGetChildren(): Promise<ChildResponse[]> {
-  return _get<ChildResponse[]>('/api/parent/children');
+  const db = await open();
+  return clone(childrenFor(db, currentUser(db)));
 }
 
-/**
- * GET /api/parent/children/:id
- */
 export async function apiGetChild(id: string): Promise<ChildResponse> {
-  return _get<ChildResponse>(`/api/parent/children/${id}`);
+  const db = await open();
+  return clone(findChild(db, id));
 }
 
-/**
- * GET /api/parent/children/:id/summary
- */
 export async function apiGetChildSummary(id: string): Promise<ChildSummaryResponse> {
-  return _get<ChildSummaryResponse>(`/api/parent/children/${id}/summary`);
+  const db = await open();
+  const child = findChild(db, id);
+  return {
+    childId:            child.id,
+    childName:          childName(child),
+    level:              child.assessedLevel ?? child.level,
+    difficulty:         child.learningDifficulty,
+    quizzesCount:       db.quizzes.filter((q) => q.childId === id && q.status === 'COMPLETED').length,
+    homeworksCount:     db.homeworks.filter((h) => h.childId === id && ['COMPLETED', 'SUBMITTED', 'GRADED'].includes(h.status)).length,
+    activitiesCount:    db.activities.filter((a) => a.childId === id && a.status === 'COMPLETED').length,
+    progressPercentage: progressFor(db, id),
+  };
 }
 
-/**
- * POST /api/parent/children/link
- * Link a child to the parent by the child's national ID
- */
 export async function apiLinkChild(nationalId: string): Promise<MessageResponse> {
-  return _post<MessageResponse>('/api/parent/children/link', { nationalId });
+  const db = await open();
+  const user = currentUser(db);
+  const child = db.children.find((c) => c.nationalId === nationalId.trim());
+  if (!child) fail('No child found with this national ID', 'لم يتم العثور على طفل بهذا الرقم الوطني');
+  if (child.parentId && child.parentId !== user.userId) {
+    fail('This child is already linked to another parent', 'هذا الطفل مرتبط بوالد آخر');
+  }
+  child.parentId = user.userId;
+  await saveDb();
+  return ok('Child linked successfully');
 }
 
-/**
- * DELETE /api/parent/children/:id
- * Unlink a child from the parent
- */
 export async function apiUnlinkChild(id: string): Promise<MessageResponse> {
-  return _del<MessageResponse>(`/api/parent/children/${id}`);
+  const db = await open();
+  findChild(db, id).parentId = null;
+  await saveDb();
+  return ok('Child unlinked');
 }
 
-// Also available via /children/* (direct ChildController):
-
-/**
- * GET /children/my
- */
 export async function apiGetMyChildren(): Promise<ChildResponse[]> {
-  return _get<ChildResponse[]>('/children/my');
+  return apiGetChildren();
 }
 
-/**
- * GET /children/:id
- */
 export async function apiGetChildById(id: string): Promise<ChildResponse> {
-  return _get<ChildResponse>(`/children/${id}`);
+  return apiGetChild(id);
 }
 
-/**
- * PUT /children/:id
- */
 export async function apiUpdateChild(
   id: string,
   data: Partial<{
@@ -647,235 +690,261 @@ export async function apiUpdateChild(
     learningDifficulty: string;
   }>
 ): Promise<ChildResponse> {
-  return _put<ChildResponse>(`/children/${id}`, data);
+  const db = await open();
+  const child = findChild(db, id);
+  Object.assign(child, data);
+  await saveDb();
+  return clone(child);
 }
 
-/**
- * POST /children/link
- */
 export async function apiLinkChildDirect(nationalId: string): Promise<MessageResponse> {
-  return _post<MessageResponse>('/children/link', { nationalId });
+  return apiLinkChild(nationalId);
 }
 
-/**
- * DELETE /children/:id
- */
+/** Parents unlink a child; teachers/schools remove the record entirely. */
 export async function apiDeleteChild(id: string): Promise<MessageResponse> {
-  return _del<MessageResponse>(`/children/${id}`);
+  const db = await open();
+  const user = currentUser(db);
+  if (user.role === 'ROLE_PARENT') {
+    findChild(db, id).parentId = null;
+  } else {
+    findChild(db, id);
+    removeChild(db, id);
+  }
+  await saveDb();
+  return ok('Child removed');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  HOMEWORK
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /api/homework/parent/:childId
- * Parent view: get homework assigned to a child
- */
 export async function apiGetHomeworkForParent(
   childId: string,
   source?: 'ai' | 'teacher'
 ): Promise<HomeworkResponse[]> {
-  const query = source ? `?source=${encodeURIComponent(source)}` : '';
-  return _get<HomeworkResponse[]>(`/api/homework/parent/${childId}${query}`);
+  const db = await open();
+  const list = db.homeworks.filter((h) => {
+    if (h.childId !== childId) return false;
+    if (source === 'ai') return h.authorRole === 'AI';
+    if (source === 'teacher') return h.authorRole === 'TEACHER';
+    return true;
+  });
+  return localizeAll(list) as HomeworkResponse[];
 }
 
-/**
- * GET /api/homework/teacher/:childId
- * Teacher view: get homework they assigned to a child
- */
 export async function apiGetHomeworkForTeacher(childId: string): Promise<HomeworkResponse[]> {
-  return _get<HomeworkResponse[]>(`/api/homework/teacher/${childId}`);
+  const db = await open();
+  const list = db.homeworks
+    .filter((h) => h.childId === childId && h.authorRole === 'TEACHER')
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return localizeAll(list) as HomeworkResponse[];
 }
 
-/**
- * GET /api/homework/school/:childId
- */
 export async function apiGetHomeworkForSchool(childId: string): Promise<HomeworkResponse[]> {
-  return _get<HomeworkResponse[]>(`/api/homework/school/${childId}`);
+  const db = await open();
+  return localizeAll(db.homeworks.filter((h) => h.childId === childId)) as HomeworkResponse[];
 }
 
-/**
- * POST /api/homework
- * Teacher creates homework for a child
- */
 export async function apiCreateHomework(data: {
   childId:     string;
   title:       string;
   description: string;
   dueDate:     string;   // YYYY-MM-DD
 }): Promise<HomeworkResponse> {
-  return _post<HomeworkResponse>('/api/homework', data);
+  const db = await open();
+  findChild(db, data.childId);
+  const homework: Loc<HomeworkResponse> = {
+    id: nextId(db, 'hw'), childId: data.childId, title: data.title, description: data.description,
+    dueDate: data.dueDate, status: 'PENDING', authorRole: 'TEACHER', createdAt: new Date().toISOString(),
+  };
+  db.homeworks.unshift(homework);
+  notifyParent(
+    db, data.childId,
+    { title: 'New homework', body: `New homework assigned: ${data.title}` },
+    { title: 'واجب جديد', body: `تم تكليفك بواجب جديد: ${data.title}` },
+  );
+  await saveDb();
+  return clone(homework);
 }
 
 export async function apiGetHomeworkDetail(homeworkId: string): Promise<HomeworkResponse> {
-  return _get<HomeworkResponse>(`/api/homework/details/${homeworkId}`);
+  const db = await open();
+  const homework = db.homeworks.find((h) => h.id === homeworkId);
+  if (!homework) fail('Homework not found', 'لم يتم العثور على الواجب');
+  return localize(homework) as HomeworkResponse;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  REPORTS
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /api/reports/parent/:childId
- */
-export async function apiGetReportsForParent(childId: string): Promise<ReportResponse[]> {
-  return _get<ReportResponse[]>(`/api/reports/parent/${childId}`);
+async function reportsFor(childId: string): Promise<ReportResponse[]> {
+  const db = await open();
+  return clone(db.reports.filter((r) => r.childId === childId).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
 }
 
-/**
- * GET /api/reports/teacher/:childId
- */
-export async function apiGetReportsForTeacher(childId: string): Promise<ReportResponse[]> {
-  return _get<ReportResponse[]>(`/api/reports/teacher/${childId}`);
-}
+export const apiGetReportsForParent  = (childId: string) => reportsFor(childId);
+export const apiGetReportsForTeacher = (childId: string) => reportsFor(childId);
+export const apiGetReportsForSchool  = (childId: string) => reportsFor(childId);
 
-/**
- * GET /api/reports/school/:childId
- */
-export async function apiGetReportsForSchool(childId: string): Promise<ReportResponse[]> {
-  return _get<ReportResponse[]>(`/api/reports/school/${childId}`);
-}
-
-/**
- * POST /api/reports
- * Teacher creates a report for a child
- */
 export async function apiCreateReport(data: {
   childId: string;
   title:   string;
   content: string;
 }): Promise<ReportResponse> {
-  return _post<ReportResponse>('/api/reports', data);
+  const db = await open();
+  findChild(db, data.childId);
+  const report: ReportResponse = { id: nextId(db, 'rep'), ...data, createdAt: new Date().toISOString() };
+  db.reports.unshift(report);
+  notifyParent(
+    db, data.childId,
+    { title: 'New report', body: `A new report is available: ${data.title}` },
+    { title: 'تقرير جديد', body: `يتوفر تقرير جديد: ${data.title}` },
+  );
+  await saveDb();
+  return clone(report);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  NOTES
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /api/notes/parent/:childId
- */
-export async function apiGetNotesForParent(childId: string): Promise<NoteResponse[]> {
-  return _get<NoteResponse[]>(`/api/notes/parent/${childId}`);
+async function notesFor(childId: string): Promise<NoteResponse[]> {
+  const db = await open();
+  return clone(db.notes.filter((n) => n.childId === childId).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
 }
 
-/**
- * GET /api/notes/teacher/:childId
- */
-export async function apiGetNotesForTeacher(childId: string): Promise<NoteResponse[]> {
-  return _get<NoteResponse[]>(`/api/notes/teacher/${childId}`);
-}
+export const apiGetNotesForParent  = (childId: string) => notesFor(childId);
+export const apiGetNotesForTeacher = (childId: string) => notesFor(childId);
 
-/**
- * POST /api/notes
- * Teacher creates a note for a child
- */
 export async function apiCreateNote(data: {
   childId: string;
   title:   string;
   content: string;
 }): Promise<NoteResponse> {
-  return _post<NoteResponse>('/api/notes', data);
+  const db = await open();
+  findChild(db, data.childId);
+  const note: NoteResponse = { id: nextId(db, 'note'), ...data, createdAt: new Date().toISOString() };
+  db.notes.unshift(note);
+  notifyParent(
+    db, data.childId,
+    { title: 'New teacher note', body: `The teacher left a note: ${data.title}` },
+    { title: 'ملاحظة جديدة من المعلم', body: `ترك المعلم ملاحظة: ${data.title}` },
+  );
+  await saveDb();
+  return clone(note);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  NOTIFICATIONS
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /api/notifications
- */
 export async function apiGetNotifications(): Promise<NotificationResponse[]> {
-  return _get<NotificationResponse[]>('/api/notifications');
+  const db = await open();
+  const user = currentUser(db);
+  return db.notifications
+    .filter((n) => n.userId === user.userId)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .map((n) => {
+      const { userId: _ignored, ...rest } = localize(n) as NotificationResponse & { userId: string };
+      return rest;
+    });
 }
 
-/**
- * POST /api/notifications/:id/read
- */
 export async function apiMarkNotificationRead(id: string): Promise<MessageResponse> {
-  return _post<MessageResponse>(`/api/notifications/${id}/read`, {});
+  const db = await open();
+  const notification = db.notifications.find((n) => n.id === id);
+  if (notification) notification.isRead = true;
+  await saveDb();
+  return ok();
 }
 
-/**
- * POST /api/notifications/read-all
- */
 export async function apiMarkAllNotificationsRead(): Promise<MessageResponse> {
-  return _post<MessageResponse>('/api/notifications/read-all', {});
+  const db = await open();
+  const user = currentUser(db);
+  db.notifications.forEach((n) => { if (n.userId === user.userId) n.isRead = true; });
+  await saveDb();
+  return ok();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  ARTICLES
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /api/articles
- */
+function toArticle(article: (typeof mockArticles)[number], saved: string[]): ArticleResponse {
+  return {
+    id:        article.id,
+    title:     article.title_en,
+    titleAr:   article.title_ar,
+    body:      article.body_en.join('\n\n'),
+    bodyAr:    article.body_ar.join('\n\n'),
+    imageUrl:  null,
+    tags:      [article.category],
+    isSaved:   saved.includes(article.id),
+    createdAt: new Date().toISOString(),
+  };
+}
+
 export async function apiGetArticles(): Promise<ArticleResponse[]> {
-  const articles = await _get<BackendArticleResponse[]>('/api/articles');
-  return articles.map(normalizeArticle);
+  const db = await open();
+  const saved = db.savedArticles[currentUser(db).userId] ?? [];
+  return mockArticles.map((a) => toArticle(a, saved));
 }
 
-/**
- * GET /api/articles/:id
- */
 export async function apiGetArticle(id: string): Promise<ArticleResponse> {
-  const article = await _get<BackendArticleResponse>(`/api/articles/${id}`);
-  return normalizeArticle(article);
+  const db = await open();
+  const saved = db.savedArticles[currentUser(db).userId] ?? [];
+  const article = mockArticles.find((a) => a.id === id);
+  if (!article) fail('Article not found', 'لم يتم العثور على المقال');
+  return toArticle(article, saved);
 }
 
-/**
- * POST /api/articles/:id/save
- * Saves (bookmarks) an article for the current user
- */
 export async function apiSaveArticle(id: string): Promise<MessageResponse> {
-  return _post<MessageResponse>(`/api/articles/${id}/save`, {});
+  const db = await open();
+  const userId = currentUser(db).userId;
+  const list = db.savedArticles[userId] ?? [];
+  if (!list.includes(id)) list.push(id);
+  db.savedArticles[userId] = list;
+  await saveDb();
+  return ok('Article saved');
 }
 
-/**
- * DELETE /api/articles/:id/save
- * Removes a saved bookmark
- */
 export async function apiUnsaveArticle(id: string): Promise<MessageResponse> {
-  return _del<MessageResponse>(`/api/articles/${id}/save`);
+  const db = await open();
+  const userId = currentUser(db).userId;
+  db.savedArticles[userId] = (db.savedArticles[userId] ?? []).filter((a) => a !== id);
+  await saveDb();
+  return ok('Article removed');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SCHOOL  (School admin role)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /school/teachers  or  GET /api/school/teachers
- */
 export async function apiGetTeachers(): Promise<TeacherResponse[]> {
-  return _get<TeacherResponse[]>('/school/teachers');
+  const db = await open();
+  const user = currentUser(db);
+  return db.teachers.filter((t) => t.schoolUserId === user.userId).map(toTeacher);
 }
 
-/**
- * GET /school/teachers/:id
- */
 export async function apiGetTeacher(id: string): Promise<TeacherResponse> {
-  return _get<TeacherResponse>(`/school/teachers/${id}`);
+  const db = await open();
+  const teacher = db.teachers.find((t) => t.id === id);
+  if (!teacher) fail('Teacher not found', 'لم يتم العثور على المعلم');
+  return toTeacher(teacher);
 }
 
-/**
- * GET /school/teachers/:id/students
- */
 export async function apiGetSchoolTeacherStudents(id: string): Promise<StudentResponse[]> {
-  return _get<StudentResponse[]>(`/school/teachers/${id}/students`);
+  const db = await open();
+  return clone(db.children.filter((c) => c.teacherId === id));
 }
 
-/**
- * GET /school/students/:id
- */
 export async function apiGetSchoolStudent(id: string): Promise<ChildResponse> {
-  return _get<ChildResponse>(`/school/students/${id}`);
+  const db = await open();
+  return clone(findChild(db, id));
 }
 
-/**
- * POST /school/teachers
- * School admin creates a teacher account
- */
 export async function apiCreateTeacher(data: {
   phone:       string;
   email:       string;
@@ -884,48 +953,62 @@ export async function apiCreateTeacher(data: {
   fullNameAr:  string;
   fullNameEn?: string;
 }): Promise<TeacherResponse> {
-  return _post<TeacherResponse>('/school/teachers', data);
+  const db = await open();
+  const school = currentUser(db);
+  if (db.users.some((u) => u.nationalId === data.nationalId)) {
+    fail('This national ID is already registered', 'رقم الهوية مسجّل مسبقًا');
+  }
+  const userId = nextId(db, 'u-teacher');
+  db.users.push({
+    userId, role: 'ROLE_TEACHER', nationalId: data.nationalId, password: data.password,
+    email: data.email, phone: data.phone,
+  });
+  const teacher = {
+    id: nextId(db, 'teacher'), userId, schoolUserId: school.userId, fullNameAr: data.fullNameAr,
+    fullNameEn: data.fullNameEn ?? null, phone: data.phone, nationalId: data.nationalId,
+  };
+  db.teachers.push(teacher);
+  await saveDb();
+  return toTeacher(teacher);
 }
 
-/**
- * PUT /school/teachers/:id
- */
 export async function apiUpdateTeacher(
   id:   string,
   data: Partial<{ fullNameAr: string; fullNameEn: string; phone: string }>
 ): Promise<TeacherResponse> {
-  return _put<TeacherResponse>(`/school/teachers/${id}`, data);
+  const db = await open();
+  const teacher = db.teachers.find((t) => t.id === id);
+  if (!teacher) fail('Teacher not found', 'لم يتم العثور على المعلم');
+  Object.assign(teacher, data);
+  await saveDb();
+  return toTeacher(teacher);
 }
 
-/**
- * DELETE /school/teachers/:id
- */
 export async function apiDeleteTeacher(id: string): Promise<MessageResponse> {
-  return _del<MessageResponse>(`/school/teachers/${id}`);
+  const db = await open();
+  const teacher = db.teachers.find((t) => t.id === id);
+  if (!teacher) fail('Teacher not found', 'لم يتم العثور على المعلم');
+  db.teachers = db.teachers.filter((t) => t.id !== id);
+  db.users = db.users.filter((u) => u.userId !== teacher.userId);
+  db.children.forEach((c) => { if (c.teacherId === id) c.teacherId = null; });
+  await saveDb();
+  return ok('Teacher deleted');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  TEACHER — Student management  (Teacher role)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /teacher/students
- */
 export async function apiGetStudents(): Promise<StudentResponse[]> {
-  return _get<StudentResponse[]>('/teacher/students');
+  const db = await open();
+  return clone(childrenFor(db, currentUser(db)));
 }
 
-/**
- * GET /teacher/students/:id
- */
 export async function apiGetStudent(id: string): Promise<StudentResponse> {
-  return _get<StudentResponse>(`/teacher/students/${id}`);
+  const db = await open();
+  return clone(findChild(db, id));
 }
 
-/**
- * POST /teacher/students
- * Teacher creates a student record under their class
- */
 export async function apiCreateStudent(data: {
   fullNameAr:          string;
   fullNameEn?:         string;
@@ -939,12 +1022,27 @@ export async function apiCreateStudent(data: {
   nationalId:          string;
   password?:           string;
 }): Promise<StudentResponse> {
-  return _post<StudentResponse>('/teacher/students', data);
+  const db = await open();
+  const user = currentUser(db);
+  if (db.children.some((c) => c.nationalId === data.nationalId)) {
+    fail('A student with this national ID already exists', 'يوجد طالب بهذا الرقم الوطني مسبقًا');
+  }
+  const id = nextId(db, 'child');
+  const gender = data.gender?.toUpperCase();
+  const child: ChildResponse = {
+    id, userId: `u-${id}`, fullNameAr: data.fullNameAr, fullNameEn: data.fullNameEn ?? null,
+    className: data.className ?? null, level: data.level ?? null,
+    gender: gender === 'MALE' || gender === 'FEMALE' ? gender : null,
+    dateOfBirth: data.dateOfBirth ?? null, learningDifficulty: data.learningDifficulty ?? null,
+    parentId: null, teacherId: currentTeacher(db, user)?.id ?? null, phone: data.phone ?? null,
+    nationalId: data.nationalId, status: 'PENDING_PLACEMENT', assessedLevel: null,
+    placementCompletedAt: null, active: true,
+  };
+  db.children.push(child);
+  await saveDb();
+  return clone(child);
 }
 
-/**
- * PUT /teacher/students/:id
- */
 export async function apiUpdateStudent(
   id:   string,
   data: Partial<{
@@ -957,142 +1055,273 @@ export async function apiUpdateStudent(
     learningDifficulty: string;
   }>
 ): Promise<StudentResponse> {
-  return _put<StudentResponse>(`/teacher/students/${id}`, data);
+  return apiUpdateChild(id, data);
 }
 
-/**
- * DELETE /teacher/students/:id
- */
 export async function apiDeleteStudent(id: string): Promise<MessageResponse> {
-  return _del<MessageResponse>(`/teacher/students/${id}`);
+  const db = await open();
+  findChild(db, id);
+  removeChild(db, id);
+  await saveDb();
+  return ok('Student deleted');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  PLACEMENT ASSESSMENT  (Teacher role)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /teacher/students/:childId/placement
- * Returns the placement assessment questions for a child (or status if already completed)
- */
+function placementFor(child: ChildResponse): PlacementAssessmentResponse {
+  const completed = child.status === 'ACTIVE' && Boolean(child.placementCompletedAt);
+  return {
+    childId:            child.id,
+    childName:          childName(child),
+    childStatus:        child.status,
+    placementCompleted: completed,
+    questions: completed
+      ? []
+      : PLACEMENT_QUESTIONS.map(({ correct: _correct, ...question }) => question),
+  };
+}
+
 export async function apiGetPlacementAssessment(
   childId: string
 ): Promise<PlacementAssessmentResponse> {
-  return _get<PlacementAssessmentResponse>(`/teacher/students/${childId}/placement`);
+  const db = await open();
+  return placementFor(findChild(db, childId));
 }
 
-/**
- * POST /teacher/students/:childId/placement
- * Starts/fetches the placement assessment (idempotent)
- */
 export async function apiStartPlacementAssessment(
   childId: string
 ): Promise<PlacementAssessmentResponse> {
-  return _post<PlacementAssessmentResponse>(`/teacher/students/${childId}/placement`, {});
+  return apiGetPlacementAssessment(childId);
 }
 
-/**
- * POST /teacher/students/:childId/placement/submit
- * Submits placement answers and returns the assessed level
- * answers: Array of { questionId, selectedOption }
- */
 export async function apiSubmitPlacementAssessment(
   childId: string,
   answers: Array<{ questionId: string; selectedOption: number }>
 ): Promise<PlacementSubmissionResponse> {
-  return _post<PlacementSubmissionResponse>(
-    `/teacher/students/${childId}/placement/submit`,
-    { answers }
+  const db = await open();
+  const child = findChild(db, childId);
+
+  let earned = 0;
+  let total = 0;
+  let correctAnswers = 0;
+  for (const question of PLACEMENT_QUESTIONS) {
+    total += question.points;
+    const answer = answers.find((a) => a.questionId === question.id);
+    if (answer && Number(answer.selectedOption) === question.correct) {
+      earned += question.points;
+      correctAnswers += 1;
+    }
+  }
+
+  const ratio = total ? earned / total : 0;
+  const resultLevel = ratio >= 0.75 ? 3 : ratio >= 0.4 ? 2 : 1;
+  const now = new Date().toISOString();
+
+  child.assessedLevel = resultLevel;
+  child.level = resultLevel;
+  child.status = 'ACTIVE';
+  child.active = true;
+  child.placementCompletedAt = now;
+  generateTree(db, child, 0);
+  notifyParent(
+    db, childId,
+    { title: 'Placement completed', body: `${child.fullNameEn ?? child.fullNameAr} was placed at level ${resultLevel}.` },
+    { title: 'اكتمل تحديد المستوى', body: `تم تحديد مستوى ${child.fullNameAr} عند المستوى ${resultLevel}.` },
   );
+  await saveDb();
+
+  return {
+    childId,
+    assessmentId:         nextId(db, 'assessment'),
+    resultLevel,
+    correctAnswers,
+    totalQuestions:       PLACEMENT_QUESTIONS.length,
+    confidencePercentage: Math.round(60 + ratio * 35),
+    detectedDifficulty:   child.learningDifficulty,
+    childStatus:          child.status,
+    active:               true,
+    placementCompletedAt: now,
+    treeGenerated:        true,
+    treeGenerationMessage: isArabic() ? 'تم إنشاء مسار التعلم بنجاح' : 'Learning path generated successfully',
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  CHATBOT / LEARNING TREE / CONTENT
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** Mock: the assistant always answers with the same fixed reply. */
 export async function apiSendChatMessage(
   message: string,
   childId?: string | null
 ): Promise<ChatbotMessageResponse> {
-  return _post<ChatbotMessageResponse>('/api/chatbot/message', {
-    message,
-    childId: childId ?? undefined,
-  });
+  await delay(700);
+  return {
+    sessionId:         'mock-session',
+    childId:           childId ?? null,
+    userMessage:       message,
+    assistantResponse: isArabic()
+      ? 'شكرًا على رسالتك! أنا رفيق، مساعدك في رحلة تعلّم طفلك. هذه نسخة تجريبية، لذلك لا أستطيع الإجابة بالتفصيل الآن، لكنني هنا لدعمك.'
+      : "Thanks for your message! I'm Rafeeq, your companion on your child's learning journey. This is a demo version, so I can't answer in detail yet, but I'm here to support you.",
+    createdAt:         new Date().toISOString(),
+  };
 }
 
 export async function apiGetLearningTree(childId: string): Promise<LearningTreeResponse> {
-  return _get<LearningTreeResponse>(`/api/tree/children/${childId}`);
+  const db = await open();
+  const tree = db.trees.find((t) => t.childId === childId);
+  if (!tree) fail('No active learning tree found for this child', 'لا يوجد مسار تعلّم نشط لهذا الطفل');
+  return localize(tree) as LearningTreeResponse;
 }
 
 export async function apiGenerateLearningTree(
   childId: string,
-  topicId?: string | null
+  _topicId?: string | null
 ): Promise<LearningTreeResponse> {
-  return _post<LearningTreeResponse>(`/api/tree/children/${childId}/generate`, {
-    topicId: topicId ?? undefined,
-  });
+  const db = await open();
+  const child = findChild(db, childId);
+  generateTree(db, child, 0);
+  await saveDb();
+  return localize(db.trees.find((t) => t.childId === childId)!) as LearningTreeResponse;
 }
 
 export async function apiGetTreeItems(childId: string): Promise<TreeItemResponse[]> {
-  return _get<TreeItemResponse[]>(`/api/tree/children/${childId}/items`);
+  const db = await open();
+  return localizeAll(treeItemsFor(db, childId)) as TreeItemResponse[];
 }
 
 export async function apiCompleteTreeItem(itemId: string): Promise<TreeItemCompletionResponse> {
-  return request<TreeItemCompletionResponse>('PATCH', `/api/tree/items/${itemId}/complete`);
+  const db = await open();
+  const result = completeItem(db, itemId);
+  await saveDb();
+  return result;
 }
 
 export async function apiGetActivities(childId: string): Promise<ActivityResponse[]> {
-  return _get<ActivityResponse[]>(`/api/activities/children/${childId}`);
+  const db = await open();
+  const list = db.activities
+    .filter((a) => a.childId === childId)
+    .sort((a, b) => (a.orderNum ?? 0) - (b.orderNum ?? 0));
+  return localizeAll(list) as ActivityResponse[];
 }
 
 export async function apiGetActivity(activityId: string): Promise<ActivityResponse> {
-  return _get<ActivityResponse>(`/api/activities/${activityId}`);
+  const db = await open();
+  const activity = db.activities.find((a) => a.id === activityId);
+  if (!activity) fail('Activity not found', 'لم يتم العثور على النشاط');
+  return localize(activity) as ActivityResponse;
 }
 
 export async function apiGetQuizzes(childId: string): Promise<QuizResponse[]> {
-  return _get<QuizResponse[]>(`/api/quizzes/children/${childId}`);
+  const db = await open();
+  const list = db.quizzes
+    .filter((q) => q.childId === childId)
+    .sort((a, b) => (a.orderNum ?? 0) - (b.orderNum ?? 0));
+  return list.map(localizeQuiz);
 }
 
 export async function apiGetQuiz(quizId: string): Promise<QuizResponse> {
-  return _get<QuizResponse>(`/api/quizzes/${quizId}`);
+  const db = await open();
+  const quiz = db.quizzes.find((q) => q.id === quizId);
+  if (!quiz) fail('Quiz not found', 'لم يتم العثور على الاختبار');
+  return localizeQuiz(quiz);
 }
 
+/** answers[].selectedOption is an option letter: "A", "B", "C"… */
 export async function apiSubmitQuiz(
   quizId: string,
   answers: Array<{ questionId: string; selectedOption: string }>
 ): Promise<QuizSubmissionResponse> {
-  return _post<QuizSubmissionResponse>(`/api/quizzes/${quizId}/submit`, { answers });
+  const db = await open();
+  const quiz = db.quizzes.find((q) => q.id === quizId);
+  if (!quiz) fail('Quiz not found', 'لم يتم العثور على الاختبار');
+
+  let correctAnswers = 0;
+  for (const question of quiz.questions) {
+    const answer = answers.find((a) => a.questionId === question.id);
+    const picked = answer ? answer.selectedOption.trim().toUpperCase().charCodeAt(0) - 64 : 0;
+    if (picked === question.correctOption) correctAnswers += 1;
+  }
+
+  const totalQuestions = quiz.questions.length;
+  const score = totalQuestions ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+  const now = new Date().toISOString();
+  quiz.score = score;
+  quiz.totalQuestions = totalQuestions;
+  quiz.status = 'COMPLETED';
+  quiz.startedAt = quiz.startedAt ?? now;
+  quiz.completedAt = now;
+
+  const completion = quiz.treeItemId ? completeItem(db, quiz.treeItemId) : null;
+  await saveDb();
+
+  return {
+    quizId,
+    treeId:             quiz.treeId,
+    treeItemId:         quiz.treeItemId,
+    score,
+    correctAnswers,
+    totalQuestions,
+    progressPercentage: completion?.progressPercentage ?? null,
+    treeCompleted:      completion?.treeCompleted ?? false,
+    completedItems:     completion?.completedItems ?? null,
+    totalItems:         completion?.totalItems ?? null,
+    treeStatus:         completion?.treeStatus ?? null,
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  DASHBOARD
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * GET /api/dashboard/parent
- */
+function averageProgress(db: MockDb, children: ChildResponse[]) {
+  if (children.length === 0) return 0;
+  return Math.round(children.reduce((sum, c) => sum + progressFor(db, c.id), 0) / children.length);
+}
+
 export async function apiGetParentDashboard(): Promise<ParentDashboard> {
-  return _get<ParentDashboard>('/api/dashboard/parent');
+  const db = await open();
+  const user = currentUser(db);
+  const children = childrenFor(db, user);
+  return {
+    childrenCount:       children.length,
+    activeChildrenCount: children.filter((c) => c.status === 'ACTIVE').length,
+    unreadNotifications: db.notifications.filter((n) => n.userId === user.userId && !n.isRead).length,
+    progressAverage:     averageProgress(db, children),
+  };
 }
 
-/**
- * GET /api/dashboard/teacher
- */
 export async function apiGetTeacherDashboard(): Promise<TeacherDashboard> {
-  return _get<TeacherDashboard>('/api/dashboard/teacher');
+  const db = await open();
+  const children = childrenFor(db, currentUser(db));
+  const average = averageProgress(db, children);
+  return {
+    studentsCount:         children.length,
+    activeStudentsCount:   children.filter((c) => c.status === 'ACTIVE').length,
+    pendingPlacementCount: children.filter((c) => c.status === 'PENDING_PLACEMENT').length,
+    averageProgress:       average,
+    progressPercentage:    average,
+  };
 }
 
-/**
- * GET /api/dashboard/school
- */
 export async function apiGetSchoolDashboard(): Promise<SchoolDashboard> {
-  return _get<SchoolDashboard>('/api/dashboard/school');
+  const db = await open();
+  const user = currentUser(db);
+  const children = childrenFor(db, user);
+  return {
+    teachersCount:         db.teachers.filter((t) => t.schoolUserId === user.userId).length,
+    studentsCount:         children.length,
+    activeStudentsCount:   children.filter((c) => c.status === 'ACTIVE').length,
+    pendingPlacementCount: children.filter((c) => c.status === 'PENDING_PLACEMENT').length,
+    averageProgress:       averageProgress(db, children),
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  LEGACY ADAPTER SHIMS
 //  These keep the old function names working so existing screens don't break.
-//  They map old signatures → new real endpoints.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** @deprecated Use apiGetChildren() */
@@ -1145,9 +1374,14 @@ export async function apiGetNotes(childId: string): Promise<NoteResponse[]> {
 export async function apiToggleSaveArticle(
   articleId: string
 ): Promise<{ isSaved: boolean }> {
-  // We don't know current state here — use the explicit save/unsave calls instead
-  const result = await apiSaveArticle(articleId);
-  return { isSaved: result.success };
+  const db = await open();
+  const saved = db.savedArticles[currentUser(db).userId] ?? [];
+  if (saved.includes(articleId)) {
+    await apiUnsaveArticle(articleId);
+    return { isSaved: false };
+  }
+  await apiSaveArticle(articleId);
+  return { isSaved: true };
 }
 
 /** @deprecated Use apiCreateTeacher() */
@@ -1162,14 +1396,12 @@ export async function apiAddTeacher(data: {
     nationalId: data.nationalId,
     phone:      data.phone,
     password:   data.password,
-    email:      `${data.nationalId}@rafeeq.app`, // placeholder — update if UI collects email
+    email:      `${data.nationalId}@rafeeq.app`,
   });
 }
 
-/** @deprecated No backend endpoint yet */
+/** @deprecated Use apiGetChildSummary() */
 export async function apiGetChildProgress(_childId: string) {
-  // Use apiGetParentDashboard() or ChildSummaryResponse for progress data
-  console.warn('apiGetChildProgress is deprecated — use apiGetChildSummary() instead');
   return null;
 }
 
@@ -1185,6 +1417,5 @@ export async function apiGetRoadmap(childId: string): Promise<TreeItemResponse[]
 
 /** @deprecated No specialists endpoint yet */
 export async function apiGetSpecialists() {
-  console.warn('apiGetSpecialists is not yet implemented in the backend');
   return [];
 }

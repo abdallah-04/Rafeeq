@@ -1,5 +1,16 @@
 # Rafeeq
 
+> **Mock-data branch** — the app in this branch is disconnected from the backend. Every screen reads and writes
+> local mock data (`Frontend/services/mock/db.ts`, persisted in AsyncStorage). Just run `cd Frontend && npx expo start` and open it in Expo Go (SDK 58).
+>
+> | Role | National ID | Password |
+> |---|---|---|
+> | School / المدرسة | `1111111111` | `123456` |
+> | Teacher / المعلم | `2222222222` | `123456` |
+> | Parent / الأهل | `4444444444` | `123456` |
+>
+> Any OTP code is accepted. Children you can link from the parent "add child" flow: `5000000003` (pending placement exam) and `5000000004`.
+
 Rafeeq is split into two parts:
 
 - `backend`: Spring Boot API + PostgreSQL
